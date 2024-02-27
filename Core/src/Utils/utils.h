@@ -15,7 +15,7 @@
 
 #ifdef STD_DEBUG_ENABLE
 #define STD_DEBUG_OUT(header,content) \
-	std::cout << header << " : " << content << std::endl;
+    std::cout << header << " : " << content << std::endl;
 #else
 #define STD_DEBUG_OUT(header,content)
 #endif
@@ -26,11 +26,34 @@
 #define isnan _isnan
 #endif
 
+
+
 class CVisionModule;
 struct PlayerPoseT;
+struct GlobalTick;
 namespace Utils {
+// HuRocos 2024 By Umbrella
+extern std::string GlobalComputingPos(const CVisionModule *pVision,const CGeoPoint& p); //计算所有点位
+extern double map(double value, double min_in, double max_in, double min_out, double max_out); // 映射
+extern bool InExclusionZone(double x,double y); // 判断点是否在禁区内
+extern double NumberNormalize(double data, double max_data,double min_data); // [0,1] 标准化
+extern bool isValidPass(const CVisionModule* pVision, CGeoPoint start, CGeoPoint end, double buffer = 30, bool ignoreCloseEnemy=false, bool ignoreTheirGuard=false); //两点之间是否有人
+extern void UpdataTickMessage(const CVisionModule *pVision); //获取帧信息
+extern CGeoPoint GetInterPos(const CVisionModule *pVision, CGeoPoint player_pos,double velocity); // 获取最佳截球点
+extern CGeoSegment PredictBallLine(const CVisionModule *pVision);
+// 多模式
+double PosToPosDirGrade(double x, double y,double x1,double y1,int dir,std::string model = "NORMAL");
+extern double PosToPosDistGrade(double x, double y,double x1,double y1, int dir,std::string model = "GAUSS"); // 坐标到坐标的距离评分
+extern double NumberNormalizeGauss(double data, double max_data, double min_data, double peak_pos, std::string model = "DOUBLELINE"); // [0,1] 高斯归一化
+extern double PosToBallDistGrade(const CVisionModule *pVision,double x, double y,int dir, std::string model = "GAUSS"); // 坐标到球的距离评分
+extern CGeoPoint GetShootPoint(const CVisionModule *pVision, double x, double y, int num, std::string model = "TRAVERSE"); //获取某坐标而言对方守门员的空位
+// Robocup-SSL-China
+
+
 extern double Normalize(double angle);///<把角度规范化到(-PI,PI]
 extern CVector Polar2Vector(double m, double angle); ///<极坐标转换到直角坐标
+extern double doubleToluaTemplate(double n); ///<极坐标转换到直角坐标
+
 extern double VectorDot(const CVector& v1, const CVector& v2);  // 向量点乘
 extern double dirDiff(const CVector& v1, const CVector& v2);// { return fabs(Normalize(v1.dir() - v2.dir()));}
 extern bool InBetween(const CGeoPoint& p, const CGeoPoint& p1, const CGeoPoint& p2); // 判断p是否在p1,p2之间

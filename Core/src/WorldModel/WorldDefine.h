@@ -1,6 +1,7 @@
 #ifndef _WORLD_DEFINE_H_
 #define _WORLD_DEFINE_H_
 #include <geometry.h>
+#include <chrono>
 /************************************************************************/
 /*                       ObjectPoseT                                    */
 /************************************************************************/
@@ -143,6 +144,30 @@ struct PlayerPoseT : public ObjectPoseT { // 目标信息
     double _dir; // 朝向
     double _rotVel; // 旋转速度
     double _rawRotVel;
+};
+
+
+/************************************************************************/
+/*                      GlobalTick                                     */
+/************************************************************************/
+struct GlobalTick {
+    double ball_vel = 1;
+    double ball_last_vel = 1;
+    double ball_acc = 1;
+    double ball_last_acc = 1;
+    double ball_last_vel_dir = 1;
+    CGeoPoint ball_pos = CGeoPoint(0,0);
+    CGeoPoint ball_last_pos = CGeoPoint(0,0);
+    CGeoPoint ball_pos_move_befor = CGeoPoint(0,0);
+    std::chrono::high_resolution_clock::time_point time;
+    std::chrono::high_resolution_clock::time_point last_time;
+    double ball_avg_vel = 0;
+    double ball_vel_dir = 1;
+    int tick_count = 0;
+    int tick_key = 0;
+    bool change_move = false;
+    double data = 0;
+    double delta_time = 0;
 };
 /************************************************************************/
 /*                      PlayerTypeT                                     */

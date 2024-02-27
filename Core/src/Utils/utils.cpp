@@ -3,85 +3,364 @@
 #include "staticparams.h"
 #include <GDebugEngine.h>
 #include <iostream>
+#include <unistd.h>
+/*
+            C++ 传数据到 Lua 总结
+        1.utils.cpp        写好功能
+        2.utils.h          定义好函数
+        3.到 utils.pkg 仿照相应的函数定义
+        4.重新构建
 
+@ data   : 20240205
+@ author : Umbrella
+*/
+GlobalTick Tick;
 namespace Utils{
+// 没写完 START
+    string GlobalComputingPos(const CVisionModule *pVision,const CGeoPoint& p){
+        UpdataTickMessage(pVision);
+        int step = 100;
+        int half_length = PARAM::Field::PITCH_LENGTH / 2;
+        int half_width = PARAM::Field::PITCH_WIDTH / 2;
+        int field_x = 0;
+        int field_y = 0;
+//        for(field_x = -1 * half_length; field_x < half_length; field_x+=step){
+//            for(field_y = -1 * half_width; field_y < half_width; field_y+=step){
+//                if (IsExclusionZone(field_x,field_y)) continue;
+//                //GetAttackGrade()
+
+//            }
+//    }
+        // GetInterPos(pVision,pVision ->ourPlayer(0).Pos(),3);
+        //GDebugEngine::Instance()->gui_debug_x(GetInterPos(pVision,pVision ->ourPlayer(0).Pos(),3),3);
+        //GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(-3000,-3000),to_string(Tick.delta_time));
+        //GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(-3000,-2500),to_string(Tick.ball_acc));
+        //GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(-3000,-2000),to_string(ballv));
+        GetShootPoint(pVision,pVision ->ball().X(),pVision ->ball().Y(),5,"TRAVERSE");
+        double a = PosToPosDirGrade(0,0,pVision ->ball().X(),pVision ->ball().Y(),1,"NORMAL");
+        return to_string(a);
+    }
+    double acc_count = 0;
+    void UpdataTickMessage(const CVisionModule *pVision){
+        // last give
+        Tick.ball_last_acc = Tick.ball_acc;
+        Tick.last_time = Tick.time;
+        Tick.ball_last_vel = Tick.ball_vel;
+        Tick.ball_last_vel_dir = Tick.ball_vel_dir;
+        // get now
+        Tick.tick_count += 1;
+        Tick.ball_vel = pVision ->ball().Vel().mod() / 1000;
+        Tick.time = std::chrono::high_resolution_clock::now();
+        Tick.delta_time = (double)std::chrono::duration_cast<std::chrono::microseconds>(Tick.time - Tick.last_time).count() / 1000000;  // 计算时间差，单位为微秒
+
+        // static record
+        if (Tick.ball_vel > 0){
+            acc_count+=1;
+        }
+        else {
+            acc_count =0;
+            Tick.ball_acc = 0;
+            Tick.ball_avg_vel = 0;
+        }
+
+        if (acc_count > 10 && acc_count < 20){
+            Tick.ball_acc = (Tick.ball_vel - Tick.ball_last_vel) / Tick.delta_time;
+            Tick.ball_avg_vel += Tick.ball_vel / 9;
+        }
+        Tick.ball_vel_dir = pVision ->ball().Vel().dir();
+        if(pVision ->ball().Vel().mod() == 0 || abs(Tick.ball_last_vel_dir - Tick.ball_vel_dir) > 0.1)Tick.ball_pos_move_befor = pVision ->ball().Pos(),Tick.change_move = true;
+        else Tick.change_move = false;
+    }
+    double PosSafetyGrade(const CVisionModule *pVision,CGeoPoint start,CGeoPoint end){
+        CGeoSegment BallLine(start, end);
+        for(int i = 0; i < PARAM::Field::MAX_PLAYER;i++){
+            if(!pVision->theirPlayer(i).Valid()) continue;
+                pVision ->ball().Vel();
+        }
+    }
+    CGeoPoint GetInterPos(const CVisionModule *pVision, CGeoPoint player_pos,double velocity){
+        UpdataTickMessage(pVision);
+        CGeoSegment ball_Segment = PredictBallLine(pVision);
+        CGeoLine ball_line(Tick.ball_pos_move_befor,Tick.ball_vel_dir);
+        CGeoPoint InterPos = ball_line.projection(player_pos);
+        GDebugEngine::Instance()->gui_debug_x(InterPos);
+        //v02 - v2 = 2ax ,x = v2 / 2a
+        return CGeoPoint(0,0);
+    }
+    CGeoSegment PredictBallLine(const CVisionModule *pVision){
+        double ball_x = Tick.ball_acc == 0?0:(Tick.ball_avg_vel * Tick.ball_avg_vel / 2 * PARAM::Field::BALL_DECAY)*10000;
+        GDebugEngine::Instance() ->gui_debug_line(Tick.ball_pos_move_befor,Tick.ball_pos_move_befor + Polar2Vector(-ball_x,PARAM::Math::PI + pVision->ball().Vel().dir()));
+        return CGeoSegment(Tick.ball_pos_move_befor,Tick.ball_pos_move_befor + Polar2Vector(-ball_x,PARAM::Math::PI + pVision->ball().Vel().dir()));
+    }
+
+    double GetAttackGrade(double x, double y, double last_grade){
+
+    }
+    CGeoPoint GetShootPoint(const CVisionModule *pVision, double x, double y, int num,std::string model){
+        string model_type[2] = {
+            "FORMULA",
+            "TRAVERSE",
+        };
+        if(model == model_type[0]){
+            if(num == -1){
+                CGeoPoint shoot_point(PARAM::Field::PITCH_LENGTH / 2,0);
+                GDebugEngine::Instance()->gui_debug_x(shoot_point,3);
+                return shoot_point;
+            }
+            else{
+                double y = pVision->theirPlayer(num).Pos().y();
+                y = y >= 0?y-(y+(PARAM::Field::GOAL_WIDTH / 2))/2:y+((PARAM::Field::GOAL_WIDTH / 2) - y) / 2;
+                // double yf= y > 0 ? y + (PARAM::Field::GOAL_WIDTH / 2 - y) / 2:y - (PARAM::Field::GOAL_WIDTH / 2 + y) / 2;
+                y = (y > PARAM::Field::GOAL_WIDTH / 2) || (y < -1 * PARAM::Field::GOAL_WIDTH / 2)?0:y;
+                GDebugEngine::Instance()->gui_debug_x(CGeoPoint(PARAM::Field::PITCH_LENGTH / 2,y),3);
+                return CGeoPoint(PARAM::Field::PITCH_LENGTH / 2,y);
+            }
+        }
+        else{
+            double pos_to_pos_dist_grade = 0;
+            double pos_to_pos_dir_grade = 0;
+            double pos_life = 0;
+            double grade = 0;
+            double max_grade = -999;
+            double max_y = 0;
+            for(int y1 = -1 * PARAM::Field::GOAL_WIDTH * 0.4; y1 < PARAM::Field::GOAL_WIDTH * 0.4; y1+=50){
+                if (!isValidPass(pVision,CGeoPoint(x,y),CGeoPoint(PARAM::Field::PITCH_LENGTH / 2, y1),PARAM::Player::playerBuffer))continue;
+                    pos_to_pos_dist_grade = PosToPosDistGrade(x, y, PARAM::Field::PITCH_LENGTH / 2 + PARAM::Field::GOAL_DEPTH / 2, y1,-1,"NORMAL");
+                    pos_to_pos_dir_grade = PosToPosDirGrade(x,y,PARAM::Field::PITCH_LENGTH / 2 + PARAM::Field::GOAL_DEPTH / 2,y1,1,"NORMAL");
+                    grade = 0.5 * pos_to_pos_dist_grade + 0.5 * pos_to_pos_dir_grade;
+                    if (grade > max_grade){
+                        max_grade = grade;
+                        max_y = y1;
+                    }
+            }
+            CGeoPoint ShootPoint(PARAM::Field::PITCH_LENGTH / 2,max_y);
+            GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(0,1000),to_string(max_grade),3);
+            GDebugEngine::Instance()->gui_debug_x(ShootPoint,3);
+            return ShootPoint;
+        }
+
+    }
+// 没写完 END
+    bool isValidPass(const CVisionModule *pVision, CGeoPoint start, CGeoPoint end, double buffer, bool ignoreCloseEnemy, bool ignoreTheirGuard){
+        // 判断能否传球的角度限制
+        static const double CLOSE_ANGLE_LIMIT = 8 * PARAM::Math::PI / 180;
+        static const double FAR_ANGLE_LIMIT = 12 * PARAM::Math::PI / 180;
+        static const double CLOSE_THRESHOLD = 50;
+
+        static const double SAFE_DIST = 50;
+        static const double CLOSE_ENEMY_DIST = 50;
+
+        bool valid = true;
+        // 使用平行线进行计算，解决近距离扇形计算不准问题
+        CGeoSegment BallLine(start, end);
+            for(int i = 0; i < PARAM::Field::MAX_PLAYER; i++) {
+                if(!pVision->theirPlayer(i ).Valid()) continue;
+                if(ignoreCloseEnemy && pVision->theirPlayer(i).Pos().dist(start) < CLOSE_ENEMY_DIST) continue;
+                if(ignoreTheirGuard && Utils::InTheirPenaltyArea(pVision->theirPlayer(i).Pos(), 30)) continue;
+                CGeoPoint targetPos = pVision->theirPlayer(i ).Pos();
+                double dist = BallLine.dist2Point(targetPos);
+                if(dist < buffer){
+                    valid = false;
+                    break;
+                }
+            }
+        return valid;
+    }
+
+    double PosToPosDirGrade(double x, double y,double x1,double y1,int dir,std::string model){
+        std::string model_type[] = {"GAUSS","NORMAL"};
+        CGeoPoint point1(x,y);
+        CGeoPoint point2(x1,y1);
+        double grade_dir = abs((point1 - point2).dir() * PARAM::Math::RADIAN);
+        grade_dir = model_type[1] == model?NumberNormalize(grade_dir, PARAM::Math::RADIAN * PARAM::Math::PI,0):NumberNormalizeGauss(grade_dir, PARAM::Math::RADIAN * PARAM::Math::PI,0,4 / PARAM::Math::RADIAN * PARAM::Math::PI);
+        return grade_dir;
+    }
+    double PosToBallDistGrade(const CVisionModule *pVision,double x, double y,int dir,std::string model){
+        std::string model_type[] = {"GAUSS","NORMAL"};
+        CGeoPoint pos(x,y);
+        CGeoPoint ball_pos (pVision ->ball().Pos());
+        double peak_pos = PARAM::Field::PITCH_LENGTH / 3.8;
+        double max_data = PARAM::Field::PITCH_LENGTH / 1.4;
+        double min_data = 0;
+        double distance = (pos - ball_pos).mod();
+        double grade = model == model_type[0]?NumberNormalizeGauss(distance,max_data,min_data,peak_pos):NumberNormalize(distance,max_data,min_data);
+        if(distance > PARAM::Field::PITCH_LENGTH / 1.4){
+        grade = dir > 0?grade:(1-grade);
+        return 0.0;
+    }
+        return grade;
+
+    }
+
+    double PosToPosDistGrade(double x, double y,double x1,double y1, int dir,std::string model){
+        std::string model_type[] = {"GAUSS","NORMAL"};
+        CGeoPoint pos(x,y);
+        CGeoPoint pos1(x1,y1);
+        double peak_pos = PARAM::Field::PITCH_LENGTH / 3.8;
+        double max_data = (CGeoPoint(PARAM::Field::PITCH_LENGTH / 2,PARAM::Field::PITCH_WIDTH / 2) - CGeoPoint(-1 * PARAM::Field::PITCH_LENGTH / 2,-1 * PARAM::Field::PITCH_WIDTH / 2)).mod();
+        double min_data = 0;
+        double distance = (pos - pos1).mod();
+        double grade = model == model_type[0]?NumberNormalizeGauss(distance,max_data,min_data,peak_pos):NumberNormalize(distance,max_data,min_data);
+        if(distance > PARAM::Field::PITCH_LENGTH / 1.4){
+            return 0.0;
+        }
+        grade = dir > 0?grade:(1-grade);
+        return grade;
+
+    }
+    double NumberNormalizeGauss(double data, double max_data, double min_data, double peak_pos, std::string model) {
+
+        /* modle :
+            SIN: 不可制定峰值，变化均匀、(max_data - min_data) / 2的时候是最大值。
+            GAUSS: 可指定峰值，变化比较突然，更服从正态分布。
+            DOUBLELINE：可指定峰值，变化均匀。
+        */
+
+        string modle_type[3] = {
+            "SIN",
+            "GAUSS",
+            "DOUBLELINE"
+        };
+        if(model == modle_type[0]){
+            double normalized_data = NumberNormalize(data,max_data,min_data); // 将数据变换到[0,1]
+            return sin(normalized_data);
+        }
+        else if (model == modle_type[1]){
+            double sigma = (max_data - min_data) / 8;
+            double mu = peak_pos;
+            double normalized_data = exp(-pow((data - mu), 2) / (2 * pow(sigma, 2)));
+            return normalized_data;
+        }
+        else{
+            double normalized_data = NumberNormalize(data,max_data,min_data);
+            double rel_peak_pos = NumberNormalize(peak_pos,max_data,min_data);
+            CGeoLine befor_line(CGeoPoint(0,0),CGeoPoint(rel_peak_pos,1));
+            CGeoLine after_line(CGeoPoint(rel_peak_pos,1),CGeoPoint(1,0));
+            double double_line_vaule = 0.0;
+            if (data < peak_pos){
+                double_line_vaule = -1 * (befor_line.a() * normalized_data + befor_line.c()) / befor_line.b();
+            }
+            else{
+                double_line_vaule = -1 * (after_line.a() * normalized_data + after_line.c()) / after_line.b();
+            }
+            return double_line_vaule;
+        }
+    }
+    double NumberNormalize(double data, double max_data,double min_data){
+        return (data - min_data) / (max_data - min_data);
+    }
+    double map(double value, double min_in, double max_in, double min_out, double max_out) {
+        return min_out + (max_out - min_out) * (value - min_in) / (max_in - min_in);
+    }
+    bool InExclusionZone(double x,double y){
+        if (((x < (-1 * PARAM::Field::PITCH_LENGTH / 2) + PARAM::Field::PENALTY_AREA_DEPTH + PARAM::Player::playerRadiusr) ||
+             (x > (PARAM::Field::PITCH_LENGTH / 2) - PARAM::Field::PENALTY_AREA_DEPTH - PARAM::Player::playerRadiusr))&&
+             (y > -1 * PARAM::Field::PENALTY_AREA_WIDTH / 2 - PARAM::Player::playerRadiusr && y < PARAM::Field::PENALTY_AREA_WIDTH / 2  + PARAM::Player::playerRadiusr)){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // Open-ssl-china
+
+
+
     double dirDiff(const CVector& v1, const CVector& v2) { return fabs(Normalize(v1.dir() - v2.dir()));}
-	double Normalize(double angle)
-	{
-		if (fabs(angle) > 10 ){
-			cout<<angle<<" Normalize Error!!!!!!!!!!!!!!!!!!!!"<<endl;
-			return 0;
-		}
+    double Normalize(double angle)
+    {
+        if (fabs(angle) > 10 ){
+            cout<<angle<<" Normalize Error!!!!!!!!!!!!!!!!!!!!"<<endl;
+            return 0;
+        }
         static const double M_2PI = PARAM::Math::PI * 2;
-		// 快速粗调整
-		angle -= (int)(angle / M_2PI) * M_2PI; 
-		
-		// 细调整 (-PI,PI]
-		while( angle > PARAM::Math::PI ) {
-			angle -= M_2PI;
-		}
+        // 快速粗调整
+        angle -= (int)(angle / M_2PI) * M_2PI;
 
-		while( angle <= -PARAM::Math::PI ) {
-			angle += M_2PI;
-		}
+        // 细调整 (-PI,PI]
+        while( angle > PARAM::Math::PI ) {
+            angle -= M_2PI;
+        }
 
-		return angle;
-	}
-	CVector Polar2Vector(double m,double angle)
-	{
-		return CVector(m*std::cos(angle),m*std::sin(angle));
-	}
-	double VectorDot(const CVector& v1, const CVector& v2)
-	{
-		return v1.x()*v2.x() + v1.y()*v2.y();
-	}
-	bool InBetween(const CGeoPoint& p,const CGeoPoint& p1,const CGeoPoint& p2)
-	{
-		return p.x() >= (std::min)(p1.x(),p2.x()) && p.x() <= (std::max)(p1.x(),p2.x())
-			&& p.y() >= (std::min)(p1.y(),p2.y()) && p.y() <= (std::max)(p1.y(),p2.y());
-	}
-	bool InBetween(double v,double v1,double v2)
-	{
-		return (v > v1 && v < v2) || (v < v1 && v > v2);
-	}
-	bool InBetween(const CVector& v, const CVector& v1, const CVector& v2, double buffer)
-	{
-		
-		double d = v.dir(), d1 = v1.dir(), d2 = v2.dir();
-		return AngleBetween(d, d1, d2, buffer);
-	}
+        while( angle <= -PARAM::Math::PI ) {
+            angle += M_2PI;
+        }
 
-	bool AngleBetween(double d, double d1, double d2, double buffer)
-	{
-		using namespace PARAM::Math;
-		// d, d1, d2为向量v, v1, v2的方向弧度
+        return angle;
+    }
 
-		// 当v和v1或v2的角度相差很小,在buffer允许范围之内时,认为满足条件
-		double error = (std::min)(std::fabs(Normalize(d-d1)), std::fabs(Normalize(d-d2)));
-		if (error < buffer) {
-			return true;
-		}
 
-		if (std::fabs(d1 - d2) < PI) {
-			// 当直接相减绝对值小于PI时, d应该大于小的,小于大的
-			return InBetween(d, d1, d2);
-		}
-		else {
-			// 化为上面那种情况
-			return InBetween(Normalize(d+PI), Normalize(d1+PI), Normalize(d2+PI));
-		}
-	}
+    CVector Polar2Vector(double m,double angle)
+    {
+        return CVector(m*std::cos(angle),m*std::sin(angle));
+    }
 
-	CGeoPoint MakeInField(const CGeoPoint& p,const double buffer){
+    double VectorDot(const CVector& v1, const CVector& v2)
+    {
+        return v1.x()*v2.x() + v1.y()*v2.y();
+    }
+    bool InBetween(const CGeoPoint& p,const CGeoPoint& p1,const CGeoPoint& p2)
+    {
+        return p.x() >= (std::min)(p1.x(),p2.x()) && p.x() <= (std::max)(p1.x(),p2.x())
+            && p.y() >= (std::min)(p1.y(),p2.y()) && p.y() <= (std::max)(p1.y(),p2.y());
+    }
+    bool InBetween(double v,double v1,double v2)
+    {
+        return (v > v1 && v < v2) || (v < v1 && v > v2);
+    }
+    bool InBetween(const CVector& v, const CVector& v1, const CVector& v2, double buffer)
+    {
+
+        double d = v.dir(), d1 = v1.dir(), d2 = v2.dir();
+        return AngleBetween(d, d1, d2, buffer);
+    }
+
+    bool AngleBetween(double d, double d1, double d2, double buffer)
+    {
+        using namespace PARAM::Math;
+        // d, d1, d2为向量v, v1, v2的方向弧度
+
+        // 当v和v1或v2的角度相差很小,在buffer允许范围之内时,认为满足条件
+        double error = (std::min)(std::fabs(Normalize(d-d1)), std::fabs(Normalize(d-d2)));
+        if (error < buffer) {
+            return true;
+        }
+
+        if (std::fabs(d1 - d2) < PI) {
+            // 当直接相减绝对值小于PI时, d应该大于小的,小于大的
+            return InBetween(d, d1, d2);
+        }
+        else {
+            // 化为上面那种情况
+            return InBetween(Normalize(d+PI), Normalize(d1+PI), Normalize(d2+PI));
+        }
+    }
+
+    CGeoPoint MakeInField(const CGeoPoint& p,const double buffer){
         auto new_p = p;
         if (new_p.x() < buffer - PARAM::Field::PITCH_LENGTH / 2) new_p.setX(buffer - PARAM::Field::PITCH_LENGTH / 2);
         if (new_p.x() > PARAM::Field::PITCH_LENGTH / 2 - buffer) new_p.setX(PARAM::Field::PITCH_LENGTH / 2 - buffer);
         if (new_p.y() < buffer - PARAM::Field::PITCH_WIDTH / 2) new_p.setY(buffer - PARAM::Field::PITCH_WIDTH / 2);
         if (new_p.y() > PARAM::Field::PITCH_WIDTH / 2 - buffer) new_p.setY(PARAM::Field::PITCH_WIDTH / 2 - buffer);
         return new_p;
-	}
-	//modified by Wang in 2018/3/17
-	bool InOurPenaltyArea(const CGeoPoint& p, const double buffer) {
+    }
+    //modified by Wang in 2018/3/17
+    bool InOurPenaltyArea(const CGeoPoint& p, const double buffer) {
         // rectangle penalty
         return (p.x() < -PARAM::Field::PITCH_LENGTH / 2 +
                 PARAM::Field::PENALTY_AREA_DEPTH + buffer
@@ -89,8 +368,8 @@ namespace Utils{
                 std::fabs(p.y()) <
                 PARAM::Field::PENALTY_AREA_WIDTH / 2 + buffer);
     }
-	//modified by Wang in 2018/3/17
-	bool InTheirPenaltyArea(const CGeoPoint& p, const double buffer) {
+    //modified by Wang in 2018/3/17
+    bool InTheirPenaltyArea(const CGeoPoint& p, const double buffer) {
             // rectanlge penalty
         return (p.x() >
                 PARAM::Field::PITCH_LENGTH / 2 -
@@ -120,8 +399,8 @@ namespace Utils{
         return (IsInField(p, buffer) && !Utils::InOurPenaltyArea(p, buffer) && !Utils::InTheirPenaltyArea(p, buffer));
     }
 
-	//modified by Wang in 2018/3/21
-	CGeoPoint MakeOutOfOurPenaltyArea(const CGeoPoint& p, const double buffer) {
+    //modified by Wang in 2018/3/21
+    CGeoPoint MakeOutOfOurPenaltyArea(const CGeoPoint& p, const double buffer) {
         if(WorldModel::Instance()->CurrentRefereeMsg() == "OurBallPlacement")
             return p;
         // rectangle penalty
@@ -141,9 +420,9 @@ namespace Utils{
             //距离禁区左边近，取左边投影
             else return CGeoPoint(p.x(), -PARAM::Field::PENALTY_AREA_WIDTH / 2 - buffer);
         }
-	}
+    }
 
-	//modified by Wang in 2018/3/17
+    //modified by Wang in 2018/3/17
     CGeoPoint MakeOutOfTheirPenaltyArea(const CGeoPoint& p, const double buffer,const double dir) {
         // rectangle penalty
         if(WorldModel::Instance()->CurrentRefereeMsg() == "OurBallPlacement")
@@ -182,7 +461,7 @@ namespace Utils{
             //距离禁区左边近，取左边投影
             else return CGeoPoint(newPoint.x(), -PARAM::Field::PENALTY_AREA_WIDTH / 2 - buffer);
         }
-	}
+    }
 
     CGeoPoint MakeOutOfCircle(const CGeoPoint& center, const double radius, const CGeoPoint& target, const double buffer, const bool isBack, const CGeoPoint& mePos, const CVector adjustVec) {
         CGeoPoint p(target);
@@ -270,72 +549,72 @@ namespace Utils{
     }
 
 
-	CGeoPoint MakeOutOfCircleAndInField(const CGeoPoint& center,const double radius,const CGeoPoint& p,const double buffer)
-	{
-		const CVector p2c = p - center;
-		const double dist = p2c.mod();
-		if( dist > radius + buffer || dist < 0.01 ){ // 不在圆内
-			return p;
-		}
-		CGeoPoint newPos(center + p2c * (radius + buffer) / dist);
-		CGeoRectangle fieldRect(FieldLeft() + buffer,FieldTop() + buffer,FieldRight() - buffer,FieldBottom() - buffer);
-		if( !fieldRect.HasPoint(newPos) ){ // 在场外,选择距离最近且不在圆内的场内点
-			CGeoCirlce avoidCircle(center,radius + buffer);
-			std::vector< CGeoPoint > intPoints;
-			for(int i=0; i<4; ++i){
-				CGeoLine fieldLine(fieldRect._point[i % 4],fieldRect._point[(i+1) % 4]);
-				CGeoLineCircleIntersection fieldLineCircleInt(fieldLine,avoidCircle);
-				if( fieldLineCircleInt.intersectant() ){
-					intPoints.push_back(fieldLineCircleInt.point1());
-					intPoints.push_back(fieldLineCircleInt.point2());
-				}
-			}
-			double minDist = 1000.0;
-			CGeoPoint minPoint = newPos;
-			for( unsigned int i=0; i<intPoints.size(); ++i ){
-				double cDist = p.dist(intPoints[i]);
-				if( cDist < minDist ){
-					minDist = cDist;
-					minPoint = intPoints[i];
-				}
-			}
-			return minPoint;
-		}
+    CGeoPoint MakeOutOfCircleAndInField(const CGeoPoint& center,const double radius,const CGeoPoint& p,const double buffer)
+    {
+        const CVector p2c = p - center;
+        const double dist = p2c.mod();
+        if( dist > radius + buffer || dist < 0.01 ){ // 不在圆内
+            return p;
+        }
+        CGeoPoint newPos(center + p2c * (radius + buffer) / dist);
+        CGeoRectangle fieldRect(FieldLeft() + buffer,FieldTop() + buffer,FieldRight() - buffer,FieldBottom() - buffer);
+        if( !fieldRect.HasPoint(newPos) ){ // 在场外,选择距离最近且不在圆内的场内点
+            CGeoCirlce avoidCircle(center,radius + buffer);
+            std::vector< CGeoPoint > intPoints;
+            for(int i=0; i<4; ++i){
+                CGeoLine fieldLine(fieldRect._point[i % 4],fieldRect._point[(i+1) % 4]);
+                CGeoLineCircleIntersection fieldLineCircleInt(fieldLine,avoidCircle);
+                if( fieldLineCircleInt.intersectant() ){
+                    intPoints.push_back(fieldLineCircleInt.point1());
+                    intPoints.push_back(fieldLineCircleInt.point2());
+                }
+            }
+            double minDist = 1000.0;
+            CGeoPoint minPoint = newPos;
+            for( unsigned int i=0; i<intPoints.size(); ++i ){
+                double cDist = p.dist(intPoints[i]);
+                if( cDist < minDist ){
+                    minDist = cDist;
+                    minPoint = intPoints[i];
+                }
+            }
+            return minPoint;
+        }
 
-		return newPos; // 圆外距离p最近的点
-	}
+        return newPos; // 圆外距离p最近的点
+    }
 
 
-	bool PlayerNumValid(int num)
-	{
-		if (num>=0 && num<PARAM::Field::MAX_PLAYER){
-			return true;
-		}
-		else{
-			return false;
-		}
-	}
-	// 给定一个球门线上的点, 一个方向(角度), 找出一个在禁区外防守该方向的
-	// 离禁区线较近的点
-	CGeoPoint GetOutSidePenaltyPos(double dir, double delta, const CGeoPoint targetPoint)
-	{	
-		//double delta = PARAM::Field::MAX_PLAYER_SIZE + 1.5;
-		CGeoPoint pInter = GetInterPos(dir, targetPoint);
-		CGeoPoint pDefend = pInter + Polar2Vector(delta, dir);
-		return pDefend;
-	}
+    bool PlayerNumValid(int num)
+    {
+        if (num>=0 && num<PARAM::Field::MAX_PLAYER){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+    // 给定一个球门线上的点, 一个方向(角度), 找出一个在禁区外防守该方向的
+    // 离禁区线较近的点
+    CGeoPoint GetOutSidePenaltyPos(double dir, double delta, const CGeoPoint targetPoint)
+    {
+        //double delta = PARAM::Field::MAX_PLAYER_SIZE + 1.5;
+        CGeoPoint pInter = GetInterPos(dir, targetPoint);
+        CGeoPoint pDefend = pInter + Polar2Vector(delta, dir);
+        return pDefend;
+    }
 
-	CGeoPoint GetOutTheirSidePenaltyPos(double dir, double delta, const CGeoPoint& targetPoint) {
+    CGeoPoint GetOutTheirSidePenaltyPos(double dir, double delta, const CGeoPoint& targetPoint) {
         CGeoPoint pInter = GetTheirInterPos(dir, targetPoint);
-		return (pInter + Polar2Vector(delta, dir));
-	}
+        return (pInter + Polar2Vector(delta, dir));
+    }
 
-	// GetDefendPos的处理细节
-	// 给定点和方向求它和禁区线的交点
-	//给定点需在禁区内
-	//modified by Wang in 2018/3/17
-	CGeoPoint GetInterPos(double dir, const CGeoPoint targetPoint) {
-		using namespace PARAM::Field;
+    // GetDefendPos的处理细节
+    // 给定点和方向求它和禁区线的交点
+    //给定点需在禁区内
+    //modified by Wang in 2018/3/17
+    CGeoPoint GetInterPos(double dir, const CGeoPoint targetPoint) {
+        using namespace PARAM::Field;
         if ( IF_USE_ELLIPSE ){
             // ellipse penalty
             // 禁区的两段圆弧,用圆来表示
@@ -465,27 +744,27 @@ namespace Utils{
             GDebugEngine::Instance()->gui_debug_line(returnPoint, p0, 0);
             return returnPoint;
         }
-		//}
-		/*
-		else if (std::fabs(targetPoint.y()) <= PENALTY_AREA_WIDTH / 2) {//case 3
-			if (InOurPenaltyArea(inter_p2, 0)) return inter_p2;
-			else return p2;//随便选的
-		}
-		else {
-			if (targetPoint.y() <= 0) {//case 4
-				if (InOurPenaltyArea(inter_p1, 0)) return inter_p1;
-				else if (InOurPenaltyArea(inter_p2, 0)) return inter_p2;
-				else return p2;//随便选的
-			}
-			else {//case 5
-				if (InOurPenaltyArea(inter_p2, 0)) return inter_p2;
-				else if (InOurPenaltyArea(inter_p3, 0)) return inter_p3;
-				else return p3;//随便选的
-			}
-		}
-		*/
-	}
-	//modified by Wang in 2018/3/17
+        //}
+        /*
+        else if (std::fabs(targetPoint.y()) <= PENALTY_AREA_WIDTH / 2) {//case 3
+            if (InOurPenaltyArea(inter_p2, 0)) return inter_p2;
+            else return p2;//随便选的
+        }
+        else {
+            if (targetPoint.y() <= 0) {//case 4
+                if (InOurPenaltyArea(inter_p1, 0)) return inter_p1;
+                else if (InOurPenaltyArea(inter_p2, 0)) return inter_p2;
+                else return p2;//随便选的
+            }
+            else {//case 5
+                if (InOurPenaltyArea(inter_p2, 0)) return inter_p2;
+                else if (InOurPenaltyArea(inter_p3, 0)) return inter_p3;
+                else return p3;//随便选的
+            }
+        }
+        */
+    }
+    //modified by Wang in 2018/3/17
     CGeoPoint GetTheirInterPos(double dir, const CGeoPoint& targetPoint) {
         using namespace PARAM::Field;
         if ( IF_USE_ELLIPSE ){
@@ -627,73 +906,72 @@ namespace Utils{
                 }
             }
         }
-	}
-	float SquareRootFloat(float number) {
-		long i;
-		float x, y;
-		const float f = 1.5F;
+    }
+    float SquareRootFloat(float number) {
+        long i;
+        float x, y;
+        const float f = 1.5F;
 
-		x = number * 0.5F;
-		y  = number;
-		i  = * ( long * ) &y;
-		i  = 0x5f3759df - ( i >> 1 );
-		y  = * ( float * ) &i;
-		y  = y * ( f - ( x * y * y ) );
-		y  = y * ( f - ( x * y * y ) );
-		return number * y;
-	}
-	bool canGo(const CVisionModule* pVision, const int vecNumber, const CGeoPoint& target, const int flags, const double avoidBuffer)//判断是否可以直接到达目标点
-	{
-		static bool _canGo = true;
-		const CGeoPoint& vecPos = pVision->ourPlayer(vecNumber).Pos();
-		CGeoSegment moving_seg(vecPos, target);
-		const double minBlockDist2 = (PARAM::Field::MAX_PLAYER_SIZE/2 + avoidBuffer) * (PARAM::Field::MAX_PLAYER_SIZE/2 + avoidBuffer);
-		for( int i=0; i<PARAM::Field::MAX_PLAYER * 2; ++i ){ // 看路线上有没有人
-			if( i == vecNumber || !pVision->allPlayer(i).Valid()){
-				continue;
-			}
-			const CGeoPoint& obs_pos = pVision->allPlayer(i).Pos();
-			if( (obs_pos - target).mod2() < minBlockDist2 ){
-				_canGo = false;
-				return _canGo;
-			}
-			CGeoPoint prj_point = moving_seg.projection(obs_pos);
-			if( moving_seg.IsPointOnLineOnSegment(prj_point) ){
-				const double blockedDist2 = (obs_pos - prj_point).mod2();
-				if( blockedDist2 < minBlockDist2 && blockedDist2 < (obs_pos - vecPos).mod2()){
-					_canGo = false;
-					return _canGo;
-				}
-			}
-		}
-		if( _canGo && (flags & PlayerStatus::DODGE_BALL) ){ // 躲避球
-			const CGeoPoint& obs_pos = pVision->ball().Pos();
-			CGeoPoint prj_point = moving_seg.projection(obs_pos);
-			if( obs_pos.dist(prj_point) < avoidBuffer + PARAM::Field::BALL_SIZE && moving_seg.IsPointOnLineOnSegment(prj_point) ){
-				_canGo = false;
-				return _canGo;
-			}
-		}
-		if( _canGo && (flags & PlayerStatus::DODGE_OUR_DEFENSE_BOX) ){ // 避免进入本方禁区
-			if( PARAM::Rule::Version == 2003 ){	// 2003年的规则禁区是矩形
-				CGeoRectangle defenseBox(-PARAM::Field::PITCH_LENGTH/2, -PARAM::Field::PENALTY_AREA_WIDTH/2 - avoidBuffer, -PARAM::Field::PITCH_LENGTH/2 + PARAM::Field::PENALTY_AREA_WIDTH + avoidBuffer, PARAM::Field::PENALTY_AREA_WIDTH/2 + avoidBuffer);
-				CGeoLineRectangleIntersection intersection(moving_seg, defenseBox);
-				if( intersection.intersectant() ){
-					if( moving_seg.IsPointOnLineOnSegment(intersection.point1()) || moving_seg.IsPointOnLineOnSegment(intersection.point2())){
-						_canGo = false; // 要经过禁区
-						return _canGo;
-					}
-				}
-			}else if (PARAM::Rule::Version == 2004) { // 2004年的规则禁区是半圆形
-				CGeoCirlce defenseBox(CGeoPoint(-PARAM::Field::PITCH_LENGTH/2, 0), PARAM::Field::PENALTY_AREA_WIDTH/2 + avoidBuffer);
-				CGeoLineCircleIntersection intersection(moving_seg, defenseBox);
-				if( intersection.intersectant() ){
-					if( moving_seg.IsPointOnLineOnSegment(intersection.point1()) || moving_seg.IsPointOnLineOnSegment(intersection.point2())){
-						_canGo = false; // 要经过禁区
-						return _canGo;
-					}
-				}
-			}
+        x = number * 0.5F;
+        y  = number;
+        i  = * ( long * ) &y;
+        i  = 0x5f3759df - ( i >> 1 );
+        y  = * ( float * ) &i;
+        y  = y * ( f - ( x * y * y ) );
+        y  = y * ( f - ( x * y * y ) );
+        return number * y;
+    }
+    bool canGo(const CVisionModule* pVision, const int vecNumber, const CGeoPoint& target, const int flags, const double avoidBuffer)//判断是否可以直接到达目标点
+    {
+        static bool _canGo = true;
+        const CGeoPoint& vecPos = pVision->ourPlayer(vecNumber).Pos();
+        CGeoSegment moving_seg(vecPos, target);
+        const double minBlockDist2 = (PARAM::Field::MAX_PLAYER_SIZE/2 + avoidBuffer) * (PARAM::Field::MAX_PLAYER_SIZE/2 + avoidBuffer);
+        for( int i=0; i<PARAM::Field::MAX_PLAYER * 2; ++i ){ // 看路线上有没有人
+            if( i == vecNumber || !pVision->allPlayer(i).Valid()){
+                continue;
+            }
+            const CGeoPoint& obs_pos = pVision->allPlayer(i).Pos();
+            if( (obs_pos - target).mod2() < minBlockDist2 ){
+                _canGo = false;
+                return _canGo;
+            }
+            CGeoPoint prj_point = moving_seg.projection(obs_pos);
+            if( moving_seg.IsPointOnLineOnSegment(prj_point) ){
+                const double blockedDist2 = (obs_pos - prj_point).mod2();
+                if( blockedDist2 < minBlockDist2 && blockedDist2 < (obs_pos - vecPos).mod2()){
+                    _canGo = false;
+                    return _canGo;
+                }
+            }
+        }
+        if( _canGo && (flags & PlayerStatus::DODGE_BALL) ){ // 躲避球
+            const CGeoPoint& obs_pos = pVision->ball().Pos();
+            CGeoPoint prj_point = moving_seg.projection(obs_pos);
+            if( obs_pos.dist(prj_point) < avoidBuffer + PARAM::Field::BALL_SIZE && moving_seg.IsPointOnLineOnSegment(prj_point) ){
+                _canGo = false;
+                return _canGo;
+            }
+        }
+        if( _canGo && (flags & PlayerStatus::DODGE_OUR_DEFENSE_BOX) ){ // 避免进入本方禁区
+            if( PARAM::Rule::Version == 2003 ){	// 2003年的规则禁区是矩形
+                CGeoRectangle defenseBox(-PARAM::Field::PITCH_LENGTH/2, -PARAM::Field::PENALTY_AREA_WIDTH/2 - avoidBuffer, -PARAM::Field::PITCH_LENGTH/2 + PARAM::Field::PENALTY_AREA_WIDTH + avoidBuffer, PARAM::Field::PENALTY_AREA_WIDTH/2 + avoidBuffer);
+                CGeoLineRectangleIntersection intersection(moving_seg, defenseBox);
+                if( intersection.intersectant() ){
+                    if( moving_seg.IsPointOnLineOnSegment(intersection.point1()) || moving_seg.IsPointOnLineOnSegment(intersection.point2())){
+                        _canGo = false; // 要经过禁区
+                        return _canGo;
+                    }
+                }
+            }else if (PARAM::Rule::Version == 2004) { // 2004年的规则禁区是半圆形
+                CGeoCirlce defenseBox(CGeoPoint(-PARAM::Field::PITCH_LENGTH/2, 0), PARAM::Field::PENALTY_AREA_WIDTH/2 + avoidBuffer);
+                CGeoLineCircleIntersection intersection(moving_seg, defenseBox);
+                if( intersection.intersectant() ){
+                    if( moving_seg.IsPointOnLineOnSegment(intersection.point1()) || moving_seg.IsPointOnLineOnSegment(intersection.point2())){
+                        _canGo = false; // 要经过禁区
+                        return _canGo;				}
+                }
+            }
             // 2019, china open, ellipse penalty
             else if (PARAM::Rule::Version == 2019 &&
                      PARAM::Field::IF_USE_ELLIPSE) {
@@ -730,18 +1008,18 @@ namespace Utils{
 
             }
             else {// 2018年的规则禁区是矩形
-				CGeoRectangle defenseBox(-PARAM::Field::PITCH_LENGTH / 2 + PARAM::Field::PENALTY_AREA_DEPTH + avoidBuffer, -PARAM::Field::PENALTY_AREA_WIDTH / 2 - avoidBuffer, -PARAM::Field::PITCH_LENGTH / 2, PARAM::Field::PENALTY_AREA_WIDTH / 2 + avoidBuffer);
-				CGeoLineRectangleIntersection intersection(moving_seg, defenseBox);
-				if (intersection.intersectant()) {
-					if (moving_seg.IsPointOnLineOnSegment(intersection.point1()) || moving_seg.IsPointOnLineOnSegment(intersection.point2())) {
-						_canGo = false; // 要经过禁区
-						return _canGo;
-					}
-				}
-			}
-		}
-		return _canGo;
-	}
+                CGeoRectangle defenseBox(-PARAM::Field::PITCH_LENGTH / 2 + PARAM::Field::PENALTY_AREA_DEPTH + avoidBuffer, -PARAM::Field::PENALTY_AREA_WIDTH / 2 - avoidBuffer, -PARAM::Field::PITCH_LENGTH / 2, PARAM::Field::PENALTY_AREA_WIDTH / 2 + avoidBuffer);
+                CGeoLineRectangleIntersection intersection(moving_seg, defenseBox);
+                if (intersection.intersectant()) {
+                    if (moving_seg.IsPointOnLineOnSegment(intersection.point1()) || moving_seg.IsPointOnLineOnSegment(intersection.point2())) {
+                        _canGo = false; // 要经过禁区
+                        return _canGo;
+                    }
+                }
+            }
+        }
+        return _canGo;
+    }
 
     bool isValidFlatPass(const CVisionModule *pVision, CGeoPoint start, CGeoPoint end, bool isShoot, bool ignoreCloseEnemy, bool ignoreTheirGuard){
         // 判断能否传球的角度限制
@@ -753,33 +1031,6 @@ namespace Utils{
         static const double CLOSE_ENEMY_DIST = 50;
 
         bool valid = true;
-//        if(!isShoot){
-//            // 使用扇形进行计算
-//            CVector passLine = end - start;
-//            double passDir = passLine.dir();
-//            for (int i = 0; i < PARAM::Field::MAX_PLAYER; ++i) {
-//                if(pVision->theirPlayer(i).Valid()){
-//                    if(ignoreCloseEnemy && pVision->theirPlayer(i).Pos().dist(start) < CLOSE_ENEMY_DIST) continue;
-//                    if(ignoreTheirGuard && Utils::InTheirPenaltyArea(pVision->theirPlayer(i).Pos(), 30)) continue;
-//                    CGeoPoint enemyPos = pVision->theirPlayer(i).Pos();
-//                    CVector enemyLine = enemyPos - start;
-//                    double enemyDir = enemyLine.dir();
-//                    // 计算敌方车与传球线路的差角
-//                    double diffAngle = fabs(enemyDir - passDir);
-//                    diffAngle = diffAngle > PARAM::Math::PI ? 2*PARAM::Math::PI - diffAngle : diffAngle;
-//                    // 计算补偿角
-//                    double compensateAngle = fabs(atan2(PARAM::Vehicle::V2::PLAYER_SIZE + PARAM::Field::BALL_SIZE, start.dist(enemyPos)));
-//        //            qDebug() << "compensate angle: " << enemyPos.x() << enemyPos.y() << enemyDir << passDir << compensateAngle;
-//                    double distanceToEnemy = start.dist(enemyPos);
-//                    double limit_angle = distanceToEnemy > CLOSE_THRESHOLD ? FAR_ANGLE_LIMIT : CLOSE_ANGLE_LIMIT;
-//        //            qDebug() << "limit_angle: " << i << diffAngle << distanceToEnemy << (distanceToEnemy > CLOSE_THRESHOLD) << limit_angle << (diffAngle < limit_angle);
-//                    if(diffAngle - compensateAngle < limit_angle && enemyPos.dist(start) < end.dist(start) + SAFE_DIST){
-//                        valid = false;
-//                        break;
-//                    }
-//                }
-//            }
-//        }
         // 使用平行线进行计算，解决近距离扇形计算不准问题
         CGeoSegment BallLine(start, end);
             for(int i = 0; i < PARAM::Field::MAX_PLAYER; i++) {
