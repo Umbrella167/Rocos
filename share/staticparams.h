@@ -23,7 +23,7 @@ namespace PARAM {
         /* 长度单位均为厘米,时间单位均为秒,质量单位为克,角度单位为弧度 */
         /* Ball */
         const double BALL_SIZE	= 21.5; // 半径
-        const double BALL_DECAY = -0.8; // 阻力对球的加速度和速度成正比,单位为 /s
+        const double BALL_DECAY = 0.1; // 场地对球的衰减因子
         /* Player */
         const double MAX_PLAYER_SIZE = 180;
         const double PITCH_LENGTH = 9000;                 // 场地长
@@ -47,6 +47,11 @@ namespace PARAM {
         const double GOAL_DEPTH = 200;
         const double RATIO = 1.5;
     }
+    namespace Player {
+        const int playerFrontToCenter = 76;
+        const int playerRadiusr = 90;
+        const int playerBuffer = 100;
+                }
     namespace Rule{
         const int Version = 2019; // 规则的版本/年份
         const double MaxDribbleDist = 500; // 最大带球距离, 0代表没有限制
@@ -63,6 +68,7 @@ namespace PARAM {
     }
     namespace Math{
         const double PI = 3.14159265358979323846;
+        const double RADIAN = 180 / PI;
     }
     namespace Vehicle{
         namespace V2{
@@ -151,6 +157,8 @@ namespace ZSS {
             const int ROBOT_STORE_BUFFER = 100;
             const int MAINTAIN_STORE_BUFFER = 1000;
         }
+
     }
+
 }
 #endif // STATICPARAMS_H
