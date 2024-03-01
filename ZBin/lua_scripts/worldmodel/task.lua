@@ -10,8 +10,8 @@ module(..., package.seeall)
 
 
 InterPos = CGeoPoint:new_local(0,0)
-function Inter()
-	InterPos = Utils.GetInterPos(vision,playerpos("Assister"),2.2)
+function Inter(ourSpeed)
+	InterPos = Utils.GetInterPos(vision,playerpos("Assister"),ourSpeed)
 end
 
 function goalie()

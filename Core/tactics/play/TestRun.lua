@@ -17,19 +17,24 @@ pos1 = function()
 		return task.InterPos
 	end
 end
-
+-- 闭包
+dir1 = function(role)
+	return function(role)
+		return (ball.pos() - player.pos(role)  ):dir()
+	end
+end
 gPlayTable.CreatePlay{
 
-firstState = "run1",
 
+firstState = "run1",
 ["run1"] = {
 	switch = function()
-		task.Inter()
-		-- if ball.velMod() / 1000 > 2 then
-		-- 	task.Inter()
-		-- 	return "run11"
-		-- end
-		--debugEngine:gui_debug_msg(CGeoPoint:new_local(0,0),Utils.GetInterPos(vision,playerpos("Assister"),3):y())
+		task.Inter(1.5)
+		if (task.InterPos ~= CGeoPoint:new_local(0,0)) and bufcnt(true,6) then --bufcnt(a,b) 当表达式a为true时 连续累积 b帧 返回true
+			task.Inter(1.5)
+			return "run11"
+		end
+
 	end,
 	Assister = task.stop(),
 	match = "[A]"
@@ -42,7 +47,7 @@ firstState = "run1",
 
 		--debugEngine:gui_debug_msg(CGeoPoint:new_local(0,0),Utils.GetInterPos(vision,playerpos("Assister"),3):y())
 	end,
-	Assister = task.goCmuRush(pos1()),
+	Assister = task.goCmuRush(pos1(),dir1("Assister"),_,flag.dribbling),
 	match = "[A]"
 },
 
