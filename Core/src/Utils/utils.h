@@ -26,13 +26,11 @@
 #define isnan _isnan
 #endif
 
-
-
 class CVisionModule;
 struct PlayerPoseT;
 struct GlobalTick;
 namespace Utils {
-// HuRocos 2024 By Umbrella
+// HuRocos 2024
 extern std::string GlobalComputingPos(const CVisionModule *pVision,const CGeoPoint& p); //计算所有点位
 extern double map(double value, double min_in, double max_in, double min_out, double max_out); // 映射
 extern bool InExclusionZone(double x,double y); // 判断点是否在禁区内
@@ -41,15 +39,17 @@ extern bool isValidPass(const CVisionModule* pVision, CGeoPoint start, CGeoPoint
 extern void UpdataTickMessage(const CVisionModule *pVision); //获取帧信息
 extern CGeoPoint GetInterPos(const CVisionModule *pVision, CGeoPoint player_pos,double velocity); // 获取最佳截球点
 extern CGeoSegment PredictBallLine(const CVisionModule *pVision);
+extern double PosToPosTime(CGeoPoint start_pos,CGeoPoint end_pos,double velocity);
 // 多模式
 double PosToPosDirGrade(double x, double y,double x1,double y1,int dir,std::string model = "NORMAL");
 extern double PosToPosDistGrade(double x, double y,double x1,double y1, int dir,std::string model = "GAUSS"); // 坐标到坐标的距离评分
 extern double NumberNormalizeGauss(double data, double max_data, double min_data, double peak_pos, std::string model = "DOUBLELINE"); // [0,1] 高斯归一化
 extern double PosToBallDistGrade(const CVisionModule *pVision,double x, double y,int dir, std::string model = "GAUSS"); // 坐标到球的距离评分
 extern CGeoPoint GetShootPoint(const CVisionModule *pVision, double x, double y, int num, std::string model = "TRAVERSE"); //获取某坐标而言对方守门员的空位
+
+
+
 // Robocup-SSL-China
-
-
 extern double Normalize(double angle);///<把角度规范化到(-PI,PI]
 extern CVector Polar2Vector(double m, double angle); ///<极坐标转换到直角坐标
 extern double doubleToluaTemplate(double n); ///<极坐标转换到直角坐标

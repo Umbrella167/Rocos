@@ -15,6 +15,7 @@
 @ author : Umbrella
 */
 GlobalTick Tick;
+
 namespace Utils{
 // 没写完 START
     string GlobalComputingPos(const CVisionModule *pVision,const CGeoPoint& p){
@@ -24,23 +25,10 @@ namespace Utils{
         int half_width = PARAM::Field::PITCH_WIDTH / 2;
         int field_x = 0;
         int field_y = 0;
-//        for(field_x = -1 * half_length; field_x < half_length; field_x+=step){
-//            for(field_y = -1 * half_width; field_y < half_width; field_y+=step){
-//                if (IsExclusionZone(field_x,field_y)) continue;
-//                //GetAttackGrade()
-
-//            }
-//    }
-        // GetInterPos(pVision,pVision ->ourPlayer(0).Pos(),3);
-        //GDebugEngine::Instance()->gui_debug_x(GetInterPos(pVision,pVision ->ourPlayer(0).Pos(),3),3);
-        //GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(-3000,-3000),to_string(Tick.delta_time));
-        //GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(-3000,-2500),to_string(Tick.ball_acc));
-        //GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(-3000,-2000),to_string(ballv));
         GetShootPoint(pVision,pVision ->ball().X(),pVision ->ball().Y(),5,"TRAVERSE");
         double a = PosToPosDirGrade(0,0,pVision ->ball().X(),pVision ->ball().Y(),1,"NORMAL");
         return to_string(a);
     }
-    double acc_count = 0;
     void UpdataTickMessage(const CVisionModule *pVision){
         // last give
         Tick.ball_last_acc = Tick.ball_acc;
@@ -52,24 +40,29 @@ namespace Utils{
         Tick.ball_vel = pVision ->ball().Vel().mod() / 1000;
         Tick.time = std::chrono::high_resolution_clock::now();
         Tick.delta_time = (double)std::chrono::duration_cast<std::chrono::microseconds>(Tick.time - Tick.last_time).count() / 1000000;  // 计算时间差，单位为微秒
-
         // static record
         if (Tick.ball_vel > 0){
-            acc_count+=1;
+            Tick.acc_count+=1;
         }
         else {
-            acc_count =0;
+            Tick.acc_count =0;
             Tick.ball_acc = 0;
             Tick.ball_avg_vel = 0;
         }
-
-        if (acc_count > 10 && acc_count < 20){
+        if (Tick.acc_count > 2 && Tick.acc_count <= 7){
+            Tick.ball_max_vel_move_befor = pVision ->ball().Vel().mod() / 1000;
             Tick.ball_acc = (Tick.ball_vel - Tick.ball_last_vel) / Tick.delta_time;
-            Tick.ball_avg_vel += Tick.ball_vel / 9;
+            Tick.ball_avg_vel += Tick.ball_vel / 6.3;
         }
         Tick.ball_vel_dir = pVision ->ball().Vel().dir();
-        if(pVision ->ball().Vel().mod() == 0 || abs(Tick.ball_last_vel_dir - Tick.ball_vel_dir) > 0.1)Tick.ball_pos_move_befor = pVision ->ball().Pos(),Tick.change_move = true;
-        else Tick.change_move = false;
+        if(pVision ->ball().Vel().mod() == 0 || abs(Tick.ball_last_vel_dir - Tick.ball_vel_dir) > 0.05){
+            Tick.ball_pos_move_befor = pVision ->ball().Pos();
+
+            Tick.change_move = true;
+        }
+        else{
+            Tick.change_move = false;
+        }
     }
     double PosSafetyGrade(const CVisionModule *pVision,CGeoPoint start,CGeoPoint end){
         CGeoSegment BallLine(start, end);
@@ -79,17 +72,36 @@ namespace Utils{
         }
     }
     CGeoPoint GetInterPos(const CVisionModule *pVision, CGeoPoint player_pos,double velocity){
+        double buffer = 0;
         UpdataTickMessage(pVision);
         CGeoSegment ball_Segment = PredictBallLine(pVision);
         CGeoLine ball_line(Tick.ball_pos_move_befor,Tick.ball_vel_dir);
         CGeoPoint InterPos = ball_line.projection(player_pos);
-        GDebugEngine::Instance()->gui_debug_x(InterPos);
-        //v02 - v2 = 2ax ,x = v2 / 2a
-        return CGeoPoint(0,0);
+        if (!ball_Segment.IsPointOnLineOnSegment(InterPos)){
+            InterPos = ball_Segment.end();
+        }
+        InterPos = CGeoPoint(0,0);
+        double dist = 0;
+        for (dist = (ball_Segment.end() - Tick.ball_pos_move_befor).mod();dist > 0;dist -=200){
+            CGeoPoint newInterPos = ball_Segment.end() + Polar2Vector(-dist,pVision ->ball().Vel().dir());
+//            GDebugEngine::Instance() ->gui_debug_x(newInterPos);
+//            GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(-4000,dist),to_string(Tick.ball_max_vel_move_befor) + "   " + to_string(newInterPos.x()) + "   " + to_string(PosToPosTime(Tick.ball_pos_move_befor,newInterPos,Tick.ball_max_vel_move_befor * 1000)));
+//            GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(2000,dist),to_string(velocity) + "   " + to_string(newInterPos.x()) + "   " + to_string(PosToPosTime(newInterPos,player_pos,velocity * 1000)));
+            if (PosToPosTime(Tick.ball_pos_move_befor,newInterPos,Tick.ball_max_vel_move_befor) - PosToPosTime(player_pos,newInterPos,velocity) > buffer){
+                InterPos = newInterPos;
+                break;
+            }
+        }
+        //GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(-4000,2000),to_string(Tick.ball_max_vel_move_befor));
+        GDebugEngine::Instance() ->gui_debug_x(InterPos,5);
+        return InterPos;
+    }
+    double PosToPosTime(CGeoPoint start_pos,CGeoPoint end_pos,double velocity){
+        return (start_pos - end_pos).mod() / velocity;
     }
     CGeoSegment PredictBallLine(const CVisionModule *pVision){
         double ball_x = Tick.ball_acc == 0?0:(Tick.ball_avg_vel * Tick.ball_avg_vel / 2 * PARAM::Field::BALL_DECAY)*10000;
-        GDebugEngine::Instance() ->gui_debug_line(Tick.ball_pos_move_befor,Tick.ball_pos_move_befor + Polar2Vector(-ball_x,PARAM::Math::PI + pVision->ball().Vel().dir()));
+        GDebugEngine::Instance() ->gui_debug_line(Tick.ball_pos_move_befor,Tick.ball_pos_move_befor + Polar2Vector(-ball_x,PARAM::Math::PI + pVision->ball().Vel().dir()),3);
         return CGeoSegment(Tick.ball_pos_move_befor,Tick.ball_pos_move_befor + Polar2Vector(-ball_x,PARAM::Math::PI + pVision->ball().Vel().dir()));
     }
 

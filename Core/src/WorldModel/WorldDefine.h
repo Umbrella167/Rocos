@@ -163,12 +163,16 @@ struct GlobalTick {
     std::chrono::high_resolution_clock::time_point last_time;
     double ball_avg_vel = 0;
     double ball_vel_dir = 1;
+    double ball_max_vel_move_befor = 0;
+    double acc_count = 0;
     int tick_count = 0;
     int tick_key = 0;
     bool change_move = false;
     double data = 0;
     double delta_time = 0;
+
 };
+
 /************************************************************************/
 /*                      PlayerTypeT                                     */
 /************************************************************************/

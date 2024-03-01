@@ -7,6 +7,13 @@ module(..., package.seeall)
 -- TODO
 ------------------------------------ 跑位相关的skill ---------------------------------------
 --~ p为要走的点,d默认为射门朝向
+
+
+InterPos = CGeoPoint:new_local(0,0)
+function Inter()
+	InterPos = Utils.GetInterPos(vision,playerpos("Assister"),2.2)
+end
+
 function goalie()
 	local mexe, mpos = Goalie()
 	return {mexe, mpos}

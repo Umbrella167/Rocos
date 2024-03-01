@@ -26,6 +26,9 @@ local JUDGE = {
 		return true
 	end,
 }
+playerpos = function (role)
+	return CGeoPoint:new_local(player.posX(role),player.posY(role))
+end
 
 gPlayTable.CreatePlay{
 
@@ -33,6 +36,7 @@ firstState = "run_to_zero",
 
 ["run_to_zero"] = {
 	switch = function()
+		Utils.GetInterPos(vision,playerpos("a"),3)
 		if bufcnt(JUDGE.BallInField(),10) then
 			return "run_to_ball"
 		end
@@ -42,6 +46,7 @@ firstState = "run_to_zero",
 },
 ["run_to_ball"] = {
 	switch = function()
+		Utils.GetInterPos(vision,playerpos("a"),3)
 		if bufcnt(player.toTargetDist("a")<50,10) then
 			return "try_dribble"
 		end
@@ -54,6 +59,7 @@ firstState = "run_to_zero",
 },
 ["try_dribble"] = {
 	switch = function()
+		Utils.GetInterPos(vision,playerpos("a"),3)
 		if player.infraredCount("a")>10 then
 			return "try_keep"
 		end
@@ -66,6 +72,7 @@ firstState = "run_to_zero",
 },
 ["try_keep"] = {
 	switch = function()
+		Utils.GetInterPos(vision,playerpos("a"),3)
 		if bufcnt(player.infraredCount("a")>1,100) then
 			return "try_kick"
 		end
@@ -78,6 +85,7 @@ firstState = "run_to_zero",
 },
 ["try_kick"] = {
 	switch = function()
+		Utils.GetInterPos(vision,playerpos("a"),3)
 		if player.kickBall("a") then
 			return "run_to_zero"
 		end
@@ -85,7 +93,7 @@ firstState = "run_to_zero",
 			return "run_to_zero"
 		end
 	end,
-	a = task.shoot(shootGen(100)),
+	a = task.shoot(shootGen(100),_,_,4800),
 	match = "[a]"
 },
 

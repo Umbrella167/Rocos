@@ -23,7 +23,7 @@ namespace PARAM {
         /* 长度单位均为厘米,时间单位均为秒,质量单位为克,角度单位为弧度 */
         /* Ball */
         const double BALL_SIZE	= 21.5; // 半径
-        const double BALL_DECAY = 0.1; // 场地对球的衰减因子
+        const double BALL_DECAY = 0.2928; // 场地对球的衰减因子（越小线越短）
         /* Player */
         const double MAX_PLAYER_SIZE = 180;
         const double PITCH_LENGTH = 9000;                 // 场地长

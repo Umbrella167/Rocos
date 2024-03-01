@@ -12,7 +12,11 @@ local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
 playerpos = function (role)
 	return CGeoPoint:new_local(player.posX(role),player.posY(role))
 end
-
+pos1 = function()
+	return function()
+		return task.InterPos
+	end
+end
 
 gPlayTable.CreatePlay{
 
@@ -20,13 +24,29 @@ firstState = "run1",
 
 ["run1"] = {
 	switch = function()
-		Utils.GetInterPos(vision,playerpos("Assister"),3)
-
+		task.Inter()
+		-- if ball.velMod() / 1000 > 2 then
+		-- 	task.Inter()
+		-- 	return "run11"
+		-- end
 		--debugEngine:gui_debug_msg(CGeoPoint:new_local(0,0),Utils.GetInterPos(vision,playerpos("Assister"),3):y())
 	end,
 	Assister = task.stop(),
 	match = "[A]"
 },
+
+
+
+["run11"] = {
+	switch = function()
+
+		--debugEngine:gui_debug_msg(CGeoPoint:new_local(0,0),Utils.GetInterPos(vision,playerpos("Assister"),3):y())
+	end,
+	Assister = task.goCmuRush(pos1()),
+	match = "[A]"
+},
+
+
 ["run2"] = {
 	switch = function()
 		if bufcnt(player.toTargetDist("Kicker")<5,time) then
