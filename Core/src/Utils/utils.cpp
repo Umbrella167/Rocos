@@ -37,7 +37,7 @@ namespace Utils{
         Tick.ball_last_vel_dir = Tick.ball_vel_dir;
         // get now
         Tick.tick_count += 1;
-        Tick.ball_vel = pVision ->ball().Vel().mod() / 1000;
+        Tick.ball_vel = pVision -> ball().Vel().mod() / 1000;
         Tick.time = std::chrono::high_resolution_clock::now();
         Tick.delta_time = (double)std::chrono::duration_cast<std::chrono::microseconds>(Tick.time - Tick.last_time).count() / 1000000;  // 计算时间差，单位为微秒
         // static record
@@ -57,7 +57,6 @@ namespace Utils{
         Tick.ball_vel_dir = pVision ->ball().Vel().dir();
         if(pVision ->ball().Vel().mod() == 0 || abs(Tick.ball_last_vel_dir - Tick.ball_vel_dir) > 0.05){
             Tick.ball_pos_move_befor = pVision ->ball().Pos();
-
             Tick.change_move = true;
         }
         else{
@@ -89,9 +88,11 @@ namespace Utils{
 //            GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(2000,dist),to_string(velocity) + "   " + to_string(newInterPos.x()) + "   " + to_string(PosToPosTime(newInterPos,player_pos,velocity * 1000)));
             if (PosToPosTime(Tick.ball_pos_move_befor,newInterPos,Tick.ball_max_vel_move_befor) - PosToPosTime(player_pos,newInterPos,velocity) > buffer){
                 InterPos = newInterPos;
+                InterPos = ball_Segment.projection(InterPos);
                 break;
             }
         }
+
         //GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(-4000,2000),to_string(Tick.ball_max_vel_move_befor));
         GDebugEngine::Instance() ->gui_debug_x(InterPos,5);
         return InterPos;
