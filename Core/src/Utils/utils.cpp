@@ -68,6 +68,7 @@ namespace Utils{
         for(int i = 0; i < PARAM::Field::MAX_PLAYER;i++){
             if(!pVision->theirPlayer(i).Valid()) continue;
                 pVision ->ball().Vel();
+
         }
     }
     CGeoPoint GetInterPos(const CVisionModule *pVision, CGeoPoint player_pos,double velocity){

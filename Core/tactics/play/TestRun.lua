@@ -30,10 +30,10 @@ firstState = "run1",
 ["run1"] = {
 	switch = function()
 		task.Inter(1.5)
-		--Utils.GlobalComputingPos(vision,player.pos("Assister"))
-		if (task.InterPos ~= CGeoPoint:new_local(0,0)) and bufcnt(true,1) then --bufcnt(a,b) 当表达式a为true时 连续累积 b帧 返回true
+		Utils.GlobalComputingPos(vision,player.pos("Assister"))
+		if (task.InterPos ~= CGeoPoint:new_local(0,0)) and bufcnt(true,6) then --bufcnt(a,b) 当表达式a为true时 连续累积 b帧 返回true
 			task.Inter(1.5)
-			return "run11"
+			--return "run11"
 		end
 
 	end,

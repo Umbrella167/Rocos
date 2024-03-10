@@ -173,6 +173,14 @@ struct GlobalTick {
 
 };
 
+//struct GlobalTick{
+//    double ball_vel = 1;
+//    double ball_acc = 1;
+//    CGeoPoint ball_pos = CGeoPoint(0,0);
+//    CGeoPoint ball_pos_move_befor = CGeoPoint(0,0);
+//    std::chrono::high_resolution_clock::time_point time;
+//    double ball_avg_vel = 0;
+//}
 /************************************************************************/
 /*                      PlayerTypeT                                     */
 /************************************************************************/
