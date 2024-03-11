@@ -50,6 +50,6 @@
       IsExclusionZone(double x,double y); // 判断点是否在禁区内
       PosToBallDistGrade(const CVisionModule *pVision,double x, double y,int dir); // 坐标到球的距离评分
 * 物理公式：
-  * $$t = x / v$$
-  * $$v = (v_0^2 - 2ax) ^ {(1/2)}$$
-  * $$v^2 = 2ax$$
+  * t = x / v
+  * v = (v0^2 - 2ax) ^ (1/2)
+  * v^2 = 2ax
