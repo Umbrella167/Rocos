@@ -65,23 +65,39 @@ namespace Utils{
 //    }
 
     void UpdataTickMessage(const CVisionModule *pVision){
-        int now = 1;
-        int last = 0;
-        Tick[last] = Tick[now];
-        Tick[now].ball_pos = pVision ->ball().Pos();
-        Tick[now].ball_vel = pVision -> ball().Vel().mod() / 1000;
-        Tick[now].time = std::chrono::high_resolution_clock::now();
-        Tick[now].tick_count+=1;
-        Tick[now].delta_time = (double)std::chrono::duration_cast<std::chrono::microseconds>(Tick[now].time - Tick[last].time).count() / 1000000;
+        int now = PARAM::Tick::TickLength - 1;
+        int last = PARAM::Tick::TickLength - 2;
+        int oldest = 0;
+        double ball_vel_group[PARAM::Tick::TickLength];
+        for (int i = oldest; i < PARAM::Tick::TickLength - 1;i++){
+            GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(-4300,-2000 + i * 200),to_string(Tick[i].ball_vel) + "       "  + to_string(Tick[i+1].ball_vel)+ "       "  + to_string((Tick[i+1].ball_vel - Tick[i].ball_vel) / Tick[i].delta_time));
+            ball_vel_group[i] = Tick[i].ball_vel;
+            Tick[i] = Tick[i+1];
 
+        }
+        //Tick[last] = Tick[now];
+        Tick[now].time = std::chrono::high_resolution_clock::now();
+        Tick[now].delta_time = (double)std::chrono::duration_cast<std::chrono::microseconds>(Tick[now].time - Tick[last].time).count() / 1000000;
+        Tick[now].ball_pos = pVision ->ball().Pos();
+
+        Tick[now].tick_count+=1;
+        Tick[now].ball_vel = pVision ->ball().Vel().mod() / 1000;
         Tick[now].ball_vel_dir = pVision ->ball().Vel().dir();
-        if (Tick[now].ball_vel == 0 || abs(Tick[last].ball_vel_dir - Tick[now].ball_vel_dir) > 0.05){
-            Tick[now].ball_avg_vel = Tick[now].ball_vel;
-            //Tick[now].ball_pos_move_befor = Tick[now].ball_pos;
+        if (Tick[now].ball_vel < 0.01 || (abs(Tick[last].ball_vel_dir - Tick[now].ball_vel_dir) > 0.01 && abs(Tick[last].ball_vel_dir - Tick[now].ball_vel_dir) < 6)){
+            Tick[now].ball_pos_move_befor = Tick[now].ball_pos;
+            Tick[now].tick_key = 1;
         }
 
-        GDebugEngine::Instance() ->gui_debug_line(Tick[now].ball_pos_move_befor,Tick[now].ball_pos);
-        GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(-3000,2000),to_string(Tick[now].ball_avg_vel));
+        if (Tick[now].tick_key != 0){
+            Tick[now].tick_key += 1;
+            if (Tick[now].tick_key > 7){
+                Tick[now].ball_avg_vel = *std::max_element(ball_vel_group, ball_vel_group + PARAM::Tick::TickLength);
+                Tick[now].tick_key = 0;
+            }
+        }
+        //GDebugEngine::Instance() ->gui_debug_line(Tick[now].ball_pos_move_befor,Tick[now].ball_pos);
+        //GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(-3000,2500),to_string(Tick[now].ball_avg_vel));
+//        GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(-3000,2000),to_string(Tick[now].ball_vel < 0.1));
     }
     double PosSafetyGrade(const CVisionModule *pVision,CGeoPoint start,CGeoPoint end){
         CGeoSegment BallLine(start, end);

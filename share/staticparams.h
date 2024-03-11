@@ -53,7 +53,7 @@ namespace PARAM {
         const int playerBuffer = 100;
                 }
     namespace Tick {
-        const int TickLength = 15;
+        const int TickLength = 25;
 
                 }
     namespace Rule{

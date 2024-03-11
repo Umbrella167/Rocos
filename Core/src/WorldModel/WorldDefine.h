@@ -181,6 +181,7 @@ struct GlobalTick{
     std::chrono::high_resolution_clock::time_point time;
     double ball_avg_vel = 0;
     int tick_count = 0;
+    int tick_key = 0;
     double ball_vel_dir = 0;
     double delta_time = 1;
 };

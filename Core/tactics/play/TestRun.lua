@@ -23,11 +23,26 @@ dir1 = function(role)
 		return (ball.pos() - player.pos(role)  ):dir()
 	end
 end
+
+local shootGen = function(dist)
+	return function()
+		local goalPos = CGeoPoint(param.pitchLength/2,0)
+		local pos = ball.pos() + Utils.Polar2Vector(dist,(ball.pos() - goalPos):dir())
+		return pos
+	end
+end
 gPlayTable.CreatePlay{
 
 
 firstState = "run1",
 ["run1"] = {
+	switch = function()
+		return "run11"
+	end,
+	Assister = task.stop(),
+	match = "[A]"
+},
+["run11"] = {
 	switch = function()
 		task.Inter(1.5)
 		Utils.GlobalComputingPos(vision,player.pos("Assister"))
@@ -35,22 +50,13 @@ firstState = "run1",
 			task.Inter(1.5)
 			--return "run11"
 		end
-
 	end,
-	Assister = task.stop(),
+	Assister = task.shoot(shootGen(0),dir1("Assister"),_,4800),
 	match = "[A]"
 },
 
 
 
-["run11"] = {
-	switch = function()
-
-		--debugEngine:gui_debug_msg(CGeoPoint:new_local(0,0),Utils.GetInterPos(vision,playerpos("Assister"),3):y())
-	end,
-	Assister = task.goCmuRush(pos1(),dir1("Assister"),_,flag.dribbling),
-	match = "[A]"
-},
 
 
 ["run2"] = {
