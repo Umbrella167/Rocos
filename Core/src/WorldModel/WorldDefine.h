@@ -150,37 +150,40 @@ struct PlayerPoseT : public ObjectPoseT { // 目标信息
 /************************************************************************/
 /*                      GlobalTick                                     */
 /************************************************************************/
-struct GlobalTick {
-    double ball_vel = 1;
-    double ball_last_vel = 1;
-    double ball_acc = 1;
-    double ball_last_acc = 1;
-    double ball_last_vel_dir = 1;
-    CGeoPoint ball_pos = CGeoPoint(0,0);
-    CGeoPoint ball_last_pos = CGeoPoint(0,0);
-    CGeoPoint ball_pos_move_befor = CGeoPoint(0,0);
-    std::chrono::high_resolution_clock::time_point time;
-    std::chrono::high_resolution_clock::time_point last_time;
-    double ball_avg_vel = 0;
-    double ball_vel_dir = 1;
-    double ball_max_vel_move_befor = 0;
-    double acc_count = 0;
-    int tick_count = 0;
-    int tick_key = 0;
-    bool change_move = false;
-    double data = 0;
-    double delta_time = 0;
-
-};
-
-//struct GlobalTick{
+//struct GlobalTick {
 //    double ball_vel = 1;
+//    double ball_last_vel = 1;
 //    double ball_acc = 1;
+//    double ball_last_acc = 1;
+//    double ball_last_vel_dir = 1;
 //    CGeoPoint ball_pos = CGeoPoint(0,0);
+//    CGeoPoint ball_last_pos = CGeoPoint(0,0);
 //    CGeoPoint ball_pos_move_befor = CGeoPoint(0,0);
 //    std::chrono::high_resolution_clock::time_point time;
+//    std::chrono::high_resolution_clock::time_point last_time;
 //    double ball_avg_vel = 0;
-//}
+//    double ball_vel_dir = 1;
+//    double ball_max_vel_move_befor = 0;
+//    double acc_count = 0;
+//    int tick_count = 0;
+//    int tick_key = 0;
+//    bool change_move = false;
+//    double data = 0;
+//    double delta_time = 0;
+
+//};
+
+struct GlobalTick{
+    double ball_vel = 1;
+    double ball_acc = 1;
+    CGeoPoint ball_pos = CGeoPoint(0,0);
+    CGeoPoint ball_pos_move_befor = CGeoPoint(0,0);
+    std::chrono::high_resolution_clock::time_point time;
+    double ball_avg_vel = 0;
+    int tick_count = 0;
+    double ball_vel_dir = 0;
+    double delta_time = 1;
+};
 /************************************************************************/
 /*                      PlayerTypeT                                     */
 /************************************************************************/

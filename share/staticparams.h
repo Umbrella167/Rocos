@@ -52,6 +52,10 @@ namespace PARAM {
         const int playerRadiusr = 90;
         const int playerBuffer = 100;
                 }
+    namespace Tick {
+        const int TickLength = 15;
+
+                }
     namespace Rule{
         const int Version = 2019; // 规则的版本/年份
         const double MaxDribbleDist = 500; // 最大带球距离, 0代表没有限制
