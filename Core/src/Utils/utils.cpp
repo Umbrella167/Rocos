@@ -240,7 +240,7 @@ namespace Utils
      * @param  {bool} ignoreTheirGuard  : 是否忽略敌方禁区（默认为 false）
      * @return {bool}                   : (true\false)
      */
-    bool isValid法Pass(const CVisionModule *pVision, CGeoPoint start, CGeoPoint end, double buffer, bool ignoreCloseEnemy, bool ignoreTheirGuard)
+    bool isValidPass(const CVisionModule *pVision, CGeoPoint start, CGeoPoint end, double buffer, bool ignoreCloseEnemy, bool ignoreTheirGuard)
     {
         // 判断能否传球的角度限制
         static const double CLOSE_ANGLE_LIMIT = 8 * PARAM::Math::PI / 180;
