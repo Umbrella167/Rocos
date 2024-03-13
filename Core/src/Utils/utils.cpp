@@ -73,8 +73,8 @@ namespace Utils
     }
 
     /**
-     * TODO: 补全
-     * @param  {CVisionModule*} pVision :
+     * 坐标安全性评分计算
+     * @param  {CVisionModule*} pVision : pVision
      * @param  {CGeoPoint} start        :
      * @param  {CGeoPoint} end          :
      * @return {double}                 :
@@ -91,11 +91,11 @@ namespace Utils
     }
 
     /**
-     * TODO: 补全
-     * @param  {CVisionModule*} pVision :
-     * @param  {CGeoPoint} player_pos   :
-     * @param  {double} velocity        :
-     * @return {CGeoPoint}              :
+     * 获取相对某坐标最佳截球点（动态：球在运动过程中）
+     * @param  {CVisionModule*} pVision : pVision
+     * @param  {CGeoPoint} player_pos   : 坐标
+     * @param  {double} velocity        : 速度
+     * @return {CGeoPoint}              : 最佳截球点
      */
     CGeoPoint GetInterPos(const CVisionModule *pVision, CGeoPoint player_pos, double velocity)
     {
@@ -130,11 +130,11 @@ namespace Utils
     }
 
     /**
-     * TODO: 补全
-     * @param  {CGeoPoint} start_pos :
-     * @param  {CGeoPoint} end_pos   :
-     * @param  {double} velocity     :
-     * @return {double}              :
+     * 坐标到坐标之间的时间
+     * @param  {CGeoPoint} start_pos : 起始位置
+     * @param  {CGeoPoint} end_pos   : 终点位置
+     * @param  {double} velocity     : 速度
+     * @return {double}              : 时间
      */
     double PosToPosTime(CGeoPoint start_pos, CGeoPoint end_pos, double velocity)
     {
@@ -142,9 +142,9 @@ namespace Utils
     }
 
     /**
-     * TODO: 补全
-     * @param  {CVisionModule*} pVision :
-     * @return {CGeoSegment}            :
+     * 预测球运动的线段
+     * @param  {CVisionModule*} pVision : pVision
+     * @return {CGeoSegment}            : 球运动轨迹的线段
      */
     CGeoSegment PredictBallLine(const CVisionModule *pVision)
     {
@@ -154,24 +154,24 @@ namespace Utils
     }
 
     /**
-     * TODO: 补全
-     * @param  {double} x          :
-     * @param  {double} y          :
+     * 坐标点关于最佳跑位点的评分
+     * @param  {double} x          : x
+     * @param  {double} y          : y
      * @param  {double} last_grade :
-     * @return {double}            :
+     * @return {double}            : (x,y)关于最佳跑位点的评分
      */
     double GetAttackGrade(double x, double y, double last_grade)
     {
     }
 
     /**
-     * TODO: 补全
-     * @param  {CVisionModule*} pVision :
-     * @param  {double} x               :
-     * @param  {double} y               :
-     * @param  {int} num                :
-     * @param  {std::string} model      :
-     * @return {CGeoPoint}              :
+     * 坐标点关于最佳射门点的评分
+     * @param  {CVisionModule*} pVision : pVsion
+     * @param  {double} x               : x
+     * @param  {double} y               : y
+     * @param  {int} num                : 守门员号码
+     * @param  {std::string} model      : FORMULA：仅根据守门员位置进行计算，TRAVERSE：遍历整个可射门点（默认：TRAVERSE）
+     * @return {CGeoPoint}              : (x,y)关于最佳射门点的评分
      */
     CGeoPoint GetShootPoint(const CVisionModule *pVision, double x, double y, int num, std::string model)
     {
@@ -226,15 +226,14 @@ namespace Utils
     }
 
     /**
-     * TODO: 补全
-     * TODO: 没写完 END
-     * @param  {CVisionModule*} pVision :
-     * @param  {CGeoPoint} start        :
-     * @param  {CGeoPoint} end          :
-     * @param  {double} buffer          :
-     * @param  {bool} ignoreCloseEnemy  :
-     * @param  {bool} ignoreTheirGuard  :
-     * @return {bool}                   :
+     * 判断两坐标之间是否存在敌人
+     * @param  {CVisionModule*} pVision : pVision
+     * @param  {CGeoPoint} start        : 起始坐标
+     * @param  {CGeoPoint} end          : 终点坐标
+     * @param  {double} buffer          : 缓冲值
+     * @param  {bool} ignoreCloseEnemy  :（默认为 false）
+     * @param  {bool} ignoreTheirGuard  : 是否忽略敌方禁区（默认为 false）
+     * @return {bool}                   : (true\false)
      */
     bool isValidPass(const CVisionModule *pVision, CGeoPoint start, CGeoPoint end, double buffer, bool ignoreCloseEnemy, bool ignoreTheirGuard)
     {
@@ -269,14 +268,14 @@ namespace Utils
     }
 
     /**
-     * TODO: 补全
-     * @param  {double} x          :
-     * @param  {double} y          :
-     * @param  {double} x1         :
-     * @param  {double} y1         :
-     * @param  {int} dir           :
-     * @param  {std::string} model :
-     * @return {double}            :
+     * 坐标到坐标之间的方向评分（GAUSS：可设峰值，NORMAL：越接近2 / Pi 分数越高）
+     * @param  {double} x          : x
+     * @param  {double} y          : y
+     * @param  {double} x1         : x1
+     * @param  {double} y1         : y1
+     * @param  {int} dir           : dir
+     * @param  {std::string} model : 评分方向( 默认为1,参数范围:{-1,1} )
+     * @return {double}            : dir > 0 ? [0.0 ～ 1.0] : [1.0 ～ 0]
      */
     double PosToPosDirGrade(double x, double y, double x1, double y1, int dir, std::string model)
     {
@@ -285,17 +284,18 @@ namespace Utils
         CGeoPoint point2(x1, y1);
         double grade_dir = abs((point1 - point2).dir() * PARAM::Math::RADIAN);
         grade_dir = model_type[1] == model ? NumberNormalize(grade_dir, PARAM::Math::RADIAN * PARAM::Math::PI, 0) : NumberNormalizeGauss(grade_dir, PARAM::Math::RADIAN * PARAM::Math::PI, 0, 4 / PARAM::Math::RADIAN * PARAM::Math::PI);
+        grade_dir = dir > 0 ? grade_dir : (1 - grade_dir);
         return grade_dir;
     }
 
     /**
-     * TODO: 补全
-     * @param  {CVisionModule*} pVision :
-     * @param  {double} x               :
-     * @param  {double} y               :
-     * @param  {int} dir                :
-     * @param  {std::string} model      :
-     * @return {double}                 :
+     * 坐标到球之间的距离评分
+     * @param  {CVisionModule*} pVision :pVision
+     * @param  {double} x               : x
+     * @param  {double} y               : y
+     * @param  {int} dir                : 评分方向( 默认为1,参数范围:{-1,1} )
+     * @param  {std::string} model      :（GAUSS：可设峰值（peak_pos），NORMAL：越近分数越高）
+     * @return {double}                 : dir > 0 ? [0.0 ～ 1.0] : [1.0 ～ 0]
      */
     double PosToBallDistGrade(const CVisionModule *pVision, double x, double y, int dir, std::string model)
     {
@@ -307,23 +307,24 @@ namespace Utils
         double min_data = 0;
         double distance = (pos - ball_pos).mod();
         double grade = model == model_type[0] ? NumberNormalizeGauss(distance, max_data, min_data, peak_pos) : NumberNormalize(distance, max_data, min_data);
+        grade = dir > 0 ? grade : (1 - grade);
         if (distance > PARAM::Field::PITCH_LENGTH / 1.4)
         {
-            grade = dir > 0 ? grade : (1 - grade);
             return 0.0;
         }
+
         return grade;
     }
 
     /**
-     * TODO: 补全
-     * @param  {double} x          :
-     * @param  {double} y          :
-     * @param  {double} x1         :
-     * @param  {double} y1         :
-     * @param  {int} dir           :
-     * @param  {std::string} model :
-     * @return {double}            :
+     * 坐标到球之间的距离评分
+     * @param  {double} x          : x
+     * @param  {double} y          : y
+     * @param  {double} x1         : x1
+     * @param  {double} y1         : y1
+     * @param  {int} dir           : 评分方向( 默认为1,参数范围:{-1,1} )
+     * @param  {std::string} model :（GAUSS：可设峰值（peak_pos），NORMAL：越近分数越高）
+     * @return {double}            : dir > 0 ? [0.0 ～ 1.0] : [1.0 ～ 0]
      */
     double PosToPosDistGrade(double x, double y, double x1, double y1, int dir, std::string model)
     {
@@ -344,13 +345,15 @@ namespace Utils
     }
 
     /**
-     * TODO: 补全
-     * @param  {double} data       :
-     * @param  {double} max_data   :
-     * @param  {double} min_data   :
-     * @param  {double} peak_pos   :
-     * @param  {std::string} model :
-     * @return {double}            :
+     * 高斯归一化
+     * @param  {double} data       :待归一化数据
+     * @param  {double} max_data   :待归一化数据最大值
+     * @param  {double} min_data   :待归一化数据最小值
+     * @param  {double} peak_pos   :峰值
+     * @param  {std::string} model :SIN: 不可制定峰值，变化均匀、(max_data - min_data) / 2的时候是最大值。
+     *                              GAUSS: 可指定峰值，变化比较突然，更服从正态分布。
+     *                              DOUBLELINE：可指定峰值，变化均匀。
+     * @return {double}            :[0,1]
      */
     double NumberNormalizeGauss(double data, double max_data, double min_data, double peak_pos, std::string model)
     {
@@ -397,11 +400,11 @@ namespace Utils
     }
 
     /**
-     * TODO: 补全
-     * @param  {double} data     :
-     * @param  {double} max_data :
-     * @param  {double} min_data :
-     * @return {double}          :
+     * 归一化
+     * @param  {double} data       :待归一化数据
+     * @param  {double} max_data   :待归一化数据最大值
+     * @param  {double} min_data   :待归一化数据最小值
+     * @return {double}            :[0,1]
      */
     double NumberNormalize(double data, double max_data, double min_data)
     {
@@ -409,12 +412,12 @@ namespace Utils
     }
 
     /**
-     * TODO: 补全
-     * @param  {double} value   :
-     * @param  {double} min_in  :
-     * @param  {double} max_in  :
-     * @param  {double} min_out :
-     * @param  {double} max_out :
+     * 映射
+     * @param  {double} value   :待映射值
+     * @param  {double} min_in  :待映射最小值
+     * @param  {double} max_in  :待映射最大值
+     * @param  {double} min_out :映射后最小值
+     * @param  {double} max_out :映射后最大值
      * @return {double}         :
      */
     double map(double value, double min_in, double max_in, double min_out, double max_out)
@@ -423,7 +426,7 @@ namespace Utils
     }
 
     /**
-     * TODO: 补全
+     * 判断是否在敌方禁区
      * @param  {double} x :
      * @param  {double} y :
      * @return {bool}     :
@@ -442,7 +445,12 @@ namespace Utils
         }
     }
 
-    // Open-ssl-china
+    /****************************
+     *                           *
+     *         以下代码均是        *
+     *         该文件源代码        *
+     *       Open-ssl-china      *
+     *****************************/
 
     /**
      * TODO: 补全
