@@ -20,7 +20,7 @@ namespace Utils
 {
     // 没写完 START
 
-    // TODO: 你们检查一下写的注释对不对，对的话帮我这行TODO删了
+
     /**
      * 计算全局位置
      * @param  {CVisionModule*} pVision : 视觉模块
@@ -39,67 +39,36 @@ namespace Utils
         double a = PosToPosDirGrade(0, 0, pVision->ball().X(), pVision->ball().Y(), 1, "NORMAL");
         return to_string(a); // FIXME: 字符串可能还是抽象了点，到时候看看修一下
     }
+    void UpdataTickMessage(const CVisionModule *pVision){
+        int now = PARAM::Tick::TickLength - 1;
+        int last = PARAM::Tick::TickLength - 2;
+        int oldest = 0;
+        double ball_vel_group[PARAM::Tick::TickLength];
+        for (int i = oldest; i < PARAM::Tick::TickLength - 1;i++){
+            GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(-4300,-2000 + i * 200),to_string(Tick[i].ball_vel) + "       "  + to_string(Tick[i+1].ball_vel)+ "       "  + to_string((Tick[i+1].ball_vel - Tick[i].ball_vel) / Tick[i].delta_time));
+            ball_vel_group[i] = Tick[i].ball_vel;
+            Tick[i] = Tick[i+1];
 
-    //    void UpdataTickMessage(const CVisionModule *pVision){
-    //        // last give
-    //        Tick.ball_last_acc = Tick.ball_acc;
-    //        Tick.last_time = Tick.time;
-    //        Tick.ball_last_vel = Tick.ball_vel;
-    //        Tick.ball_last_vel_dir = Tick.ball_vel_dir;
-    //        // get now
-    //        Tick.tick_count += 1;
-    //        Tick.ball_vel = pVision -> ball().Vel().mod() / 1000;
-    //        Tick.time = std::chrono::high_resolution_clock::now();
-    //        Tick.delta_time = (double)std::chrono::duration_cast<std::chrono::microseconds>(Tick.time - Tick.last_time).count() / 1000000;  // 计算时间差，单位为微秒
-    //        // static record
-    //        if (Tick.ball_vel > 0){
-    //            Tick.acc_count+=1;
-    //        }
-    //        else {
-    //            Tick.acc_count =0;
-    //            Tick.ball_acc = 0;
-    //            Tick.ball_avg_vel = 0;
-    //        }
-    //        if (Tick.acc_count > 2 && Tick.acc_count <= 7){
-    //            Tick.ball_max_vel_move_befor = pVision ->ball().Vel().mod() / 1000;
-    //            Tick.ball_acc = (Tick.ball_vel - Tick.ball_last_vel) / Tick.delta_time;
-    //            Tick.ball_avg_vel += Tick.ball_vel / 6.3;
-    //        }
-    //        Tick.ball_vel_dir = pVision ->ball().Vel().dir();
-    //        if(pVision ->ball().Vel().mod() == 0 || abs(Tick.ball_last_vel_dir - Tick.ball_vel_dir) > 0.05){
-    //            Tick.ball_pos_move_befor = pVision ->ball().Pos();
-    //            Tick.change_move = true;
-    //        }
-    //        else{
-    //            Tick.change_move = false;
-    //        }
-    //    }
-
-    /**
-     * 更新帧信息
-     * @param  {CVisionModule*} pVision : 视觉模块
-     */
-    void UpdataTickMessage(const CVisionModule *pVision)
-    {
-        int now = 1;
-        int last = 0;
-        Tick[last] = Tick[now];
-        Tick[now].ball_pos = pVision->ball().Pos();
-        Tick[now].ball_vel = pVision->ball().Vel().mod() / 1000;
+        }
         Tick[now].time = std::chrono::high_resolution_clock::now();
-        Tick[now].tick_count += 1;
         Tick[now].delta_time = (double)std::chrono::duration_cast<std::chrono::microseconds>(Tick[now].time - Tick[last].time).count() / 1000000;
-
-        Tick[now].ball_vel_dir = pVision->ball().Vel().dir();
-        if (Tick[now].ball_vel == 0 || abs(Tick[last].ball_vel_dir - Tick[now].ball_vel_dir) > 0.05)
-        {
-            Tick[now].ball_avg_vel = Tick[now].ball_vel;
-            // Tick[now].ball_pos_move_befor = Tick[now].ball_pos;
+        Tick[now].tick_count+=1;
+        Tick[now].ball_vel = pVision ->ball().Vel().mod() / 1000;
+        Tick[now].ball_vel_dir = pVision ->ball().Vel().dir();
+        if (Tick[now].ball_vel < 0.01 || (abs(Tick[last].ball_vel_dir - Tick[now].ball_vel_dir) > 0.01 && abs(Tick[last].ball_vel_dir - Tick[now].ball_vel_dir) < 6)){
+            Tick[now].ball_pos_move_befor = Tick[now].ball_pos;
+            Tick[now].tick_key = 1;
         }
 
-        GDebugEngine::Instance()->gui_debug_line(Tick[now].ball_pos_move_befor, Tick[now].ball_pos);
-        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(-3000, 2000), to_string(Tick[now].ball_avg_vel));
+        if (Tick[now].tick_key != 0){
+            Tick[now].tick_key += 1;
+            if (Tick[now].tick_key > 7){
+                Tick[now].ball_avg_vel = *std::max_element(ball_vel_group, ball_vel_group + PARAM::Tick::TickLength);
+                Tick[now].tick_key = 0;
+            }
+        }
     }
+
 
     /**
      * TODO: 补全
