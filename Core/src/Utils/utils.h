@@ -33,20 +33,21 @@ namespace Utils {
 // HuRocos 2024
 extern std::string GlobalComputingPos(const CVisionModule *pVision,const CGeoPoint& p); //计算所有点位
 extern double map(double value, double min_in, double max_in, double min_out, double max_out); // 映射
-extern bool InExclusionZone(double x,double y); // 判断点是否在禁区内
+extern bool InExclusionZone(CGeoPoint Point); // 判断点是否在禁区内
 extern double NumberNormalize(double data, double max_data,double min_data); // [0,1] 标准化
 extern bool isValidPass(const CVisionModule* pVision, CGeoPoint start, CGeoPoint end, double buffer = 30, bool ignoreCloseEnemy=false, bool ignoreTheirGuard=false); //两点之间是否有人
 extern void UpdataTickMessage(const CVisionModule *pVision); //获取帧信息
 extern CGeoPoint GetInterPos(const CVisionModule *pVision, CGeoPoint player_pos,double velocity); // 获取最佳截球点
 extern CGeoSegment PredictBallLine(const CVisionModule *pVision);
 extern double PosToPosTime(CGeoPoint start_pos,CGeoPoint end_pos,double velocity);
+extern CGeoPoint GetShootPoint(const CVisionModule *pVision, double x, double y); //获取某坐标而言对方守门员的空位
 // 多模式
 double PosToPosDirGrade(double x, double y,double x1,double y1,int dir = 1,std::string model = "NORMAL");
 extern double PosToPosDistGrade(double x, double y,double x1,double y1, int dir = 1,std::string model = "GAUSS"); // 坐标到坐标的距离评分
 extern double NumberNormalizeGauss(double data, double max_data, double min_data, double peak_pos, std::string model = "DOUBLELINE"); // [0,1] 高斯归一化
 extern double PosToBallDistGrade(const CVisionModule *pVision,double x, double y,int dir = 1, std::string model = "GAUSS"); // 坐标到球的距离评分
-extern CGeoPoint GetShootPoint(const CVisionModule *pVision, double x, double y, int num, std::string model = "TRAVERSE"); //获取某坐标而言对方守门员的空位
 
+extern double PosSafetyGrade(const CVisionModule *pVision, CGeoPoint start, CGeoPoint end); // 路径安全性评分
 
 
 // Robocup-SSL-China

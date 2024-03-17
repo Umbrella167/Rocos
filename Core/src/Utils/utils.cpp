@@ -4,6 +4,8 @@
 #include <GDebugEngine.h>
 #include <iostream>
 #include <unistd.h>
+#include <Eigen/Dense>
+#include <fstream>
 /*
             C++ 传数据到 Lua 总结
         1.utils.cpp        写好功能
@@ -15,7 +17,8 @@
 @ author : Umbrella
 */
 GlobalTick Tick[PARAM::Tick::TickLength];
-
+int now = PARAM::Tick::TickLength - 1;
+int last = PARAM::Tick::TickLength - 2;
 namespace Utils
 {
     // 没写完 START
@@ -30,12 +33,13 @@ namespace Utils
     string GlobalComputingPos(const CVisionModule *pVision, const CGeoPoint &p)
     {
         UpdataTickMessage(pVision);
+//        PredictBallLine(pVision);
         int step = 100;
         int half_length = PARAM::Field::PITCH_LENGTH / 2;
         int half_width = PARAM::Field::PITCH_WIDTH / 2;
         int field_x = 0;
         int field_y = 0;
-        GetShootPoint(pVision, pVision->ball().X(), pVision->ball().Y(), 5, "TRAVERSE");
+        GetShootPoint(pVision, pVision->ball().X(), pVision->ball().Y());
         double a = PosToPosDirGrade(0, 0, pVision->ball().X(), pVision->ball().Y(), 1, "NORMAL");
         return to_string(a); // FIXME: 字符串可能还是抽象了点，到时候看看修一下
     }
@@ -47,33 +51,77 @@ namespace Utils
      */
 
     void UpdataTickMessage(const CVisionModule *pVision){
-        int now = PARAM::Tick::TickLength - 1;
-        int last = PARAM::Tick::TickLength - 2;
         int oldest = 0;
-        double ball_vel_group[PARAM::Tick::TickLength];
-        for (int i = oldest; i < PARAM::Tick::TickLength - 1;i++){
-            GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(-4300,-2000 + i * 200),to_string(Tick[i].ball_vel) + "       "  + to_string(Tick[i+1].ball_vel)+ "       "  + to_string((Tick[i+1].ball_vel - Tick[i].ball_vel) / Tick[i].delta_time));
-            ball_vel_group[i] = Tick[i].ball_vel;
+        //记录帧信息
+        for (int i = oldest; i < PARAM::Tick::TickLength -1;i++){
+//            GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(-4300,-2000 + i * 200),
+//            to_string(Tick[0].ball_vel) +
+//            "       " + to_string(Tick[1].ball_vel)+
+//            "       "  + to_string(Tick[i+1].ball_acc)+
+//            "       "  +       to_string(Tick[now].tick_key)
+//                    );
             Tick[i] = Tick[i+1];
 
         }
+        //更新帧信息
         Tick[now].time = std::chrono::high_resolution_clock::now();
         Tick[now].delta_time = (double)std::chrono::duration_cast<std::chrono::microseconds>(Tick[now].time - Tick[last].time).count() / 1000000;
         Tick[now].tick_count+=1;
+        Tick[now].ball_pos = pVision ->ball().Pos();
         Tick[now].ball_vel = pVision ->ball().Vel().mod() / 1000;
         Tick[now].ball_vel_dir = pVision ->ball().Vel().dir();
-        if (Tick[now].ball_vel < 0.01 || (abs(Tick[last].ball_vel_dir - Tick[now].ball_vel_dir) > 0.01 && abs(Tick[last].ball_vel_dir - Tick[now].ball_vel_dir) < 6)){
-            Tick[now].ball_pos_move_befor = Tick[now].ball_pos;
-            Tick[now].tick_key = 1;
-        }
-
-        if (Tick[now].tick_key != 0){
-            Tick[now].tick_key += 1;
-            if (Tick[now].tick_key > 7){
-                Tick[now].ball_avg_vel = *std::max_element(ball_vel_group, ball_vel_group + PARAM::Tick::TickLength);
-                Tick[now].tick_key = 0;
+        Tick[now].ball_acc = (Tick[now].ball_vel - Tick[last].ball_vel) / Tick[now].delta_time;
+        Tick[now].our_player_num = pVision ->getValidNum();
+        Tick[now].their_player_num = pVision ->getTheirValidNum();
+        //获取场上机器人信息
+        for(int i = 0;i<PARAM::Field::MAX_PLAYER;i++)
+        {
+            if(pVision ->ourPlayer(i).Valid())
+            {
+                //有效机器人
+                Tick[now].our_player[i] = i;
+                //我方守门员
+                if(InExclusionZone(pVision ->ourPlayer(Tick[now].our_player[i]).Pos())) Tick[now].our_goalie_num = i;
+            }
+            if(pVision ->theirPlayer(i).Valid())
+            {
+                //有效机器人
+                Tick[now].their_player[i] = i;
+                //敌方守门员
+                if(InExclusionZone(pVision ->theirPlayer(Tick[now].their_player[i]).Pos())) Tick[now].their_goalie_num = i;
             }
         }
+        //球静止状态
+        if (Tick[now].ball_vel < 0.01 || (abs(Tick[last].ball_vel_dir - Tick[now].ball_vel_dir) > 0.006 && abs(Tick[last].ball_vel_dir - Tick[now].ball_vel_dir) < 6))
+        {
+            Tick[now].ball_pos_move_befor = Tick[now].ball_pos;
+            Tick[now].tick_key = 0;
+            Tick[now].predict_vel_max = 0;
+        }
+//        //球运动状态
+//        else
+//        {
+//            Tick[now].tick_key += 1;
+//            if(Tick[now].tick_key == 2){
+//                Tick[now].predict_vel_max = Tick[now].ball_acc * 0.086;
+
+//            }
+//        }
+
+//        if (Tick[1].ball_vel > 0 && Tick[0].ball_vel == 0)
+//        {   std::ofstream outfile("/home/umbrella/文档/data.txt");
+//            for (int i = 0; i < PARAM::Tick::TickLength;i++)
+//            {
+//                outfile << "距离：" + to_string((Tick[i].ball_pos - Tick[0].ball_pos).mod())+
+//                       "      速度：" + to_string(Tick[i].ball_vel) +
+//                       "      加速度：" + to_string(Tick[i].ball_acc)+
+//                       "      时间：" + to_string(Tick[i].delta_time)+
+//                       "      预测最大速度：" + to_string(Tick[i].predict_vel_max)
+//                << std::endl; // 写入内容
+//            }
+//            outfile.close();
+//        }
+
     }
 
 
@@ -86,13 +134,25 @@ namespace Utils
      */
     double PosSafetyGrade(const CVisionModule *pVision, CGeoPoint start, CGeoPoint end)
     {
+
         CGeoSegment BallLine(start, end);
-        for (int i = 0; i < PARAM::Field::MAX_PLAYER; i++)
+        //model SHOOT
+        double dist = 0;
+        double min_dist = 99999;
+        int min_num = 0;
+        double grade = 0;
+        for(int i = 0;i < Tick[now].their_player_num;i++)
         {
-            if (!pVision->theirPlayer(i).Valid())
-                continue;
-            pVision->ball().Vel();
+            dist = (pVision->theirPlayer(Tick[now].their_player[i]).Pos() - BallLine.projection(pVision ->theirPlayer(Tick[now].their_player[i]).Pos())).mod();
+            if(min_dist > dist) min_dist = dist,min_num = i;
         }
+        if((min_num != Tick[now].their_goalie_num) && (pVision -> theirPlayer(min_num).Pos().x() > Tick[now].ball_pos.x()))
+            grade = 0.6 * NumberNormalize((pVision -> theirPlayer(min_num).Pos() - BallLine.projection(pVision -> theirPlayer(min_num).Pos())).mod(),1000,0) +
+                    0.4 * NumberNormalize((pVision -> theirPlayer(Tick[now].their_goalie_num).Pos() - end).mod(),1000,0);
+        else grade = NumberNormalize( (pVision -> theirPlayer(Tick[now].their_goalie_num).Pos() - end).mod(),1000,0);
+        grade = grade > 1?1:grade;
+        GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(0,2000),to_string(min_num != Tick[now].their_goalie_num));
+        return grade;
     }
 
     /**
@@ -151,11 +211,16 @@ namespace Utils
      * @param  {CVisionModule*} pVision : pVision
      * @return {CGeoSegment}            : 球运动轨迹的线段
      */
+
     CGeoSegment PredictBallLine(const CVisionModule *pVision)
     {
-        //        double ball_x = Tick.ball_acc == 0?0:(Tick.ball_avg_vel * Tick.ball_avg_vel / 2 * PARAM::Field::BALL_DECAY)*10000;
-        //        GDebugEngine::Instance() ->gui_debug_line(Tick.ball_pos_move_befor,Tick.ball_pos_move_befor + Polar2Vector(-ball_x,PARAM::Math::PI + pVision->ball().Vel().dir()),3);
-        //        return CGeoSegment(Tick.ball_pos_move_befor,Tick.ball_pos_move_befor + Polar2Vector(-ball_x,PARAM::Math::PI + pVision->ball().Vel().dir()));
+//        double time_count =0;
+//        time_count += Tick[now].delta_time;
+//        CGeoSegment ball_segment(Tick[now].ball_pos_move_befor,Tick[now].ball_pos);
+//        CGeoLine ball_line(Tick[now].ball_pos_move_befor,Tick[now].ball_vel_dir);
+        double ball_line_dist = Tick[now].predict_vel_max * Tick[now].predict_vel_max / 2 * PARAM::Field::BALL_DECAY * 10000 * 0.31;
+        //GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(0,2000),to_string(Tick[now].predict_vel_max));
+        //GDebugEngine::Instance() -> gui_debug_line(Tick[now].ball_pos_move_befor,Tick[now].ball_pos_move_befor + Polar2Vector(ball_line_dist,Tick[now].ball_vel_dir),3);
     }
 
     /**
@@ -167,6 +232,7 @@ namespace Utils
      */
     double GetAttackGrade(double x, double y, double last_grade)
     {
+
     }
 
     /**
@@ -178,56 +244,34 @@ namespace Utils
      * @param  {std::string} model      : FORMULA：仅根据守门员位置进行计算，TRAVERSE：遍历整个可射门点（默认：TRAVERSE）
      * @return {CGeoPoint}              : (x,y)关于最佳射门点的评分
      */
-    CGeoPoint GetShootPoint(const CVisionModule *pVision, double x, double y, int num, std::string model)
+    CGeoPoint GetShootPoint(const CVisionModule *pVision, double x, double y)
     {
-        string model_type[2] = {
-            "FORMULA",
-            "TRAVERSE",
-        };
-        if (model == model_type[0])
+        double pos_to_pos_dist_grade = 0;
+        double pos_to_pos_dir_grade = 0;
+        double pos_safety_grade = 0;
+        double grade = 0;
+        double max_grade = -999;
+        double max_y = -999;
+
+        double x1 = PARAM::Field::PITCH_LENGTH / 2 + PARAM::Field::GOAL_DEPTH / 2;
+        for (int y1 = -1 * PARAM::Field::GOAL_WIDTH * 0.4; y1 < PARAM::Field::GOAL_WIDTH * 0.4; y1 += 50)
         {
-            if (num == -1)
+            if (!isValidPass(pVision, CGeoPoint(x, y), CGeoPoint(PARAM::Field::PITCH_LENGTH / 2, y1), PARAM::Player::playerBuffer))
+                continue;
+            pos_to_pos_dist_grade = PosToPosDistGrade(x, y, x1, y1, -1, "NORMAL");
+            pos_to_pos_dir_grade = PosToPosDirGrade(x, y, x1, y1, 1, "NORMAL");
+            pos_safety_grade = PosSafetyGrade(pVision,Tick[now].ball_pos,CGeoPoint(x1,y1));
+            grade = 0.3 * pos_to_pos_dist_grade + 0.3 * pos_to_pos_dir_grade + 0.4 * pos_safety_grade;
+            if (grade > max_grade)
             {
-                CGeoPoint shoot_point(PARAM::Field::PITCH_LENGTH / 2, 0);
-                GDebugEngine::Instance()->gui_debug_x(shoot_point, 3);
-                return shoot_point;
-            }
-            else
-            {
-                double y = pVision->theirPlayer(num).Pos().y();
-                y = y >= 0 ? y - (y + (PARAM::Field::GOAL_WIDTH / 2)) / 2 : y + ((PARAM::Field::GOAL_WIDTH / 2) - y) / 2;
-                // double yf= y > 0 ? y + (PARAM::Field::GOAL_WIDTH / 2 - y) / 2:y - (PARAM::Field::GOAL_WIDTH / 2 + y) / 2;
-                y = (y > PARAM::Field::GOAL_WIDTH / 2) || (y < -1 * PARAM::Field::GOAL_WIDTH / 2) ? 0 : y;
-                GDebugEngine::Instance()->gui_debug_x(CGeoPoint(PARAM::Field::PITCH_LENGTH / 2, y), 3);
-                return CGeoPoint(PARAM::Field::PITCH_LENGTH / 2, y);
+                max_grade = grade;
+                max_y = y1;
             }
         }
-        else
-        {
-            double pos_to_pos_dist_grade = 0;
-            double pos_to_pos_dir_grade = 0;
-            double pos_life = 0;
-            double grade = 0;
-            double max_grade = -999;
-            double max_y = 0;
-            for (int y1 = -1 * PARAM::Field::GOAL_WIDTH * 0.4; y1 < PARAM::Field::GOAL_WIDTH * 0.4; y1 += 50)
-            {
-                if (!isValidPass(pVision, CGeoPoint(x, y), CGeoPoint(PARAM::Field::PITCH_LENGTH / 2, y1), PARAM::Player::playerBuffer))
-                    continue;
-                pos_to_pos_dist_grade = PosToPosDistGrade(x, y, PARAM::Field::PITCH_LENGTH / 2 + PARAM::Field::GOAL_DEPTH / 2, y1, -1, "NORMAL");
-                pos_to_pos_dir_grade = PosToPosDirGrade(x, y, PARAM::Field::PITCH_LENGTH / 2 + PARAM::Field::GOAL_DEPTH / 2, y1, 1, "NORMAL");
-                grade = 0.5 * pos_to_pos_dist_grade + 0.5 * pos_to_pos_dir_grade;
-                if (grade > max_grade)
-                {
-                    max_grade = grade;
-                    max_y = y1;
-                }
-            }
-            CGeoPoint ShootPoint(PARAM::Field::PITCH_LENGTH / 2, max_y);
-            GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(0, 1000), to_string(max_grade), 3);
-            GDebugEngine::Instance()->gui_debug_x(ShootPoint, 3);
-            return ShootPoint;
-        }
+        CGeoPoint ShootPoint(PARAM::Field::PITCH_LENGTH / 2, max_y);
+        GDebugEngine::Instance()->gui_debug_x(ShootPoint, 3);
+        return ShootPoint;
+
     }
 
     /**
@@ -436,8 +480,10 @@ namespace Utils
      * @param  {double} y :
      * @return {bool}     :
      */
-    bool InExclusionZone(double x, double y)
+    bool InExclusionZone(CGeoPoint Point)
     {
+        double x = Point.x();
+        double y = Point.y();
         if (((x < (-1 * PARAM::Field::PITCH_LENGTH / 2) + PARAM::Field::PENALTY_AREA_DEPTH + PARAM::Player::playerRadiusr) ||
              (x > (PARAM::Field::PITCH_LENGTH / 2) - PARAM::Field::PENALTY_AREA_DEPTH - PARAM::Player::playerRadiusr)) &&
             (y > -1 * PARAM::Field::PENALTY_AREA_WIDTH / 2 - PARAM::Player::playerRadiusr && y < PARAM::Field::PENALTY_AREA_WIDTH / 2 + PARAM::Player::playerRadiusr))

@@ -51,7 +51,7 @@ firstState = "run1",
 			--return "run11"
 		end
 	end,
-	Assister = task.shoot(shootGen(0),dir1("Assister"),_,4800),
+	Assister = task.stop,--task.shoot(shootGen(0),dir1("Assister"),_,2000),
 	match = "[A]"
 },
 
