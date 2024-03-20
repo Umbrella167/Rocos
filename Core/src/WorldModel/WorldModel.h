@@ -7,6 +7,7 @@
 #include "BufferCounter.h"
 #include "BallStatus.h"
 #include <singleton.hpp>
+#include "LeastSquaresfit.h"
 extern bool record_run_pos_on;
 ///
 /// @file   WoldModel.h
