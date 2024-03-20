@@ -184,7 +184,7 @@ struct GlobalTick{
     int tick_count = 0; // 帧计数
     int tick_key = 0; // 关键帧
     double predict_vel_max = 0; // 预测的最大速度
-    int their_player [16] = {-1}; // 敌方机器人数组
+    int their_player [16]; // 敌方机器人数组
     int their_player_num = 6; // 敌方玩家数目
     int their_goalie_num = 0; // 敌方守门员号码
     int our_player [16] = {}; // 我方机器人数组

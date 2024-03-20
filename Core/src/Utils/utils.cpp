@@ -30,21 +30,42 @@ namespace Utils
      * @param  {CGeoPoint} p            : 位置
      * @return {string}                 : 计算出的位置
      */
-    string GlobalComputingPos(const CVisionModule *pVision, const CGeoPoint &p)
+    string GlobalComputingPos(const CVisionModule *pVision, CGeoPoint player_pos)
     {
         UpdataTickMessage(pVision);
-//        PredictBallLine(pVision);
+        PredictBallLine(pVision);
         int step = 100;
         int half_length = PARAM::Field::PITCH_LENGTH / 2;
         int half_width = PARAM::Field::PITCH_WIDTH / 2;
         int field_x = 0;
         int field_y = 0;
-        GetShootPoint(pVision, pVision->ball().X(), pVision->ball().Y());
-        double a = PosToPosDirGrade(0, 0, pVision->ball().X(), pVision->ball().Y(), 1, "NORMAL");
-        return to_string(a); // FIXME: 字符串可能还是抽象了点，到时候看看修一下
+        double max_attack_grade = -999;
+
+        CGeoPoint max_attack_pos;
+        CGeoPoint max_shoot_pos;
+        for(int x = 0;x < 4500;x+= 400){
+            for(int y = -2800;y < 2800;y+=400){
+                CGeoPoint shoot_pos = GetShootPoint(pVision, x,y);
+                if(shoot_pos.y() == -999 || InExclusionZone(CGeoPoint(x,y)) || (!isValidPass(pVision,player_pos,CGeoPoint(x,y),PARAM::Player::playerBuffer)) || !isValidPass(pVision,CGeoPoint(x,y),shoot_pos,PARAM::Player::playerBuffer)) continue;
+                double attackGrade = GetAttackGrade(pVision, x, y,player_pos,shoot_pos);
+                if (attackGrade > max_attack_grade)
+                {
+                    max_attack_grade = attackGrade;
+                    max_shoot_pos = shoot_pos;
+                    max_attack_pos = CGeoPoint(x,y);
+                }
+                std::ostringstream stream;
+                stream << std::fixed << std::setprecision(2) << attackGrade;
+                std::string a_str = stream.str();
+
+                GDebugEngine::Instance() ->gui_debug_x(CGeoPoint(x,y),3);
+                GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(x,y),a_str);
+            }
+        }
+        GDebugEngine::Instance() ->gui_debug_arc(max_shoot_pos,200,0,360,3);
+        GDebugEngine::Instance() ->gui_debug_arc(max_attack_pos,200,0,360,3);
+        return to_string(1); // FIXME: 字符串可能还是抽象了点，到时候看看修一下
     }
-
-
     /**
      * 全局视觉、物理信息保存
      * @param  {CVisionModule*} pVision : 视觉模块
@@ -108,20 +129,19 @@ namespace Utils
 //            }
 //        }
 
-//        if (Tick[1].ball_vel > 0 && Tick[0].ball_vel == 0)
-//        {   std::ofstream outfile("/home/umbrella/文档/data.txt");
-//            for (int i = 0; i < PARAM::Tick::TickLength;i++)
-//            {
-//                outfile << "距离：" + to_string((Tick[i].ball_pos - Tick[0].ball_pos).mod())+
-//                       "      速度：" + to_string(Tick[i].ball_vel) +
-//                       "      加速度：" + to_string(Tick[i].ball_acc)+
-//                       "      时间：" + to_string(Tick[i].delta_time)+
-//                       "      预测最大速度：" + to_string(Tick[i].predict_vel_max)
-//                << std::endl; // 写入内容
-//            }
-//            outfile.close();
-//        }
-
+        if (Tick[1].ball_vel > 0 && Tick[0].ball_vel == 0)
+        {   std::ofstream outfile("/home/umbrella/文档/data.txt");
+            for (int i = 0; i < PARAM::Tick::TickLength;i++)
+            {
+                outfile << "距离：" + to_string((Tick[i].ball_pos - Tick[0].ball_pos).mod())+
+                       "      速度：" + to_string(Tick[i].ball_vel) +
+                       "      加速度：" + to_string(Tick[i].ball_acc)+
+                       "      时间：" + to_string(Tick[i].delta_time)+
+                       "      预测最大速度：" + to_string(Tick[i].predict_vel_max)
+                << std::endl; // 写入内容
+            }
+            outfile.close();
+        }
     }
 
 
@@ -143,15 +163,18 @@ namespace Utils
         double grade = 0;
         for(int i = 0;i < Tick[now].their_player_num;i++)
         {
-            dist = (pVision->theirPlayer(Tick[now].their_player[i]).Pos() - BallLine.projection(pVision ->theirPlayer(Tick[now].their_player[i]).Pos())).mod();
+            if(i == Tick[now].their_goalie_num) continue;
+            CGeoPoint VildPos = pVision->theirPlayer(Tick[now].their_player[i]).Pos();
+            if(VildPos.x() < start.x()) continue;
+            dist = VildPos.dist(BallLine.projection(VildPos));
             if(min_dist > dist) min_dist = dist,min_num = i;
         }
-        if((min_num != Tick[now].their_goalie_num) && (pVision -> theirPlayer(min_num).Pos().x() > Tick[now].ball_pos.x()))
-            grade = 0.6 * NumberNormalize((pVision -> theirPlayer(min_num).Pos() - BallLine.projection(pVision -> theirPlayer(min_num).Pos())).mod(),1000,0) +
-                    0.4 * NumberNormalize((pVision -> theirPlayer(Tick[now].their_goalie_num).Pos() - end).mod(),1000,0);
-        else grade = NumberNormalize( (pVision -> theirPlayer(Tick[now].their_goalie_num).Pos() - end).mod(),1000,0);
+        double goalie_dist = pVision ->theirPlayer(Tick[now].their_goalie_num).Pos().dist(end);
+        if(goalie_dist > min_dist)
+            grade = 0.7 * NumberNormalize(pVision -> theirPlayer(min_num).Pos().dist(BallLine.projection(pVision -> theirPlayer(min_num).Pos())),1500,0) +
+                    0.3 * NumberNormalize(pVision -> theirPlayer(Tick[now].their_goalie_num).Pos().dist(end),1500,0);
+        else grade = NumberNormalize( pVision -> theirPlayer(Tick[now].their_goalie_num).Pos().dist(end),1500,0);
         grade = grade > 1?1:grade;
-        GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(0,2000),to_string(min_num != Tick[now].their_goalie_num));
         return grade;
     }
 
@@ -162,6 +185,7 @@ namespace Utils
      * @param  {double} velocity        : 速度
      * @return {CGeoPoint}              : 最佳截球点
      */
+
     CGeoPoint GetInterPos(const CVisionModule *pVision, CGeoPoint player_pos, double velocity)
     {
         /* double buffer = 0;
@@ -230,9 +254,28 @@ namespace Utils
      * @param  {double} last_grade :
      * @return {double}            : (x,y)关于最佳跑位点的评分
      */
-    double GetAttackGrade(double x, double y, double last_grade)
+    double GetAttackGrade(const CVisionModule *pVision, double x, double y,CGeoPoint player_pos,CGeoPoint shoot_pos)
     {
+        // shoot grade
+        double shoot_grade;
+        double shoot_dir_grade;
+        double shoot_dist_grade;
 
+        double pass_grade;
+        double pass_dir_grade;
+        double pass_dist_grade;
+        double pass_safty_grade;
+        double grade = 0.0;
+        shoot_dir_grade = PosToPosDirGrade(x,y,shoot_pos.x(),shoot_pos.y(),4 / PARAM::Math::RADIAN * PARAM::Math::PI);
+        shoot_dist_grade = PosToPosDistGrade(x,y,shoot_pos.x(),shoot_pos.y(),-1,"NORMAL");
+        shoot_grade = 0.2 * shoot_dir_grade + 0.8 * shoot_dist_grade;
+        pass_dir_grade = PosToPosDirGrade(x,y,player_pos.x(),player_pos.y(),4 / PARAM::Math::RADIAN * PARAM::Math::PI);
+        pass_dist_grade = PosToPosDistGrade(x,y,player_pos.x(),player_pos.y());
+        pass_safty_grade = PosSafetyGrade(pVision,player_pos,CGeoPoint(x,y));
+        pass_grade = 0.5 * pass_dir_grade + 0.5 * pass_dist_grade;
+
+        grade = 0.2 * pass_grade + 0.5 * shoot_grade+ 0.3 * pass_safty_grade;
+        return grade;
     }
 
     /**
@@ -259,17 +302,19 @@ namespace Utils
             if (!isValidPass(pVision, CGeoPoint(x, y), CGeoPoint(PARAM::Field::PITCH_LENGTH / 2, y1), PARAM::Player::playerBuffer))
                 continue;
             pos_to_pos_dist_grade = PosToPosDistGrade(x, y, x1, y1, -1, "NORMAL");
-            pos_to_pos_dir_grade = PosToPosDirGrade(x, y, x1, y1, 1, "NORMAL");
-            pos_safety_grade = PosSafetyGrade(pVision,Tick[now].ball_pos,CGeoPoint(x1,y1));
+            pos_to_pos_dir_grade = PosToPosDirGrade(x, y, x1, y1,1);
+            pos_safety_grade = PosSafetyGrade(pVision,CGeoPoint(x,y),CGeoPoint(x1,y1));
             grade = 0.3 * pos_to_pos_dist_grade + 0.3 * pos_to_pos_dir_grade + 0.4 * pos_safety_grade;
+            //GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(0,y1 * 3),to_string(pos_safety_grade));
             if (grade > max_grade)
             {
                 max_grade = grade;
                 max_y = y1;
             }
         }
+
         CGeoPoint ShootPoint(PARAM::Field::PITCH_LENGTH / 2, max_y);
-        GDebugEngine::Instance()->gui_debug_x(ShootPoint, 3);
+//        GDebugEngine::Instance()->gui_debug_x(ShootPoint, 3);
         return ShootPoint;
 
     }
@@ -284,36 +329,18 @@ namespace Utils
      * @param  {bool} ignoreTheirGuard  : 是否忽略敌方禁区（默认为 false）
      * @return {bool}                   : (true\false)
      */
-    bool isValidPass(const CVisionModule *pVision, CGeoPoint start, CGeoPoint end, double buffer, bool ignoreCloseEnemy, bool ignoreTheirGuard)
+    bool isValidPass(const CVisionModule *pVision, CGeoPoint start, CGeoPoint end, double buffer)
     {
-        // 判断能否传球的角度限制
-        static const double CLOSE_ANGLE_LIMIT = 8 * PARAM::Math::PI / 180;
-        static const double FAR_ANGLE_LIMIT = 12 * PARAM::Math::PI / 180;
-        static const double CLOSE_THRESHOLD = 50;
-
-        static const double SAFE_DIST = 50;
-        static const double CLOSE_ENEMY_DIST = 50;
-
-        bool valid = true;
-        // 使用平行线进行计算，解决近距离扇形计算不准问题
-        CGeoSegment BallLine(start, end);
-        for (int i = 0; i < PARAM::Field::MAX_PLAYER; i++)
+        CGeoSegment Line(start,end);
+        for(int i = 0;i < Tick[now].their_player_num;i++)
         {
-            if (!pVision->theirPlayer(i).Valid())
-                continue;
-            if (ignoreCloseEnemy && pVision->theirPlayer(i).Pos().dist(start) < CLOSE_ENEMY_DIST)
-                continue;
-            if (ignoreTheirGuard && Utils::InTheirPenaltyArea(pVision->theirPlayer(i).Pos(), 30))
-                continue;
-            CGeoPoint targetPos = pVision->theirPlayer(i).Pos();
-            double dist = BallLine.dist2Point(targetPos);
-            if (dist < buffer)
-            {
-                valid = false;
-                break;
-            }
+            CGeoPoint player_pos (pVision -> theirPlayer(i).Pos());
+            CGeoPoint player_projection = Line.projection(player_pos);
+            if(!Line.IsPointOnLineOnSegment(player_projection)) continue;
+            if(player_pos.dist(player_projection) < buffer) return false;
+//            GDebugEngine::Instance() -> gui_debug_x(Line.projection(player_pos));
         }
-        return valid;
+        return true;
     }
 
     /**
@@ -326,17 +353,28 @@ namespace Utils
      * @param  {std::string} model : 评分方向( 默认为1,参数范围:{-1,1} )
      * @return {double}            : dir > 0 ? [0.0 ～ 1.0] : [1.0 ～ 0]
      */
-    double PosToPosDirGrade(double x, double y, double x1, double y1, int dir, std::string model)
+    double PosToPosDirGrade(double x, double y, double x1, double y1, double peak_pos, int dir)
     {
-        std::string model_type[] = {"GAUSS", "NORMAL"};
+
         CGeoPoint point1(x, y);
         CGeoPoint point2(x1, y1);
         double grade_dir = abs((point1 - point2).dir() * PARAM::Math::RADIAN);
-        grade_dir = model_type[1] == model ? NumberNormalize(grade_dir, PARAM::Math::RADIAN * PARAM::Math::PI, 0) : NumberNormalizeGauss(grade_dir, PARAM::Math::RADIAN * PARAM::Math::PI, 0, 4 / PARAM::Math::RADIAN * PARAM::Math::PI);
+        grade_dir = NumberNormalizeGauss(grade_dir, PARAM::Math::RADIAN * PARAM::Math::PI, 0, peak_pos);
         grade_dir = dir > 0 ? grade_dir : (1 - grade_dir);
         return grade_dir;
     }
 
+
+    double PosToPosDirGrade(double x, double y, double x1, double y1, int dir)
+    {
+
+        CGeoPoint point1(x, y);
+        CGeoPoint point2(x1, y1);
+        double grade_dir = abs((point1 - point2).dir() * PARAM::Math::RADIAN);
+        grade_dir = NumberNormalize(grade_dir, PARAM::Math::RADIAN * PARAM::Math::PI, 0);
+        grade_dir = dir > 0 ? grade_dir : (1 - grade_dir);
+        return grade_dir;
+    }
     /**
      * 坐标到球之间的距离评分
      * @param  {CVisionModule*} pVision :pVision
@@ -346,16 +384,14 @@ namespace Utils
      * @param  {std::string} model      :（GAUSS：可设峰值（peak_pos），NORMAL：越近分数越高）
      * @return {double}                 : dir > 0 ? [0.0 ～ 1.0] : [1.0 ～ 0]
      */
-    double PosToBallDistGrade(const CVisionModule *pVision, double x, double y, int dir, std::string model)
+    double PosToBallDistGrade(CGeoPoint ball_pos, double x, double y,double peak_pos, int dir)
     {
-        std::string model_type[] = {"GAUSS", "NORMAL"};
+        //PARAM::Field::PITCH_LENGTH / 3.8;
         CGeoPoint pos(x, y);
-        CGeoPoint ball_pos(pVision->ball().Pos());
-        double peak_pos = PARAM::Field::PITCH_LENGTH / 3.8;
         double max_data = PARAM::Field::PITCH_LENGTH / 1.4;
         double min_data = 0;
         double distance = (pos - ball_pos).mod();
-        double grade = model == model_type[0] ? NumberNormalizeGauss(distance, max_data, min_data, peak_pos) : NumberNormalize(distance, max_data, min_data);
+        double grade = NumberNormalizeGauss(distance, max_data, min_data, peak_pos);
         grade = dir > 0 ? grade : (1 - grade);
         if (distance > PARAM::Field::PITCH_LENGTH / 1.4)
         {
@@ -365,6 +401,22 @@ namespace Utils
         return grade;
     }
 
+
+    double PosToBallDistGrade(CGeoPoint ball_pos, double x, double y, int dir)
+    {
+        CGeoPoint pos(x, y);
+        double max_data = PARAM::Field::PITCH_LENGTH / 1.4;
+        double min_data = 0;
+        double distance = (pos - ball_pos).mod();
+        double grade = NumberNormalize(distance, max_data, min_data);
+        grade = dir > 0 ? grade : (1 - grade);
+        if (distance > PARAM::Field::PITCH_LENGTH / 1.4)
+        {
+            return 0.0;
+        }
+
+        return grade;
+    }
     /**
      * 坐标到球之间的距离评分
      * @param  {double} x          : x

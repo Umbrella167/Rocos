@@ -50,10 +50,10 @@ namespace PARAM {
     namespace Player {
         const int playerFrontToCenter = 76;
         const int playerRadiusr = 90;
-        const int playerBuffer = 130;
+        const int playerBuffer = 200;
                 }
     namespace Tick {
-        const int TickLength = 5;
+        const int TickLength = 100;
 
                 }
     namespace Rule{
