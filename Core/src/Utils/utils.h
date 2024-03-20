@@ -42,6 +42,7 @@ extern CGeoSegment PredictBallLine(const CVisionModule *pVision);
 extern double PosToPosTime(CGeoPoint start_pos,CGeoPoint end_pos,double velocity);
 extern CGeoPoint GetShootPoint(const CVisionModule *pVision, double x, double y); //获取某坐标而言对方守门员的空位
 extern double GetAttackGrade(const CVisionModule *pVision, double x, double y,CGeoPoint player_pos,CGeoPoint shoot_pos);
+extern int DefenderTryToCatchBall(); // 判断防守是否可能抓住球
 
 // 多模式
 extern double PosToPosDirGrade(double x, double y,double x1,double y1,int dir = -1);
