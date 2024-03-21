@@ -4,6 +4,7 @@
 #include <GDebugEngine.h>
 #include <iostream>
 #include <unistd.h>
+
 /*
             C++ 传数据到 Lua 总结
         1.utils.cpp        写好功能
@@ -14,6 +15,7 @@
 @ data   : 20240205
 @ author : Umbrella
 */
+
 GlobalTick Tick[PARAM::Tick::TickLength];
 
 namespace Utils
@@ -28,20 +30,25 @@ namespace Utils
      */
     string GlobalComputingPos(const CVisionModule *pVision, const CGeoPoint &p)
     {
+        const int PITCH_LENGTH_HALF = PARAM::Field::PITCH_LENGTH >> 1;
+        const int PITCH_WIDTH_HALF = PARAM::Field::PITCH_WIDTH >> 1;
+
         UpdataTickMessage(pVision);
+
         int step = 100;
-        int half_length = PARAM::Field::PITCH_LENGTH / 2;
-        int half_width = PARAM::Field::PITCH_WIDTH / 2;
         int field_x = 0;
         int field_y = 0;
+
         GetShootPoint(pVision, pVision->ball().X(), pVision->ball().Y(), 5, "TRAVERSE");
         double a = PosToPosDirGrade(0, 0, pVision->ball().X(), pVision->ball().Y(), 1, "NORMAL");
         return to_string(a); // FIXME: 字符串可能还是抽象了点，到时候看看修一下
     }
+
     void UpdataTickMessage(const CVisionModule *pVision)
     {
-        int now = PARAM::Tick::TickLength - 1;
-        int last = PARAM::Tick::TickLength - 2;
+        const int TICK_NOW = PARAM::Tick::TickLength - 1;
+        const int TICK_LAST = PARAM::Tick::TickLength - 2;
+
         int oldest = 0;
         double ball_vel_group[PARAM::Tick::TickLength];
         for (int i = oldest; i < PARAM::Tick::TickLength - 1; i++)
@@ -50,24 +57,24 @@ namespace Utils
             ball_vel_group[i] = Tick[i].ball_vel;
             Tick[i] = Tick[i + 1];
         }
-        Tick[now].time = std::chrono::high_resolution_clock::now();
-        Tick[now].delta_time = (double)std::chrono::duration_cast<std::chrono::microseconds>(Tick[now].time - Tick[last].time).count() / 1000000;
-        Tick[now].tick_count += 1;
-        Tick[now].ball_vel = pVision->ball().Vel().mod() / 1000;
-        Tick[now].ball_vel_dir = pVision->ball().Vel().dir();
-        if (Tick[now].ball_vel < 0.01 || (abs(Tick[last].ball_vel_dir - Tick[now].ball_vel_dir) > 0.01 && abs(Tick[last].ball_vel_dir - Tick[now].ball_vel_dir) < 6))
+        Tick[TICK_NOW].time = std::chrono::high_resolution_clock::now();
+        Tick[TICK_NOW].delta_time = (double)std::chrono::duration_cast<std::chrono::microseconds>(Tick[TICK_NOW].time - Tick[TICK_LAST].time).count() / 1000000;
+        Tick[TICK_NOW].tick_count += 1;
+        Tick[TICK_NOW].ball_vel = pVision->ball().Vel().mod() / 1000;
+        Tick[TICK_NOW].ball_vel_dir = pVision->ball().Vel().dir();
+        if (Tick[TICK_NOW].ball_vel < 0.01 || (abs(Tick[TICK_LAST].ball_vel_dir - Tick[TICK_NOW].ball_vel_dir) > 0.01 && abs(Tick[TICK_LAST].ball_vel_dir - Tick[TICK_NOW].ball_vel_dir) < 6))
         {
-            Tick[now].ball_pos_move_befor = Tick[now].ball_pos;
-            Tick[now].tick_key = 1;
+            Tick[TICK_NOW].ball_pos_move_befor = Tick[TICK_NOW].ball_pos;
+            Tick[TICK_NOW].tick_key = 1;
         }
 
-        if (Tick[now].tick_key != 0)
+        if (Tick[TICK_NOW].tick_key != 0)
         {
-            Tick[now].tick_key += 1;
-            if (Tick[now].tick_key > 7)
+            Tick[TICK_NOW].tick_key += 1;
+            if (Tick[TICK_NOW].tick_key > 7)
             {
-                Tick[now].ball_avg_vel = *std::max_element(ball_vel_group, ball_vel_group + PARAM::Tick::TickLength);
-                Tick[now].tick_key = 0;
+                Tick[TICK_NOW].ball_avg_vel = *std::max_element(ball_vel_group, ball_vel_group + PARAM::Tick::TickLength);
+                Tick[TICK_NOW].tick_key = 0;
             }
         }
     }
@@ -157,10 +164,10 @@ namespace Utils
      * 坐标点关于最佳跑位点的评分
      * @param  {double} x          : x
      * @param  {double} y          : y
-     * @param  {double} last_grade :
+     * @param  {double} TICK_LAST_grade :
      * @return {double}            : (x,y)关于最佳跑位点的评分
      */
-    double GetAttackGrade(double x, double y, double last_grade)
+    double GetAttackGrade(double x, double y, double TICK_LAST_grade)
     {
     }
 
