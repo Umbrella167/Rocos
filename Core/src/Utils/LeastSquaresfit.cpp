@@ -1,32 +1,18 @@
 #include "LeastSquaresfit.h"
-using namespace std;
+#include <cmath>
+#include <iostream>
 
-double Em[6][4];
+namespace{
+    double Em[6][4] = {0};
+}
 
 LeastSquaresfit::LeastSquaresfit()
 {
-    return 191810;
-}
-
-int LeastSquaresfit::Fit()
-{
-    double arry1[5]={1, 2, 3, 4, 5};
-    double arry2[5]={1.2, 3.5, 7.2, 12.1, 18.3};
-    double coefficient[5];
-    memset(coefficient,0,sizeof(double)*5);
-    vector<double> vx,vy;
-    for (int i=0; i<5; i++)
-    {
-        vx.push_back(arry1[i]);
-        vy.push_back(arry2[i]);
-    }
-    EMatrix(vx,vy,5,3,coefficient);
-    printf("拟合方程为：y = %lf + %lfx + %lfx^2 \n",coefficient[1],coefficient[2],coefficient[3]);
-    return 114514;
+    int t=1;
 }
 
 //累加
-double sum(vector<double> Vnum, int n)
+double LeastSquaresfit::sum(vector<double> Vnum, int n)
 {
     double dsum=0;
     for (int i=0; i<n; i++)
@@ -37,7 +23,7 @@ double sum(vector<double> Vnum, int n)
 }
 
 //乘积和
-double MutilSum(vector<double> Vx, vector<double> Vy, int n)
+double LeastSquaresfit::MutilSum(vector<double> Vx, vector<double> Vy, int n)
 {
     double dMultiSum=0;
     for (int i=0; i<n; i++)
@@ -48,7 +34,7 @@ double MutilSum(vector<double> Vx, vector<double> Vy, int n)
 }
 
 //ex次方和
-double RelatePow(vector<double> Vx, int n, int ex)
+double LeastSquaresfit::RelatePow(vector<double> Vx, int n, int ex)
 {
     double ReSum=0;
     for (int i=0; i<n; i++)
@@ -59,7 +45,7 @@ double RelatePow(vector<double> Vx, int n, int ex)
 }
 
 //x的ex次方与y的乘积的累加
-double RelateMutiXY(vector<double> Vx, vector<double> Vy, int n, int ex)
+double LeastSquaresfit::RelateMutiXY(vector<double> Vx, vector<double> Vy, int n, int ex)
 {
     double dReMultiSum=0;
     for (int i=0; i<n; i++)
@@ -69,9 +55,17 @@ double RelateMutiXY(vector<double> Vx, vector<double> Vy, int n, int ex)
     return dReMultiSum;
 }
 
+//供CalEquation函数调用
+double LeastSquaresfit::F(double c[],int l,int m)
+{
+    double sum=0;
+    for(int i=l;i<=m;i++)
+        sum+=Em[l-1][i]*c[i];
+    return sum;
+}
 
 //求解方程
-void CalEquation(int exp, double coefficient[])
+void LeastSquaresfit::CalEquation(int exp, double coefficient[])
 {
     for(int k=1;k<exp;k++) //消元过程
     {
@@ -92,7 +86,7 @@ void CalEquation(int exp, double coefficient[])
 }
 
 //计算方程组的增广矩阵
-void EMatrix(vector<double> Vx, vector<double> Vy, int n, int ex, double coefficient[])
+void LeastSquaresfit::EMatrix(vector<double> Vx, vector<double> Vy, int n, int ex, double coefficient[])
 {
     for (int i=1; i<=ex; i++)
     {
@@ -106,12 +100,20 @@ void EMatrix(vector<double> Vx, vector<double> Vy, int n, int ex, double coeffic
     CalEquation(ex,coefficient);
 }
 
-
-//供CalEquation函数调用
-double F(double c[],int l,int m)
+double* LeastSquaresfit::Fit(double arry1[], double arry2[])
 {
-    double sum=0;
-    for(int i=l;i<=m;i++)
-        sum+=Em[l-1][i]*c[i];
-    return sum;
+//    double arry1[5]={1, 2, 3, 4, 5};
+//    double arry2[5]={1.2, 3.5, 7.2, 12.1, 18.3};
+    double coefficient[5];
+    memset(coefficient,0,sizeof(double)*5);
+    vector<double> vx,vy;
+    for (int i=0; i<5; i++)
+    {
+        vx.push_back(arry1[i]);
+        vy.push_back(arry2[i]);
+    }
+    EMatrix(vx,vy,5,3,coefficient);
+//    printf("拟合方程为：y = %lf + %lfx + %lfx^2 \n",coefficient[1],coefficient[2],coefficient[3]);
+    double result[3] = {coefficient[1], coefficient[2], coefficient[3]};
+    return result;
 }

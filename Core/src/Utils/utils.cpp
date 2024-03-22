@@ -19,6 +19,7 @@
 GlobalTick Tick[PARAM::Tick::TickLength];
 int now = PARAM::Tick::TickLength - 1;
 int last = PARAM::Tick::TickLength - 2;
+
 namespace Utils
 {
     // 没写完 START
@@ -32,7 +33,7 @@ namespace Utils
      */
     string GlobalComputingPos(const CVisionModule *pVision, CGeoPoint player_pos)
     {
-        LeastSquaresfit *aa;
+        LeastSquaresfit aa;
         UpdataTickMessage(pVision);
         PredictBallLine(pVision);
         int step = 100;
@@ -41,8 +42,6 @@ namespace Utils
         int field_x = 0;
         int field_y = 0;
         double max_attack_grade = -999;
-
-        GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(2333, 2333), to_string(aa->LeastSquaresfit::Fit()));
 
         CGeoPoint max_attack_pos;
         CGeoPoint max_shoot_pos;
