@@ -1,0 +1,13 @@
+$#include <cmath>
+$#include <cstring>
+$#include <iostream>
+$#include <vector>
+$#include "LeastSquaresfit.h"
+
+class CLeastSquaresfit{
+    CLeastSquaresfit();
+    ~CLeastSquaresfit();
+    
+    LeastSquaresfit();
+    int Fit();
+}
