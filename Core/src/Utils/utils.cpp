@@ -84,29 +84,29 @@ namespace Utils
         }
 
 
-        CGeoPoint max_attack_pos;
-        CGeoPoint max_shoot_pos;
-        for(int x = 0;x < 4500;x+= 400){
-            for(int y = -2800;y < 2800;y+=400){
-                CGeoPoint shoot_pos = GetShootPoint(pVision, x,y);
-                if(shoot_pos.y() == -999 || InExclusionZone(CGeoPoint(x,y)) || (!isValidPass(pVision,player_pos,CGeoPoint(x,y),PARAM::Player::playerBuffer)) || !isValidPass(pVision,CGeoPoint(x,y),shoot_pos,PARAM::Player::playerBuffer)) continue;
-                double attackGrade = GetAttackGrade(pVision, x, y,player_pos,shoot_pos);
-                if (attackGrade > max_attack_grade)
-                {
-                    max_attack_grade = attackGrade;
-                    max_shoot_pos = shoot_pos;
-                    max_attack_pos = CGeoPoint(x,y);
-                }
-                std::ostringstream stream;
-                stream << std::fixed << std::setprecision(2) << attackGrade;
-                std::string a_str = stream.str();
+//        CGeoPoint max_attack_pos;
+//        CGeoPoint max_shoot_pos;
+//        for(int x = 0;x < 4500;x+= 400){
+//            for(int y = -2800;y < 2800;y+=400){
+//                CGeoPoint shoot_pos = GetShootPoint(pVision, x,y);
+//                if(shoot_pos.y() == -999 || InExclusionZone(CGeoPoint(x,y)) || (!isValidPass(pVision,player_pos,CGeoPoint(x,y),PARAM::Player::playerBuffer)) || !isValidPass(pVision,CGeoPoint(x,y),shoot_pos,PARAM::Player::playerBuffer)) continue;
+//                double attackGrade = GetAttackGrade(pVision, x, y,player_pos,shoot_pos);
+//                if (attackGrade > max_attack_grade)
+//                {
+//                    max_attack_grade = attackGrade;
+//                    max_shoot_pos = shoot_pos;
+//                    max_attack_pos = CGeoPoint(x,y);
+//                }
+//                std::ostringstream stream;
+//                stream << std::fixed << std::setprecision(2) << attackGrade;
+//                std::string a_str = stream.str();
 
-                GDebugEngine::Instance() ->gui_debug_x(CGeoPoint(x,y),3);
-                GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(x,y),a_str);
-            }
-        }
-        GDebugEngine::Instance() ->gui_debug_arc(max_shoot_pos,200,0,360,3);
-        GDebugEngine::Instance() ->gui_debug_arc(max_attack_pos,200,0,360,3);
+//                GDebugEngine::Instance() ->gui_debug_x(CGeoPoint(x,y),3);
+//                GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(x,y),a_str);
+//            }
+//        }
+//        GDebugEngine::Instance() ->gui_debug_arc(max_shoot_pos,200,0,360,3);
+//        GDebugEngine::Instance() ->gui_debug_arc(max_attack_pos,200,0,360,3);
         return to_string(1); // FIXME: 字符串可能还是抽象了点，到时候看看修一下
     }
     /**

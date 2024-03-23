@@ -9,11 +9,14 @@ namespace{
 
 LeastSquaresfit::LeastSquaresfit(bool reBuild)
 {
+    DataFilename = GetDataFilename();
+    cout << DataFilename << endl;
+
 
     if (reBuild) {
         // fitdata.txt重新擬合函數
         ifstream infile;
-        infile.open("fitfunctions/fitdata.txt", ios::in);
+        infile.open(DataFilename, ios::in);
         if (!infile.is_open())
         {
             cout << "读取文件失败" << endl;
@@ -27,7 +30,6 @@ LeastSquaresfit::LeastSquaresfit(bool reBuild)
 
         while (getline(infile,buf))
         {
-//            cout << buf << endl;
             stringstream ss(buf);
             double d, t, t_d;
             ss >> d >> t >> t_d;
@@ -53,7 +55,6 @@ LeastSquaresfit::LeastSquaresfit(bool reBuild)
             }
 
         }
-//        ofstream outfile("~/fitfunctions/fitdata.txt");
 
         infile.close();
 
@@ -179,8 +180,37 @@ double* LeastSquaresfit::Fit(double arry1[], double arry2[])
     return result;
 }
 
-// 獲取訓練數據
-void LeastSquaresfit::GetFitData()
+// 採集訓練數據
+void LeastSquaresfit::GetFitData(GlobalTick* Tick)
 {
-
+//    if (Tick[1].ball_vel > 0 && Tick[0].ball_vel == 0)
+//    {
+//        ofstream outfile("~/functions/data.txt");
+//        for (int i = 0; i < PARAM::Tick::TickLength;i++)
+//        {
+//            outfile << "距离：" + to_string((Tick[i].ball_pos - Tick[0].ball_pos).mod())+
+//                   "      速度：" + to_string(Tick[i].ball_vel) +
+//                   "      加速度：" + to_string(Tick[i].ball_acc)+
+//                   "      时间：" + to_string(Tick[i].delta_time)+
+//                   "      预测最大速度：" + to_string(Tick[i].predict_vel_max)
+//            << std::endl; // 写入内容
+//        }
+//        outfile.close();
+//    }
+}
+// 獲取文件名
+string LeastSquaresfit::GetDataFilename()
+{
+    int i = 0;
+    string filename;
+    while (true)
+    {
+        i++;
+        filename = "fitfunctions/fitdata" + to_string(i) +".txt";
+        ifstream infile;
+        infile.open(filename, ios::in);
+        if(!infile.is_open())
+            break;
+    }
+    return filename;
 }

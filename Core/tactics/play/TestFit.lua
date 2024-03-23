@@ -34,15 +34,17 @@ end
 gPlayTable.CreatePlay{
 
 
-firstState = "run11",
-["run1"] = {
+firstState = "initPos",
+["initPos"] = {
 	switch = function()
-		CLeastSquaresfit()
+		Utils.GlobalComputingPos(vision,player.pos("Assister"))
+
 
 		-- return "run11"
 	end,
-	Assister = task.stop(),
-	Kicker = task.stop(),
+	-- Assister = 
+	Assister = task.staticGetBall(),
+	Kicker = task.goCmuRush(CGeoPoint(-4000, -2000)),
 	match = "[AK]"
 },
 ["run11"] = {
@@ -55,12 +57,12 @@ firstState = "run11",
 	end,
 	Assister = task.stop(),--task.shoot(shootGen(0),dir1("Assister"),_,320),
 
-	match = "[A]"
+	match = "[AK]"
 	-- ()  []  {}
 },
 
 
-name = "TestRun",
+name = "TestFit",
 applicable ={
 	exp = "a",
 	a = true
