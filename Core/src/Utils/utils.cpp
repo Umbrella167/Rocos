@@ -20,9 +20,44 @@ GlobalTick Tick[PARAM::Tick::TickLength];
 int now = PARAM::Tick::TickLength - 1;
 int last = PARAM::Tick::TickLength - 2;
 
+int isInit = 0;
+
 namespace Utils
 {
     // 没写完 START
+
+
+    /**
+     * 初始化擬合類
+     *
+     *
+     */
+    void InitFitFunction(){
+        LeastSquaresfit fitFunction(true);
+
+
+//        if (Tick[1].ball_vel > 0 && Tick[0].ball_vel == 0)
+//        {   std::ofstream outfile("~/functions/data.txt");
+//            for (int i = 0; i < PARAM::Tick::TickLength;i++)
+//            {
+//                outfile << "距离：" + to_string((Tick[i].ball_pos - Tick[0].ball_pos).mod())+
+//                       "      速度：" + to_string(Tick[i].ball_vel) +
+//                       "      加速度：" + to_string(Tick[i].ball_acc)+
+//                       "      时间：" + to_string(Tick[i].delta_time)+
+//                       "      预测最大速度：" + to_string(Tick[i].predict_vel_max)
+//                << std::endl; // 写入内容
+//            }
+//            outfile.close();
+//        }
+//        double arry1[5]={1, 2, 3, 4, 5};
+//        double arry2[5]={1.2, 3.5, 7.2, 12.1, 18.3};
+//        double* t = fitFunction.Fit(arry1, arry2);
+//        cout<< t[0] << t[1] << t[2] << endl;
+//        delete[] t;
+
+    }
+
+
 
 
     /**
@@ -33,7 +68,7 @@ namespace Utils
      */
     string GlobalComputingPos(const CVisionModule *pVision, CGeoPoint player_pos)
     {
-        LeastSquaresfit aa;
+
         UpdataTickMessage(pVision);
         PredictBallLine(pVision);
         int step = 100;
@@ -42,6 +77,12 @@ namespace Utils
         int field_x = 0;
         int field_y = 0;
         double max_attack_grade = -999;
+
+        if (isInit == 0) {
+            InitFitFunction();
+            isInit++;
+        }
+
 
         CGeoPoint max_attack_pos;
         CGeoPoint max_shoot_pos;
@@ -190,34 +231,7 @@ namespace Utils
 
     CGeoPoint GetInterPos(const CVisionModule *pVision, CGeoPoint player_pos, double velocity)
     {
-        /* double buffer = 0;
-        UpdataTickMessage(pVision);
-        CGeoSegment ball_Segment = PredictBallLine(pVision);
-        CGeoLine ball_line(Tick.ball_pos_move_befor, Tick.ball_vel_dir);
-        CGeoPoint InterPos = ball_line.projection(player_pos);
-        if (!ball_Segment.IsPointOnLineOnSegment(InterPos))
-        {
-            InterPos = ball_Segment.end();
-        }
-        InterPos = CGeoPoint(0, 0);
-        double dist = 0;
-        for (dist = (ball_Segment.end() - Tick.ball_pos_move_befor).mod(); dist > 0; dist -= 200)
-        {
-            CGeoPoint newInterPos = ball_Segment.end() + Polar2Vector(-dist, pVision->ball().Vel().dir());
-            // GDebugEngine::Instance() ->gui_debug_x(newInterPos);
-            // GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(-4000,dist),to_string(Tick.ball_max_vel_move_befor) + "   " + to_string(newInterPos.x()) + "   " + to_string(PosToPosTime(Tick.ball_pos_move_befor,newInterPos,Tick.ball_max_vel_move_befor * 1000)));
-            // GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(2000,dist),to_string(velocity) + "   " + to_string(newInterPos.x()) + "   " + to_string(PosToPosTime(newInterPos,player_pos,velocity * 1000)));
-            if (PosToPosTime(Tick.ball_pos_move_befor, newInterPos, Tick.ball_max_vel_move_befor) - PosToPosTime(player_pos, newInterPos, velocity) > buffer)
-            {
-                InterPos = newInterPos;
-                InterPos = ball_Segment.projection(InterPos);
-                break;
-            }
-        }
 
-        // GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(-4000,2000),to_string(Tick.ball_max_vel_move_befor));
-        GDebugEngine::Instance()->gui_debug_x(InterPos, 5);
-        return InterPos; */
     }
 
     /**

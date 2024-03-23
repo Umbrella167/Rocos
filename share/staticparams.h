@@ -51,11 +51,14 @@ namespace PARAM {
         const int playerFrontToCenter = 76;
         const int playerRadiusr = 90;
         const int playerBuffer = 200;
-                }
+    }
     namespace Tick {
         const int TickLength = 100;
-
-                }
+    }
+    namespace Fit { // 擬合相關參數
+        const int MaxF = 6000; // 擬合的最大力
+        const int FitSeg = 20; // 分多少段擬合
+    }
     namespace Rule{
         const int Version = 2019; // 规则的版本/年份
         const double MaxDribbleDist = 500; // 最大带球距离, 0代表没有限制

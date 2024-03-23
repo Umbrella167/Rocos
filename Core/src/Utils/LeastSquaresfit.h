@@ -1,15 +1,24 @@
 #ifndef LEASTSQUARESFIT_H
 #define LEASTSQUARESFIT_H
+#include "geometry.h"
+#include "staticparams.h"
 #include <cstring>
 #include <vector>
+#include <map>
 
 using namespace std;
 
 class LeastSquaresfit
 {
 public:
-    LeastSquaresfit();
-    double* Fit(double array1[], double array2[]);
+    LeastSquaresfit(bool reBuild);
+    double* Fit(double array1[], double array2[]); //擬合函數
+    void GetFitData(); //獲取擬合數據
+
+
+    CGeoPoint GetBallPrePos(double ball_v, CGeoPoint ball_pos, double ball_dir,double time);
+    double* Funckey;
+
 private:
     double sum(vector<double> Vnum, int n);
     double MutilSum(vector<double> Vx, vector<double> Vy, int n);

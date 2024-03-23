@@ -1,14 +1,70 @@
 #include "LeastSquaresfit.h"
 #include <cmath>
 #include <iostream>
+#include <fstream>
 
 namespace{
     double Em[6][4] = {0};
 }
 
-LeastSquaresfit::LeastSquaresfit()
+LeastSquaresfit::LeastSquaresfit(bool reBuild)
 {
-    int t=1;
+
+    if (reBuild) {
+        // fitdata.txt重新擬合函數
+        ifstream infile;
+        infile.open("fitfunctions/fitdata.txt", ios::in);
+        if (!infile.is_open())
+        {
+            cout << "读取文件失败" << endl;
+            return;
+        }
+
+        string buf;
+        int l = 0;
+        double train_t[PARAM::Tick::TickLength];
+        double train_d[PARAM::Tick::TickLength];
+
+        while (getline(infile,buf))
+        {
+//            cout << buf << endl;
+            stringstream ss(buf);
+            double d, t, t_d;
+            ss >> d >> t >> t_d;
+
+            if(l == PARAM::Tick::TickLength-1) {
+                // TODO:將擬合好的數據存入到類中，現在缺少一個長度來初始化數組。
+                train_t[l] = t;
+                train_d[l] = d;
+                double* func = Fit(train_t, train_d);
+//                FitFunctions.insert(t_d, {func[0], func[1], func[2]});
+                cout << "label:" << t_d << endl;
+                cout << func[0] << " " << func[1] << " " << func[2] <<endl;
+                l = 0;
+            }
+            else{
+                cout << "l: " << l << endl;
+                train_t[l] = t;
+                train_d[l++] = d;
+                cout << "d: " << d << " ";
+                cout << "t: " << t << " ";
+                cout << "t_d: " << t_d << endl;
+
+            }
+
+        }
+//        ofstream outfile("~/fitfunctions/fitdata.txt");
+
+        infile.close();
+
+
+    }else {
+
+
+    }
+
+
+
 }
 
 //累加
@@ -100,6 +156,7 @@ void LeastSquaresfit::EMatrix(vector<double> Vx, vector<double> Vy, int n, int e
     CalEquation(ex,coefficient);
 }
 
+//拟合函數
 double* LeastSquaresfit::Fit(double arry1[], double arry2[])
 {
 //    double arry1[5]={1, 2, 3, 4, 5};
@@ -107,13 +164,23 @@ double* LeastSquaresfit::Fit(double arry1[], double arry2[])
     double coefficient[5];
     memset(coefficient,0,sizeof(double)*5);
     vector<double> vx,vy;
-    for (int i=0; i<5; i++)
+    for (int i=0; i<PARAM::Tick::TickLength; i++)
     {
         vx.push_back(arry1[i]);
         vy.push_back(arry2[i]);
     }
-    EMatrix(vx,vy,5,3,coefficient);
+    EMatrix(vx,vy,PARAM::Tick::TickLength,3,coefficient);
 //    printf("拟合方程为：y = %lf + %lfx + %lfx^2 \n",coefficient[1],coefficient[2],coefficient[3]);
-    double result[3] = {coefficient[1], coefficient[2], coefficient[3]};
+    double* result = new double[3];
+    result[0] = coefficient[1];
+    result[1] = coefficient[2];
+    result[2] = coefficient[3];
+
     return result;
+}
+
+// 獲取訓練數據
+void LeastSquaresfit::GetFitData()
+{
+
 }
