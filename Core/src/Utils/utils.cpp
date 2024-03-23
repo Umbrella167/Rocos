@@ -33,7 +33,6 @@ namespace Utils
     string GlobalComputingPos(const CVisionModule *pVision, CGeoPoint player_pos)
     {
         UpdataTickMessage(pVision);
-        PredictBallLine(pVision);
         int step = 100;
         int half_length = PARAM::Field::PITCH_LENGTH / 2;
         int half_width = PARAM::Field::PITCH_WIDTH / 2;
@@ -72,19 +71,15 @@ namespace Utils
      */
 
     void UpdataTickMessage(const CVisionModule *pVision){
+        CWorldModel RobotSensor;
         int oldest = 0;
-        //记录帧信息
+        double our_min_dist = 9999;
+        double their_min_dist = 9999;
+        ///记录帧信息
         for (int i = oldest; i < PARAM::Tick::TickLength -1;i++){
-//            GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(-4300,-2000 + i * 200),
-//            to_string(Tick[0].ball_vel) +
-//            "       " + to_string(Tick[1].ball_vel)+
-//            "       "  + to_string(Tick[i+1].ball_acc)+
-//            "       "  +       to_string(Tick[now].tick_key)
-//                    );
             Tick[i] = Tick[i+1];
-
         }
-        //更新帧信息
+        ///更新帧信息
         Tick[now].time = std::chrono::high_resolution_clock::now();
         Tick[now].delta_time = (double)std::chrono::duration_cast<std::chrono::microseconds>(Tick[now].time - Tick[last].time).count() / 1000000;
         Tick[now].tick_count+=1;
@@ -94,41 +89,68 @@ namespace Utils
         Tick[now].ball_acc = (Tick[now].ball_vel - Tick[last].ball_vel) / Tick[now].delta_time;
         Tick[now].our_player_num = pVision ->getValidNum();
         Tick[now].their_player_num = pVision ->getTheirValidNum();
-        //获取场上机器人信息
+        ///获取场上机器人信息
         for(int i = 0;i<PARAM::Field::MAX_PLAYER;i++)
         {
             if(pVision ->ourPlayer(i).Valid())
             {
-                //有效机器人
-                Tick[now].our_player[i] = i;
-                //我方守门员
+                //获取有效机器人
+                Tick[now].our_player[i] = i; 
+                // 我方距离球最近的车号
+                double to_ball_dist = pVision ->ourPlayer(i).Pos().dist(Tick[now].ball_pos);
+                if(our_min_dist > to_ball_dist)our_min_dist = to_ball_dist,Tick[now].ball_our_min_dist_num = i;
+                //获取我方守门员
                 if(InExclusionZone(pVision ->ourPlayer(Tick[now].our_player[i]).Pos())) Tick[now].our_goalie_num = i;
             }
+
             if(pVision ->theirPlayer(i).Valid())
             {
-                //有效机器人
+                //获取有效机器人
                 Tick[now].their_player[i] = i;
-                //敌方守门员
+                // 敌方距离球最近的车号
+                double to_ball_dist = pVision ->theirPlayer(i).Pos().dist(Tick[now].ball_pos);
+                if(their_min_dist > to_ball_dist)their_min_dist = to_ball_dist,Tick[now].ball_their_min_dist_num = i;
+                //获取敌方守门员
                 if(InExclusionZone(pVision ->theirPlayer(Tick[now].their_player[i]).Pos())) Tick[now].their_goalie_num = i;
             }
+
         }
+        ///球权判断
+        //球权一定是我方的情况
+        if(RobotSensor.IsInfraredOn(Tick[now].ball_our_min_dist_num) || our_min_dist < PARAM::Player::playerBallRightsBuffer && their_min_dist > PARAM::Player::playerBallRightsBuffer)
+        {
+            Tick[now].ball_rights = 1;
+            Tick[now].our_dribbling_num = Tick[now].ball_our_min_dist_num;
+            Tick[now].their_dribbling_num = -1;
+        }
+        //球权一定是敌方的情况
+        else if(!RobotSensor.IsInfraredOn(Tick[now].ball_our_min_dist_num) && our_min_dist > PARAM::Player::playerBallRightsBuffer && their_min_dist < PARAM::Player::playerBallRightsBuffer)
+        {
+            Tick[now].ball_rights = -1;
+            Tick[now].their_dribbling_num = Tick[now].ball_their_min_dist_num;
+            Tick[now].our_dribbling_num = -1;
+        }
+
+        //传球或射门失误导致的双方都无球权的情况
+        else
+            Tick[now].ball_rights = 0;
+        // 顶牛 或 抢球对抗
+        if (our_min_dist < PARAM::Player::playerBallRightsBuffer && their_min_dist < PARAM::Player::playerBallRightsBuffer)
+            Tick[now].ball_rights = 2;
+            Tick[now].their_dribbling_num = -1;
+            Tick[now].our_dribbling_num = -1;
+
+
         //球静止状态
         if (Tick[now].ball_vel < 0.01 || (abs(Tick[last].ball_vel_dir - Tick[now].ball_vel_dir) > 0.006 && abs(Tick[last].ball_vel_dir - Tick[now].ball_vel_dir) < 6))
         {
             Tick[now].ball_pos_move_befor = Tick[now].ball_pos;
             Tick[now].tick_key = 0;
-            Tick[now].predict_vel_max = 0;
+            Tick[now].ball_predict_vel_max = 0;
         }
-//        //球运动状态
-//        else
-//        {
-//            Tick[now].tick_key += 1;
-//            if(Tick[now].tick_key == 2){
-//                Tick[now].predict_vel_max = Tick[now].ball_acc * 0.086;
 
-//            }
-//        }
-
+    /*
+        ///Debug 球速记录拟合 调试
         if (Tick[1].ball_vel > 0 && Tick[0].ball_vel == 0)
         {   std::ofstream outfile("/home/umbrella/文档/data.txt");
             for (int i = 0; i < PARAM::Tick::TickLength;i++)
@@ -137,11 +159,12 @@ namespace Utils
                        "      速度：" + to_string(Tick[i].ball_vel) +
                        "      加速度：" + to_string(Tick[i].ball_acc)+
                        "      时间：" + to_string(Tick[i].delta_time)+
-                       "      预测最大速度：" + to_string(Tick[i].predict_vel_max)
+                       "      预测最大速度：" + to_string(Tick[i].ball_predict_vel_max)
                 << std::endl; // 写入内容
             }
             outfile.close();
         }
+        */
     }
 
 
@@ -153,7 +176,7 @@ namespace Utils
      * @return {double}                 :
      */
     double PosSafetyGrade(const CVisionModule *pVision, CGeoPoint start, CGeoPoint end)
-    {
+    {//ConfidencePass()
 
         CGeoSegment BallLine(start, end);
         //model SHOOT
@@ -188,34 +211,7 @@ namespace Utils
 
     CGeoPoint GetInterPos(const CVisionModule *pVision, CGeoPoint player_pos, double velocity)
     {
-        /* double buffer = 0;
-        UpdataTickMessage(pVision);
-        CGeoSegment ball_Segment = PredictBallLine(pVision);
-        CGeoLine ball_line(Tick.ball_pos_move_befor, Tick.ball_vel_dir);
-        CGeoPoint InterPos = ball_line.projection(player_pos);
-        if (!ball_Segment.IsPointOnLineOnSegment(InterPos))
-        {
-            InterPos = ball_Segment.end();
-        }
-        InterPos = CGeoPoint(0, 0);
-        double dist = 0;
-        for (dist = (ball_Segment.end() - Tick.ball_pos_move_befor).mod(); dist > 0; dist -= 200)
-        {
-            CGeoPoint newInterPos = ball_Segment.end() + Polar2Vector(-dist, pVision->ball().Vel().dir());
-            // GDebugEngine::Instance() ->gui_debug_x(newInterPos);
-            // GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(-4000,dist),to_string(Tick.ball_max_vel_move_befor) + "   " + to_string(newInterPos.x()) + "   " + to_string(PosToPosTime(Tick.ball_pos_move_befor,newInterPos,Tick.ball_max_vel_move_befor * 1000)));
-            // GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(2000,dist),to_string(velocity) + "   " + to_string(newInterPos.x()) + "   " + to_string(PosToPosTime(newInterPos,player_pos,velocity * 1000)));
-            if (PosToPosTime(Tick.ball_pos_move_befor, newInterPos, Tick.ball_max_vel_move_befor) - PosToPosTime(player_pos, newInterPos, velocity) > buffer)
-            {
-                InterPos = newInterPos;
-                InterPos = ball_Segment.projection(InterPos);
-                break;
-            }
-        }
 
-        // GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(-4000,2000),to_string(Tick.ball_max_vel_move_befor));
-        GDebugEngine::Instance()->gui_debug_x(InterPos, 5);
-        return InterPos; */
     }
 
     /**
@@ -238,14 +234,26 @@ namespace Utils
 
     CGeoSegment PredictBallLine(const CVisionModule *pVision)
     {
-//        double time_count =0;
-//        time_count += Tick[now].delta_time;
-//        CGeoSegment ball_segment(Tick[now].ball_pos_move_befor,Tick[now].ball_pos);
-//        CGeoLine ball_line(Tick[now].ball_pos_move_befor,Tick[now].ball_vel_dir);
-        double ball_line_dist = Tick[now].predict_vel_max * Tick[now].predict_vel_max / 2 * PARAM::Field::BALL_DECAY * 10000 * 0.31;
-        //GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(0,2000),to_string(Tick[now].predict_vel_max));
-        //GDebugEngine::Instance() -> gui_debug_line(Tick[now].ball_pos_move_befor,Tick[now].ball_pos_move_befor + Polar2Vector(ball_line_dist,Tick[now].ball_vel_dir),3);
+
     }
+
+    double GlobalConfidence(const CVisionModule *pVision, int defender_num, int defender_num1,int attack_flag)
+    {   // attack_flag == 0 传统模式，两后卫专注防守
+        // attack_flag == 1 开启猛攻模式 ，当球权在我方时，两个后卫插上辅助进攻
+        int status = 0;
+        //我方球权
+        if(Tick[now].ball_rights == 1)
+        {
+            //计算每个队友的状态
+            for(int i = 0;i < Tick[now].our_player_num;i++)
+            {
+                //我方球权的情况下
+                if(attack_flag != 1 && Tick[now].our_player[i] == defender_num || Tick[now].our_player[i] == defender_num1 ||Tick[now].our_player[i] == Tick[now].our_goalie_num) continue;
+                //ConfidencePass()
+            }
+        }
+    }
+
 
     /**
      * 坐标点关于最佳跑位点的评分

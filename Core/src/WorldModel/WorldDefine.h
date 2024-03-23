@@ -174,24 +174,35 @@ struct PlayerPoseT : public ObjectPoseT { // 目标信息
 //};
 
 struct GlobalTick{
+    //球相关
     double ball_vel = 1; // 球速度
     double ball_acc = 1; // 球加速度
     CGeoPoint ball_pos = CGeoPoint(0,0); // 球位置
     CGeoPoint ball_pos_move_befor = CGeoPoint(0,0); // 球运动之前的位置
-    std::chrono::high_resolution_clock::time_point time; // 时间
+    double ball_predict_vel_max = 0; // 预测的最大速度
     double ball_avg_vel = 0; // 球平均速度
     double ball_vel_dir = 0; // 球速度方向
-    int tick_count = 0; // 帧计数
-    int tick_key = 0; // 关键帧
-    double predict_vel_max = 0; // 预测的最大速度
-    int their_player [16]; // 敌方机器人数组
-    int their_player_num = 6; // 敌方玩家数目
-    int their_goalie_num = 0; // 敌方守门员号码
+    int ball_rights = 0; // 球权 [-1：敌方, 0:无人, 1:我方, 2:顶牛(双方处于纠缠的状况，无法判断具体球权属于谁)]
+    int ball_our_min_dist_num = 0; // 我方距离球最近的车号
+    int ball_their_min_dist_num = 0; // 敌方距离球最近的车号
+    //我方相关
     int our_player [16] = {}; // 我方机器人数组
     int our_player_num = 6; // 我方玩家数目
     int our_goalie_num = 0; // 我方守门员号码
+    int our_dribbling_num = -1;
     double delta_time = 1; // 与上一帧的时间间隔
+    //敌方相关
+    int their_player [16]; // 敌方机器人数组
+    int their_player_num = 6; // 敌方玩家数目
+    int their_goalie_num = 0; // 敌方守门员号码
+    int their_dribbling_num = -1;
+
+    //其他
+    int tick_count = 0; // 帧计数
+    int tick_key = 0; // 关键帧
+    std::chrono::high_resolution_clock::time_point time; // 时间
 };
+
 /************************************************************************/
 /*                      PlayerTypeT                                     */
 /************************************************************************/

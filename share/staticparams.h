@@ -51,6 +51,7 @@ namespace PARAM {
         const int playerFrontToCenter = 76;
         const int playerRadiusr = 90;
         const int playerBuffer = 200;
+        const double playerBallRightsBuffer = 230;
                 }
     namespace Tick {
         const int TickLength = 100;
