@@ -48,13 +48,13 @@ namespace PARAM {
         const double RATIO = 1.5;
     }
     namespace Player {
-        const int playerFrontToCenter = 76;
-        const int playerRadiusr = 90;
-        const int playerBuffer = 200;
-        const double playerBallRightsBuffer = 230;
+        const int playerFrontToCenter = 76; // 机器人圆心到嘴的距离
+        const int playerRadiusr = 90; // 机器人半径
+        const int playerBuffer = 150; // 检测敌人是否在某直线上的缓冲值
+        const double playerBallRightsBuffer = 230; // 球权判断缓冲值
                 }
     namespace Tick {
-        const int TickLength = 100;
+        const int TickLength = 5; //保存的帧数
 
                 }
     namespace Rule{
