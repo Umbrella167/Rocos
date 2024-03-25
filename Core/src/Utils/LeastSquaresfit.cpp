@@ -7,69 +7,57 @@ namespace{
     double Em[6][4] = {0};
 }
 
-LeastSquaresfit::LeastSquaresfit(bool reBuild)
+LeastSquaresfit::LeastSquaresfit()
 {
-    DataFilename = GetDataFilename();
-    cout << DataFilename << endl;
+    NewDataFilename = GetNewDataFilename();
+    cout << NewDataFilename << endl;
 
 
-    if (reBuild) {
-        // fitdata.txt重新擬合函數
-        ifstream infile;
-        infile.open(DataFilename, ios::in);
-        if (!infile.is_open())
-        {
-            cout << "读取文件失败" << endl;
-            return;
-        }
 
-        string buf;
-        int l = 0;
-        double train_t[PARAM::Tick::TickLength];
-        double train_d[PARAM::Tick::TickLength];
-
-        while (getline(infile,buf))
-        {
-            stringstream ss(buf);
-            double d, t, t_d;
-            ss >> d >> t >> t_d;
-
-            if(l == PARAM::Tick::TickLength-1) {
-                // TODO:將擬合好的數據存入到類中，現在缺少一個長度來初始化數組。
-                train_t[l] = t;
-                train_d[l] = d;
-                double* func = Fit(train_t, train_d);
-//                FitFunctions.insert(t_d, {func[0], func[1], func[2]});
-                cout << "label:" << t_d << endl;
-                cout << func[0] << " " << func[1] << " " << func[2] <<endl;
-                l = 0;
-            }
-            else{
-                cout << "l: " << l << endl;
-                train_t[l] = t;
-                train_d[l++] = d;
-                cout << "d: " << d << " ";
-                cout << "t: " << t << " ";
-                cout << "t_d: " << t_d << endl;
-
-            }
-
-        }
-
-        infile.close();
-
-
-    }else {
-
-
+    ifstream infile;
+    infile.open("fitfunctions/data.txt", ios::in);
+    if (!infile.is_open())
+    {
+        cout << "读取文件失败" << endl;
+        return;
     }
 
+    string buf;
+    int l = 0;
+    double train_t[PARAM::Tick::TickLength];
+    double train_d[PARAM::Tick::TickLength];
 
+    while (getline(infile,buf))
+    {
+        stringstream ss(buf);
+        double d, t, label;
+        ss >> d >> t;
+
+        if(l == PARAM::Tick::TickLength-1) {
+            // TODO:將擬合好的數據存入到類中，現在缺少一個長度來初始化數組。
+            train_t[l] = t;
+            train_d[l] = d;
+            label = train_d[3];
+            double* func = Fit(train_t, train_d);
+//                FitFunctions.insert(t_d, {func[0], func[1], func[2]});
+            cout << "label:" << label << endl;
+            cout << func[0] << " " << func[1] << " " << func[2] <<endl;
+            l = 0;
+        }
+        else{
+            cout << "l: " << l << endl;
+            train_t[l] = t;
+            train_d[l++] = d;
+            cout << "d: " << d << " ";
+            cout << "t: " << t << " ";
+        }
+        infile.close();
+    }
 
 }
 
 //累加
-double LeastSquaresfit::sum(vector<double> Vnum, int n)
+double sum(vector<double> Vnum, int n)
 {
     double dsum=0;
     for (int i=0; i<n; i++)
@@ -80,7 +68,7 @@ double LeastSquaresfit::sum(vector<double> Vnum, int n)
 }
 
 //乘积和
-double LeastSquaresfit::MutilSum(vector<double> Vx, vector<double> Vy, int n)
+double MutilSum(vector<double> Vx, vector<double> Vy, int n)
 {
     double dMultiSum=0;
     for (int i=0; i<n; i++)
@@ -91,7 +79,7 @@ double LeastSquaresfit::MutilSum(vector<double> Vx, vector<double> Vy, int n)
 }
 
 //ex次方和
-double LeastSquaresfit::RelatePow(vector<double> Vx, int n, int ex)
+double RelatePow(vector<double> Vx, int n, int ex)
 {
     double ReSum=0;
     for (int i=0; i<n; i++)
@@ -102,7 +90,7 @@ double LeastSquaresfit::RelatePow(vector<double> Vx, int n, int ex)
 }
 
 //x的ex次方与y的乘积的累加
-double LeastSquaresfit::RelateMutiXY(vector<double> Vx, vector<double> Vy, int n, int ex)
+double RelateMutiXY(vector<double> Vx, vector<double> Vy, int n, int ex)
 {
     double dReMultiSum=0;
     for (int i=0; i<n; i++)
@@ -113,7 +101,7 @@ double LeastSquaresfit::RelateMutiXY(vector<double> Vx, vector<double> Vy, int n
 }
 
 //供CalEquation函数调用
-double LeastSquaresfit::F(double c[],int l,int m)
+double F(double c[],int l,int m)
 {
     double sum=0;
     for(int i=l;i<=m;i++)
@@ -122,7 +110,7 @@ double LeastSquaresfit::F(double c[],int l,int m)
 }
 
 //求解方程
-void LeastSquaresfit::CalEquation(int exp, double coefficient[])
+void CalEquation(int exp, double coefficient[])
 {
     for(int k=1;k<exp;k++) //消元过程
     {
@@ -143,7 +131,7 @@ void LeastSquaresfit::CalEquation(int exp, double coefficient[])
 }
 
 //计算方程组的增广矩阵
-void LeastSquaresfit::EMatrix(vector<double> Vx, vector<double> Vy, int n, int ex, double coefficient[])
+void EMatrix(vector<double> Vx, vector<double> Vy, int n, int ex, double coefficient[])
 {
     for (int i=1; i<=ex; i++)
     {
@@ -183,23 +171,22 @@ double* LeastSquaresfit::Fit(double arry1[], double arry2[])
 // 採集訓練數據
 void LeastSquaresfit::GetFitData(GlobalTick* Tick)
 {
-//    if (Tick[1].ball_vel > 0 && Tick[0].ball_vel == 0)
-//    {
-//        ofstream outfile("~/functions/data.txt");
-//        for (int i = 0; i < PARAM::Tick::TickLength;i++)
-//        {
-//            outfile << "距离：" + to_string((Tick[i].ball_pos - Tick[0].ball_pos).mod())+
-//                   "      速度：" + to_string(Tick[i].ball_vel) +
-//                   "      加速度：" + to_string(Tick[i].ball_acc)+
-//                   "      时间：" + to_string(Tick[i].delta_time)+
-//                   "      预测最大速度：" + to_string(Tick[i].predict_vel_max)
-//            << std::endl; // 写入内容
-//        }
-//        outfile.close();
-//    }
+    if (Tick[1].ball_vel > 0 && Tick[0].ball_vel == 0)
+    {
+        double t = 0;
+        ofstream outfile(NewDataFilename);
+        for (int i = 0; i < PARAM::Tick::TickLength;i++)
+        {
+            t += Tick[i].delta_time;
+            // 写入内容
+            cout << to_string((Tick[i].ball_pos - Tick[0].ball_pos).mod()) + " " + to_string(t) << endl;
+
+        }
+        outfile.close();
+    }
 }
 // 獲取文件名
-string LeastSquaresfit::GetDataFilename()
+string LeastSquaresfit::GetNewDataFilename()
 {
     int i = 0;
     string filename;

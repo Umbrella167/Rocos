@@ -50,7 +50,7 @@ firstState = "initPos",
 ["run11"] = {
 	switch = function()
 
-		Utils.GlobalComputingPos(vision,player.pos("Assister"))
+		Utils.InitFitFunction()
 		if (player.kickBall("Assister")) then --bufcnt(a,b) 当表达式a为true时 连续累积 b帧 返回true
 			return "run1"
 		end

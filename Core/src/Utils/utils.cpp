@@ -19,6 +19,7 @@
 GlobalTick Tick[PARAM::Tick::TickLength];
 int now = PARAM::Tick::TickLength - 1;
 int last = PARAM::Tick::TickLength - 2;
+LeastSquaresfit fitFunction;
 
 int isInit = 0;
 
@@ -33,8 +34,8 @@ namespace Utils
      *
      */
     void InitFitFunction(){
-        LeastSquaresfit fitFunction(true);
-
+        LeastSquaresfit fitFunction;
+        fitFunction.GetFitData(Tick);
 
 //        if (Tick[1].ball_vel > 0 && Tick[0].ball_vel == 0)
 //        {   std::ofstream outfile("~/functions/data.txt");
@@ -71,6 +72,7 @@ namespace Utils
 
         UpdataTickMessage(pVision);
         PredictBallLine(pVision);
+//        InitFitFunction();
         int step = 100;
         int half_length = PARAM::Field::PITCH_LENGTH / 2;
         int half_width = PARAM::Field::PITCH_WIDTH / 2;
