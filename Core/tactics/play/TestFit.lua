@@ -37,7 +37,7 @@ gPlayTable.CreatePlay{
 firstState = "initPos",
 ["initPos"] = {
 	switch = function()
-		Utils.GlobalComputingPos(vision,player.pos("Assister"))
+		Utils.InitFitFunction(vision)
 
 
 		-- return "run11"

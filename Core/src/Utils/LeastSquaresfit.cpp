@@ -1,7 +1,6 @@
 #include "LeastSquaresfit.h"
 #include <cmath>
-#include <iostream>
-#include <fstream>
+
 
 namespace{
     double Em[6][4] = {0};
@@ -11,8 +10,7 @@ LeastSquaresfit::LeastSquaresfit()
 {
     NewDataFilename = GetNewDataFilename();
     cout << NewDataFilename << endl;
-
-
+    outfile.open(NewDataFilename);
 
     ifstream infile;
     infile.open("fitfunctions/data.txt", ios::in);
@@ -32,7 +30,6 @@ LeastSquaresfit::LeastSquaresfit()
         stringstream ss(buf);
         double d, t, label;
         ss >> d >> t;
-
         if(l == PARAM::Tick::TickLength-1) {
             // TODO:將擬合好的數據存入到類中，現在缺少一個長度來初始化數組。
             train_t[l] = t;
@@ -50,10 +47,14 @@ LeastSquaresfit::LeastSquaresfit()
             train_d[l++] = d;
             cout << "d: " << d << " ";
             cout << "t: " << t << " ";
-        }
-        infile.close();
+        } 
     }
+    infile.close();
 
+}
+
+LeastSquaresfit::~LeastSquaresfit(){
+    outfile.close();
 }
 
 //累加
@@ -174,15 +175,15 @@ void LeastSquaresfit::GetFitData(GlobalTick* Tick)
     if (Tick[1].ball_vel > 0 && Tick[0].ball_vel == 0)
     {
         double t = 0;
-        ofstream outfile(NewDataFilename);
+//        ofstream outfile(NewDataFilename);
         for (int i = 0; i < PARAM::Tick::TickLength;i++)
         {
             t += Tick[i].delta_time;
             // 写入内容
-            cout << to_string((Tick[i].ball_pos - Tick[0].ball_pos).mod()) + " " + to_string(t) << endl;
+            outfile << to_string((Tick[i].ball_pos - Tick[0].ball_pos).mod()) + " " + to_string(t) << endl;
 
         }
-        outfile.close();
+//        outfile.close();
     }
 }
 // 獲取文件名

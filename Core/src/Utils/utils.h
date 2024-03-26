@@ -55,6 +55,10 @@ extern double NumberNormalizeGauss(double data, double max_data, double min_data
 
 extern double PosSafetyGrade(const CVisionModule *pVision, CGeoPoint start, CGeoPoint end); // 路径安全性评分
 
+// 初始化擬合類
+extern int InitFitFunction(const CVisionModule *pVision);
+
+
 
 // Robocup-SSL-China
 extern double Normalize(double angle);///<把角度规范化到(-PI,PI]

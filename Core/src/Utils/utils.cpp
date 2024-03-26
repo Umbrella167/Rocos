@@ -33,8 +33,10 @@ namespace Utils
      *
      *
      */
-    void InitFitFunction(){
-        LeastSquaresfit fitFunction;
+    int InitFitFunction(const CVisionModule *pVision){
+
+        UpdataTickMessage(pVision);
+
         fitFunction.GetFitData(Tick);
 
 //        if (Tick[1].ball_vel > 0 && Tick[0].ball_vel == 0)
@@ -55,6 +57,7 @@ namespace Utils
 //        double* t = fitFunction.Fit(arry1, arry2);
 //        cout<< t[0] << t[1] << t[2] << endl;
 //        delete[] t;
+        return 0;
 
     }
 
@@ -80,10 +83,7 @@ namespace Utils
         int field_y = 0;
         double max_attack_grade = -999;
 
-        if (isInit == 0) {
-            InitFitFunction();
-            isInit++;
-        }
+
 
 
 //        CGeoPoint max_attack_pos;

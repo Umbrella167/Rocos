@@ -6,6 +6,8 @@
 #include <cstring>
 #include <vector>
 #include <map>
+#include <iostream>
+#include <fstream>
 
 using namespace std;
 
@@ -13,9 +15,10 @@ class LeastSquaresfit
 {
 public:
     LeastSquaresfit();
+    ~LeastSquaresfit();
     double* Fit(double array1[], double array2[]); //擬合函數
     void GetFitData(GlobalTick* Tick); //採集訓練數據
-
+    ofstream outfile;
     CGeoPoint GetBallPrePos(double ball_v, CGeoPoint ball_pos, double ball_dir,double time);
     double* Funckey;
 
