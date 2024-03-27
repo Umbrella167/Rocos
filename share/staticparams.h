@@ -56,9 +56,9 @@ namespace PARAM {
         const int TickLength = 100;
     }
     namespace Fit { // 擬合相關參數
-        const int MaxF = 6000; // 擬合的最大力
-        const int FitSeg = 20; // 分多少段擬合
-        const bool ReBuild = true;
+        const int FitLabel = 3; // 取第几帧的距离作为标签
+//        const int MaxF = 6000; // 擬合的最大力
+//        const int FitSeg = 20; // 分多少段擬合
     }
     namespace Rule{
         const int Version = 2019; // 规则的版本/年份

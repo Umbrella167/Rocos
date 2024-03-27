@@ -47,19 +47,19 @@ firstState = "initPos",
 	Kicker = task.goCmuRush(CGeoPoint(-4000, -2000)),
 	match = "[AK]"
 },
-["run11"] = {
-	switch = function()
+-- ["run11"] = {
+-- 	switch = function()
 
-		Utils.InitFitFunction()
-		if (player.kickBall("Assister")) then --bufcnt(a,b) 当表达式a为true时 连续累积 b帧 返回true
-			return "run1"
-		end
-	end,
-	Assister = task.stop(),--task.shoot(shootGen(0),dir1("Assister"),_,320),
+-- 		Utils.InitFitFunction()
+-- 		if (player.kickBall("Assister")) then --bufcnt(a,b) 当表达式a为true时 连续累积 b帧 返回true
+-- 			return "run1"
+-- 		end
+-- 	end,
+-- 	Assister = task.stop(),--task.shoot(shootGen(0),dir1("Assister"),_,320),
 
-	match = "[AK]"
-	-- ()  []  {}
-},
+-- 	match = "[AK]"
+-- 	-- ()  []  {}
+-- },
 
 
 name = "TestFit",

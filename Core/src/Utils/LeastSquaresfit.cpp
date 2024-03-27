@@ -12,49 +12,68 @@ LeastSquaresfit::LeastSquaresfit()
     cout << NewDataFilename << endl;
     outfile.open(NewDataFilename);
 
+    FitFromFile("fitfunctions/data.txt");
+    GetClosestLabelIndex(100);
+}
+
+LeastSquaresfit::~LeastSquaresfit(){
+    outfile.close();
+}
+// 从文件中拟合函数
+void LeastSquaresfit::FitFromFile(string filename) {
     ifstream infile;
-    infile.open("fitfunctions/data.txt", ios::in);
+    infile.open(filename, ios::in);
     if (!infile.is_open())
     {
         cout << "读取文件失败" << endl;
         return;
     }
 
+    // 获取训练的速度数量
+    ifstream t(filename, ios::in);
+    Len = 0;
     string buf;
+    while (getline(t, buf)) {
+        Len++;
+    }
+    Len = Len / PARAM::Tick::TickLength;
+
+    Function tFunctions[Len];
     int l = 0;
+    int ll = 0;
     double train_t[PARAM::Tick::TickLength];
     double train_d[PARAM::Tick::TickLength];
-
+    // 拟合不同速度下的函数
     while (getline(infile,buf))
     {
         stringstream ss(buf);
-        double d, t, label;
+
+        double d, t;
         ss >> d >> t;
         if(l == PARAM::Tick::TickLength-1) {
-            // TODO:將擬合好的數據存入到類中，現在缺少一個長度來初始化數組。
             train_t[l] = t;
             train_d[l] = d;
-            label = train_d[3];
+
             double* func = Fit(train_t, train_d);
-//                FitFunctions.insert(t_d, {func[0], func[1], func[2]});
-            cout << "label:" << label << endl;
-            cout << func[0] << " " << func[1] << " " << func[2] <<endl;
+            tFunctions[ll].label = train_d[PARAM::Fit::FitLabel];
+            tFunctions[ll].c = func[0];
+            tFunctions[ll].b = func[1];
+            tFunctions[ll++].a = func[2];
+
             l = 0;
         }
         else{
-            cout << "l: " << l << endl;
             train_t[l] = t;
             train_d[l++] = d;
-            cout << "d: " << d << " ";
-            cout << "t: " << t << " ";
-        } 
+        }
+    }
+
+    Functions = tFunctions;
+    for(int i=0;i<Len;i++){
+        cout<< Functions[i].label << endl;
+        cout<< Functions[i].a << " " << Functions[i].b << " " << Functions[i].c << endl;
     }
     infile.close();
-
-}
-
-LeastSquaresfit::~LeastSquaresfit(){
-    outfile.close();
 }
 
 //累加
@@ -67,7 +86,6 @@ double sum(vector<double> Vnum, int n)
     }
     return dsum;
 }
-
 //乘积和
 double MutilSum(vector<double> Vx, vector<double> Vy, int n)
 {
@@ -78,7 +96,6 @@ double MutilSum(vector<double> Vx, vector<double> Vy, int n)
     }
     return dMultiSum;
 }
-
 //ex次方和
 double RelatePow(vector<double> Vx, int n, int ex)
 {
@@ -89,7 +106,6 @@ double RelatePow(vector<double> Vx, int n, int ex)
     }
     return ReSum;
 }
-
 //x的ex次方与y的乘积的累加
 double RelateMutiXY(vector<double> Vx, vector<double> Vy, int n, int ex)
 {
@@ -100,7 +116,6 @@ double RelateMutiXY(vector<double> Vx, vector<double> Vy, int n, int ex)
     }
     return dReMultiSum;
 }
-
 //供CalEquation函数调用
 double F(double c[],int l,int m)
 {
@@ -109,7 +124,6 @@ double F(double c[],int l,int m)
         sum+=Em[l-1][i]*c[i];
     return sum;
 }
-
 //求解方程
 void CalEquation(int exp, double coefficient[])
 {
@@ -130,7 +144,6 @@ void CalEquation(int exp, double coefficient[])
     for(int l=exp-1;l>=1;l--)   //回代求解
         coefficient[l]=(Em[l][exp+1]-F(coefficient,l+1,exp))/Em[l][l];
 }
-
 //计算方程组的增广矩阵
 void EMatrix(vector<double> Vx, vector<double> Vy, int n, int ex, double coefficient[])
 {
@@ -145,7 +158,6 @@ void EMatrix(vector<double> Vx, vector<double> Vy, int n, int ex, double coeffic
     Em[1][1]=n;
     CalEquation(ex,coefficient);
 }
-
 //拟合函數
 double* LeastSquaresfit::Fit(double arry1[], double arry2[])
 {
@@ -175,15 +187,12 @@ void LeastSquaresfit::GetFitData(GlobalTick* Tick)
     if (Tick[1].ball_vel > 0 && Tick[0].ball_vel == 0)
     {
         double t = 0;
-//        ofstream outfile(NewDataFilename);
         for (int i = 0; i < PARAM::Tick::TickLength;i++)
         {
             t += Tick[i].delta_time;
             // 写入内容
             outfile << to_string((Tick[i].ball_pos - Tick[0].ball_pos).mod()) + " " + to_string(t) << endl;
-
         }
-//        outfile.close();
     }
 }
 // 獲取文件名
@@ -201,4 +210,19 @@ string LeastSquaresfit::GetNewDataFilename()
             break;
     }
     return filename;
+}
+// 得到距离标签最接近的拟合函数下标
+int LeastSquaresfit::GetClosestLabelIndex(double label) {
+    double minDiff = 1e9;
+    double minIndex = 0;
+    for(int i=0;i<Len;i++){
+        cout << Functions[i].label << endl;
+        if(abs(label - Functions[i].label) < minDiff){
+            minDiff = abs(label - Functions[i].label);
+            minIndex = i;
+        }
+    }
+
+    cout << "res: " << minIndex << endl;
+    return minIndex;
 }
