@@ -32,6 +32,7 @@ struct GlobalTick;
 namespace Utils {
 // HuRocos 2024
 extern std::string GlobalComputingPos(const CVisionModule *pVision,CGeoPoint player_pos); //计算所有点位
+
 extern double map(double value, double min_in, double max_in, double min_out, double max_out); // 映射
 extern bool InExclusionZone(CGeoPoint Point); // 判断点是否在禁区内
 extern double NumberNormalize(double data, double max_data,double min_data); // [0,1] 标准化
@@ -46,16 +47,15 @@ extern double GetAttackGrade(const CVisionModule *pVision, double x, double y,CG
 extern double ConfidenceShoot(const CVisionModule *pVision, int num);
 extern double ConfidencePass(const CVisionModule *pVision, int dribbling_player_num,int getball_player_num,double getball_player_confidence_shoot);
 extern double RobotToPosDirGrade(const CVisionModule *pVision,int num,CGeoPoint start,CGeoPoint end);
+extern double GlobalConfidence(const CVisionModule *pVision,int defend_player_num1,int defend_player_num2,int attack_flag = 0);
+extern std::string GlobalStatus(const CVisionModule *pVision,int defend_player_num1,int defend_player_num2,int attack_flag = 0);
 // 多模式
 extern double PosToPosDirGrade(double x, double y,double x1,double y1,int dir = -1);
 extern double PosToPosDirGrade(double x, double y,double x1,double y1,double peak_pos,int dir = -1); // = 4 / PARAM::Math::RADIAN * PARAM::Math::PI
-
 extern double PosToBallDistGrade(CGeoPoint ball_pos,double x, double y,int dir = 1); // 坐标到球的距离评分
 extern double PosToBallDistGrade(CGeoPoint ball_pos,double x, double y, double peak_pos,int dir = 1); // 坐标到球的距离评分
-
 extern double PosToPosDistGrade(double x, double y,double x1,double y1, int dir = 1,std::string model = "GAUSS"); // 坐标到坐标的距离评分
 extern double NumberNormalizeGauss(double data, double max_data, double min_data, double peak_pos, std::string model = "DOUBLELINE"); // [0,1] 高斯归一化
-
 extern double PosSafetyGrade(const CVisionModule *pVision, CGeoPoint start, CGeoPoint end,std::string model = "SHOOT"); // 路径安全性评分
 
 
