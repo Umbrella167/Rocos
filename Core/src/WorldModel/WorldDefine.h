@@ -174,16 +174,23 @@ struct PlayerPoseT : public ObjectPoseT { // 目标信息
 //};
 
 struct GlobalTick{
-    double ball_vel = 1;
-    double ball_acc = 1;
-    CGeoPoint ball_pos = CGeoPoint(0,0);
-    CGeoPoint ball_pos_move_befor = CGeoPoint(0,0);
-    std::chrono::high_resolution_clock::time_point time;
-    double ball_avg_vel = 0;
-    int tick_count = 0;
-    int tick_key = 0;
-    double ball_vel_dir = 0;
-    double delta_time = 1;
+    double ball_vel = 1; // 球速度
+    double ball_acc = 1; // 球加速度
+    CGeoPoint ball_pos = CGeoPoint(0,0); // 球位置
+    CGeoPoint ball_pos_move_befor = CGeoPoint(0,0); // 球运动之前的位置
+    std::chrono::high_resolution_clock::time_point time; // 时间
+    double ball_avg_vel = 0; // 球平均速度
+    double ball_vel_dir = 0; // 球速度方向
+    int tick_count = 0; // 帧计数
+    int tick_key = 0; // 关键帧
+    double predict_vel_max = 0; // 预测的最大速度
+    int their_player [16]; // 敌方机器人数组
+    int their_player_num = 6; // 敌方玩家数目
+    int their_goalie_num = 0; // 敌方守门员号码
+    int our_player [16] = {}; // 我方机器人数组
+    int our_player_num = 6; // 我方玩家数目
+    int our_goalie_num = 0; // 我方守门员号码
+    double delta_time = 1; // 与上一帧的时间间隔
 };
 /************************************************************************/
 /*                      PlayerTypeT                                     */

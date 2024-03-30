@@ -8,6 +8,7 @@
 #include "GDebugEngine.h"
 #include "PlayInterface.h"
 #include "BufferCounter.h"
+#include "LeastSquaresfit.h"
 
 // 默认参数初始化
 const int CWorldModel::myDefaultNum = 0;
