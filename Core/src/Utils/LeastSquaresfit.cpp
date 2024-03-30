@@ -226,3 +226,21 @@ int LeastSquaresfit::GetClosestLabelIndex(double label) {
     cout << "res: " << minIndex << endl;
     return minIndex;
 }
+// 输入标签和时间预测距离
+double LeastSquaresfit::GetPreDist(double label, double time) {
+    int i = GetClosestLabelIndex(label);
+    double a = Functions[i].a;
+    double b = Functions[i].b;
+    double c = Functions[i].c;
+    double max = -b/2*a;
+
+    return time>max?a*max*max+b*max+c:a*time*time+b*time+c;
+}
+// 输入标签和距离预测时间
+double LeastSquaresfit::GetPreTime(double label, double d) {
+    int i = GetClosestLabelIndex(label);
+    double a = Functions[i].a;
+    double b = Functions[i].b;
+    double c = Functions[i].c;
+    return abs((b+sqrt(b*b-4*a*(c-d)))/(2*a));
+}
