@@ -48,18 +48,15 @@ namespace PARAM {
         const double RATIO = 1.5;
     }
     namespace Player {
-        const int playerFrontToCenter = 76;
-        const int playerRadiusr = 90;
-        const int playerBuffer = 200;
-    }
+        const int playerFrontToCenter = 76; // 机器人圆心到嘴的距离
+        const int playerRadiusr = 90; // 机器人半径
+        const int playerBuffer = 150; // 检测敌人是否在某直线上的缓冲值
+        const double playerBallRightsBuffer = 230; // 球权判断缓冲值
+                }
     namespace Tick {
-        const int TickLength = 100;
-    }
-    namespace Fit { // 擬合相關參數
-        const int FitLabel = 3; // 取第几帧的距离作为标签
-//        const int MaxF = 6000; // 擬合的最大力
-//        const int FitSeg = 20; // 分多少段擬合
-    }
+        const int TickLength = 5; //保存的帧数
+
+                }
     namespace Rule{
         const int Version = 2019; // 规则的版本/年份
         const double MaxDribbleDist = 500; // 最大带球距离, 0代表没有限制

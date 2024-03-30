@@ -20,7 +20,7 @@ SOURCES += \
     $$PWD/src/radiopacket.cpp \
     $$PWD/src/serialobject.cpp \
     $$PWD/src/lib/crc/crc.cpp \
-
+    $$PWD/src/wwww.cpp
 TRANSLATIONS = t1_zh.ts
 
 defineTest(copyToDestdir) {
