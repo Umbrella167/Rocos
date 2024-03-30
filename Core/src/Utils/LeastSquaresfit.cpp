@@ -36,13 +36,13 @@ void LeastSquaresfit::FitFromFile(string filename) {
     while (getline(t, buf)) {
         Len++;
     }
-    Len = Len / PARAM::Tick::TickLength;
+    Len = Len / PARAM::Fit::DataTickLength;
 
     Function tFunctions[Len];
     int l = 0;
     int ll = 0;
-    double train_t[PARAM::Tick::TickLength];
-    double train_d[PARAM::Tick::TickLength];
+    double train_t[PARAM::Fit::DataTickLength];
+    double train_d[PARAM::Fit::DataTickLength];
     // 拟合不同速度下的函数
     while (getline(infile,buf))
     {
@@ -50,7 +50,7 @@ void LeastSquaresfit::FitFromFile(string filename) {
 
         double d, t;
         ss >> d >> t;
-        if(l == PARAM::Tick::TickLength-1) {
+        if(l == PARAM::Fit::DataTickLength-1) {
             train_t[l] = t;
             train_d[l] = d;
 
@@ -166,12 +166,12 @@ double* LeastSquaresfit::Fit(double arry1[], double arry2[])
     double coefficient[5];
     memset(coefficient,0,sizeof(double)*5);
     vector<double> vx,vy;
-    for (int i=0; i<PARAM::Tick::TickLength; i++)
+    for (int i=0; i<PARAM::Fit::DataTickLength; i++)
     {
         vx.push_back(arry1[i]);
         vy.push_back(arry2[i]);
     }
-    EMatrix(vx,vy,PARAM::Tick::TickLength,3,coefficient);
+    EMatrix(vx,vy,PARAM::Fit::DataTickLength,3,coefficient);
 //    printf("拟合方程为：y = %lf + %lfx + %lfx^2 \n",coefficient[1],coefficient[2],coefficient[3]);
     double* result = new double[3];
     result[0] = coefficient[1];
@@ -184,14 +184,14 @@ double* LeastSquaresfit::Fit(double arry1[], double arry2[])
 // 採集訓練數據
 void LeastSquaresfit::GetFitData(GlobalTick* Tick)
 {
-    if (Tick[1].ball_vel > 0 && Tick[0].ball_vel == 0)
+    if (Tick[1].ball.vel > 0 && Tick[0].ball.vel == 0)
     {
         double t = 0;
-        for (int i = 0; i < PARAM::Tick::TickLength;i++)
+        for (int i = 0; i < PARAM::Fit::DataTickLength;i++)
         {
-            t += Tick[i].delta_time;
+            t += Tick[i].time.delta_time;
             // 写入内容
-            outfile << to_string((Tick[i].ball_pos - Tick[0].ball_pos).mod()) + " " + to_string(t) << endl;
+            outfile << to_string((Tick[i].ball.pos - Tick[0].ball.pos).mod()) + " " + to_string(t) << endl;
         }
     }
 }

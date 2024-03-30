@@ -52,11 +52,16 @@ namespace PARAM {
         const int playerRadiusr = 90; // 机器人半径
         const int playerBuffer = 150; // 检测敌人是否在某直线上的缓冲值
         const double playerBallRightsBuffer = 230; // 球权判断缓冲值
-                }
+    }
     namespace Tick {
-        const int TickLength = 5; //保存的帧数
-
-                }
+        const int TickLength = 100; //保存的帧数
+    }
+    namespace Fit { // 擬合相關參數
+        const int FitLabel = 3; // 取第几帧的距离作为标签
+        const int DataTickLength = 100; // 采样时保存帧数
+//        const int MaxF = 6000; // 擬合的最大力
+//        const int FitSeg = 20; // 分多少段擬合
+    }
     namespace Rule{
         const int Version = 2019; // 规则的版本/年份
         const double MaxDribbleDist = 500; // 最大带球距离, 0代表没有限制
