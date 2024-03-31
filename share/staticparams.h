@@ -3,6 +3,7 @@
 //change param for 2018 rule
 //wait for change camera number
 #include <QString>
+
 namespace PARAM {
     const bool DEBUG = false;
     const int CAMERA = 8;
@@ -59,8 +60,7 @@ namespace PARAM {
     namespace Fit { // 擬合相關參數
         const int FitLabel = 3; // 取第几帧的距离作为标签
         const int DataTickLength = 100; // 采样时保存帧数
-//        const int MaxF = 6000; // 擬合的最大力
-//        const int FitSeg = 20; // 分多少段擬合
+        const std::string FitDataFileName = "fitfunctions/data.txt" ; //拟合时用的文件名
     }
     namespace Rule{
         const int Version = 2019; // 规则的版本/年份

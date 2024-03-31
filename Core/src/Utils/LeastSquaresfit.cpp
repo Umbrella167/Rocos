@@ -12,7 +12,7 @@ LeastSquaresfit::LeastSquaresfit()
     cout << NewDataFilename << endl;
     outfile.open(NewDataFilename);
 
-    FitFromFile("fitfunctions/data.txt");
+    FitFromFile(PARAM::Fit::FitDataFileName);
     GetClosestLabelIndex(100);
 }
 
@@ -242,5 +242,7 @@ double LeastSquaresfit::GetPreTime(double label, double d) {
     double a = Functions[i].a;
     double b = Functions[i].b;
     double c = Functions[i].c;
-    return abs((b+sqrt(b*b-4*a*(c-d)))/(2*a));
+    double max = c - b*b/(4*a);
+    // 如果预测的距离比max长，则返回-1（无法到达）
+    return d>max?-1:(sqrt(abs(b*b+4*a*(d-c)))-b)/(2*a);
 }
