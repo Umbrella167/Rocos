@@ -192,6 +192,9 @@ struct ours{
     int goalie_num = 0; // 我方守门员号码
     int dribbling_num = -1; //带球的机器人编号
     int to_balldist_min_num = 0; //距离球最近的机器人
+    int defend_player_num1 = 0;
+    int defend_player_num2 = 0;
+
 };
 
 //敌方相关

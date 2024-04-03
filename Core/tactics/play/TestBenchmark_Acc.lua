@@ -20,8 +20,8 @@ local trigger_cycle = 0
 
 local result_list = { -- {task_max_acc, task_max_vel, det_max_vel, det_rot_err, time(s)} - {3000,2000,3000,0.0}
 }
-local MAX_TEST_ACC_STEP = 800
-local MIN_TEST_ACC_STEP = 300
+local MAX_TEST_ACC_STEP = 9000
+local MIN_TEST_ACC_STEP = 3000
 -- default test acc
 local set_new_task_param = function()
     local last_acc = task_max_acc

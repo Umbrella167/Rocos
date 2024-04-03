@@ -31,78 +31,16 @@ namespace Utils
      */
     string GlobalComputingPos(const CVisionModule *pVision)
     {
-        UpdataTickMessage(pVision);
-
-        GlobalStatus(pVision,0,1);
-
-
         if (Tick[now].ball.rights == 1)
         {
-            CGeoPoint dribbling_player_pos = pVision->ourPlayer(Tick[now].our.dribbling_num).Pos();
-            int step = 100;
-            int half_length = PARAM::Field::PITCH_LENGTH / 2;
-            int half_width = PARAM::Field::PITCH_WIDTH / 2;
-            int field_x = 0;
-            int field_y = 0;
-            double max_attack_grade_up = -999;
-            double max_attack_grade_down = -999;
-            double attack_grade_up = 0;
-            double attack_grade_down = 0;
-            CGeoPoint max_attack_pos_up;
-            CGeoPoint max_attack_pos_down;
-            CGeoPoint max_shoot_pos_up;
-            CGeoPoint max_shoot_pos_down;
-
-            for(int x = 0;x < 4500;x+= 400){
-                for(int y = -2800;y < 2800;y+=400){
-                    // 计算射门点
-                    CGeoPoint shoot_pos = GetShootPoint(pVision, x,y);
-                    // 如果 无有效射门点 或 点位在禁区 或 传球路径被挡住 或 射门路径被挡住  跳过该点
-                    if(shoot_pos.y() == -999 || InExclusionZone(CGeoPoint(x,y)) || (!isValidPass(pVision,dribbling_player_pos,CGeoPoint(x,y),PARAM::Player::playerBuffer)) || !isValidPass(pVision,CGeoPoint(x,y),shoot_pos,PARAM::Player::playerBuffer)) continue;
-                    // 获取上半区跑位点
-                    if(y > 0)
-                    {
-                        //// FIXME: 根据跑位机器人的半径均匀撒点，计算得分
-                        attack_grade_up = GetAttackGrade(pVision, x, y,dribbling_player_pos,shoot_pos);
-                        if (attack_grade_up > max_attack_grade_up)
-                        {
-                            max_attack_grade_up = attack_grade_up;
-                            max_shoot_pos_up = shoot_pos;
-                            max_attack_pos_up = CGeoPoint(x,y);
-                        }
-                        std::ostringstream stream;
-                        stream << std::fixed << std::setprecision(2) << attack_grade_up;
-                        std::string a_str = stream.str();
-                        GDebugEngine::Instance() ->gui_debug_x(CGeoPoint(x,y),3);
-                        GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(x,y),a_str);
-                    }
-
-
-                    // 获取下半区跑位点
-                    else
-                    {
-                        attack_grade_down = GetAttackGrade(pVision, x, y,dribbling_player_pos,shoot_pos);
-                        attack_grade_down = attack_grade_down - 0.5 * (1 - NumberNormalize(CGeoPoint(x,y).dist(max_attack_pos_up),1500,0));
-                        if (attack_grade_down > max_attack_grade_down)
-                        {
-                            max_attack_grade_down = attack_grade_down;
-                            max_shoot_pos_down = shoot_pos;
-                            max_attack_pos_down = CGeoPoint(x,y);
-                        }
-                        std::ostringstream stream;
-                        stream << std::fixed << std::setprecision(2) << attack_grade_down;
-                        std::string a_str = stream.str();
-                        GDebugEngine::Instance() ->gui_debug_x(CGeoPoint(x,y),3);
-                        GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(x,y),a_str);
-                    }
-
-                }
+            for(int i = 0;i < Tick[now].our.player_num;i++)
+            {
+                if(Tick[now].our.player[i] == Tick[now].our.dribbling_num ||
+                   Tick[now].our.player[i] == Tick[now].our.goalie_num ||
+                   Tick[now].our.player[i] == Tick[now].our.defend_player_num1 ||
+                   Tick[now].our.player[i] == Tick[now].our.defend_player_num2) continue;
+                GetAttackPos(pVision,Tick[now].our.player[i]);
             }
-            GDebugEngine::Instance() ->gui_debug_arc(GetShootPoint(pVision,Tick[now].our.dribbling_num),200,0,360,3);
-//            GDebugEngine::Instance() ->gui_debug_arc(max_shoot_pos_up,200,0,360,3);
-            GDebugEngine::Instance() ->gui_debug_arc(max_attack_pos_up,200,0,360,3);
-//            GDebugEngine::Instance() ->gui_debug_arc(max_shoot_pos_down,200,0,360,3);
-            GDebugEngine::Instance() ->gui_debug_arc(max_attack_pos_down,200,0,360,3);
         }
         return to_string(1); // FIXME: 字符串可能还是抽象了点，到时候看看修一下
     }
@@ -111,7 +49,7 @@ namespace Utils
      * @param  {CVisionModule*} pVision : 视觉模块
      */
 
-    void UpdataTickMessage(const CVisionModule *pVision){
+    int UpdataTickMessage(const CVisionModule *pVision,int defend_player_num1,int defend_player_num2){
         CWorldModel RobotSensor;
         int oldest = 0;
         double our_min_dist = 9999;
@@ -121,6 +59,8 @@ namespace Utils
             Tick[i] = Tick[i+1];
         }
         ///更新帧信息
+        Tick[now].our.defend_player_num1 = defend_player_num1;
+        Tick[now].our.defend_player_num2 = defend_player_num2;
         Tick[now].time.time = std::chrono::high_resolution_clock::now();
         Tick[now].time.delta_time = (double)std::chrono::duration_cast<std::chrono::microseconds>(Tick[now].time.time - Tick[last].time.time).count() / 1000000;
         Tick[now].time.tick_count+=1;
@@ -188,6 +128,7 @@ namespace Utils
             Tick[now].time.tick_key = 0;
             Tick[now].ball.predict_vel_max = 0;
         }
+        return 0;
     }
 
 
@@ -316,7 +257,7 @@ namespace Utils
     {
 
     }
-    double GlobalConfidence(const CVisionModule *pVision,int defend_player_num1,int defend_player_num2,int attack_flag)
+    double GlobalConfidence(const CVisionModule *pVision,int attack_flag)
     {
         ///   /// /// OUR BALL RIGHTS /// ///   ///
         ///
@@ -338,7 +279,7 @@ namespace Utils
             // 跳过守门员
             if(Tick[now]. our.goalie_num == i) continue;
             // 如果是传统模式跳过后卫
-            if(attack_flag == 0 && (defend_player_num1 == i || defend_player_num2 == i) )continue;
+            if(attack_flag == 0 && (Tick[now].our.defend_player_num1 == i || Tick[now].our.defend_player_num2 == i) )continue;
             int num = Tick[now].our.player[i];
             Tick[now].task[num].player_num = Tick[now].our.player[i];
             Tick[now].task[num].confidence_shoot = 0;
@@ -355,6 +296,7 @@ namespace Utils
                 {
                     // 获取带球机器人的射门置信度
                     Tick[now].task[num].confidence_shoot = ConfidenceShoot(pVision,Tick[now].our.player[i]);
+                    Tick[now].task[num].confidence_shoot  = Tick[now].task[num].confidence_shoot - 0.8 * (1 - NumberNormalize(pVision ->ourPlayer(num).Pos().x(),1200,0));
                 }
                 // 非带球机器人状态  ->  [跑位，接球]
                 else
@@ -421,11 +363,12 @@ namespace Utils
         return 0;
     }
 
-    string GlobalStatus(const CVisionModule *pVision,int defend_player_num1,int defend_player_num2,int attack_flag)
+    std::string GlobalStatus(const CVisionModule *pVision,int attack_flag)
     {
-        GlobalConfidence(pVision,defend_player_num1,defend_player_num2,attack_flag);
+        GlobalConfidence(pVision,attack_flag);
         double dribbling_threshold = 0.45;
         double pass_threshold = 0.15;
+        string global_status = "";
         //如果是我方球权，那么先决定带球机器人状态
         if(Tick[now].ball.rights == 1)
         {
@@ -437,7 +380,7 @@ namespace Utils
             {
                 //如果 传球概率 > 射门概率 阈值以上，那么才会传球  因为射门的收益会更高，所以条件要宽裕一点
                 if (confidence_pass - confidence_shoot > pass_threshold)
-                    Tick[now].task[Tick[now].our.dribbling_num].status = "passToPlayer " + to_string(Tick[now].task[Tick[now].our.dribbling_num].max_confidence_pass_num);
+                    Tick[now].task[Tick[now].our.dribbling_num].status = "passToPlayer" + to_string(Tick[now].task[Tick[now].our.dribbling_num].max_confidence_pass_num);
                 else
                     Tick[now].task[Tick[now].our.dribbling_num].status = "Shoot";
             }
@@ -445,7 +388,7 @@ namespace Utils
             if(confidence_shoot > dribbling_threshold && confidence_pass < dribbling_threshold)
                 Tick[now].task[Tick[now].our.dribbling_num].status = "Shoot";
             else if(confidence_shoot < dribbling_threshold && confidence_pass > dribbling_threshold)
-                Tick[now].task[Tick[now].our.dribbling_num].status = "passToPlayer " + to_string(Tick[now].task[Tick[now].our.dribbling_num].max_confidence_pass_num);
+                Tick[now].task[Tick[now].our.dribbling_num].status = "passToPlayer" + to_string(Tick[now].task[Tick[now].our.dribbling_num].max_confidence_pass_num);
 
             // 如果两项都小于阈值，那么就带球找机会
             if(confidence_shoot < dribbling_threshold && confidence_pass < dribbling_threshold)
@@ -458,8 +401,12 @@ namespace Utils
         //Debug
         for(int i = 0;i < PARAM::Field::MAX_PLAYER;i++)
         {
-            if(pVision ->ourPlayer(i).Valid())
+            if(pVision ->ourPlayer(i).Valid() &&
+              (attack_flag == 0 &&
+              (Tick[now].task[i].player_num != -1 && Tick[now].task[i].player_num != Tick[now].our.goalie_num)))
             {
+
+                global_status = global_status + "[" + to_string(Tick[now].task[i].player_num) + "," + Tick[now].task[i].status + "]";
                 GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision ->ourPlayer(i).Pos().x(),pVision ->ourPlayer(i).Pos().y() + 150),"Number: " + to_string(Tick[now].task[i].player_num),4);
                 GDebugEngine::Instance()->gui_debug_msg(pVision ->ourPlayer(i).Pos(),"shoot: " + to_string(Tick[now].task[i].confidence_shoot),3);
                 GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision ->ourPlayer(i).Pos().x(),pVision ->ourPlayer(i).Pos().y() - 150),"Pass: " + to_string(Tick[now].task[i].confidence_pass),2);
@@ -471,7 +418,7 @@ namespace Utils
             }
 
         }
-        return "1";
+        return global_status;
     }
     double ConfidencePass(const CVisionModule *pVision, int dribbling_player_num,int getball_player_num,double getball_player_confidence_shoot)
     {
@@ -555,6 +502,7 @@ namespace Utils
         safty_grade = enemy_to_ball_time - ball_to_interpos_time;
         safty_grade = NumberNormalize(safty_grade,0.15,0);
         grade = 0.75 * grade_shoot + 0.25 * safty_grade;
+        grade = grade - 0.5 * (1 - NumberNormalize(player_pos.x(),1700,0));
 //        GDebugEngine::Instance() -> gui_debug_msg(CGeoPoint(-3000,2000),to_string(grade_shoot) + "    " + to_string(safty_grade) + "    " + to_string(grade),3);
 //        GDebugEngine::Instance() -> gui_debug_x(shoot_pos,3);
         return grade;
@@ -616,6 +564,7 @@ namespace Utils
         safty_grade = enemy_to_ball_time - ball_to_interpos_time;
         safty_grade = NumberNormalize(safty_grade,0.15,0);
         grade = 0.75 * grade_shoot + 0.25 * safty_grade;
+        grade = grade - 0.5 * (1 - NumberNormalize(player_pos.x(),2200,500));
 //        GDebugEngine::Instance() -> gui_debug_msg(CGeoPoint(-3000,2000),to_string(grade_shoot) + "    " + to_string(safty_grade) + "    " + to_string(grade),3);
 //        GDebugEngine::Instance() -> gui_debug_x(shoot_pos,3);
         return grade;
@@ -656,7 +605,7 @@ namespace Utils
         return grade;
     }
 
-    double GetAttackGrade(const CVisionModule *pVision,int num)
+    CGeoPoint GetAttackPos(const CVisionModule *pVision,int num)
     {
         // 圆的半径
         int radius = 1100;
@@ -677,6 +626,8 @@ namespace Utils
         double pass_safty_grade;
         double grade = 0.0;
         double max_grade = -999;
+
+        double min_dist_to_player = 9999;
         CGeoPoint max_grade_pos;
         // 圆心
         CGeoPoint player_pos = pVision->ourPlayer(num).Pos();
@@ -703,13 +654,24 @@ namespace Utils
                     pass_safty_grade = PosSafetyGrade(pVision,dribbling_player_pos,CGeoPoint(x,y));
                     pass_grade = 0.5 * pass_dir_grade + 0.5 * pass_dist_grade;
                     if(x < 1000)
-                        pass_grade  = pass_grade - 0.4 * (1 - NumberNormalize(pVision ->ourPlayer(num).Pos().x(),1000,-2000));
+                        pass_grade  = pass_grade - 0.4 * (1 - NumberNormalize(pVision ->ourPlayer(num).Pos().x(),1000,-500));
                     grade = 0.2 * pass_grade + 0.5 * shoot_grade + 0.3 * pass_safty_grade;
-                    std::ostringstream stream;
-                    stream << std::fixed << std::setprecision(2) << grade;
-                    std::string a_str = stream.str();
-                    GDebugEngine::Instance() ->gui_debug_x(CGeoPoint(x,y),3);
-                    GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(x,y),a_str,3,0,80);
+
+                    for(int j = 0;j < Tick[now].our.player_num;j++)
+                    {
+                        if(Tick[now].our.player[j] == Tick[now].our.goalie_num || Tick[now].our.player[j] == num) continue;
+                        double dist = pos.dist(pVision->ourPlayer(Tick[now].our.player[j]).Pos());
+                        if(min_dist_to_player > dist)
+                        {
+                            min_dist_to_player = dist;
+                        }
+                    }
+                    grade = grade - 0.3 * (1 - NumberNormalize(min_dist_to_player,1300,500));
+//                    std::ostringstream stream;
+//                    stream << std::fixed << std::setprecision(2) << grade;
+//                    std::string a_str = stream.str();
+//                    GDebugEngine::Instance() ->gui_debug_x(CGeoPoint(x,y),3);
+//                    GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(x,y),a_str,3,0,80);
                     if (max_grade < grade)
                     {
                         max_grade = grade;
@@ -721,7 +683,8 @@ namespace Utils
             }
 
         }
-        GDebugEngine::Instance() ->gui_debug_x(max_grade_pos,3);
+        GDebugEngine::Instance() -> gui_debug_x(max_grade_pos,3);
+        return max_grade_pos;
     }
 
 

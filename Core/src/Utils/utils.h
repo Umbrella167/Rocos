@@ -32,26 +32,25 @@ struct GlobalTick;
 namespace Utils {
 // HuRocos 2024
 extern std::string GlobalComputingPos(const CVisionModule *pVision); //计算所有点位
-
 extern double map(double value, double min_in, double max_in, double min_out, double max_out); // 映射
 extern bool InField(CGeoPoint Point);// 判断点是否在场地内
 extern bool InExclusionZone(CGeoPoint Point); // 判断点是否在禁区内
 extern double NumberNormalize(double data, double max_data,double min_data); // [0,1] 标准化
 extern bool isValidPass(const CVisionModule* pVision, CGeoPoint start, CGeoPoint end, double buffer = 150);
-extern void UpdataTickMessage(const CVisionModule *pVision); //获取帧信息
+extern int UpdataTickMessage(const CVisionModule *pVision,int defend_player_num1,int defend_player_num2); //获取帧信息
 extern CGeoPoint GetInterPos(const CVisionModule *pVision, CGeoPoint player_pos,double velocity); // 获取最佳截球点
 extern CGeoSegment PredictBallLine(const CVisionModule *pVision);
 extern double PosToPosTime(CGeoPoint start_pos,CGeoPoint end_pos,double velocity);
 extern CGeoPoint GetShootPoint(const CVisionModule *pVision, double x, double y); // 获取某坐标而言对方守门员的空位
 extern CGeoPoint GetShootPoint(const CVisionModule *pVision, int num);// 获取某坐标而言对方守门员的空位 + 持球员朝向
 extern double GetAttackGrade(const CVisionModule *pVision, double x, double y,CGeoPoint player_pos,CGeoPoint shoot_pos); // 计算某坐标点的跑位分
-extern double GetAttackGrade(const CVisionModule *pVision,int num); // 计算已某玩家为圆心，半径，范围圆内 最佳跑位点
+extern CGeoPoint GetAttackPos(const CVisionModule *pVision,int num); // 计算已某玩家为圆心，半径，范围圆内 最佳跑位点
 extern double ConfidenceShoot(const CVisionModule *pVision, int num);
 extern double ConfidenceShoot(const CVisionModule *pVision, int run_player_num,int flag);
 extern double ConfidencePass(const CVisionModule *pVision, int dribbling_player_num,int getball_player_num,double getball_player_confidence_shoot);
 extern double RobotToPosDirGrade(const CVisionModule *pVision,int num,CGeoPoint start,CGeoPoint end);
-extern double GlobalConfidence(const CVisionModule *pVision,int defend_player_num1,int defend_player_num2,int attack_flag = 0);
-extern std::string GlobalStatus(const CVisionModule *pVision,int defend_player_num1,int defend_player_num2,int attack_flag = 0);
+extern double GlobalConfidence(const CVisionModule *pVision,int attack_flag = 0);
+extern std::string GlobalStatus(const CVisionModule *pVision,int attack_flag = 0);
 // 多模式
 extern double PosToPosDirGrade(double x, double y,double x1,double y1,int dir = -1);
 extern double PosToPosDirGrade(double x, double y,double x1,double y1,double peak_pos,int dir = -1); // = 4 / PARAM::Math::RADIAN * PARAM::Math::PI
