@@ -1,48 +1,51 @@
 local initPos = {
     -- 守门，后卫北，后卫南
-    CGeoPoint:new_local(),
-    CGeoPoint:new_local(),
-    CGeoPoint:new_local()
+    CGeoPoint:new_local(-4500, 0),
+    CGeoPoint:new_local(-3500, 500),
+    CGeoPoint:new_local(-3500, -500)
 }
 
 gPlayTable.CreatePlay {
     firstState = "init",
 
-    -- 初始状态守点
-    ["init"] = {
+    ["init"] = { -- 初始状态 回到自己的位置上等待防御
         switch = function()
-            --TODO: 回到初始位置
+            if bufcnt(player.toTargetDist(('Defender')) < 10, 10) then
+                return "await"
+            end
         end,
 
-        match = "[TODO:]"
+        Goalie = task.goCmuRush(initPos[1], 0),
+        Defender = task.goCmuRush(initPos[2], 0),
+        Defender2 = task.goCmuRush(initPos[3], 0),
+
+        match = "{GDD}" -- FIXME: 俩后卫
     },
 
-    -- 后卫，检测到球靠近，去扑球
-    ["defense1"] = {
+    -- 待命状态
+    ["await"] = {
         switch = function()
-            --TODO: 预测？
+            Utils.GlobalComputingPos(vision, player.pos("Defender"))
+            if player.toTargetDist("Assister") < 1000 then
+                return "pass"
+            end
         end,
 
-        match = "[TODO:]"
+        match = "[GD]"
     },
 
-    -- 守门，拦截
-    ["defense2"] = {
-        switch = function()
-            --TODO:
-        end,
-
-        match = "[TODO:]"
-    },
 
     --夺球后传递
     ["pass"] = {
         switch = function()
-            Utils.GlobalComputingPos(vision, player.pos("TODO:传给谁来着？")) --
-            if player.kickBall("TODO:") then
-                return "init"
+            Utils.GlobalComputingPos(vision, player.pos("Defender"))
+            if player.kickBall("Leader") then
+                return "shoot"
             end
-        end
+        end,
+        -- Defender = task.goCmuRush(initPos[1]),
+        -- TODO:补全传递
+        match = "[GD]"
     },
 
     name = "TestDefense",
