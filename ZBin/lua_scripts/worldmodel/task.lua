@@ -1,29 +1,37 @@
 module(..., package.seeall)
 
 function GetGlobalStatus(attack_flag)
+	-- 获取全局状态
     global_status = Utils.GlobalStatus(vision, attack_flag)
     local result = {}
-    
-
     local i = 1
+    -- 将有效信息单独放在一个表里
+    globalMessage.attackPlayerStatus = {}
+    --处理数据
     for content in global_status:gmatch("%[(.-)%]") do
         local parts = {}
 
         for part in content:gmatch("[^,]+") do
-        	
             table.insert(parts, part)
-
         end
-
         table.insert(result, parts)
         local number = tonumber(parts[1]) + 1
-        globalMessage.playerStatus[number].num = number - 1
-        globalMessage.playerStatus[number].status = parts[2]
+        -- 全局信息存放在 playerStatus
+        globalMessage.globalPlayerStatus[number].num = number - 1
+        globalMessage.globalPlayerStatus[number].status = parts[2]
+        table.insert(globalMessage.attackPlayerStatus, 
+        {
+        	num = number - 1,
+        	status = parts[2]
+        }
+        	)
+
         i = i + 1
-
     end
+    
+    
 
-    return result
+
 end
 
 

@@ -1,7 +1,6 @@
 module(..., package.seeall)
 
-
-playerStatus = {
+globalPlayerStatus = {
 	{
 		num = 0,
 		status = "NOTHING",
@@ -64,6 +63,16 @@ playerStatus = {
 	},
 	{
 		num = 15,
+		status = "NOTHING",
+	},
+
+}
+
+
+-- 有效进攻机器人
+attackPlayerStatus = {
+	{
+		num = -1,
 		status = "NOTHING",
 	},
 }

@@ -49,7 +49,7 @@ namespace Utils
      * @param  {CVisionModule*} pVision : 视觉模块
      */
 
-    int UpdataTickMessage(const CVisionModule *pVision,int defend_player_num1,int defend_player_num2){
+    GlobalTick UpdataTickMessage(const CVisionModule *pVision,int defend_player_num1,int defend_player_num2){
         CWorldModel RobotSensor;
         int oldest = 0;
         double our_min_dist = 9999;
@@ -128,7 +128,7 @@ namespace Utils
             Tick[now].time.tick_key = 0;
             Tick[now].ball.predict_vel_max = 0;
         }
-        return 0;
+        return Tick[now];
     }
 
 

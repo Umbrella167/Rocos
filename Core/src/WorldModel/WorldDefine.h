@@ -147,33 +147,8 @@ struct PlayerPoseT : public ObjectPoseT { // 目标信息
     double _rawRotVel;
 };
 
-
-/************************************************************************/
-/*                      GlobalTick                                     */
-/************************************************************************/
-//struct GlobalTick {
-//    double ball_vel = 1;
-//    double ball_last_vel = 1;
-//    double ball_acc = 1;
-//    double ball_last_acc = 1;
-//    double ball_last_vel_dir = 1;
-//    CGeoPoint ball_pos = CGeoPoint(0,0);
-//    CGeoPoint ball_last_pos = CGeoPoint(0,0);
-//    CGeoPoint ball_pos_move_befor = CGeoPoint(0,0);
-//    std::chrono::high_resolution_clock::time_point time;
-//    std::chrono::high_resolution_clock::time_point last_time;
-//    double ball_avg_vel = 0;
-//    double ball_vel_dir = 1;
-//    double ball_max_vel_move_befor = 0;
-//    double acc_count = 0;
-//    int tick_count = 0;
-//    int tick_key = 0;
-//    bool change_move = false;
-//    double data = 0;
-//    double delta_time = 0;
-
-//};
 struct balls{
+
     double vel = 1; // 球速度
     double acc = 1; // 球加速度
     CGeoPoint pos = CGeoPoint(0,0); // 球位置
@@ -187,6 +162,7 @@ struct balls{
 };
 //我方相关
 struct ours{
+
     int player [16] = {}; // 我方机器人数组
     int player_num = 6; // 我方玩家数目
     int goalie_num = 0; // 我方守门员号码
@@ -199,6 +175,7 @@ struct ours{
 
 //敌方相关
 struct theirs{
+
     int player [16]; // 敌方机器人数组
     int player_num = 6; // 敌方玩家数目
     int goalie_num = -1; // 敌方守门员号码
@@ -209,6 +186,7 @@ struct theirs{
 
 //任务列表
 struct tasks{
+
     int player_num = -1; // 当前机器人编号
     double confidence_pass = 0; // 传球置信度
     double confidence_shoot = 0; // 射门置信度
@@ -223,6 +201,7 @@ struct tasks{
 
 //时间、其他相关
 struct times{
+
     double delta_time = 1; // 与上一帧的时间间隔
     int tick_count = 0; // 帧计数
     int tick_key = 0; // 关键帧
@@ -230,6 +209,7 @@ struct times{
 };
 
 struct golobalDatas{
+
     double confidence_shoot = 1; // 与上一帧的时间间隔
 
 };
