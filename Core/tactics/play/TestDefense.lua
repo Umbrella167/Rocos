@@ -20,20 +20,31 @@ gPlayTable.CreatePlay {
     -- 后卫，检测到球靠近，去扑球
     ["defense1"] = {
         switch = function()
-            --TODO: 预测？
+            Utils.GlobalComputingPos(vision, player.pos("Defender"))
+
+
+            if player.toTargetDist("Assister") < 1000 then
+                return "pass"
+            end
         end,
 
-        match = "[TODO:]"
+        match = "[GD]"
     },
 
-    -- 守门，拦截
-    ["defense2"] = {
+    -- 试图夺球
+    ["get"] = {
         switch = function()
-            --TODO:
-        end,
 
-        match = "[TODO:]"
+        end,
     },
+
+    -- 试图夺球
+    ["get"] = {
+        switch = function()
+
+        end,
+    },
+
 
     --夺球后传递
     ["pass"] = {
