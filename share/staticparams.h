@@ -55,7 +55,7 @@ namespace PARAM {
         const double playerBallRightsBuffer = 230; // 球权判断缓冲值
     }
     namespace Tick {
-        const int TickLength = 100; //保存的帧数
+        const int TickLength = 3; //保存的帧数
     }
     namespace Fit { // 擬合相關參數
         const int FitLabel = 3; // 取第几帧的距离作为标签

@@ -165,3 +165,80 @@ function openSpeed(vx, vy, vw, iflag)
 	local mexe, mpos = OpenSpeed{speedX = vx, speedY = vy, speedW = vw, flag = iflag}
 	return {mexe, mpos}
 end
+
+
+------------------------------------ 接球相关的skill ---------------------------------------
+
+
+
+--V4 使用条件：当球在运动过程时       效果：能够精准的到合适的地方接球   通常用在传球的时候接球人上
+function Getballv4(role,p)
+--参数说明 
+--role   使用这个函数的角色
+--p	     等待位置
+	return function()
+		local p1 = p
+		if type(p) == 'function' then
+		  	p1 = p()
+		else
+		  	p1 = p
+		end
+		if ball.velMod() > 1000 then
+			local ball_line = CGeoLine:new_local(ball.pos(),ball.velDir())
+			local target_pos = ball_line:projection(player.pos(role))
+			local mexe, mpos = GoCmuRush{pos = target_pos, dir = (ball.pos() - player.pos(role)):dir(), acc = a, flag = 0x00000100,rec = r,vel = v}
+			return {mexe, mpos}
+		else 
+			local mexe, mpos = GoCmuRush{pos = p1, dir = (ball.pos() - player.pos(role)):dir(), acc = a, flag = 0x00000100,rec = r,vel = v}
+			return {mexe, mpos}
+		end
+
+	end
+end
+
+
+function GetBallV5(role, p, target)
+--参数说明
+--role  	  使用这个函数的角色
+--p      	  拿到球后跑去目标点
+--target      朝向的点
+    return function()
+        local minDist = 9999999
+        local ballspeed = 800
+
+        if type(p) == 'function' then
+            p = p()
+        end
+        if type(target) == 'function' then
+            target = target()
+        end
+
+        
+        if(player.infraredCount(role) < 20) then 
+        	-- 拿球
+            local idir = (ball.pos() - player.pos(role)):dir()
+            local pp = ball.pos() + Utils.Polar2Vector(10,idir)
+            if ball.velMod() > ballspeed and minDist > 180 then
+                pp = ball.pos() + Utils.Polar2Vector(350,idir)
+            end
+            local mexe, mpos = GoCmuRush{pos = pp, dir = idir, acc = a, flag = 0x00000100,rec = r,vel = v}
+            return {mexe, mpos}
+        else
+
+        	if player.toPointDist(role, p) > 10 then
+        	 	-- 拿到球后跑点
+	            local idir = (ball.pos() - player.pos(role)):dir()
+	            local pp = p
+	            local mexe, mpos = GoCmuRush{pos = pp, dir = idir, acc = a, flag = 0x00000100,rec = r,vel = v}
+            	return {mexe, mpos}
+        	else
+        		-- 到点后指向目标
+        		local idir = (target - player.pos(role)):dir()
+	            local pp = p
+	            local mexe, mpos = GoCmuRush{pos = pp, dir = idir, acc = a, flag = 0x00000100,rec = r,vel = v}
+	            return {mexe, mpos}
+        	end
+
+        end
+    end
+end
