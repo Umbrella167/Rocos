@@ -157,7 +157,7 @@ function power (p,Kp) --根据目标点与球之间的距离求出合适的 击�
 end
 
 
-function Shootdot(p,ifInter,Kp,error_,flag)
+function Shootdot(p,Kp,error_,flag)
 --将球射向某一个点（会动态规划射门力度）  
 --p 目标点     
 --ifInter参数就填false
@@ -179,7 +179,7 @@ function Shootdot(p,ifInter,Kp,error_,flag)
 		local error__ = function()
 			return error_ * math.pi / 180.0
 		end
-	local mexe, mpos = Touch{pos = p, useInter = ifInter}
+	local mexe, mpos = Touch{pos = p, useInter = false}
 		return {mexe, mpos, flag, idir, error__, power(p,Kp), power(p,Kp), 0x00000000}
 	end
 end

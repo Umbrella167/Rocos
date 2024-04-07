@@ -9,6 +9,68 @@ module(..., package.seeall)
 --~ p为要走的点,d默认为射门朝向
 
 
+
+max_power = 6000 		--最大力度
+min_power = 2000 		--最小力度
+split_num = 10   		--分割次数
+label = 0
+
+power = function(i)
+	return function()
+		local t = (max_power - min_power) / split_num
+		local a =  min_power + t*label
+		debugEngine:gui_debug_msg(CGeoPoint:new_local(-4300,-2000),a,3)
+		return a
+	end
+end
+
+function Shootdot(p,i,error_,flag)
+--将球射向某一个点（会动态规划射门力度）  
+--p 目标点     
+--ifInter参数就填false
+--Kp 力度系数 
+--error_ 误差
+--flag:kick.chip or kick.flat By Umbrella 2022 07
+	return function()
+		local p1
+		if type(p) == 'function' then
+	  		p1 = p()
+		else
+	  		p1 = p
+		end
+
+		local ipos = p1 or pos.theirGoal()
+		local idir = function(runner)
+			return (ipos - player.pos(runner)):dir()
+		end
+		local error__ = function()
+			return error_ * math.pi / 180.0
+		end
+	local mexe, mpos = Touch{pos = p, useInter = false}
+		return {mexe, mpos, flag, idir, error__, power(i),power(i), 0x00000000}
+	end
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 InterPos = CGeoPoint:new_local(0,0)
 function Inter(ourSpeed)
 	InterPos = Utils.GetInterPos(vision,playerpos("Assister"),ourSpeed)
