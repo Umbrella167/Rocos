@@ -127,12 +127,16 @@ function forcekick(p,d,chip,power)
 	return {mexe, mpos, ikick, idir, pre.low, kp.specified(ipower), cp.full, flag.forcekick}
 end
 
+
+
+
+
 function shoot(p,d,chip,power)
 	local ikick = chip and kick.chip or kick.flat
 	local ipower = power and power or 8000
 	local idir = d and d or dir.shoot()
 	local mexe, mpos = GoCmuRush{pos = p, dir = idir, acc = a, flag = f,rec = r,vel = v}
-	return {mexe, mpos, ikick, idir, pre.low, kp.specified(ipower), cp.full, flag.nothing}
+	return {mexe, mpos, ikick, idir, pre.low, kp.specified(ipower),kp.specified(ipower), flag.nothing}
 end
 ------------------------------------ 防守相关的skill ---------------------------------------
 -- TODO
@@ -232,7 +236,7 @@ function GetBallV5(role, p, target)
 	            local mexe, mpos = GoCmuRush{pos = pp, dir = idir, acc = a, flag = 0x00000100,rec = r,vel = v}
             	return {mexe, mpos}
         	else
-        		-- 到点后指向目标
+        		-- 到点后指向
         		local idir = (target - player.pos(role)):dir()
 	            local pp = p
 	            local mexe, mpos = GoCmuRush{pos = pp, dir = idir, acc = a, flag = 0x00000100,rec = r,vel = v}

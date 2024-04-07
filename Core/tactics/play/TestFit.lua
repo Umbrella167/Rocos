@@ -52,7 +52,16 @@ end
 
 
 -- 有用到的
-power =6000
+
+max_power = 6000 		--最大力度
+min_power = 2000 		--最小力度
+split_num = 10   		--分割次数
+label = 0
+
+power = function(i)
+	t = (max_power - min_power) / split_num
+	return min_power + t*i
+end
 
 toPlayerDir = function(role1, role2)
 	return player.toPlayerDir(role1, role2)
@@ -138,30 +147,37 @@ firstState = "init",
 },
 ["A_shoot_ball"] = {
 	switch = function()
+		debugEngine:gui_debug_msg(CGeoPoint(0,0), label)
+		debugEngine:gui_debug_msg(CGeoPoint(100,100), power(label))
 		if player.kickBall("Assister") then
+			label = label + 1
 			return "recording"
 		end
 	end,
-	Assister = task.shoot(readyPos("Assister"),toPlayerDir("Kicker"),_,power),
+	Assister = task.shoot(readyPos("Assister"),toPlayerDir("Kicker"),_,power(label)),
 	Kicker = task.Getballv4("Kicker", readyPos("Kicker")),
 	match = "{AK}"
 },
 ["K_shoot_ball"] = {
 	switch = function()
+		debugEngine:gui_debug_msg(CGeoPoint(0,0), label)
+		debugEngine:gui_debug_msg(CGeoPoint(100,100),power(label))
 		if player.kickBall("Kicker") then
+			label = label + 1
 			return "recording"
 		end
 	end,
 	Assister = task.Getballv4("Assister", readyPos("Assister")),
-	Kicker = task.shoot(readyPos("Kicker"), toPlayerDir("Assister"),_,power),
+	Kicker = task.shoot(readyPos("Kicker"), toPlayerDir("Assister"),_,power(label)),
 	match = "{AK}"
 },
 ["recording"] = {
 	switch = function()
+		debugEngine:gui_debug_msg(CGeoPoint(0,0), label)
+		debugEngine:gui_debug_msg(CGeoPoint(100,100), power(label))
 		if ball.velMod() < 100 then
 			return "init"
 		end
-		debugEngine:gui_debug_msg(CGeoPoint(0,0), ball.velMod())
 	end,
 	Assister = task.Getballv4("Assister", readyPos("Assister")),
 	Kicker = task.Getballv4("Kicker", readyPos("Kicker")),
