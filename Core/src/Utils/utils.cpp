@@ -1454,13 +1454,6 @@ namespace Utils
         }
     }
 
-    // 判断防守是否可能抓住球
-    bool DefenderTryToCatchBall()
-    {
-        CGeoPoint ball_pos = Tick[now].ball.pos.x();
-        CGeoPoint player_pos = Tick[now].our.player
-    }
-
     /****************************
      *                           *
      *         以下代码均是        *
