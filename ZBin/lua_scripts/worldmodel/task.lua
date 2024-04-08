@@ -44,78 +44,47 @@ end
 -- TODO
 ------------------------------------ 跑位相关的skill ---------------------------------------
 --~ p为要走的点,d默认为射门朝向
-function GetBallV2(role,p,dist,speed)-------dist开始减速的距离   speed减速的速度 
---参数说明
---role  使用这个函数的角色
---p	    拿到球后指向的目标点
---dist  距离球dist mm时开始减速
---speed 减速后的速度 （范围 0～2500）			
+
+
+
+max_power = 6000 		--最大力度
+min_power = 2000 		--最小力度
+split_num = 10   		--分割次数
+label = 0
+
+power = function(i)
 	return function()
-		local dist1
-		local minDist = 9999999
-		local longDist = 0
-		local ballspeed = 800
-
-		local p1 = p
-		if type(p) == 'function' then
-		  	p1 = p()
-		else
-		  	p1 = p
-		end
-		if(player.infraredCount(role) < 20) then
-			if((player.pos(role) - ball.pos()):mod() < dist)then
-				local idir = (ball.pos() - player.pos(role)):dir()
-				local pp = ball.pos() + Utils.Polar2Vector(0,idir)
-				if ball.velMod() > ballspeed and minDist > 180 then
-					pp = ball.pos() + Utils.Polar2Vector(longDist,idir)
-				end
-				local mexe, mpos = GoCmuRush{pos = pp,dir = idir,acc = speed,flag = 0x00000100,rec = r,vel = v}
-				return {mexe, mpos}
-			else
-				local idir = (ball.pos() - player.pos(role)):dir()
-				local pp = ball.pos() + Utils.Polar2Vector(-1 * dist + 10,idir)
-				if ball.velMod() > ballspeed and minDist > 180 then
-					pp = ball.pos() + Utils.Polar2Vector(longDist,idir)
-				end
-				local mexe, mpos = GoCmuRush{pos = pp, dir = idir, acc = a, flag = 0x00000100,rec = r,vel = v}
-				return {mexe, mpos}
-			end
-		else
-
-			
-			local idir = (p - player.pos(role)):dir()
-			local pp = player.pos(role)+ Utils.Polar2Vector(0 + 10,idir)
-			local mexe, mpos = GoCmuRush{pos = pp, dir = idir, acc = 50, flag = 0x00000100 + 0x04000000,rec = 1,vel = v}
-			return {mexe, mpos}
-		end
+		local t = (max_power - min_power) / split_num
+		local a =  min_power + t*label
+		debugEngine:gui_debug_msg(CGeoPoint:new_local(-4300,-2000),a,3)
+		return a
 	end
 end
 
-
-function Getballv4(role,p)
---参数说明 
---role   使用这个函数的角色
---p	     等待位置
+function Shootdot(p,i,error_,flag)
+--将球射向某一个点（会动态规划射门力度）  
+--p 目标点     
+--ifInter参数就填false
+--Kp 力度系数 
+--error_ 误差
+--flag:kick.chip or kick.flat By Umbrella 2022 07
 	return function()
-		local p1 = p
+		local p1
 		if type(p) == 'function' then
-		  	p1 = p()
+	  		p1 = p()
 		else
-		  	p1 = p
-		end
-		if ball.velMod() > 1000 then
-			local ball_line = CGeoLine:new_local(ball.pos(),ball.velDir())
-			local target_pos = ball_line:projection(player.pos(role))
-			local mexe, mpos = GoCmuRush{pos = target_pos, dir = (ball.pos() - player.pos(role)):dir(), acc = a, flag = 0x00000100,rec = r,vel = v}
-			return {mexe, mpos}
-		-- elseif ball.velMod() > 2000 and ball.velMod() < 2000  and (ball.pos() - player.pos(role)):mod() > 150 then
-		-- 	local mexe, mpos = GoCmuRush{pos = ball.pos() + Utils.Polar2Vector(100,(player.pos(role) - ball.pos()):dir()), dir = (ball.pos() - player.pos(role)):dir(), acc = a, flag = 0x00000100,rec = r,vel = v}
-		-- 	return {mexe, mpos}
-		else 
-			local mexe, mpos = GoCmuRush{pos = p1, dir = (ball.pos() - player.pos(role)):dir(), acc = 1300, flag = 0x00000100,rec = r,vel = v}
-			return {mexe, mpos}
+	  		p1 = p
 		end
 
+		local ipos = p1 or pos.theirGoal()
+		local idir = function(runner)
+			return (ipos - player.pos(runner)):dir()
+		end
+		local error__ = function()
+			return error_ * math.pi / 180.0
+		end
+	local mexe, mpos = Touch{pos = p, useInter = false}
+		return {mexe, mpos, flag, idir, error__, power(i),power(i), 0x00000000}
 	end
 end
 
@@ -123,6 +92,26 @@ end
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+InterPos = CGeoPoint:new_local(0,0)
+function Inter(ourSpeed)
+	InterPos = Utils.GetInterPos(vision,playerpos("Assister"),ourSpeed)
+end
 
 function goalie()
 	local mexe, mpos = Goalie()
@@ -237,12 +226,16 @@ function forcekick(p,d,chip,power)
 	return {mexe, mpos, ikick, idir, pre.low, kp.specified(ipower), cp.full, flag.forcekick}
 end
 
+
+
+
+
 function shoot(p,d,chip,power)
 	local ikick = chip and kick.chip or kick.flat
 	local ipower = power and power or 8000
 	local idir = d and d or dir.shoot()
 	local mexe, mpos = GoCmuRush{pos = p, dir = idir, acc = a, flag = f,rec = r,vel = v}
-	return {mexe, mpos, ikick, idir, pre.low, kp.specified(ipower), cp.full, flag.nothing}
+	return {mexe, mpos, ikick, idir, pre.low, kp.specified(ipower),kp.specified(ipower), flag.nothing}
 end
 ------------------------------------ 防守相关的skill ---------------------------------------
 -- TODO
@@ -274,4 +267,81 @@ end
 function openSpeed(vx, vy, vw, iflag)
 	local mexe, mpos = OpenSpeed{speedX = vx, speedY = vy, speedW = vw, flag = iflag}
 	return {mexe, mpos}
+end
+
+
+------------------------------------ 接球相关的skill ---------------------------------------
+
+
+
+--V4 使用条件：当球在运动过程时       效果：能够精准的到合适的地方接球   通常用在传球的时候接球人上
+function Getballv4(role,p)
+--参数说明 
+--role   使用这个函数的角色
+--p	     等待位置
+	return function()
+		local p1 = p
+		if type(p) == 'function' then
+		  	p1 = p()
+		else
+		  	p1 = p
+		end
+		if ball.velMod() > 1000 then
+			local ball_line = CGeoLine:new_local(ball.pos(),ball.velDir())
+			local target_pos = ball_line:projection(player.pos(role))
+			local mexe, mpos = GoCmuRush{pos = target_pos, dir = (ball.pos() - player.pos(role)):dir(), acc = a, flag = 0x00000100,rec = r,vel = v}
+			return {mexe, mpos}
+		else 
+			local mexe, mpos = GoCmuRush{pos = p1, dir = (ball.pos() - player.pos(role)):dir(), acc = a, flag = 0x00000100,rec = r,vel = v}
+			return {mexe, mpos}
+		end
+
+	end
+end
+
+
+function GetBallV5(role, p, target)
+--参数说明
+--role  	  使用这个函数的角色
+--p      	  拿到球后跑去目标点
+--target      朝向的点
+    return function()
+        local minDist = 9999999
+        local ballspeed = 800
+
+        if type(p) == 'function' then
+            p = p()
+        end
+        if type(target) == 'function' then
+            target = target()
+        end
+
+        
+        if(player.infraredCount(role) < 20) then 
+        	-- 拿球
+            local idir = (ball.pos() - player.pos(role)):dir()
+            local pp = ball.pos() + Utils.Polar2Vector(10,idir)
+            if ball.velMod() > ballspeed and minDist > 180 then
+                pp = ball.pos() + Utils.Polar2Vector(350,idir)
+            end
+            local mexe, mpos = GoCmuRush{pos = pp, dir = idir, acc = a, flag = 0x00000100,rec = r,vel = v}
+            return {mexe, mpos}
+        else
+
+        	if player.toPointDist(role, p) > 10 then
+        	 	-- 拿到球后跑点
+	            local idir = (ball.pos() - player.pos(role)):dir()
+	            local pp = p
+	            local mexe, mpos = GoCmuRush{pos = pp, dir = idir, acc = a, flag = 0x00000100,rec = r,vel = v}
+            	return {mexe, mpos}
+        	else
+        		-- 到点后指向
+        		local idir = (target - player.pos(role)):dir()
+	            local pp = p
+	            local mexe, mpos = GoCmuRush{pos = pp, dir = idir, acc = a, flag = 0x00000100,rec = r,vel = v}
+	            return {mexe, mpos}
+        	end
+
+        end
+    end
 end

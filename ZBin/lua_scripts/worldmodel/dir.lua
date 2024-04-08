@@ -1,5 +1,6 @@
 module(..., package.seeall)
 
+
 function specified(num)
 	return function()
 		return num * math.pi / 180

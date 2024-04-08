@@ -40,24 +40,14 @@ namespace Utils
 
         fitFunction.GetFitData(Tick);
 
-//        if (Tick[1].ball_vel > 0 && Tick[0].ball_vel == 0)
-//        {   std::ofstream outfile("~/functions/data.txt");
+//        if (Tick[1].ball.vel > 0 && Tick[0].ball.vel == 0)
+//        {
 //            for (int i = 0; i < PARAM::Tick::TickLength;i++)
 //            {
-//                outfile << "距离：" + to_string((Tick[i].ball_pos - Tick[0].ball_pos).mod())+
-//                       "      速度：" + to_string(Tick[i].ball_vel) +
-//                       "      加速度：" + to_string(Tick[i].ball_acc)+
-//                       "      时间：" + to_string(Tick[i].delta_time)+
-//                       "      预测最大速度：" + to_string(Tick[i].predict_vel_max)
-//                << std::endl; // 写入内容
+
 //            }
-//            outfile.close();
 //        }
-//        double arry1[5]={1, 2, 3, 4, 5};
-//        double arry2[5]={1.2, 3.5, 7.2, 12.1, 18.3};
-//        double* t = fitFunction.Fit(arry1, arry2);
-//        cout<< t[0] << t[1] << t[2] << endl;
-//        delete[] t;
+
         return 0;
 
     }

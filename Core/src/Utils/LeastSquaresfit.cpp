@@ -12,7 +12,7 @@ LeastSquaresfit::LeastSquaresfit()
     cout << NewDataFilename << endl;
     outfile.open(NewDataFilename);
 
-    FitFromFile("fitfunctions/data.txt");
+    FitFromFile(PARAM::Fit::FitDataFileName);
     GetClosestLabelIndex(100);
 }
 
@@ -204,9 +204,13 @@ string LeastSquaresfit::GetNewDataFilename()
     {
         i++;
         filename = "fitfunctions/fitdata" + to_string(i) +".txt";
+        string buf;
         ifstream infile;
         infile.open(filename, ios::in);
-        if(!infile.is_open())
+        getline(infile, buf);
+        cout<<filename<<endl;
+        cout<<buf<<endl;
+        if(!infile.is_open() || buf.empty())
             break;
     }
     return filename;
@@ -236,11 +240,23 @@ double LeastSquaresfit::GetPreDist(double label, double time) {
 
     return time>max?a*max*max+b*max+c:a*time*time+b*time+c;
 }
+// 输入标签,输出能到达的最远距离
+double LeastSquaresfit::GetMaxDist(double label){
+    int i = GetClosestLabelIndex(label);
+    double a = Functions[i].a;
+    double b = Functions[i].b;
+    double c = Functions[i].c;
+    double max = -b/2*a;
+
+    return a*max*max+b*max+c;
+}
 // 输入标签和距离预测时间
 double LeastSquaresfit::GetPreTime(double label, double d) {
     int i = GetClosestLabelIndex(label);
     double a = Functions[i].a;
     double b = Functions[i].b;
     double c = Functions[i].c;
-    return abs((b+sqrt(b*b-4*a*(c-d)))/(2*a));
+    double max = c - b*b/(4*a);
+    // 如果预测的距离比max长，则返回-1（无法到达）
+    return d>max?-1:(sqrt(abs(b*b+4*a*(d-c)))-b)/(2*a);
 }
