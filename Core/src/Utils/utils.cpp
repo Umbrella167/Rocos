@@ -254,36 +254,36 @@ namespace Utils
         }
     }
 
-    /**
-     * 获取相对某坐标最佳截球点（动态：球在运动过程中）
-     * @param  {CVisionModule*} pVision : pVision
-     * @param  {CGeoPoint} player_pos   : 坐标
-     * @param  {double} velocity        : 速度
-     * @return {CGeoPoint}              : 最佳截球点
-     */
+            /**
+             * 获取相对某坐标最佳截球点（动态：球在运动过程中）
+             * @param  {CVisionModule*} pVision : pVision
+             * @param  {CGeoPoint} player_pos   : 坐标
+             * @param  {double} velocity        : 速度
+             * @return {CGeoPoint}              : 最佳截球点
+             */
 
     CGeoPoint GetInterPos(const CVisionModule *pVision, CGeoPoint player_pos, double velocity)
     {
 
     }
 
-    /**
-     * 坐标到坐标之间的时间
-     * @param  {CGeoPoint} start_pos : 起始位置
-     * @param  {CGeoPoint} end_pos   : 终点位置
-     * @param  {double} velocity     : 速度
-     * @return {double}              : 时间
-     */
-    double PosToPosTime(CGeoPoint start_pos, CGeoPoint end_pos, double velocity)
-    {
-        return (start_pos - end_pos).mod() / velocity;
-    }
+            /**
+             * 坐标到坐标之间的时间
+             * @param  {CGeoPoint} start_pos : 起始位置
+             * @param  {CGeoPoint} end_pos   : 终点位置
+             * @param  {double} velocity     : 速度
+             * @return {double}              : 时间
+             */
+            double PosToPosTime(CGeoPoint start_pos, CGeoPoint end_pos, double velocity)
+            {
+                return (start_pos - end_pos).mod() / velocity;
+            }
 
-    /**
-     * 预测球运动的线段
-     * @param  {CVisionModule*} pVision : pVision
-     * @return {CGeoSegment}            : 球运动轨迹的线段
-     */
+            /**
+             * 预测球运动的线段
+             * @param  {CVisionModule*} pVision : pVision
+             * @return {CGeoSegment}            : 球运动轨迹的线段
+             */
 
     CGeoSegment PredictBallLine(const CVisionModule *pVision)
     {
@@ -809,11 +809,19 @@ namespace Utils
         CGeoSegment Line(start,end);
         for(int i = 0;i < Tick[now].their.player_num;i++)
         {
-            CGeoPoint player_pos (pVision -> theirPlayer(i).Pos());
+            CGeoPoint player_pos(pVision->theirPlayer(i).Pos());
+            CGeoPoint player_pos(pVision->theirPlayer(i).Pos());
             CGeoPoint player_projection = Line.projection(player_pos);
-            if(!Line.IsPointOnLineOnSegment(player_projection)) continue;
-            if(player_pos.dist(player_projection) < buffer) return false;
-//            GDebugEngine::Instance() -> gui_debug_x(Line.projection(player_pos));
+            if (!Line.IsPointOnLineOnSegment(player_projection))
+                continue;
+            if (player_pos.dist(player_projection) < buffer)
+                return false;
+            //            GDebugEngine::Instance() -> gui_debug_x(Line.projection(player_pos));
+            if (!Line.IsPointOnLineOnSegment(player_projection))
+                continue;
+            if (player_pos.dist(player_projection) < buffer)
+                return false;
+            //            GDebugEngine::Instance() -> gui_debug_x(Line.projection(player_pos));
         }
         return true;
     }
@@ -867,9 +875,10 @@ namespace Utils
      * @param  {std::string} model      :（GAUSS：可设峰值（peak_pos），NORMAL：越近分数越高）
      * @return {double}                 : dir > 0 ? [0.0 ～ 1.0] : [1.0 ～ 0]
      */
-    double PosToBallDistGrade(CGeoPoint ball_pos, double x, double y,double peak_pos, int dir)
+    double PosToBallDistGrade(CGeoPoint ball_pos, double x, double y, double peak_pos, int dir) double PosToBallDistGrade(CGeoPoint ball_pos, double x, double y, double peak_pos, int dir)
     {
-        //PARAM::Field::PITCH_LENGTH / 3.8;
+        // PARAM::Field::PITCH_LENGTH / 3.8;
+        // PARAM::Field::PITCH_LENGTH / 3.8;
         CGeoPoint pos(x, y);
         double max_data = PARAM::Field::PITCH_LENGTH / 1.4;
         double min_data = 0;
@@ -883,7 +892,6 @@ namespace Utils
 
         return grade;
     }
-
 
     double PosToBallDistGrade(CGeoPoint ball_pos, double x, double y, int dir)
     {
@@ -1056,11 +1064,6 @@ namespace Utils
      *       Open-ssl-china      *
      *****************************/
 
-    /**
-     * TODO: 补全
-     * @param  {Normalize(v1.dir()} - :
-     * @return {double}               :
-     */
     double dirDiff(const CVector &v1, const CVector &v2) { return fabs(Normalize(v1.dir() - v2.dir())); }
     double Normalize(double angle)
     {
@@ -1087,60 +1090,26 @@ namespace Utils
         return angle;
     }
 
-    /**
-     * TODO: 补全
-     * @param  {double} m     :
-     * @param  {double} angle :
-     * @return {CVector}      :
-     */
     CVector Polar2Vector(double m, double angle)
     {
         return CVector(m * std::cos(angle), m * std::sin(angle));
     }
 
-    /**
-     * TODO: 补全
-     * @param  {CVector} v1 :
-     * @param  {CVector} v2 :
-     * @return {double}     :
-     */
     double VectorDot(const CVector &v1, const CVector &v2)
     {
         return v1.x() * v2.x() + v1.y() * v2.y();
     }
 
-    /**
-     * TODO: 补全
-     * @param  {CGeoPoint} p  :
-     * @param  {CGeoPoint} p1 :
-     * @param  {CGeoPoint} p2 :
-     * @return {bool}         :
-     */
     bool InBetween(const CGeoPoint &p, const CGeoPoint &p1, const CGeoPoint &p2)
     {
         return p.x() >= (std::min)(p1.x(), p2.x()) && p.x() <= (std::max)(p1.x(), p2.x()) && p.y() >= (std::min)(p1.y(), p2.y()) && p.y() <= (std::max)(p1.y(), p2.y());
     }
 
-    /**
-     * TODO: 补全
-     * @param  {double} v  :
-     * @param  {double} v1 :
-     * @param  {double} v2 :
-     * @return {bool}      :
-     */
     bool InBetween(double v, double v1, double v2)
     {
         return (v > v1 && v < v2) || (v < v1 && v > v2);
     }
 
-    /**
-     * TODO: 补全
-     * @param  {CVector} v     :
-     * @param  {CVector} v1    :
-     * @param  {CVector} v2    :
-     * @param  {double} buffer :
-     * @return {bool}          :
-     */
     bool InBetween(const CVector &v, const CVector &v1, const CVector &v2, double buffer)
     {
 
@@ -1148,14 +1117,6 @@ namespace Utils
         return AngleBetween(d, d1, d2, buffer);
     }
 
-    /**
-     * TODO: 补全
-     * @param  {double} d      :
-     * @param  {double} d1     :
-     * @param  {double} d2     :
-     * @param  {double} buffer :
-     * @return {bool}          :
-     */
     bool AngleBetween(double d, double d1, double d2, double buffer)
     {
         using namespace PARAM::Math;
@@ -1180,12 +1141,6 @@ namespace Utils
         }
     }
 
-    /**
-     * TODO: 补全
-     * @param  {CGeoPoint} p   :
-     * @param  {double} buffer :
-     * @return {CGeoPoint}     :
-     */
     CGeoPoint MakeInField(const CGeoPoint &p, const double buffer)
     {
         auto new_p = p;
@@ -1202,10 +1157,6 @@ namespace Utils
 
     /**
      * modified by Wang in 2018/3/17
-     * TODO: 补全
-     * @param  {CGeoPoint} p   :
-     * @param  {double} buffer :
-     * @return {bool}          :
      */
     bool InOurPenaltyArea(const CGeoPoint &p, const double buffer)
     {
@@ -1216,13 +1167,6 @@ namespace Utils
                     PARAM::Field::PENALTY_AREA_WIDTH / 2 + buffer);
     }
 
-    /**
-     *
-     * TODO: 补全
-     * @param  {CGeoPoint} p   :
-     * @param  {double} buffer :
-     * @return {bool}          :
-     */
     bool InTheirPenaltyArea(const CGeoPoint &p, const double buffer)
     {
         // rectanlge penalty
@@ -1233,12 +1177,6 @@ namespace Utils
                     PARAM::Field::PENALTY_AREA_WIDTH / 2 + buffer);
     }
 
-    /**
-     * TODO: 补全
-     * @param  {PlayerVisionT} me :
-     * @param  {double} buffer    :
-     * @return {bool}             :
-     */
     bool InTheirPenaltyAreaWithVel(const PlayerVisionT &me, const double buffer)
     {
         CVector vel = me.Vel();
@@ -1254,24 +1192,12 @@ namespace Utils
             return false;
     }
 
-    /**
-     * TODO: 补全
-     * @param  {CGeoPoint} p   :
-     * @param  {double} buffer :
-     * @return {bool}          :
-     */
     bool IsInField(const CGeoPoint p, double buffer)
     {
         return (p.x() > buffer - PARAM::Field::PITCH_LENGTH / 2 && p.x() < PARAM::Field::PITCH_LENGTH / 2 - buffer &&
                 p.y() > buffer - PARAM::Field::PITCH_WIDTH / 2 && p.y() < PARAM::Field::PITCH_WIDTH / 2 - buffer);
     }
 
-    /**
-     * TODO: 补全
-     * @param  {CGeoPoint} p   :
-     * @param  {double} buffer :
-     * @return {bool}          :
-     */
     bool IsInFieldV2(const CGeoPoint p, double buffer)
     {
         return (IsInField(p, buffer) && !Utils::InOurPenaltyArea(p, buffer) && !Utils::InTheirPenaltyArea(p, buffer));
@@ -1279,10 +1205,6 @@ namespace Utils
 
     /**
      * modified by Wang in 2018/3/21
-     * TODO: 补全
-     * @param  {CGeoPoint} p   :
-     * @param  {double} buffer :
-     * @return {CGeoPoint}     :
      */
     CGeoPoint MakeOutOfOurPenaltyArea(const CGeoPoint &p, const double buffer)
     {
@@ -1313,11 +1235,6 @@ namespace Utils
 
     /**
      * modified by Wang in 2018/3/17
-     * TODO: 补全
-     * @param  {CGeoPoint} p   :
-     * @param  {double} buffer :
-     * @param  {double} dir    :
-     * @return {CGeoPoint}     :
      */
     CGeoPoint MakeOutOfTheirPenaltyArea(const CGeoPoint &p, const double buffer, const double dir)
     {
@@ -1365,17 +1282,6 @@ namespace Utils
         }
     }
 
-    /**
-     * TODO: 补全
-     * @param  {CGeoPoint} center  :
-     * @param  {double} radius     :
-     * @param  {CGeoPoint} target  :
-     * @param  {double} buffer     :
-     * @param  {bool} isBack       :
-     * @param  {CGeoPoint} mePos   :
-     * @param  {CVector} adjustVec :
-     * @return {CGeoPoint}         :
-     */
     CGeoPoint MakeOutOfCircle(const CGeoPoint &center, const double radius, const CGeoPoint &target, const double buffer, const bool isBack, const CGeoPoint &mePos, const CVector adjustVec)
     {
         CGeoPoint p(target);
@@ -1400,16 +1306,6 @@ namespace Utils
         return p;
     }
 
-    /**
-     * TODO: 补全
-     * @param  {CGeoPoint} seg_start :
-     * @param  {CGeoPoint} seg_end   :
-     * @param  {double} radius       :
-     * @param  {CGeoPoint} target    :
-     * @param  {double} buffer       :
-     * @param  {CVector} adjustVec   :
-     * @return {CGeoPoint}           :
-     */
     CGeoPoint MakeOutOfLongCircle(const CGeoPoint &seg_start, const CGeoPoint &seg_end, const double radius, const CGeoPoint &target, const double buffer, const CVector adjustVec)
     {
         CGeoSegment segment(seg_start, seg_end);
@@ -1427,12 +1323,6 @@ namespace Utils
 
     /**
      * 针对门柱
-     * TODO: 补全
-     * @param  {CGeoPoint} recP1  :
-     * @param  {CGeoPoint} recP2  :
-     * @param  {CGeoPoint} target :
-     * @param  {double} buffer    :
-     * @return {CGeoPoint}        :
      */
     CGeoPoint MakeOutOfRectangle(const CGeoPoint &recP1, const CGeoPoint &recP2, const CGeoPoint &target, const double buffer)
     {
@@ -1504,14 +1394,6 @@ namespace Utils
         return targetNew;
     }
 
-    /**
-     * TODO: 补全
-     * @param  {CGeoPoint} center :
-     * @param  {double} radius    :
-     * @param  {CGeoPoint} p      :
-     * @param  {double} buffer    :
-     * @return {CGeoPoint}        :
-     */
     CGeoPoint MakeOutOfCircleAndInField(const CGeoPoint &center, const double radius, const CGeoPoint &p, const double buffer)
     {
         const CVector p2c = p - center;
@@ -1553,11 +1435,6 @@ namespace Utils
         return newPos; // 圆外距离p最近的点
     }
 
-    /**
-     * TODO: 补全
-     * @param  {int} num :
-     * @return {bool}    :
-     */
     bool PlayerNumValid(int num)
     {
         if (num >= 0 && num < PARAM::Field::MAX_PLAYER)
@@ -1573,11 +1450,6 @@ namespace Utils
     /**
      * 给定一个球门线上的点, 一个方向(角度), 找出一个在禁区外防守该方向的
      * 离禁区线较近的点
-     * TODO: 补全
-     * @param  {double} dir            :
-     * @param  {double} delta          :
-     * @param  {CGeoPoint} targetPoint :
-     * @return {CGeoPoint}             :
      */
     CGeoPoint GetOutSidePenaltyPos(double dir, double delta, const CGeoPoint targetPoint)
     {
@@ -1587,10 +1459,6 @@ namespace Utils
         return pDefend;
     }
 
-    /**
-     * TODO: 补全
-     * @param  {} undefined :
-     */
     CGeoPoint GetOutTheirSidePenaltyPos(double dir, double delta, const CGeoPoint &targetPoint)
     {
         CGeoPoint pInter = GetTheirInterPos(dir, targetPoint);
@@ -1600,10 +1468,6 @@ namespace Utils
     /**
      * GetDefendPos的处理细节，给定点和方向求它和禁区线的交点，给定点需在禁区内
      * modified by Wang in 2018/3/17
-     * TODO: 补全
-     * @param  {double} dir            :
-     * @param  {CGeoPoint} targetPoint :
-     * @return {CGeoPoint}             :
      */
     CGeoPoint GetInterPos(double dir, const CGeoPoint targetPoint)
     {
@@ -1765,8 +1629,6 @@ namespace Utils
 
     /**
      * modified by Wang in 2018/3/17
-     * TODO: 补全
-     * @param  {} undefined :
      */
     CGeoPoint GetTheirInterPos(double dir, const CGeoPoint &targetPoint)
     {
@@ -1930,11 +1792,6 @@ namespace Utils
         }
     }
 
-    /**
-     * TODO: 补全
-     * @param  {float} number :
-     * @return {float}        :
-     */
     float SquareRootFloat(float number)
     {
         long i;
@@ -1951,15 +1808,6 @@ namespace Utils
         return number * y;
     }
 
-    /**
-     * TODO: 补全
-     * @param  {CVisionModule*} pVision :
-     * @param  {int} vecNumber          :
-     * @param  {CGeoPoint} target       :
-     * @param  {int} flags              :
-     * @param  {double} avoidBuffer     :
-     * @return {bool}                   :
-     */
     bool canGo(const CVisionModule *pVision, const int vecNumber, const CGeoPoint &target, const int flags, const double avoidBuffer) // 判断是否可以直接到达目标点
     {
         static bool _canGo = true;
@@ -2081,14 +1929,7 @@ namespace Utils
         return _canGo;
     }
     /**
-     * 判断能否传球的角度限制 TODO: 补全
-     * @param  {CVisionModule*} pVision :
-     * @param  {CGeoPoint} start        :
-     * @param  {CGeoPoint} end          :
-     * @param  {bool} isShoot           :
-     * @param  {bool} ignoreCloseEnemy  :
-     * @param  {bool} ignoreTheirGuard  :
-     * @return {bool}                   :
+     * 判断能否传球的角度限制
      */
     bool isValidFlatPass(const CVisionModule *pVision, CGeoPoint start, CGeoPoint end, bool isShoot, bool ignoreCloseEnemy, bool ignoreTheirGuard)
     {
@@ -2122,11 +1963,7 @@ namespace Utils
     }
 
     /**
-     * 判断能否传球的角度限制 TODO: 补全
-     * @param  {CVisionModule*} pVision :
-     * @param  {CGeoPoint} start        :
-     * @param  {CGeoPoint} end          :
-     * @return {bool}                   :
+     * 判断能否传球的角度限制
      */
     bool isValidChipPass(const CVisionModule *pVision, CGeoPoint start, CGeoPoint end)
     {
