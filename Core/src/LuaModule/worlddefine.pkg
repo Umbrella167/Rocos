@@ -1,6 +1,8 @@
 $#include <geometry.h>
 $#include "WorldDefine.h"
 
+
+
 class ObjectPoseT{
 	ObjectPoseT();
 	const CGeoPoint& Pos() const;
@@ -54,4 +56,14 @@ struct PlayerCapabilityT{
 	double maxAngularSpeed;
 	double maxDec;
 	double maxAngularDec;
+};
+
+
+struct GlobalTick{
+    times time;
+    balls ball;
+    ours our;
+    theirs their;
+    tasks task[PARAM::Field::MAX_PLAYER];
+    golobalDatas globalData;
 };

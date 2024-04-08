@@ -71,44 +71,19 @@ namespace Utils
      * @param  {CGeoPoint} p            : 位置
      * @return {string}                 : 计算出的位置
      */
-    string GlobalComputingPos(const CVisionModule *pVision, CGeoPoint player_pos)
+    string GlobalComputingPos(const CVisionModule *pVision)
     {
-
-        UpdataTickMessage(pVision);
-        GlobalStatus(pVision,0,1);
-
-
-//        PosSafetyGrade(pVision, player_pos, CGeoPoint (4500,0),"PASS");
-//        int step = 100;
-//        int half_length = PARAM::Field::PITCH_LENGTH / 2;
-//        int half_width = PARAM::Field::PITCH_WIDTH / 2;
-//        int field_x = 0;
-//        int field_y = 0;
-//        double max_attack_grade = -999;
-
-//        CGeoPoint max_attack_pos;
-//        CGeoPoint max_shoot_pos;
-//        for(int x = 0;x < 4500;x+= 400){
-//            for(int y = -2800;y < 2800;y+=400){
-//                CGeoPoint shoot_pos = GetShootPoint(pVision, x,y);
-//                if(shoot_pos.y() == -999 || InExclusionZone(CGeoPoint(x,y)) || (!isValidPass(pVision,player_pos,CGeoPoint(x,y),PARAM::Player::playerBuffer)) || !isValidPass(pVision,CGeoPoint(x,y),shoot_pos,PARAM::Player::playerBuffer)) continue;
-//                double attackGrade = GetAttackGrade(pVision, x, y,player_pos,shoot_pos);
-//                if (attackGrade > max_attack_grade)
-//                {
-//                    max_attack_grade = attackGrade;
-//                    max_shoot_pos = shoot_pos;
-//                    max_attack_pos = CGeoPoint(x,y);
-//                }
-//                std::ostringstream stream;
-//                stream << std::fixed << std::setprecision(2) << attackGrade;
-//                std::string a_str = stream.str();
-
-//                GDebugEngine::Instance() ->gui_debug_x(CGeoPoint(x,y),3);
-//                GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(x,y),a_str);
-//            }
-//        }
-//        GDebugEngine::Instance() ->gui_debug_arc(max_shoot_pos,200,0,360,3);
-//        GDebugEngine::Instance() ->gui_debug_arc(max_attack_pos,200,0,360,3);
+        if (Tick[now].ball.rights == 1)
+        {
+            for(int i = 0;i < Tick[now].our.player_num;i++)
+            {
+                if(Tick[now].our.player[i] == Tick[now].our.dribbling_num ||
+                   Tick[now].our.player[i] == Tick[now].our.goalie_num ||
+                   Tick[now].our.player[i] == Tick[now].our.defend_player_num1 ||
+                   Tick[now].our.player[i] == Tick[now].our.defend_player_num2) continue;
+                GetAttackPos(pVision,Tick[now].our.player[i]);
+            }
+        }
         return to_string(1); // FIXME: 字符串可能还是抽象了点，到时候看看修一下
     }
     /**
@@ -116,7 +91,7 @@ namespace Utils
      * @param  {CVisionModule*} pVision : 视觉模块
      */
 
-    void UpdataTickMessage(const CVisionModule *pVision){
+    GlobalTick UpdataTickMessage(const CVisionModule *pVision,int defend_player_num1,int defend_player_num2){
         CWorldModel RobotSensor;
         int oldest = 0;
         double our_min_dist = 9999;
@@ -126,6 +101,8 @@ namespace Utils
             Tick[i] = Tick[i+1];
         }
         ///更新帧信息
+        Tick[now].our.defend_player_num1 = defend_player_num1;
+        Tick[now].our.defend_player_num2 = defend_player_num2;
         Tick[now].time.time = std::chrono::high_resolution_clock::now();
         Tick[now].time.delta_time = (double)std::chrono::duration_cast<std::chrono::microseconds>(Tick[now].time.time - Tick[last].time.time).count() / 1000000;
         Tick[now].time.tick_count+=1;
@@ -193,24 +170,9 @@ namespace Utils
             Tick[now].time.tick_key = 0;
             Tick[now].ball.predict_vel_max = 0;
         }
-
-    /*
-        ///Debug 球速记录拟合 调试
-        if (Tick[1].ball.vel > 0 && Tick[0].ball.vel == 0)
-        {   std::ofstream outfile("/home/umbrella/文档/data.txt");
-            for (int i = 0; i < PARAM::Tick::TickLength;i++)
-            {
-                outfile << "距离：" + to_string((Tick[i].ball.pos - Tick[0].ball.pos).mod())+
-                       "      速度：" + to_string(Tick[i].ball.vel) +
-                       "      加速度：" + to_string(Tick[i].ball.acc)+
-                       "      时间：" + to_string(Tick[i].time.delta_time)+
-                       "      预测最大速度：" + to_string(Tick[i].ball.predict_vel_max)
-                << std::endl; // 写入内容
-            }
-            outfile.close();
-        }
-        */
+        return Tick[now];
     }
+
 
     /**
      * 坐标安全性评分计算
@@ -337,16 +299,17 @@ namespace Utils
     {
 
     }
-    double GlobalConfidence(const CVisionModule *pVision,int defend_player_num1,int defend_player_num2,int attack_flag)
+    double GlobalConfidence(const CVisionModule *pVision,int attack_flag)
     {
         ///   /// /// OUR BALL RIGHTS /// ///   ///
         ///
-        /// Dribbling player [shoot,pass,dribbling]
-        /// Run player       [run,getball]
+        ///     Dribbling player [shoot,pass,dribbling]
+        ///
+        ///     Run player       [run,getball]
         ///
         ///   /// /// THEIR BALL RIGHTS /// /// ///
         ///
-        /// All player [defend,getball]
+        ///     All player [defend,getball]
         ///
         /// ///////////////////////////////////////
         // attack_flag == 0 传统模式，两后卫专注防守
@@ -358,11 +321,11 @@ namespace Utils
             // 跳过守门员
             if(Tick[now]. our.goalie_num == i) continue;
             // 如果是传统模式跳过后卫
-            if(attack_flag == 0 && (defend_player_num1 == i || defend_player_num2 == i) )continue;
+            if(attack_flag == 0 && (Tick[now].our.defend_player_num1 == i || Tick[now].our.defend_player_num2 == i) )continue;
             int num = Tick[now].our.player[i];
             Tick[now].task[num].player_num = Tick[now].our.player[i];
             Tick[now].task[num].confidence_shoot = 0;
-            Tick[now].task[num].confidence_pass = 0;
+
             Tick[now].task[num].confidence_dribbling = 0;
             Tick[now].task[num].confidence_run = 0;
             Tick[now].task[num].confidence_defend = 0;
@@ -375,27 +338,32 @@ namespace Utils
                 {
                     // 获取带球机器人的射门置信度
                     Tick[now].task[num].confidence_shoot = ConfidenceShoot(pVision,Tick[now].our.player[i]);
+                    Tick[now].task[num].confidence_shoot  = Tick[now].task[num].confidence_shoot - 0.8 * (1 - NumberNormalize(pVision ->ourPlayer(num).Pos().x(),1200,0));
                 }
                 // 非带球机器人状态  ->  [跑位，接球]
                 else
                 {
+                    Tick[now].task[num].confidence_pass = 0;
                     // 如果无法被传球的非持球机器人 只能进行跑位
                     if(!isValidPass(pVision,pVision ->ourPlayer(Tick[now].our.dribbling_num).Pos(),pVision -> ourPlayer(Tick[now].our.player[i]).Pos(),PARAM::Player::playerBuffer) || !isValidPass(pVision,pVision ->ourPlayer(Tick[now].our.dribbling_num).Pos(),pVision -> ourPlayer(Tick[now].our.player[i]).Pos(),PARAM::Player::playerBuffer))
                     {
                         Tick[now].task[num].confidence_run = 1;
-                        Tick[now].task[num].status = "run";
+                        Tick[now].task[num].status = "Run";
                         continue;
                     }
                     // 获取非带球机器人的被传球概率
-                    Tick[now].task[num].confidence_shoot = ConfidenceShoot(pVision,Tick[now].our.player[i]);
+                    Tick[now].task[num].confidence_shoot = ConfidenceShoot(pVision,Tick[now].our.player[i],1);
                     Tick[now].task[num].confidence_pass = ConfidencePass(pVision,Tick[now].our.dribbling_num,Tick[now].our.player[i],Tick[now].task[num].confidence_shoot);
+                    //如果友方位置太靠后，酌情扣分
+                    if(pVision ->ourPlayer(num).Pos().x() < 1000)
+                        Tick[now].task[num].confidence_pass  = Tick[now].task[num].confidence_pass - 0.4 * (1 - NumberNormalize(pVision ->ourPlayer(num).Pos().x(),1000,-2000));
                     Tick[now].task[num].confidence_run = 1;
                     Tick[now].task[num].status = "Run";
                     // 保存最大的被传球自信度给带球机器人
                     if (max_confidence_pass < Tick[now].task[num].confidence_pass)
                     {
                         max_confidence_pass = Tick[now].task[num].confidence_pass;
-                        Tick[now].task[Tick[now].our.dribbling_num].confidence_pass = max_confidence_pass;
+                        Tick[now].task[Tick[now].our.dribbling_num].confidence_pass = Tick[now].task[num].confidence_pass;
                         Tick[now].task[Tick[now].our.dribbling_num].max_confidence_pass_num = num;
                     }
                 }
@@ -403,6 +371,7 @@ namespace Utils
             // 球权是敌方的情况
             else if (Tick[now].ball.rights == -1)
             {
+                Tick[now].task[num].confidence_pass = 0;
                 // 距离球最近的机器人去抢球，其余人去防守
                 if(Tick[now].our.to_balldist_min_num == num)
                 {
@@ -418,6 +387,7 @@ namespace Utils
             // 传球或射门失误导致的双方都无球权的情况  +  顶牛或抢球对抗的情况
             else if (Tick[now].ball.rights == 0 || Tick[now].ball.rights == 2)
             {
+                Tick[now].task[num].confidence_pass = 0;
                 // 距离球最近的机器人去抢球，其余人跑位
                 if(Tick[now].our.to_balldist_min_num == num)
                 {
@@ -431,14 +401,16 @@ namespace Utils
                 }
             }
         }
+
         return 0;
     }
 
-    string GlobalStatus(const CVisionModule *pVision,int defend_player_num1,int defend_player_num2,int attack_flag)
+    std::string GlobalStatus(const CVisionModule *pVision,int attack_flag)
     {
-        GlobalConfidence(pVision,defend_player_num1,defend_player_num2,attack_flag);
+        GlobalConfidence(pVision,attack_flag);
         double dribbling_threshold = 0.45;
         double pass_threshold = 0.15;
+        string global_status = "";
         //如果是我方球权，那么先决定带球机器人状态
         if(Tick[now].ball.rights == 1)
         {
@@ -450,7 +422,7 @@ namespace Utils
             {
                 //如果 传球概率 > 射门概率 阈值以上，那么才会传球  因为射门的收益会更高，所以条件要宽裕一点
                 if (confidence_pass - confidence_shoot > pass_threshold)
-                    Tick[now].task[Tick[now].our.dribbling_num].status = "passToPlayer " + to_string(Tick[now].task[Tick[now].our.dribbling_num].max_confidence_pass_num);
+                    Tick[now].task[Tick[now].our.dribbling_num].status = "passToPlayer" + to_string(Tick[now].task[Tick[now].our.dribbling_num].max_confidence_pass_num);
                 else
                     Tick[now].task[Tick[now].our.dribbling_num].status = "Shoot";
             }
@@ -458,7 +430,7 @@ namespace Utils
             if(confidence_shoot > dribbling_threshold && confidence_pass < dribbling_threshold)
                 Tick[now].task[Tick[now].our.dribbling_num].status = "Shoot";
             else if(confidence_shoot < dribbling_threshold && confidence_pass > dribbling_threshold)
-                Tick[now].task[Tick[now].our.dribbling_num].status = "passToPlayer " + to_string(Tick[now].task[Tick[now].our.dribbling_num].max_confidence_pass_num);
+                Tick[now].task[Tick[now].our.dribbling_num].status = "passToPlayer" + to_string(Tick[now].task[Tick[now].our.dribbling_num].max_confidence_pass_num);
 
             // 如果两项都小于阈值，那么就带球找机会
             if(confidence_shoot < dribbling_threshold && confidence_pass < dribbling_threshold)
@@ -471,8 +443,12 @@ namespace Utils
         //Debug
         for(int i = 0;i < PARAM::Field::MAX_PLAYER;i++)
         {
-            if(pVision ->ourPlayer(i).Valid())
+            if(pVision ->ourPlayer(i).Valid() &&
+              (attack_flag == 0 &&
+              (Tick[now].task[i].player_num != -1 && Tick[now].task[i].player_num != Tick[now].our.goalie_num)))
             {
+
+                global_status = global_status + "[" + to_string(Tick[now].task[i].player_num) + "," + Tick[now].task[i].status + "]";
                 GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision ->ourPlayer(i).Pos().x(),pVision ->ourPlayer(i).Pos().y() + 150),"Number: " + to_string(Tick[now].task[i].player_num),4);
                 GDebugEngine::Instance()->gui_debug_msg(pVision ->ourPlayer(i).Pos(),"shoot: " + to_string(Tick[now].task[i].confidence_shoot),3);
                 GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision ->ourPlayer(i).Pos().x(),pVision ->ourPlayer(i).Pos().y() - 150),"Pass: " + to_string(Tick[now].task[i].confidence_pass),2);
@@ -484,7 +460,7 @@ namespace Utils
             }
 
         }
-        return "1";
+        return global_status;
     }
     double ConfidencePass(const CVisionModule *pVision, int dribbling_player_num,int getball_player_num,double getball_player_confidence_shoot)
     {
@@ -556,7 +532,7 @@ namespace Utils
         if (count == Tick[now].their.player_num)
         {
             safty_grade = 1;
-            grade = 0.6 * grade_shoot + 0.4 * safty_grade;
+            grade = 0.75 * grade_shoot + 0.25 * safty_grade;
 //            GDebugEngine::Instance() -> gui_debug_msg(CGeoPoint(-3000,2000),to_string(grade_shoot) + "    " + to_string(safty_grade) + "    " + to_string(grade),3);
 //            GDebugEngine::Instance() -> gui_debug_x(shoot_pos,3);
             return grade;
@@ -567,7 +543,70 @@ namespace Utils
         double ball_to_interpos_time = ball_line.projection(pVision -> theirPlayer(their_min_num).Pos()).dist(player_pos) / ball_max_speed / 1000;
         safty_grade = enemy_to_ball_time - ball_to_interpos_time;
         safty_grade = NumberNormalize(safty_grade,0.15,0);
-        grade = 0.6 * grade_shoot + 0.4 * safty_grade;
+        grade = 0.75 * grade_shoot + 0.25 * safty_grade;
+        grade = grade - 0.5 * (1 - NumberNormalize(player_pos.x(),1700,0));
+//        GDebugEngine::Instance() -> gui_debug_msg(CGeoPoint(-3000,2000),to_string(grade_shoot) + "    " + to_string(safty_grade) + "    " + to_string(grade),3);
+//        GDebugEngine::Instance() -> gui_debug_x(shoot_pos,3);
+        return grade;
+    }
+
+    double ConfidenceShoot(const CVisionModule *pVision, int run_player_num,int flag)
+    {
+        double ball_max_speed = 6;
+        double robot_max_speed = 3.5;
+        double grade_shoot;
+        double safty_grade;
+        double grade;
+        double their_min_dist = 9999;
+        double their_min_num = 0;
+        CGeoPoint player_pos = pVision ->ourPlayer(run_player_num).Pos();
+        //获取射门点
+        CGeoPoint shoot_pos = GetShootPoint(pVision,player_pos.x(),player_pos.y());
+        grade_shoot = Tick[now].globalData.confidence_shoot;
+        //如果算不到射门点直接返回 0
+        if (shoot_pos.y() == -999) return 0;
+        CGeoSegment ball_line(player_pos,shoot_pos);
+        int count = 0;
+        // 获取敌方距离截球点最近的车，过滤在球线以后的车
+        for(int i = 0;i< Tick[now].their.player_num;i++)
+        {
+            //如果有车在球后 计数
+            if (Tick[now].their.goalie_num ==  Tick[now].their.player[i] ||!ball_line.IsPointOnLineOnSegment(ball_line.projection(pVision -> theirPlayer(Tick[now].their.player[i]).Pos())))
+            {
+                count++;
+                continue;
+            }
+            double dist = ball_line.projection(pVision -> theirPlayer(Tick[now].their.player[i]).Pos()).dist(pVision -> theirPlayer(Tick[now].their.player[i]).Pos());
+            //当截球点在敌方禁区的时候，新构造一条垂直X轴的线段，求新的截球点
+            if(InExclusionZone(ball_line.projection(pVision -> theirPlayer(Tick[now].their.player[i]).Pos())))
+            {
+                //新构造一条垂直X轴的线段
+                CGeoSegment Segment1(CGeoPoint(pVision ->theirPlayer(Tick[now].their.player[i]).Pos().x(),PARAM::Field::PITCH_WIDTH / 2),
+                                     CGeoPoint(pVision ->theirPlayer(Tick[now].their.player[i]).Pos().x(),-1 * PARAM::Field::PITCH_WIDTH / 2));
+                //新的截球点
+                CGeoPoint newInterPos =  ball_line.segmentsIntersectPoint(Segment1);
+                dist = newInterPos.dist(pVision -> theirPlayer(Tick[now].their.player[i]).Pos());
+            }
+            if(their_min_dist > dist) their_min_dist = dist,their_min_num = Tick[now].their.player[i];
+            count = 0;
+        }
+        //如果敌方车子都在球后面，认为安全
+        if (count == Tick[now].their.player_num)
+        {
+            safty_grade = 1;
+            grade = 0.75 * grade_shoot + 0.25 * safty_grade;
+//            GDebugEngine::Instance() -> gui_debug_msg(CGeoPoint(-3000,2000),to_string(grade_shoot) + "    " + to_string(safty_grade) + "    " + to_string(grade),3);
+//            GDebugEngine::Instance() -> gui_debug_x(shoot_pos,3);
+            return grade;
+        }
+        //敌方到截球点的时间
+        double enemy_to_ball_time = their_min_dist / robot_max_speed / 1000;
+        //球到截球点的时间
+        double ball_to_interpos_time = ball_line.projection(pVision -> theirPlayer(their_min_num).Pos()).dist(player_pos) / ball_max_speed / 1000;
+        safty_grade = enemy_to_ball_time - ball_to_interpos_time;
+        safty_grade = NumberNormalize(safty_grade,0.15,0);
+        grade = 0.75 * grade_shoot + 0.25 * safty_grade;
+        grade = grade - 0.5 * (1 - NumberNormalize(player_pos.x(),2200,500));
 //        GDebugEngine::Instance() -> gui_debug_msg(CGeoPoint(-3000,2000),to_string(grade_shoot) + "    " + to_string(safty_grade) + "    " + to_string(grade),3);
 //        GDebugEngine::Instance() -> gui_debug_x(shoot_pos,3);
         return grade;
@@ -581,8 +620,6 @@ namespace Utils
      */
     double GetAttackGrade(const CVisionModule *pVision, double x, double y,CGeoPoint player_pos,CGeoPoint shoot_pos)
     {
-        // shoot grade
-
         // 射门评分
         double shoot_grade;
         // 射门方向评分
@@ -606,9 +643,98 @@ namespace Utils
         pass_safty_grade = PosSafetyGrade(pVision,player_pos,CGeoPoint(x,y));
         pass_grade = 0.5 * pass_dir_grade + 0.5 * pass_dist_grade;
 
-        grade = 0.2 * pass_grade + 0.5 * shoot_grade+ 0.3 * pass_safty_grade;
+        grade = 0.2 * pass_grade + 0.5 * shoot_grade + 0.3 * pass_safty_grade;
         return grade;
     }
+
+    CGeoPoint GetAttackPos(const CVisionModule *pVision,int num)
+    {
+        // 圆的半径
+        int radius = 1100;
+        int step = 300;
+        // 射门评分
+        double shoot_grade;
+        // 射门方向评分
+        double shoot_dir_grade;
+        // 射门距离评分
+        double shoot_dist_grade;
+        // 传球评分
+        double pass_grade;
+        // 传球方向评分
+        double pass_dir_grade;
+        // 传球距离评分
+        double pass_dist_grade;
+        //传球安全度评分
+        double pass_safty_grade;
+        double grade = 0.0;
+        double max_grade = -999;
+
+        double min_dist_to_player = 9999;
+        CGeoPoint max_grade_pos;
+        // 圆心
+        CGeoPoint player_pos = pVision->ourPlayer(num).Pos();
+        CGeoPoint dribbling_player_pos = pVision->ourPlayer(Tick[now].our.dribbling_num).Pos();
+        //洒点
+        for (int x = player_pos.x() - radius; x <= player_pos.x() + radius; x+=step)
+        {
+
+            for (int y = player_pos.y() - radius; y <= player_pos.y() + radius; y+=step)
+            {
+
+                CGeoPoint pos(x,y);
+                CGeoPoint shoot_pos = GetShootPoint(pVision, x,y);
+                // 如果 无有效射门点 或 点位在禁区 或 传球路径被挡住 或 射门路径被挡住  跳过该点
+                if(!InField(pos) || shoot_pos.y() == -999 || InExclusionZone(pos) || (!isValidPass(pVision,dribbling_player_pos,CGeoPoint(x,y),PARAM::Player::playerBuffer)) || !isValidPass(pVision,pos,shoot_pos,PARAM::Player::playerBuffer)) continue;
+
+                if (pos.dist2(player_pos) < radius * radius)
+                {
+                    shoot_dir_grade = PosToPosDirGrade(x,y,shoot_pos.x(),shoot_pos.y(),4 / PARAM::Math::RADIAN * PARAM::Math::PI);
+                    shoot_dist_grade = PosToPosDistGrade(x,y,shoot_pos.x(),shoot_pos.y(),-1,"NORMAL");
+                    shoot_grade = 0.2 * shoot_dir_grade + 0.8 * shoot_dist_grade;
+                    pass_dir_grade = PosToPosDirGrade(x,y,dribbling_player_pos.x(),dribbling_player_pos.y(),4 / PARAM::Math::RADIAN * PARAM::Math::PI,1);
+                    pass_dist_grade = PosToPosDistGrade(x,y,dribbling_player_pos.x(),dribbling_player_pos.y());
+                    pass_safty_grade = PosSafetyGrade(pVision,dribbling_player_pos,CGeoPoint(x,y));
+                    pass_grade = 0.5 * pass_dir_grade + 0.5 * pass_dist_grade;
+                    if(x < 1000)
+                        pass_grade  = pass_grade - 0.4 * (1 - NumberNormalize(pVision ->ourPlayer(num).Pos().x(),1000,-500));
+                    grade = 0.2 * pass_grade + 0.5 * shoot_grade + 0.3 * pass_safty_grade;
+
+                    for(int j = 0;j < Tick[now].our.player_num;j++)
+                    {
+                        if(Tick[now].our.player[j] == Tick[now].our.goalie_num || Tick[now].our.player[j] == num) continue;
+                        double dist = pos.dist(pVision->ourPlayer(Tick[now].our.player[j]).Pos());
+                        if(min_dist_to_player > dist)
+                        {
+                            min_dist_to_player = dist;
+                        }
+                    }
+                    grade = grade - 0.3 * (1 - NumberNormalize(min_dist_to_player,1300,500));
+//                    std::ostringstream stream;
+//                    stream << std::fixed << std::setprecision(2) << grade;
+//                    std::string a_str = stream.str();
+//                    GDebugEngine::Instance() ->gui_debug_x(CGeoPoint(x,y),3);
+//                    GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(x,y),a_str,3,0,80);
+                    if (max_grade < grade)
+                    {
+                        max_grade = grade;
+                        max_grade_pos = CGeoPoint (x,y);
+                    }
+
+                    GDebugEngine::Instance()->gui_debug_x(pos);
+                }
+            }
+
+        }
+        GDebugEngine::Instance() -> gui_debug_x(max_grade_pos,3);
+        return max_grade_pos;
+    }
+
+
+
+
+
+
+
 
     /**
      * 坐标点关于最佳射门点的评分
@@ -918,6 +1044,21 @@ namespace Utils
         }
     }
 
+    bool InField(CGeoPoint Point)
+    {
+        double x = Point.x();
+        double y = Point.y();
+        if ((x > (-1 * PARAM::Field::PITCH_LENGTH / 2) &&
+             x < (PARAM::Field::PITCH_LENGTH / 2)) &&
+            (y > -1 * PARAM::Field::PITCH_WIDTH / 2 && y < PARAM::Field::PITCH_WIDTH / 2))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
     /****************************
      *                           *
      *         以下代码均是        *
