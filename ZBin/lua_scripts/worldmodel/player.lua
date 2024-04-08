@@ -26,6 +26,34 @@ function num(role)
 	return retNum
 end
 
+
+function name(role)
+	local RoleNum = {
+		"Goalie","Kicker" ,"Assister","Special" ,"Defender" ,"Middle" ,
+		"Leader" ,"Tier" ,"Breaker","Fronter","Receiver","Center" ,
+		"a","b","c","d","e","f","g","h","i","j","k","l","m",
+		"n","o","p","q","r","s","t","u","v","w","x","y","z"
+	}
+	local retNum
+	if type(role) == "string" then
+		retNum = role
+	elseif type(role) == "number" then
+		retNum = "ERROR"
+		for num,i in pairs(RoleNum) do
+			if role == gRoleNum[i] then
+				retNum = i
+				break
+			end
+		end
+
+	else
+		print("Invalid role in player.instance!!!11111")
+	end
+	return retNum
+end
+
+
+
 function pos(role)
 	return instance(role):Pos()
 end

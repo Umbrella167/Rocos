@@ -32,8 +32,8 @@ require("utils")
 require("learn")
 require("file")
 require("score")
-require("globalMessage")
-
+require("GlobalMessage")
+require("status")
 --require("combo")
 
 for _, value in ipairs(gSkill) do

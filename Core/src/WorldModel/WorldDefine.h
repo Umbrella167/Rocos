@@ -148,79 +148,83 @@ struct PlayerPoseT : public ObjectPoseT { // 目标信息
 };
 
 struct balls{
+    public:
+        double vel = 1; // 球速度
+        double acc = 1; // 球加速度
+        CGeoPoint pos = CGeoPoint(0,0); // 球位置
+        CGeoPoint pos_move_befor = CGeoPoint(0,0); // 球运动之前的位置
+        double predict_vel_max = 0; // 预测的最大速度
+        double avg_vel = 0; // 球平均速度
+        double vel_dir = 0; // 球速度方向
+        int rights = 0; // 球权 [-1：敌方, 0:无人, 1:我方, 2:顶牛(双方处于纠缠的状况，无法判断具体球权属于谁)]
+        int our_min_dist_num = 0; // 我方距离球最近的车号
+        int their_min_dist_num = 0; // 敌方距离球最近的车号
 
-    double vel = 1; // 球速度
-    double acc = 1; // 球加速度
-    CGeoPoint pos = CGeoPoint(0,0); // 球位置
-    CGeoPoint pos_move_befor = CGeoPoint(0,0); // 球运动之前的位置
-    double predict_vel_max = 0; // 预测的最大速度
-    double avg_vel = 0; // 球平均速度
-    double vel_dir = 0; // 球速度方向
-    int rights = 0; // 球权 [-1：敌方, 0:无人, 1:我方, 2:顶牛(双方处于纠缠的状况，无法判断具体球权属于谁)]
-    int our_min_dist_num = 0; // 我方距离球最近的车号
-    int their_min_dist_num = 0; // 敌方距离球最近的车号
 };
 //我方相关
 struct ours{
-
-    int player [16] = {}; // 我方机器人数组
-    int player_num = 6; // 我方玩家数目
-    int goalie_num = 0; // 我方守门员号码
-    int dribbling_num = -1; //带球的机器人编号
-    int to_balldist_min_num = 0; //距离球最近的机器人
-    int defend_player_num1 = 0;
-    int defend_player_num2 = 0;
+    public:
+        ours(){}
+        int player [16] = {}; // 我方机器人数组
+        int player_num = 6; // 我方玩家数目
+        int goalie_num = 0; // 我方守门员号码
+        int dribbling_num = -1; //带球的机器人编号
+        int to_balldist_min_num = 0; //距离球最近的机器人
+        int defend_player_num1 = 0;
+        int defend_player_num2 = 0;
 
 };
 
 //敌方相关
 struct theirs{
-
-    int player [16]; // 敌方机器人数组
-    int player_num = 6; // 敌方玩家数目
-    int goalie_num = -1; // 敌方守门员号码
-    int dribbling_num = -1;//带球的机器人编号
-    int to_balldist_min_num = 0;//距离球最近的机器人
+    public:
+        int player [16]; // 敌方机器人数组
+        int player_num = 6; // 敌方玩家数目
+        int goalie_num = -1; // 敌方守门员号码
+        int dribbling_num = -1;//带球的机器人编号
+        int to_balldist_min_num = 0;//距离球最近的机器人
 
 };
 
 //任务列表
 struct tasks{
-
-    int player_num = -1; // 当前机器人编号
-    double confidence_pass = 0; // 传球置信度
-    double confidence_shoot = 0; // 射门置信度
-    double confidence_dribbling = 0; // 带球置信度
-    double confidence_run = 0; // 跑位置信度
-    double confidence_defend = 0; // 防守置信度
-    double confidence_getball = 0; // 抢球、接球置信度
-    double max_confidence = 0; // 最大的置信度
-    int max_confidence_pass_num = 0; // 被传球概率最大的机器人号码
-    std::string status = "NOTING"; // -1异常 0传球 1射门 2带球 3跑位 4防守 5抢球、接球
+    public:
+        int player_num = -1; // 当前机器人编号
+        double confidence_pass = 0; // 传球置信度
+        double confidence_shoot = 0; // 射门置信度
+        double confidence_dribbling = 0; // 带球置信度
+        double confidence_run = 0; // 跑位置信度
+        double confidence_defend = 0; // 防守置信度
+        double confidence_getball = 0; // 抢球、接球置信度
+        double max_confidence = 0; // 最大的置信度
+        int max_confidence_pass_num = 0; // 被传球概率最大的机器人号码
+        CGeoPoint shoot_pos = CGeoPoint(0,0); // 射门点
+        std::string status = "NOTING"; // -1异常 0传球 1射门 2带球 3跑位 4防守 5抢球、接球
 };
 
 //时间、其他相关
 struct times{
-
-    double delta_time = 1; // 与上一帧的时间间隔
-    int tick_count = 0; // 帧计数
-    int tick_key = 0; // 关键帧
-    std::chrono::high_resolution_clock::time_point time; // 时间
+    public:
+        double delta_time = 1; // 与上一帧的时间间隔
+        int tick_count = 0; // 帧计数
+        int tick_key = 0; // 关键帧
+        std::chrono::high_resolution_clock::time_point time; // 时间
 };
 
 struct golobalDatas{
-
-    double confidence_shoot = 1; // 与上一帧的时间间隔
+    public:
+        double confidence_shoot = 1; // 与上一帧的时间间隔
 
 };
 
 struct GlobalTick{
-    times time;
-    balls ball;
-    ours our;
-    theirs their;
-    tasks task[PARAM::Field::MAX_PLAYER];
-    golobalDatas globalData;
+    public:
+        times time;
+        balls ball;
+        ours our;
+        theirs their;
+        tasks task[PARAM::Field::MAX_PLAYER];
+        golobalDatas globalData;
 };
 
 /************************************************************************/
