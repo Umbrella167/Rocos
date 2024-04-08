@@ -1,49 +1,118 @@
 module(..., package.seeall)
 
-function GetGlobalStatus(attack_flag)
-	-- 获取全局状态
-    global_status = Utils.GlobalStatus(vision, attack_flag)
-    local result = {}
-    local i = 1
-    -- 将有效信息单独放在一个表里
-    globalMessage.attackPlayerStatus = {}
-    --处理数据
-    for content in global_status:gmatch("%[(.-)%]") do
-        local parts = {}
+--- ///  /// --- /// /// --- /// /// --- /// /// --- /// /// ---
 
-        for part in content:gmatch("[^,]+") do
-            table.insert(parts, part)
-        end
-        table.insert(result, parts)
-        local number = tonumber(parts[1]) + 1
-        -- 全局信息存放在 playerStatus
-        globalMessage.globalPlayerStatus[number].num = number - 1
-        globalMessage.globalPlayerStatus[number].status = parts[2]
-        table.insert(globalMessage.attackPlayerStatus, 
-        {
-        	num = number - 1,
-        	status = parts[2]
-        }
-        	)
+--			               HU-ROCOS-2024   	                 ---
 
-        i = i + 1
-    end
-    
-    
+--- ///  /// --- /// /// --- /// /// --- /// /// --- /// /// ---
 
 
+
+
+
+
+
+
+
+-- dribbling_player_num = 1
+-- ballRights = -1
+-- shoot_pos = CGeoPoint:new_local(0,0)
+-- function UpdataTickMessage(defend_num1,defend_num2)
+-- 	GlobalMessage.Tick = Utils.UpdataTickMessage(vision,defend_num1,defend_num2)
+-- 	dribbling_player_num = GlobalMessage.Tick.our.dribbling_num
+-- 	ball_rights = GlobalMessage.Tick.ball.rights
+-- 	if ball_rights == 1 then
+-- 		shoot_pos = GlobalMessage.Tick.task[dribbling_player_num].shoot_pos
+-- 		shoot_pos = CGeoPoint(shoot_pos:x(),shoot_pos:y())
+-- 	end
+-- end
+
+-- function getShootPos()
+-- 	return shoot_pos
+-- end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function power (p,Kp) --根据目标点与球之间的距离求出合适的 击球力度 kp系数需要调节   By Umbrella 2022 06
+	return function()
+		local p1
+		if type(p) == 'function' then
+	  		p1 = p()
+		else
+	  		p1 = p
+		end
+		local res = Kp * (p1 - ball.pos()):mod()
+		-- if res > 310 then
+		-- 	res = 310
+		-- end
+		-- if res < 230 then
+		-- 	res = 230
+		-- end
+
+		-- if Kp == -1 then
+		-- 	res = 130
+		-- end
+		if res > 7000 then
+			res = 7000
+		end
+		if res < 3400 then
+			res = 5000
+		end
+
+
+		debugEngine:gui_debug_msg(CGeoPoint:new_local(-4300,-2000),res,3)
+		return res
+	end
+end
+
+function Shootdot(p,Kp,error_,flag)
+--将球射向某一个点（会动态规划射门力度）  
+--p 目标点     
+--ifInter参数就填false
+--Kp 力度系数 
+--error_ 误差
+--flag:kick.chip or kick.flat By Umbrella 2022 07
+	return function()
+		local p1
+		if type(p) == 'function' then
+	  		p1 = p()
+		else
+	  		p1 = p
+		end
+
+		local ipos = p1 or pos.theirGoal()
+		local idir = function(runner)
+			return (ipos - player.pos(runner)):dir()
+		end
+		local error__ = function()
+			return error_ * math.pi / 180.0
+		end
+	local mexe, mpos = Touch{pos = p, useInter = false}
+		return {mexe, mpos, flag, idir, error__, power(p,Kp), power(p,Kp), 0x00000000}
+	end
 end
 
 
 
 
---~		Play中统一处理的参数（主要是开射门）
---~		1 ---> task, 2 ---> matchpos, 3---->kick, 4 ---->dir,
---~		5 ---->pre,  6 ---->kp,       7---->cp,   8 ---->flag
-------------------------------------- 射门相关的skill ---------------------------------------
--- TODO
------------------------------------- 跑位相关的skill ---------------------------------------
---~ p为要走的点,d默认为射门朝向
+
+
 function GetBallV2(role,p,dist,speed)-------dist开始减速的距离   speed减速的速度 
 --参数说明
 --role  使用这个函数的角色
@@ -81,8 +150,6 @@ function GetBallV2(role,p,dist,speed)-------dist开始减速的距离   speed减
 				return {mexe, mpos}
 			end
 		else
-
-			
 			local idir = (p - player.pos(role)):dir()
 			local pp = player.pos(role)+ Utils.Polar2Vector(0 + 10,idir)
 			local mexe, mpos = GoCmuRush{pos = pp, dir = idir, acc = 50, flag = 0x00000100 + 0x04000000,rec = 1,vel = v}
@@ -90,6 +157,7 @@ function GetBallV2(role,p,dist,speed)-------dist开始减速的距离   speed减
 		end
 	end
 end
+
 
 
 function Getballv4(role,p)
@@ -122,6 +190,62 @@ end
 
 
 
+
+
+
+function ShootdotV2(p,Kp,error_,flag)
+	return function()
+		local p1
+		if type(p) == 'function' then
+	  		p1 = p()
+		else
+	  		p1 = p
+		end
+		local shootpos = function(runner)
+			return ball.pos() + Utils.Polar2Vector(-50,(p1 - ball.pos()):dir())
+		end
+		local idir = function(runner)
+			return (p1 - player.pos(runner)):dir()
+		end
+		local error__ = function()
+			return error_ * math.pi / 180.0
+		end
+
+		local mexe, mpos = GoCmuRush{pos = shootpos, dir = idir, acc = a, flag = 0x00000100 ,rec = r,vel = v}
+		return {mexe, mpos, flag, idir, error__, power(p,Kp), power(p,Kp), 0x00000000}
+	end
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--- ///  /// --- /// /// --- /// /// --- /// /// --- /// /// ---
+
+--			               HU-ROCOS-2024   	                 ---
+
+--- ///  /// --- /// /// --- /// /// --- /// /// --- /// /// ---
+
+
+
+--~		Play中统一处理的参数（主要是开射门）
+--~		1 ---> task, 2 ---> matchpos, 3---->kick, 4 ---->dir,
+--~		5 ---->pre,  6 ---->kp,       7---->cp,   8 ---->flag
+------------------------------------- 射门相关的skill ---------------------------------------
+-- TODO
+------------------------------------ 跑位相关的skill ---------------------------------------
+--~ p为要走的点,d默认为射门朝向
 
 
 function goalie()

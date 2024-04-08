@@ -31,23 +31,14 @@ namespace Utils
      */
     string GlobalComputingPos(const CVisionModule *pVision)
     {
-        if (Tick[now].ball.rights == 1)
-        {
-            for(int i = 0;i < Tick[now].our.player_num;i++)
-            {
-                if(Tick[now].our.player[i] == Tick[now].our.dribbling_num ||
-                   Tick[now].our.player[i] == Tick[now].our.goalie_num ||
-                   Tick[now].our.player[i] == Tick[now].our.defend_player_num1 ||
-                   Tick[now].our.player[i] == Tick[now].our.defend_player_num2) continue;
-                GetAttackPos(pVision,Tick[now].our.player[i]);
-            }
-        }
+
         return to_string(1); // FIXME: 字符串可能还是抽象了点，到时候看看修一下
     }
     /**
      * 全局视觉、物理信息保存
      * @param  {CVisionModule*} pVision : 视觉模块
      */
+
 
     GlobalTick UpdataTickMessage(const CVisionModule *pVision,int defend_player_num1,int defend_player_num2){
         CWorldModel RobotSensor;
@@ -296,6 +287,7 @@ namespace Utils
                 {
                     // 获取带球机器人的射门置信度
                     Tick[now].task[num].confidence_shoot = ConfidenceShoot(pVision,Tick[now].our.player[i]);
+
                     Tick[now].task[num].confidence_shoot  = Tick[now].task[num].confidence_shoot - 0.8 * (1 - NumberNormalize(pVision ->ourPlayer(num).Pos().x(),1200,0));
                 }
                 // 非带球机器人状态  ->  [跑位，接球]
@@ -407,14 +399,14 @@ namespace Utils
             {
 
                 global_status = global_status + "[" + to_string(Tick[now].task[i].player_num) + "," + Tick[now].task[i].status + "]";
-                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision ->ourPlayer(i).Pos().x(),pVision ->ourPlayer(i).Pos().y() + 150),"Number: " + to_string(Tick[now].task[i].player_num),4);
-                GDebugEngine::Instance()->gui_debug_msg(pVision ->ourPlayer(i).Pos(),"shoot: " + to_string(Tick[now].task[i].confidence_shoot),3);
-                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision ->ourPlayer(i).Pos().x(),pVision ->ourPlayer(i).Pos().y() - 150),"Pass: " + to_string(Tick[now].task[i].confidence_pass),2);
-                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision ->ourPlayer(i).Pos().x(),pVision ->ourPlayer(i).Pos().y() - 300),"Dribbling: " + to_string(Tick[now].task[i].confidence_dribbling),1);
-                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision ->ourPlayer(i).Pos().x(),pVision ->ourPlayer(i).Pos().y() - 450),"Getball: " + to_string(Tick[now].task[i].confidence_getball),5);
-                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision ->ourPlayer(i).Pos().x(),pVision ->ourPlayer(i).Pos().y() - 600),"Defene: " + to_string(Tick[now].task[i].confidence_defend),6);
-                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision ->ourPlayer(i).Pos().x(),pVision ->ourPlayer(i).Pos().y() - 750),"Run: " + to_string(Tick[now].task[i].confidence_run),7);
-                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision ->ourPlayer(i).Pos().x(),pVision ->ourPlayer(i).Pos().y() - 900),"Status: " + Tick[now].task[i].status,8);
+                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision ->ourPlayer(i).Pos().x(),pVision ->ourPlayer(i).Pos().y() - 160),"Number: " + to_string(Tick[now].task[i].player_num),4,0,80);
+                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision ->ourPlayer(i).Pos().x(),pVision ->ourPlayer(i).Pos().y() - 250),"shoot: " + to_string(Tick[now].task[i].confidence_shoot),8,0,80);
+                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision ->ourPlayer(i).Pos().x(),pVision ->ourPlayer(i).Pos().y() - 340),"Pass: " + to_string(Tick[now].task[i].confidence_pass),2,0,80);
+                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision ->ourPlayer(i).Pos().x(),pVision ->ourPlayer(i).Pos().y() - 430),"Dribbling: " + to_string(Tick[now].task[i].confidence_dribbling),1,0,80);
+                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision ->ourPlayer(i).Pos().x(),pVision ->ourPlayer(i).Pos().y() - 520),"Getball: " + to_string(Tick[now].task[i].confidence_getball),5,0,80);
+                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision ->ourPlayer(i).Pos().x(),pVision ->ourPlayer(i).Pos().y() - 610),"Defene: " + to_string(Tick[now].task[i].confidence_defend),6,0,80);
+                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision ->ourPlayer(i).Pos().x(),pVision ->ourPlayer(i).Pos().y() - 700),"Run: " + to_string(Tick[now].task[i].confidence_run),7,0,80);
+                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision ->ourPlayer(i).Pos().x(),pVision ->ourPlayer(i).Pos().y() - 790),"Status: " + Tick[now].task[i].status,3,0,80);
             }
 
         }
@@ -458,6 +450,7 @@ namespace Utils
         CGeoPoint player_pos = pVision ->ourPlayer(dribbling_num).Pos();
         //获取射门点
         CGeoPoint shoot_pos = GetShootPoint(pVision,dribbling_num);
+        Tick[now].task[dribbling_num].shoot_pos = shoot_pos;
         grade_shoot = Tick[now].globalData.confidence_shoot;
         //如果算不到射门点直接返回 0
         if (shoot_pos.y() == -999) return 0;
@@ -608,8 +601,8 @@ namespace Utils
     CGeoPoint GetAttackPos(const CVisionModule *pVision,int num)
     {
         // 圆的半径
-        int radius = 1100;
-        int step = 300;
+        int radius = 800;
+        int step = 200;
         // 射门评分
         double shoot_grade;
         // 射门方向评分
@@ -751,7 +744,7 @@ namespace Utils
             pos_to_pos_dir_grade = PosToPosDirGrade(x, y, x1, y1,1);
             player_to_pos_dir_grade = RobotToPosDirGrade(pVision,num,player_pos,CGeoPoint(x1,y1));
             pos_safety_grade = PosSafetyGrade(pVision,CGeoPoint(x,y),CGeoPoint(x1,y1));
-            grade = 0.2 * pos_to_pos_dist_grade + 0.1 * pos_to_pos_dir_grade + 0.4 * pos_safety_grade + 0.3 * player_to_pos_dir_grade;
+            grade = 0.2 * pos_to_pos_dist_grade + 0.1 * pos_to_pos_dir_grade + 0.35 * pos_safety_grade + 0.35 * player_to_pos_dir_grade;
             if (grade > max_grade)
             {
                 max_grade = grade;
@@ -760,6 +753,7 @@ namespace Utils
         }
         Tick[now].globalData.confidence_shoot = max_grade;
         CGeoPoint ShootPoint(PARAM::Field::PITCH_LENGTH / 2, max_y);
+        GDebugEngine::Instance() ->gui_debug_x(ShootPoint,3);
         return ShootPoint;
     }
     /**
@@ -1061,6 +1055,7 @@ namespace Utils
      * @param  {double} angle :
      * @return {CVector}      :
      */
+
     CVector Polar2Vector(double m, double angle)
     {
         return CVector(m * std::cos(angle), m * std::sin(angle));

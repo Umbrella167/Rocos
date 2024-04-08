@@ -6,9 +6,14 @@ namespace Utils{
 
 	
 	GlobalTick UpdataTickMessage(const CVisionModule *pVision,int defend_player_num1,int defend_player_num2); //获取帧信息
+
+	
 	std::string GlobalStatus(const CVisionModule *pVision,int attack_flag);
 	CGeoPoint GetInterPos(const CVisionModule *pVision, CGeoPoint player_pos,double velocity);
 	std::string GlobalComputingPos(const CVisionModule *pVision);
+	CGeoPoint GetAttackPos(const CVisionModule *pVision,int num);
+
+
 	// // // // // END // // // // // 
 	double Normalize(double angle);
 	CVector Polar2Vector(double m,double angle);
