@@ -216,15 +216,55 @@ namespace Utils
     }
 
     /**
+     * 获取球运动的最远距离
+     * @brief GetBallMaxDist
+     * @param pVision
+     * @return
+     */
+    double GetBallMaxDist(const CVisionModule *pVision){
+        double a = PARAM::Field::V_DECAY_RATE;
+        double v = pVision ->ball().Vel().mod();
+        double maxT = v / a;
+        double maxDist = a * maxT * maxT;
+
+        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(1000, 1500), "v:"+to_string(v));
+        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(1000, 1000), "d:"+to_string(maxDist));
+        return maxDist;
+    }
+
+    /**
+     * 给球要经过的距离,返回到达此处的时间
+     * @brief GetBallToDistTime
+     * @param pVision
+     * @param dist
+     * @return
+     */
+    double GetBallToDistTime(const CVisionModule *pVision, double dist){
+        double a = PARAM::Field::V_DECAY_RATE;
+        double v = pVision ->ball().Vel().mod();
+        double t = sqrt((2*a*dist + v*v) / a*a) - v/a;
+
+        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(1000, 2000), "t:"+to_string(t));
+        return t;
+    }
+
+
+    /**
      * 获取相对某坐标最佳截球点（动态：球在运动过程中）
      * @param  {CVisionModule*} pVision : pVision
      * @param  {CGeoPoint} player_pos   : 坐标
      * @param  {double} velocity        : 速度
      * @return {CGeoPoint}              : 最佳截球点
      */
-    CGeoPoint GetInterPos(const CVisionModule *pVision, CGeoPoint player_pos, double velocity)
+    CGeoPoint BestGetBallPos(const CVisionModule *pVision)
     {
-
+        double maxDist = GetBallMaxDist(pVision);
+        GetBallToDistTime(pVision, maxDist);
+        for(int dist=0;dist<maxDist;dist+=100){
+            GetBallToDistTime(pVision, dist);
+            GDebugEngine::Instance()->gui_debug_x(pVision->ball().Pos()+Polar2Vector(dist, pVision->ball().Vel().dir()));
+        }
+        return pVision ->ball().Pos() + Polar2Vector(maxDist, pVision ->ball().Vel().dir());
     }
 
     /**
@@ -247,6 +287,8 @@ namespace Utils
 
     CGeoSegment PredictBallLine(const CVisionModule *pVision)
     {
+
+
 
     }
     double GlobalConfidence(const CVisionModule *pVision,int attack_flag)
@@ -392,6 +434,9 @@ namespace Utils
         }
 
         //Debug
+        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(0,0), "testmsg");
+        GDebugEngine::Instance()->gui_debug_x(BestGetBallPos(pVision));
+
         for(int i = 0;i < PARAM::Field::MAX_PLAYER;i++)
         {
             if(pVision ->ourPlayer(i).Valid() &&
@@ -622,8 +667,6 @@ namespace Utils
         pass_grade = 0.2 * pass_dir_grade + 0.8 * pass_dist_grade;
         grade = 0.4 * shoot_grade + 0.3 * pass_grade + 0.3 * pass_safty_grade;
         return grade;
-
-
     }
 
 
