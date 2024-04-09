@@ -48,7 +48,7 @@ return {
         match = "(LAF)"
     },
 
-    name = "TestSubScript",
+    name = "shoot",
     applicable = {
         exp = "a",
         a = true

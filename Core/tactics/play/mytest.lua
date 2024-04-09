@@ -131,19 +131,18 @@ firstState = "Init",
 		
 		UpdataTickMessage(1,2) 	  -- 更新帧信息
 		status.getGlobalStatus(0)  -- 获取全局状态，进攻状态为传统
-
 		if task.ball_rights == 1 then	-- 我方球权的情况 获取进攻状态
 		UpdataTickMessage(1,2)
 			-- dribblingStatus -> [shoot,dribbling,XXpassToPlayerXX]
 			status.getPlayerRunPos()	-- 获取跑位点
 			dribblingStatus = status.getPlayerStatus(dribbling_player_num)	-- 获取带球机器人状态
 			debugEngine:gui_debug_msg(shoot_pos,pass_player_num)
-			-- return dribblingStatus
+			return dribblingStatus
 
 		elseif ball_rights == -1 then   	-- 敌方球权情况，一个抢球，其余防守
-			-- return "defendState"
+			return "defendState"
 		else 								-- 顶牛 或 为定义情况 一个抢球，其余跑位
-			-- return "defendState"
+			return "defendState"
 		end
 		runPos("Special")
 		debugStatus()
@@ -231,7 +230,7 @@ firstState = "Init",
 },
 
 
--- 防守
+-- 防守 顶牛
 ["defendState"] = {
 	switch = function()
 		if(player.infraredCount("Assister") > 10) then
@@ -240,8 +239,8 @@ firstState = "Init",
 		-- debugEngine:gui_debug_msg(passPos,dribblingStatus)
 	end,
 	Assister = task.GetBallV2("Assister",CGeoPoint:new_local(0,0),8,3000),
-	Kicker = task.stop(),
-	Special = task.stop(),
+	Kicker = task.goCmuRush(runPos("Kicker")),
+	Special = task.goCmuRush(runPos("Special")),
 	Tier = task.stop(),
 	Defender = task.stop(),
 	Goalie = task.stop(),
