@@ -259,7 +259,6 @@ namespace Utils
     CGeoPoint BestGetBallPos(const CVisionModule *pVision)
     {
         double maxDist = GetBallMaxDist(pVision);
-        GetBallToDistTime(pVision, maxDist);
         for(int dist=0;dist<maxDist;dist+=100){
 //            GetBallToDistTime(pVision, dist);
             GDebugEngine::Instance()->gui_debug_msg(pVision->ball().Pos()+Polar2Vector(dist, pVision->ball().Vel().dir()), to_string(GetBallToDistTime(pVision, dist)),1,10);
