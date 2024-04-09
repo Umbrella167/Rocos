@@ -191,8 +191,9 @@ firstState = "Init",
 ["passToPlayer"] = {
 	switch = function()
 		UpdataTickMessage(1,2) 
-		if(player.infraredCount("Assister") < 10) then
-			return "defendState"
+		if(player.kickBall("Assister")) then
+			local getballPlayer = player.name(pass_player_num)
+			return getballPlayer .. "getBall" 
 		end
 		if(task.playerDirToPointDirSub("Assister",shoot_pos) > error_dir) then 
 			CorrectionPos = pass_pos
@@ -200,13 +201,46 @@ firstState = "Init",
 			return "Correction"
 		end
 
-		if(player.kickBall("Assister"))then
+	end,
+	Assister = task.Shootdot(passPos(),0.02,error_dir,kick.flat),
+	Kicker = task.goCmuRush(runPos("Kicker"),closures_dir_ball("Kicker")),
+	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
+	Tier = task.stop(),
+	Defender = task.stop(),
+	Goalie = task.stop(),
+	match = "(AKS){TDG}"
+},
+
+-- 接球
+["KickergetBall"] = {
+	switch = function()
+		if(player.toBallDist("Kicker") < 300) then 
+			return "GetGlobalMessage"
+		end
+		if (bufcnt(true,400)) then
 			return "GetGlobalMessage"
 		end
 	end,
-	Assister = task.Shootdot(passPos(),0.02,error_dir,kick.flat),
-	Kicker = task.stop(),
-	Special = task.stop(),
+	Assister = task.stop(),
+	Kicker = task.Getballv4("Kicker",runPos("Kicker")),
+	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
+	Tier = task.stop(),
+	Defender = task.stop(),
+	Goalie = task.stop(),
+	match = "(AKS){TDG}"
+},
+["SpecialgetBall"] = {
+	switch = function()
+		if(player.toBallDist("Special") < 300) then 
+			return "GetGlobalMessage"
+		end
+		if (bufcnt(true,400)) then
+			return "GetGlobalMessage"
+		end
+	end,
+	Assister = task.stop(),
+	Kicker = task.goCmuRush(runPos("Kicker"),closures_dir_ball("Kicker")),
+	Special = task.Getballv4("Special",runPos("Special")),
 	Tier = task.stop(),
 	Defender = task.stop(),
 	Goalie = task.stop(),
@@ -258,8 +292,8 @@ firstState = "Init",
 		end
 	end,
 	Assister = task.GetBallV2("Assister",correctionPos()),
-	Kicker = task.stop(),
-	Special = task.stop(),
+	Kicker = task.goCmuRush(runPos("Kicker"),closures_dir_ball("Kicker")),
+	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 	Tier = task.stop(),
 	Defender = task.stop(),
 	Goalie = task.stop(),
