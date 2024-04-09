@@ -46,37 +46,10 @@ function power (p,Kp) --根据目标点与球之间的距离求出合适的 击�
 			res = 7000
 		end
 		if res < 3400 then
-			res = 5000
+			res = 3400
 		end
 		debugEngine:gui_debug_msg(CGeoPoint:new_local(-4300,-2000),res,3)
 		return res
-	end
-end
-
-function Shootdot(p,Kp,error_,flag)
---将球射向某一个点（会动态规划射门力度）  
---p 目标点     
---ifInter参数就填false
---Kp 力度系数 
---error_ 误差
---flag:kick.chip or kick.flat By Umbrella 2022 07
-	return function()
-		local p1
-		if type(p) == 'function' then
-	  		p1 = p()
-		else
-	  		p1 = p
-		end
-
-		local ipos = p1 or pos.theirGoal()
-		local idir = function(runner)
-			return (ipos - player.pos(runner)):dir()
-		end
-		local error__ = function()
-			return error_ * math.pi / 180.0
-		end
-	local mexe, mpos = Touch{pos = p, useInter = false}
-		return {mexe, mpos, flag, idir, error__, power(p,Kp), power(p,Kp), 0x00000000}
 	end
 end
 
@@ -210,7 +183,35 @@ function ShootdotV2(p,Kp,error_,flag)
 			return error_ * math.pi / 180.0
 		end
 
-		local mexe, mpos = GoCmuRush{pos = shootpos, dir = idir, acc = a, flag = 0x00000010 ,rec = r,vel = v}
+		local mexe, mpos = GoCmuRush{pos = shootpos, dir = idir, acc = a, flag = 0x00000100 ,rec = r,vel = v}
+		return {mexe, mpos, flag, idir, error__, power(p,Kp), power(p,Kp), 0x00000000}
+	end
+end
+
+
+function Shootdot(p,Kp,error_,flag)
+--将球射向某一个点（会动态规划射门力度）  
+--p 目标点     
+--ifInter参数就填false
+--Kp 力度系数 
+--error_ 误差
+--flag:kick.chip or kick.flat By Umbrella 2022 07
+	return function()
+		local p1
+		if type(p) == 'function' then
+	  		p1 = p()
+		else
+	  		p1 = p
+		end
+
+		local ipos = p1 or pos.theirGoal()
+		local idir = function(runner)
+			return (ipos - player.pos(runner)):dir()
+		end
+		local error__ = function()
+			return error_ * math.pi / 180.0
+		end
+	local mexe, mpos = Touch{pos = p, useInter = false}
 		return {mexe, mpos, flag, idir, error__, power(p,Kp), power(p,Kp), 0x00000000}
 	end
 end
@@ -219,8 +220,36 @@ end
 
 
 
+function playerDirToPointDirSub(role,p) -- 检测 某座标点  球  playe 是否在一条直线上
+	if type(p) == 'function' then
+	  	p1 = p()
+	else
+	  	p1 = p
+	end
+	
+	local playerDir = player.dir(role) * 57.3 + 180
+	local playerPointDit = (p1 - player.pos(role)):dir() * 57.3 + 180
+	local sub = math.abs(playerDir - playerPointDit)
+	debugEngine:gui_debug_msg(CGeoPoint:new_local(-1000,0),sub)
+	return sub
 
+end
+function pointToPointAngleSub(p,p2) -- 检测 某座标点  球  playe 是否在一条直线上
+	if type(p) == 'function' then
+	  	p1 = p()
+	else
+	  	p1 = p
+	end
+	local dir_pass = (ball.pos() - p2):dir() * 57.3 + 180
+	local dir_xy = (p1 - ball.pos()):dir() * 57.3 + 180
+	local sub = math.abs(dir_pass - dir_xy)
+	if sub > 300 then
+		sub = 360 - sub
+	end
+	debugEngine:gui_debug_msg(CGeoPoint:new_local(-1000,0),sub)
+	return sub
 
+end
 
 
 
@@ -245,19 +274,6 @@ end
 -- TODO
 ------------------------------------ 跑位相关的skill ---------------------------------------
 --~ p为要走的点,d默认为射门朝向
-function pointToPointAngleSub(p,p2) -- 检测 某座标点  球  playe 是否在一条直线上
-	if type(p) == 'function' then
-	  	p1 = p()
-	else
-	  	p1 = p
-	end
-	local dir_pass = (ball.pos() - p2):dir() * 57.3 + 180
-	local dir_xy = (p1 - ball.pos()):dir() * 57.3 + 180
-	local sub = math.abs(dir_pass - dir_xy)
-	debugEngine:gui_debug_msg(CGeoPoint:new_local(-1000,0),sub)
-	return sub
-
-end
 
 function goalie()
 	local mexe, mpos = Goalie()

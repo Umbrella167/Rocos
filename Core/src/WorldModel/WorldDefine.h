@@ -160,6 +160,7 @@ struct balls{
         int our_min_dist_num = 0; // 我方距离球最近的车号
         int their_min_dist_num = 0; // 敌方距离球最近的车号
 
+
 };
 //我方相关
 struct ours{

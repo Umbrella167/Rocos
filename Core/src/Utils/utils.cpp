@@ -89,6 +89,11 @@ namespace Utils
             }
 
         }
+
+
+
+
+
         ///球权判断
         //球权一定是我方的情况
         if(RobotSensor.IsInfraredOn(Tick[now].our.to_balldist_min_num) || (our_min_dist < PARAM::Player::playerBallRightsBuffer && their_min_dist > PARAM::Player::playerBallRightsBuffer))
@@ -288,7 +293,6 @@ namespace Utils
                 {
                     // 获取带球机器人的射门置信度
                     Tick[now].task[num].confidence_shoot = ConfidenceShoot(pVision,Tick[now].our.player[i]);
-
                     Tick[now].task[num].confidence_shoot  = Tick[now].task[num].confidence_shoot - 0.8 * (1 - NumberNormalize(pVision ->ourPlayer(num).Pos().x(),1200,0));
                 }
                 // 非带球机器人状态  ->  [跑位，接球]
@@ -303,7 +307,8 @@ namespace Utils
                         continue;
                     }
                     // 获取非带球机器人的被传球概率
-                    Tick[now].task[num].confidence_shoot = ConfidenceShoot(pVision,pVision->ourPlayer(Tick[now].our.player[i],1).Pos());
+                    Tick[now].task[num].confidence_shoot = ConfidenceShoot(pVision,pVision->ourPlayer(Tick[now].our.player[i]).Pos());
+                    Tick[now].task[num].confidence_shoot  = Tick[now].task[num].confidence_shoot - 0.8 * (1 - NumberNormalize(pVision ->ourPlayer(num).Pos().x(),1200,0));
                     Tick[now].task[num].confidence_pass = ConfidencePass(pVision,Tick[now].our.dribbling_num,Tick[now].our.player[i],Tick[now].task[num].confidence_shoot);
                     //如果友方位置太靠后，酌情扣分
                     if(pVision ->ourPlayer(num).Pos().x() < 1000)
@@ -359,8 +364,8 @@ namespace Utils
     std::string GlobalStatus(const CVisionModule *pVision,int attack_flag)
     {
         GlobalConfidence(pVision,attack_flag);
-        double dribbling_threshold = 0.45;
-        double pass_threshold = 0.15;
+        double dribbling_threshold = 0.40;
+        double pass_threshold = 0;
         string global_status = "";
         //如果是我方球权，那么先决定带球机器人状态
         if(Tick[now].ball.rights == 1)
@@ -431,7 +436,7 @@ namespace Utils
         pos_to_pos_dist_grade = PosToPosDistGrade(dribbling_player_pos.x(),getball_player_pos.y(),getball_player_pos.x(),getball_player_pos.y());
         robot_to_pos_dir_grade = PosToPosDirGrade(dribbling_player_pos.x(),dribbling_player_pos.y(),getball_player_pos.x(),getball_player_pos.y(),1);
         pass_grade = 0.5 * pos_to_pos_dist_grade+ 0.5 * robot_to_pos_dir_grade;
-        grade = 0.4 * pass_grade + 0.3 * pass_safty_grade + 0.3 * getball_player_confidence_shoot;
+        grade = 0.4 * pass_grade + 0.2 * pass_safty_grade + 0.4 * getball_player_confidence_shoot;
 //        GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(-3000,3000),to_string(pass_grade));
 //        GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(-3000,2000),to_string(pass_safty_grade));
 //        GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(-3000,1000),to_string(getball_player_confidence_shoot));
@@ -454,7 +459,7 @@ namespace Utils
         Tick[now].task[dribbling_num].shoot_pos = shoot_pos;
         grade_shoot = Tick[now].globalData.confidence_shoot;
         //如果算不到射门点直接返回 0
-        if (shoot_pos.y() == -999) return 0;
+        if (shoot_pos.y() == -999 || player_pos.x() > 4000) return 0;
         CGeoSegment ball_line(player_pos,shoot_pos);
         int count = 0;
         // 获取敌方距离截球点最近的车，过滤在球线以后的车
@@ -514,7 +519,7 @@ namespace Utils
         CGeoPoint shoot_pos = GetShootPoint(pVision,player_pos.x(),player_pos.y());
         grade_shoot = Tick[now].globalData.confidence_shoot;
         //如果算不到射门点直接返回 0
-        if (shoot_pos.y() == -999) return 0;
+        if (shoot_pos.y() == -999 || player_pos.x() > 4000) return 0;
         CGeoSegment ball_line(player_pos,shoot_pos);
         int count = 0;
         // 获取敌方距离截球点最近的车，过滤在球线以后的车
@@ -838,7 +843,7 @@ namespace Utils
             pos_to_pos_dir_grade = PosToPosDirGrade(x, y, x1, y1,1);
             player_to_pos_dir_grade = RobotToPosDirGrade(pVision,num,player_pos,CGeoPoint(x1,y1));
             pos_safety_grade = PosSafetyGrade(pVision,CGeoPoint(x,y),CGeoPoint(x1,y1));
-            grade = 0.2 * pos_to_pos_dist_grade + 0.1 * pos_to_pos_dir_grade + 0.35 * pos_safety_grade + 0.35 * player_to_pos_dir_grade;
+            grade = 0.3 * pos_to_pos_dist_grade + 0.25 * pos_to_pos_dir_grade + 0.35 * pos_safety_grade + 0.1 * player_to_pos_dir_grade;
             if (grade > max_grade)
             {
                 max_grade = grade;
