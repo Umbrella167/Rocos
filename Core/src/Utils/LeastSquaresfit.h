@@ -30,8 +30,9 @@ public:
     double GetPreDist(double label, double time); // 输入标签和时间预测距离
     double GetPreTime(double label, double d); // 输入标签和距离预测时间
     double GetMaxDist(double label); // 输入标签,输出能到达的最远距离
-//    CGeoPoint GetBallPrePos(double ball_v, CGeoPoint ball_pos, double ball_dir,double time);
-
+    CGeoPoint GetMaxPos(double label, GlobalTick* Tick); // 输入标签，输出最远能到达的点
+    CGeoPoint BestGetBallPos(double label, CGeoPoint playerPos, GlobalTick* Tick); // 输入标签，玩家的位置和Tick返回最佳截球点
+    double GetLabel(GlobalTick* Tick); // 获取标签
 private:
     int Len;
     double Em[6][4];
