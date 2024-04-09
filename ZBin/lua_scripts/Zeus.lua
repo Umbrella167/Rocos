@@ -12,6 +12,7 @@ math.random(1,10)
 require(OPPONENT_NAME)
 require("Skill")
 require("Play")
+require("SubPlay")
 require("cond")
 require("pos")
 require("dir")
@@ -44,10 +45,11 @@ end
 
 -- init skill from tactic packages
 local tactic_packages = {}
-for line in io.lines("tactic_packages.txt") do
+pfile = io.popen('./tools/scan_tool tactic_dir')
+for line in pfile:lines() do
 	table.insert(tactic_packages, line)
 end
-print("Tactic Packages : ",table.concat(tactic_packages, ","))
+-- print("Tactic Packages : ",table.concat(tactic_packages, ","))
 
 local scan_scripts = function(tactic_dir)
     local t = {}
@@ -65,7 +67,7 @@ local path_exists = function(file)
 end
 
 for _, value in ipairs(tactic_packages) do
-	local tactic_dir = "../Core/"..value.."/skill/"
+	local tactic_dir = value .. "/skill/"
 	if path_exists(tactic_dir) then
 		local skill_files = scan_scripts(tactic_dir)
 		-- print("Tactic Dir : ",tactic_dir)
@@ -81,9 +83,9 @@ end
 
 -- load task.lua for each tactic package
 for _, value in ipairs(tactic_packages) do
-	local task_file = "../Core/" .. value .. "/task.lua"
+	local task_file = value .. "/task.lua"
 	if path_exists(task_file) then
-		package.path = "../Core/" .. value .. "/?.lua;" .. package.path
+		package.path = value .. "/?.lua;" .. package.path
 		package.loaded['task'] = nil
 		print("Load Task File : ",task_file)
 		require('task')
@@ -98,14 +100,18 @@ end
 
 -- init play from tactic packages
 for _, value in ipairs(tactic_packages) do
-	local tactic_dir = "../Core/"..value.."/play/"
+	local tactic_dir = value .. "/play/"
 	if path_exists(tactic_dir) then
 		local play_files = scan_scripts(tactic_dir)
 		-- print("Tactic Dir : ",tactic_dir)
 		-- print("Skill Files : ",table.concat(play_files, ","))
 		for _, filename in ipairs(play_files) do
 			print("Init TPs Play : ",filename)
-			dofile(filename)
+			local res = dofile(filename)
+			if res ~= nil and res.name ~= nil then
+				gPlayTable.CreatePlay(res)
+				gSubPlayFiles[res.name] = filename
+			end
 		end
 	else
 		print("Tactic Dir Not Exists : ",tactic_dir)
