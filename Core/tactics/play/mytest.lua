@@ -143,15 +143,15 @@ firstState = "Init",
 
 		elseif ball_rights == -1 then   	-- 敌方球权情况，一个抢球，其余防守
 			return "defendState"
-		else 								-- 顶牛 或 未定义情况 一个抢球，其余跑位
+		else 								-- 顶牛 或 为定义情况 一个抢球，其余跑位
 			return "defendState"
 		end
 		runPos("Special")
 		debugStatus()
 	end,
 	Assister = task.GetBallV2("Assister",ballPos()),
-	Kicker = task.goCmuRush(runPos("Kicker"),closures_dir_ball("Kicker")),
-	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
+	Kicker = task.goCmuRush(runPos("Kicker")),
+	Special = task.goCmuRush(runPos("Special")),
 	Tier = task.stop(),
 	Defender = task.stop(),
 	Goalie = task.goalie(),
@@ -202,7 +202,7 @@ firstState = "Init",
 			return "Correction"
 		end
 
-		if(player.kickBall("Assister"))then
+		if(player.kickBall("Assister"))then 
 			return "GetGlobalMessage"
 		end
 	end,
@@ -223,8 +223,8 @@ firstState = "Init",
 		return "GetGlobalMessage"
 	end,
 	Assister = task.stop(),
-	Kicker = task.goCmuRush(runPos("Kicker"),closures_dir_ball("Kicker")),
-	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
+	Kicker = task.stop(),
+	Special = task.stop(),
 	Tier = task.stop(),
 	Defender = task.stop(),
 	Goalie = task.stop(),
@@ -241,8 +241,8 @@ firstState = "Init",
 		-- debugEngine:gui_debug_msg(passPos,dribblingStatus)
 	end,
 	Assister = task.GetBallV2("Assister",CGeoPoint:new_local(0,0),8,3000),
-	Kicker = task.goCmuRush(runPos("Kicker"),closures_dir_ball("Kicker")),
-	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
+	Kicker = task.goCmuRush(runPos("Kicker")),
+	Special = task.goCmuRush(runPos("Special")),
 	Tier = task.stop(),
 	Defender = task.stop(),
 	Goalie = task.stop(),
