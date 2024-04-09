@@ -82,7 +82,7 @@ end
 -- 校正返回的脚本
 correction_state = "Shoot"
 -- 角度误差常数
-error_dir = 13
+error_dir = 4
 -- 校正坐标初始化
 correction_pos = CGeoPoint:new_local(0,0)
 -- 带球车初始化
@@ -155,7 +155,7 @@ firstState = "Init",
 	Tier = task.stop(),
 	Defender = task.stop(),
 	Goalie = task.goalie(),
-	match = "[AKS]{TDG}"
+	match = "[A][KS]{TDG}"
 },
 
 -- 射门
