@@ -104,7 +104,7 @@ function UpdataTickMessage(defend_num1,defend_num2)
 		pass_player_num = GlobalMessage.Tick.task[dribbling_player_num].max_confidence_pass_num
 		pass_pos = CGeoPoint:new_local(player.posX(pass_player_num),player.posY(pass_player_num))
 		shoot_pos = GlobalMessage.Tick.task[dribbling_player_num].shoot_pos
-		shoot_pos = CGeoPoint(shoot_pos:x(),shoot_pos:y())
+		shoot_pos = CGeoPoint:new_local(shoot_pos:x(),shoot_pos:y())
 	end
 end
 gPlayTable.CreatePlay{
@@ -125,7 +125,7 @@ firstState = "Init",
 	Tier = task.stop(),
 	Defender = task.stop(),
 	Goalie = task.stop(),
-	match = "[AKS]{TDG}"
+	match = "[A][KS]{TDG}"
 },
 
 ["GetGlobalMessage"] = {
@@ -138,13 +138,13 @@ firstState = "Init",
 			-- dribblingStatus -> [shoot,dribbling,XXpassToPlayerXX]
 			status.getPlayerRunPos()	-- 获取跑位点
 			dribblingStatus = status.getPlayerStatus(dribbling_player_num)	-- 获取带球机器人状态
-			debugEngine:gui_debug_msg(shoot_pos,pass_player_num)
-			return dribblingStatus
+			debugEngine:gui_debug_msg(CGeoPoint(3000,2800),dribblingStatus)
+			-- return dribblingStatus
 
 		elseif ball_rights == -1 then   	-- 敌方球权情况，一个抢球，其余防守
-			return "defendState"
+			-- return "defendState"
 		else 								-- 顶牛 或 未定义情况 一个抢球，其余跑位
-			return "defendState"
+			-- return "defendState"
 		end
 		runPos("Special")
 		debugStatus()
@@ -181,11 +181,8 @@ firstState = "Init",
 	Tier = task.stop(),
 	Defender = task.stop(),
 	Goalie = task.stop(),
-	match = "(AKS){TDG}"
+	match = "{AKSTDG}"
 },
-
-
-
 
 
 
@@ -210,43 +207,43 @@ firstState = "Init",
 	Tier = task.stop(),
 	Defender = task.stop(),
 	Goalie = task.stop(),
-	match = "(AKS){TDG}"
+	match = "{AKSTDG}"
 },
 
 -- 接球
 ["KickergetBall"] = {
 	switch = function()
-		if(player.toBallDist("Kicker") < 300) then 
+		if(player.toBallDist("Kicker") < 100) then 
 			return "GetGlobalMessage"
 		end
-		if (bufcnt(true,400)) then
+		if (bufcnt(true,100)) then
 			return "GetGlobalMessage"
 		end
 	end,
-	Assister = task.stop(),
+	Assister = task.goCmuRush(runPos("Assister"),closures_dir_ball("Assister")),
 	Kicker = task.Getballv4("Kicker",runPos("Kicker")),
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 	Tier = task.stop(),
 	Defender = task.stop(),
 	Goalie = task.stop(),
-	match = "(AKS){TDG}"
+	match = "{AKSTDG}"
 },
 ["SpecialgetBall"] = {
 	switch = function()
-		if(player.toBallDist("Special") < 300) then 
+		if(player.toBallDist("Special") < 100) then 
 			return "GetGlobalMessage"
 		end
-		if (bufcnt(true,400)) then
+		if (bufcnt(true,100)) then
 			return "GetGlobalMessage"
 		end
 	end,
-	Assister = task.stop(),
+	Assister = task.goCmuRush(runPos("Assister"),closures_dir_ball("Assister")),
 	Kicker = task.goCmuRush(runPos("Kicker"),closures_dir_ball("Kicker")),
 	Special = task.Getballv4("Special",runPos("Special")),
 	Tier = task.stop(),
 	Defender = task.stop(),
 	Goalie = task.stop(),
-	match = "(AKS){TDG}"
+	match = "{AKSTDG}"
 },
 
 
@@ -262,7 +259,7 @@ firstState = "Init",
 	Tier = task.stop(),
 	Defender = task.stop(),
 	Goalie = task.stop(),
-	match = "(AKS){TDG}"
+	match = "{AKSTDG}"
 },
 
 
@@ -270,6 +267,9 @@ firstState = "Init",
 ["defendState"] = {
 	switch = function()
 		if(player.infraredCount("Assister") > 10) then
+			return "GetGlobalMessage"
+		end
+		if (bufcnt(true,200)) then
 			return "GetGlobalMessage"
 		end
 		-- debugEngine:gui_debug_msg(passPos,dribblingStatus)
@@ -280,7 +280,7 @@ firstState = "Init",
 	Tier = task.stop(),
 	Defender = task.stop(),
 	Goalie = task.stop(),
-	match = "(AKS){TDG}"
+	match = "{AKSTDG}"
 },
 
 
@@ -299,7 +299,7 @@ firstState = "Init",
 	Tier = task.stop(),
 	Defender = task.stop(),
 	Goalie = task.stop(),
-	match = "(AKS){TDG}"
+	match = "{AKSTDG}"
 },
 
 name = "mytest",

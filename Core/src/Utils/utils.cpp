@@ -439,8 +439,8 @@ namespace Utils
         }
 
         //Debug
-        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(0,0), "testmsg");
-        GDebugEngine::Instance()->gui_debug_x(BestGetBallPos(pVision));
+//        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(0,0), "testmsg");
+//        GDebugEngine::Instance()->gui_debug_x(BestGetBallPos(pVision));
 
         for(int i = 0;i < PARAM::Field::MAX_PLAYER;i++)
         {
@@ -759,7 +759,6 @@ namespace Utils
         double pass_safty_grade;
         double grade = 0.0;
         double max_grade = -999;
-
         double min_dist_to_player = 9999;
         CGeoPoint max_grade_pos;
 
@@ -789,7 +788,7 @@ namespace Utils
                     pass_grade = 0.5 * pass_dir_grade + 0.5 * pass_dist_grade;
                     if(x < 1000)
                         pass_grade  = pass_grade - 0.4 * (1 - NumberNormalize(pVision ->ourPlayer(num).Pos().x(),1000,-500));
-                    grade = 0.2 * pass_grade + 0.5 * shoot_grade + 0.3 * pass_safty_grade;
+                    grade = 0.15 * pass_grade + 0.2 * pass_safty_grade + 0.05 * shoot_dir_grade + 0.6 * shoot_dist_grade;
 
                     for(int j = 0;j < Tick[now].our.player_num;j++)
                     {
@@ -801,6 +800,7 @@ namespace Utils
                         }
                     }
                     grade = grade - 0.3 * (1 - NumberNormalize(min_dist_to_player,1300,500));
+                    grade = grade - 0.8 * (1 - NumberNormalize(x,1500,0));
 //                    std::ostringstream stream;
 //                    stream << std::fixed << std::setprecision(2) << grade;
 //                    std::string a_str = stream.str();
