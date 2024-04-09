@@ -244,7 +244,7 @@ namespace Utils
         double v = pVision ->ball().Vel().mod();
         double t = sqrt((2*a*dist + v*v) / a*a) - v/a;
 
-        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(1000, 2000), "t:"+to_string(t));
+//        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(1000, 2000), "t:"+to_string(t));
         return t;
     }
 
@@ -261,7 +261,8 @@ namespace Utils
         double maxDist = GetBallMaxDist(pVision);
         GetBallToDistTime(pVision, maxDist);
         for(int dist=0;dist<maxDist;dist+=100){
-            GetBallToDistTime(pVision, dist);
+//            GetBallToDistTime(pVision, dist);
+            GDebugEngine::Instance()->gui_debug_msg(pVision->ball().Pos()+Polar2Vector(dist, pVision->ball().Vel().dir()), to_string(GetBallToDistTime(pVision, dist)),1,10);
             GDebugEngine::Instance()->gui_debug_x(pVision->ball().Pos()+Polar2Vector(dist, pVision->ball().Vel().dir()));
         }
         return pVision ->ball().Pos() + Polar2Vector(maxDist, pVision ->ball().Vel().dir());
@@ -443,7 +444,6 @@ namespace Utils
               (attack_flag == 0 &&
               (Tick[now].task[i].player_num != -1 && Tick[now].task[i].player_num != Tick[now].our.goalie_num)))
             {
-
                 global_status = global_status + "[" + to_string(Tick[now].task[i].player_num) + "," + Tick[now].task[i].status + "]";
                 GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision ->ourPlayer(i).Pos().x(),pVision ->ourPlayer(i).Pos().y() - 160),"Number: " + to_string(Tick[now].task[i].player_num),4,0,80);
                 GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision ->ourPlayer(i).Pos().x(),pVision ->ourPlayer(i).Pos().y() - 250),"shoot: " + to_string(Tick[now].task[i].confidence_shoot),8,0,80);
