@@ -912,7 +912,6 @@ namespace Utils
         for (int i = 0; i < Tick[now].their.player_num; i++)
         {
             CGeoPoint player_pos(pVision->theirPlayer(i).Pos());
-            CGeoPoint player_pos(pVision->theirPlayer(i).Pos());
             CGeoPoint player_projection = Line.projection(player_pos);
             if (!Line.IsPointOnLineOnSegment(player_projection))
                 continue;
@@ -977,7 +976,7 @@ namespace Utils
      * @param  {std::string} model      :（GAUSS：可设峰值（peak_pos），NORMAL：越近分数越高）
      * @return {double}                 : dir > 0 ? [0.0 ～ 1.0] : [1.0 ～ 0]
      */
-    double PosToBallDistGrade(CGeoPoint ball_pos, double x, double y, double peak_pos, int dir) double PosToBallDistGrade(CGeoPoint ball_pos, double x, double y, double peak_pos, int dir)
+    double PosToBallDistGrade(CGeoPoint ball_pos, double x, double y, double peak_pos, int dir)
     {
         // PARAM::Field::PITCH_LENGTH / 3.8;
         // PARAM::Field::PITCH_LENGTH / 3.8;
