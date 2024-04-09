@@ -174,8 +174,8 @@ struct PlayerPoseT : public ObjectPoseT { // 目标信息
 
 //};
 struct balls{
-    double vel = 1; // 球速度
-    double acc = 1; // 球加速度
+    double vel = 0; // 球速度
+    double acc = 0; // 球加速度
     CGeoPoint pos = CGeoPoint(0,0); // 球位置
     CGeoPoint pos_move_befor = CGeoPoint(0,0); // 球运动之前的位置
     double predict_vel_max = 0; // 预测的最大速度
@@ -223,6 +223,7 @@ struct times{
     double delta_time = 1; // 与上一帧的时间间隔
     int tick_count = 0; // 帧计数
     int tick_key = 0; // 关键帧
+    int tick_oldest = PARAM::Tick::TickLength-1;
     std::chrono::high_resolution_clock::time_point time; // 时间
 };
 

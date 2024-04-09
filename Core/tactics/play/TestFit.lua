@@ -77,7 +77,7 @@ end
 -- 准备的点
 readyPos = function(role)
 	return function()
-		if player.toPointDist(role, CGeoPoint(4000, 2000)) < player.toPointDist(role, CGeoPoint(-4000, -2000)) then
+		if role == "Assister" then
 			return CGeoPoint(4000, 2000)
 		else
 			return CGeoPoint(-4000, -2000)
@@ -91,6 +91,7 @@ gPlayTable.CreatePlay{
 firstState = "init",
 ["init"] = {
 	switch = function()
+
 		if player.toBallDist("Assister") < player.toBallDist("Kicker") then
 			return "A_run_to_pos"
 		else
@@ -113,7 +114,6 @@ firstState = "init",
 },
 ["K_run_to_pos"] = {
 	switch = function()
-		-- Utils.InitFitFunction(vision)
 		if judgePlayerDir("Kicker", readyPos("Assister"), 0.08) and player.toTargetDist("Kicker") < 10 then
 			return "ready_to_shoot"
 		end
@@ -124,7 +124,8 @@ firstState = "init",
 },
 ["ready_to_shoot"] = {
 	switch = function()
-		if bufcnt(true, "slow") then
+		Utils.InitFitFunction(vision, false)
+		if bufcnt(true, 110) then
 			if player.toBallDist("Assister") < player.toBallDist("Kicker") then
 				return "A_shoot_ball"
 			else
@@ -139,8 +140,6 @@ firstState = "init",
 },
 ["A_shoot_ball"] = {
 	switch = function()
-		-- debugEngine:gui_debug_msg(CGeoPoint(0,0), label)
-		-- debugEngine:gui_debug_msg(CGeoPoint(100,100), power(label))
 		if player.kickBall("Assister") then
 			task.label = task.label + 1
 			return "recording"
@@ -152,8 +151,6 @@ firstState = "init",
 },
 ["K_shoot_ball"] = {
 	switch = function()
-		-- debugEngine:gui_debug_msg(CGeoPoint(0,0), label)
-		-- debugEngine:gui_debug_msg(CGeoPoint(100,100),power(label))
 		if player.kickBall("Kicker") then
 			task.label = task.label + 1
 			return "recording"
@@ -165,9 +162,9 @@ firstState = "init",
 },
 ["recording"] = {
 	switch = function()
-		-- debugEngine:gui_debug_msg(CGeoPoint(0,0), label)
-		-- debugEngine:gui_debug_msg(CGeoPoint(100,100), power(label))
-		if ball.velMod() < 100 then
+		-- 采集数据
+		Utils.InitFitFunction(vision, true)
+		if ball.velMod() < 100 and bufcnt(true, 100) then
 			return "init"
 		end
 	end,

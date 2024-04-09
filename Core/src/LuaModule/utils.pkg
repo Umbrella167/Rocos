@@ -5,7 +5,7 @@ namespace Utils{
 	double Normalize(double angle);
 	CGeoPoint GetInterPos(const CVisionModule *pVision, CGeoPoint player_pos,double velocity);
 	std::string GlobalComputingPos(const CVisionModule *pVision,const CGeoPoint& p);
-	int InitFitFunction(const CVisionModule *pVision);
+	int InitFitFunction(const CVisionModule *pVision, bool record);
 	CVector Polar2Vector(double m,double angle);
 	double VectorDot(const CVector& v1, const CVector& v2);
 	bool InBetween(const CGeoPoint& p,const CGeoPoint& p1,const CGeoPoint& p2);

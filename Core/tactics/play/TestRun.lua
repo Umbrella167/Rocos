@@ -49,9 +49,9 @@ firstState = "run11",
 	switch = function()
 
 		Utils.GlobalComputingPos(vision,player.pos("Assister"))
-		if (player.kickBall("Assister")) then --bufcnt(a,b) 当表达式a为true时 连续累积 b帧 返回true
-			return "run1"
-		end
+		-- if (player.kickBall("Assister")) then --bufcnt(a,b) 当表达式a为true时 连续累积 b帧 返回true
+		-- 	return "run1"
+		-- end
 	end,
 	Assister = task.stop(),--task.shoot(shootGen(0),dir1("Assister"),_,320),
 

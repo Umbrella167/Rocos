@@ -17,7 +17,7 @@
 @ author : Umbrella
 */
 
-GlobalTick Tick[PARAM::Tick::TickLength];
+GlobalTick Tick[PARAM::Tick::TickLength+1];
 int now = PARAM::Tick::TickLength - 1;
 int last = PARAM::Tick::TickLength - 2;
 LeastSquaresfit fitFunction;
@@ -28,17 +28,38 @@ namespace Utils
 {
     // 没写完 START
 
-
+//    // 获取标签
+//    double GetLabel(){
+//        for(int i=now;i>PARAM::Fit::FitLabelIndex;i--){
+//            if(Tick[i].ball.pos_move_befor == Tick[i-1].ball.pos_move_befor && Tick[i].ball.pos_move_befor != Tick[i-PARAM::Fit::FitLabelIndex].ball.pos_move_befor) {
+//                return (Tick[i].ball.pos - Tick[i-PARAM::Fit::FitLabelIndex+1].ball.pos).mod();
+//            }
+//        }
+//        return -1;
+//    }
     /**
      * 初始化擬合類
      *
      *
      */
-    int InitFitFunction(const CVisionModule *pVision){
+    int InitFitFunction(const CVisionModule *pVision, bool record){
 
         UpdataTickMessage(pVision);
 
-        fitFunction.GetFitData(Tick);
+
+//        GDebugEngine::Instance() ->gui_debug_x(Tick[now].ball.pos);
+//        GDebugEngine::Instance() ->gui_debug_x(Tick[Tick[now].time.tick_oldest].ball.pos);
+//        GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(0, 0), to_string(Tick[now].time.tick_oldest));
+//        cout << to_string((Tick[now].ball.pos - Tick[Tick[now].time.tick_oldest].ball.pos).mod()) << endl;
+
+        // 采集训练数据
+        if(record && PARAM::Fit::IsReGetData)fitFunction.GetFitData(Tick);
+
+        if(fitFunction.GetLabel(Tick) != -1){
+            cout << "label: " << fitFunction.GetLabel(Tick) << endl;
+            fitFunction.GetMaxPos(fitFunction.GetLabel(Tick), Tick);
+        }
+
 
 //        if (Tick[1].ball.vel > 0 && Tick[0].ball.vel == 0)
 //        {
@@ -52,9 +73,6 @@ namespace Utils
 
     }
 
-
-
-
     /**
      * 计算全局位置
      * @param  {CVisionModule*} pVision : 视觉模块
@@ -65,7 +83,10 @@ namespace Utils
     {
 
         UpdataTickMessage(pVision);
-        GlobalStatus(pVision,0,1);
+//        fitFunction.BestGetBallPos(1234, CGeoPoint(0,0), Tick);
+//        fitFunction.GetMaxPos(1234, Tick);
+
+//        GlobalStatus(pVision,0,1);
 
 
 //        PosSafetyGrade(pVision, player_pos, CGeoPoint (4500,0),"PASS");
@@ -108,17 +129,28 @@ namespace Utils
 
     void UpdataTickMessage(const CVisionModule *pVision){
         CWorldModel RobotSensor;
-        int oldest = 0;
+        int oldest = Tick[now].time.tick_oldest-1;
         double our_min_dist = 9999;
         double their_min_dist = 9999;
+
+
         ///记录帧信息
-        for (int i = oldest; i < PARAM::Tick::TickLength -1;i++){
+        for (int i = 0; i < PARAM::Tick::TickLength;i++){
+//            cout << i << " " << Tick[i].ball.vel << "|";
             Tick[i] = Tick[i+1];
         }
+//        cout << endl;
+
         ///更新帧信息
         Tick[now].time.time = std::chrono::high_resolution_clock::now();
         Tick[now].time.delta_time = (double)std::chrono::duration_cast<std::chrono::microseconds>(Tick[now].time.time - Tick[last].time.time).count() / 1000000;
         Tick[now].time.tick_count+=1;
+
+        Tick[PARAM::Tick::TickLength].time.tick_oldest-=1;
+        if(Tick[PARAM::Tick::TickLength].time.tick_oldest < 0){
+            Tick[PARAM::Tick::TickLength].time.tick_oldest = 0;
+        }
+
         Tick[now].ball.pos = pVision ->ball().Pos();
         Tick[now].ball.vel = pVision ->ball().Vel().mod() / 1000;
         Tick[now].ball.vel_dir = pVision ->ball().Vel().dir();

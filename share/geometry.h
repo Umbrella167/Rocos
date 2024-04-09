@@ -95,6 +95,9 @@ class CGeoPoint {
     bool operator==(const CGeoPoint& rhs) {
         return ((this->x() == rhs.x()) && (this->y() == rhs.y()));
     }
+    bool operator!=(const CGeoPoint& rhs) {
+        return ((this->x() != rhs.x()) || (this->y() != rhs.y()));
+    }
     double x() const {
         return _x;
     }

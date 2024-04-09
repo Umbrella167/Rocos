@@ -37,6 +37,7 @@ void LeastSquaresfit::FitFromFile(string filename) {
         Len++;
     }
     Len = Len / PARAM::Fit::DataTickLength;
+    cout << "Len" << Len << endl;
 
     Function tFunctions[Len];
     int l = 0;
@@ -55,7 +56,7 @@ void LeastSquaresfit::FitFromFile(string filename) {
             train_d[l] = d;
 
             double* func = Fit(train_t, train_d);
-            tFunctions[ll].label = train_d[PARAM::Fit::FitLabel];
+            tFunctions[ll].label = train_d[PARAM::Fit::FitLabelIndex];
             tFunctions[ll].c = func[0];
             tFunctions[ll].b = func[1];
             tFunctions[ll++].a = func[2];
@@ -180,14 +181,18 @@ double* LeastSquaresfit::Fit(double arry1[], double arry2[])
 
     return result;
 }
-
+//转向量
+CVector Polar2Vector(double m, double angle)
+{
+    return CVector(m * std::cos(angle), m * std::sin(angle));
+}
 // 採集訓練數據
 void LeastSquaresfit::GetFitData(GlobalTick* Tick)
 {
     if (Tick[1].ball.vel > 0 && Tick[0].ball.vel == 0)
     {
         double t = 0;
-        for (int i = 0; i < PARAM::Fit::DataTickLength;i++)
+        for (int i = 0;i < PARAM::Fit::DataTickLength;i++)
         {
             t += Tick[i].time.delta_time;
             // 写入内容
@@ -208,8 +213,8 @@ string LeastSquaresfit::GetNewDataFilename()
         ifstream infile;
         infile.open(filename, ios::in);
         getline(infile, buf);
-        cout<<filename<<endl;
-        cout<<buf<<endl;
+//        cout<<filename<<endl;
+//        cout<<buf<<endl;
         if(!infile.is_open() || buf.empty())
             break;
     }
@@ -220,7 +225,7 @@ int LeastSquaresfit::GetClosestLabelIndex(double label) {
     double minDiff = 1e9;
     double minIndex = 0;
     for(int i=0;i<Len;i++){
-        cout << Functions[i].label << endl;
+//        cout << Functions[i].label << endl;
         if(abs(label - Functions[i].label) < minDiff){
             minDiff = abs(label - Functions[i].label);
             minIndex = i;
@@ -246,7 +251,10 @@ double LeastSquaresfit::GetMaxDist(double label){
     double a = Functions[i].a;
     double b = Functions[i].b;
     double c = Functions[i].c;
-    double max = -b/2*a;
+    double max = -b/(2*a);
+
+    cout << a << "x^2+" << b << "x+" << c << endl;
+    cout << "max: " << max << endl;
 
     return a*max*max+b*max+c;
 }
@@ -259,4 +267,36 @@ double LeastSquaresfit::GetPreTime(double label, double d) {
     double max = c - b*b/(4*a);
     // 如果预测的距离比max长，则返回-1（无法到达）
     return d>max?-1:(sqrt(abs(b*b+4*a*(d-c)))-b)/(2*a);
+}
+// 输入标签，输出最远能到达的点
+CGeoPoint LeastSquaresfit::GetMaxPos(double label, GlobalTick* Tick){
+    int now = PARAM::Tick::TickLength - 1;
+    double dist = GetMaxDist(label);
+
+    GDebugEngine::Instance()->gui_debug_line(Tick[now].ball.pos_move_befor, Tick[now].ball.pos_move_befor + Polar2Vector(dist, Tick[now].ball.vel_dir));
+
+
+    return CGeoPoint(0, 0);
+}
+
+// 输入标签，玩家的位置和Tick返回最佳截球点
+CGeoPoint LeastSquaresfit::BestGetBallPos(double label, CGeoPoint playerPos, GlobalTick* Tick)
+{
+    int now = PARAM::Tick::TickLength - 1;
+    int last = PARAM::Tick::TickLength - 2;
+
+    cout << "x: "+to_string(Tick[now].ball.pos_move_befor.x())+"   y: "+to_string(Tick[now].ball.pos_move_befor.y()) << endl;
+    return CGeoPoint(0,0);
+}
+
+// 获取标签
+double LeastSquaresfit::GetLabel(GlobalTick* Tick){
+    int now = PARAM::Tick::TickLength - 1;
+
+    for(int i=now;i>PARAM::Fit::FitLabelIndex;i--){
+        if(Tick[i].ball.pos_move_befor == Tick[i-1].ball.pos_move_befor && Tick[i].ball.pos_move_befor != Tick[i-PARAM::Fit::FitLabelIndex].ball.pos_move_befor) {
+            return (Tick[i].ball.pos - Tick[i-PARAM::Fit::FitLabelIndex+1].ball.pos).mod();
+        }
+    }
+    return -1;
 }
