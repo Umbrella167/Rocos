@@ -18,6 +18,8 @@ local debugStatus = function()
 		"  " 					.. 
 		tostring(i.status),3)
 	end
+
+	
 end
 
 local closures_point = function(point)

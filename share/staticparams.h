@@ -46,6 +46,7 @@ namespace PARAM {
         const double GOAL_WIDTH = 1000;
         const double GOAL_DEPTH = 200;
         const double RATIO = 1.5;
+        const double V_DECAY_RATE = 2000;
     }
     namespace Player {
         const int playerFrontToCenter = 76; // 机器人圆心到嘴的距离
@@ -53,10 +54,10 @@ namespace PARAM {
         const int playerBuffer = 120; // 检测敌人是否在某直线上的缓冲值
         const double playerBallRightsBuffer = 230; // 球权判断缓冲值
         const int playerTouchAngle = 60;
-                }
-    namespace Tick {
+    }
+    namespace Tick{
         const int TickLength = 5; //保存的帧数
-                }
+    }
     namespace Rule{
         const int Version = 2019; // 规则的版本/年份
         const double MaxDribbleDist = 500; // 最大带球距离, 0代表没有限制
