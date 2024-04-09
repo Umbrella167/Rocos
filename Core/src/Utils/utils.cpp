@@ -32,6 +32,8 @@ namespace Utils
     string GlobalComputingPos(const CVisionModule *pVision)
     {
 
+        CGeoPoint touchpos = GetTouchPos(pVision,pVision -> ourPlayer(0).Pos(),true);
+
         return to_string(1); // FIXME: 字符串可能还是抽象了点，到时候看看修一下
     }
     /**
@@ -220,7 +222,6 @@ namespace Utils
      * @param  {double} velocity        : 速度
      * @return {CGeoPoint}              : 最佳截球点
      */
-
     CGeoPoint GetInterPos(const CVisionModule *pVision, CGeoPoint player_pos, double velocity)
     {
 
@@ -302,7 +303,7 @@ namespace Utils
                         continue;
                     }
                     // 获取非带球机器人的被传球概率
-                    Tick[now].task[num].confidence_shoot = ConfidenceShoot(pVision,Tick[now].our.player[i],1);
+                    Tick[now].task[num].confidence_shoot = ConfidenceShoot(pVision,pVision->ourPlayer(Tick[now].our.player[i],1).Pos());
                     Tick[now].task[num].confidence_pass = ConfidencePass(pVision,Tick[now].our.dribbling_num,Tick[now].our.player[i],Tick[now].task[num].confidence_shoot);
                     //如果友方位置太靠后，酌情扣分
                     if(pVision ->ourPlayer(num).Pos().x() < 1000)
@@ -500,8 +501,7 @@ namespace Utils
 //        GDebugEngine::Instance() -> gui_debug_x(shoot_pos,3);
         return grade;
     }
-
-    double ConfidenceShoot(const CVisionModule *pVision, int run_player_num,int flag)
+    double ConfidenceShoot(const CVisionModule *pVision, CGeoPoint player_pos)
     {
         double ball_max_speed = 6;
         double robot_max_speed = 3.5;
@@ -510,7 +510,6 @@ namespace Utils
         double grade;
         double their_min_dist = 9999;
         double their_min_num = 0;
-        CGeoPoint player_pos = pVision ->ourPlayer(run_player_num).Pos();
         //获取射门点
         CGeoPoint shoot_pos = GetShootPoint(pVision,player_pos.x(),player_pos.y());
         grade_shoot = Tick[now].globalData.confidence_shoot;
@@ -597,6 +596,100 @@ namespace Utils
         grade = 0.2 * pass_grade + 0.5 * shoot_grade + 0.3 * pass_safty_grade;
         return grade;
     }
+    double GetTouchGrade(const CVisionModule *pVision, double x, double y,CGeoPoint player_pos,CGeoPoint shoot_pos)
+    {
+        // 射门评分
+        double shoot_grade;
+        // 射门方向评分
+        double shoot_dir_grade;
+        // 射门距离评分
+        double shoot_dist_grade;
+        // 传球评分
+        double pass_grade;
+        // 传球方向评分
+        double pass_dir_grade;
+        // 传球距离评分
+        double pass_dist_grade;
+        //传球安全度评分
+        double pass_safty_grade;
+        double grade = 0.0;
+        shoot_dir_grade = PosToPosDirGrade(x,y,shoot_pos.x(),shoot_pos.y(),4 / PARAM::Math::RADIAN * PARAM::Math::PI);
+        shoot_dist_grade = PosToPosDistGrade(x,y,shoot_pos.x(),shoot_pos.y(),-1,"NORMAL");
+        shoot_grade = 0.1 * shoot_dir_grade + 0.9 * shoot_dist_grade;
+        pass_dir_grade = PosToPosDirGrade(x,y,player_pos.x(),player_pos.y(),4 / PARAM::Math::RADIAN * PARAM::Math::PI);
+        pass_dist_grade = PosToPosDistGrade(x,y,player_pos.x(),player_pos.y());
+        pass_safty_grade = PosSafetyGrade(pVision,player_pos,CGeoPoint(x,y));
+        pass_grade = 0.2 * pass_dir_grade + 0.8 * pass_dist_grade;
+        grade = 0.4 * shoot_grade + 0.3 * pass_grade + 0.3 * pass_safty_grade;
+        return grade;
+
+
+    }
+
+
+    CGeoPoint GetTouchPos(const CVisionModule *pVision,CGeoPoint player_pos,bool double_flag)
+    {
+        int LENGTH = (PARAM::Field::PITCH_LENGTH / 2) - 400;
+        int WIDTH = (PARAM::Field::PITCH_WIDTH / 2) - 350;
+        int step = 230;
+        double grade = 0;
+        double max_grade = -999;
+        CGeoPoint max_grade_point = CGeoPoint(0,0);
+        CGeoPoint max_shoot_point = CGeoPoint(0,0);
+
+        for(int x = 1800; x < LENGTH;x += step)
+        {
+            for(int y = -1 * WIDTH; y < WIDTH;y += step)
+            {
+                double touch_dir_grade = 0;
+                CGeoPoint now_pos = CGeoPoint(x,y);
+                CGeoPoint shoot_pos = GetShootPoint(pVision,x,y);
+
+                if( shoot_pos.y() == -999 || InExclusionZone(now_pos)  || !isValidPass(pVision,now_pos,shoot_pos))
+                    continue;
+                // 一传一touch的射门位计算
+                if (!double_flag)
+                {
+                    double shootdir = 90 + (shoot_pos - now_pos).dir() * PARAM::Math::RADIAN;
+                    double passdir = 90 + (now_pos - player_pos).dir() * PARAM::Math::RADIAN;
+                    double touch_dir = 180 - (passdir-shootdir);
+                    touch_dir = now_pos.y() < player_pos.y()?360-touch_dir:touch_dir;
+                    if(touch_dir > PARAM::Player::playerTouchAngle || !isValidPass(pVision,player_pos,now_pos))
+                        continue;
+                    touch_dir_grade = 1 - NumberNormalize(touch_dir_grade,PARAM::Player::playerTouchAngle,0);
+                    grade = 0.8 * GetTouchGrade(pVision,x,y,player_pos,shoot_pos) + 0.2 * touch_dir_grade;
+
+                }
+                // 一传二touch的射门位计算
+                else
+                {
+
+
+                    grade = ConfidenceShoot(pVision,CGeoPoint(x,y));
+                }
+
+                if(max_grade < grade)
+                {
+                    max_grade = grade;
+                    max_grade_point = now_pos;
+                    max_shoot_point = shoot_pos;
+                }
+                GDebugEngine::Instance() ->gui_debug_x(now_pos);
+            }
+        }
+
+//        GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(-2500,2000),to_string(shootdir) + "   " + to_string(passdir) + "   " + to_string(dir));
+        GDebugEngine::Instance() ->gui_debug_x(max_grade_point,3);
+        GDebugEngine::Instance() ->gui_debug_x(max_shoot_point,3);
+        return max_grade_point;
+    }
+
+
+
+
+
+
+
 
     CGeoPoint GetAttackPos(const CVisionModule *pVision,int num)
     {
@@ -622,6 +715,7 @@ namespace Utils
 
         double min_dist_to_player = 9999;
         CGeoPoint max_grade_pos;
+
         // 圆心
         CGeoPoint player_pos = pVision->ourPlayer(num).Pos();
         CGeoPoint dribbling_player_pos = pVision->ourPlayer(Tick[now].our.dribbling_num).Pos();
@@ -980,13 +1074,13 @@ namespace Utils
      * @param  {double} y :
      * @return {bool}     :
      */
-    bool InExclusionZone(CGeoPoint Point)
+    bool InExclusionZone(CGeoPoint Point,double buffer)
     {
         double x = Point.x();
         double y = Point.y();
-        if (((x < (-1 * PARAM::Field::PITCH_LENGTH / 2) + PARAM::Field::PENALTY_AREA_DEPTH) ||
-             (x > (PARAM::Field::PITCH_LENGTH / 2) - PARAM::Field::PENALTY_AREA_DEPTH)) &&
-            (y > -1 * PARAM::Field::PENALTY_AREA_WIDTH / 2 - PARAM::Player::playerRadiusr && y < PARAM::Field::PENALTY_AREA_WIDTH / 2))
+        if (((x < (-1 * PARAM::Field::PITCH_LENGTH / 2) + PARAM::Field::PENALTY_AREA_DEPTH + buffer) ||
+             (x > (PARAM::Field::PITCH_LENGTH / 2) - PARAM::Field::PENALTY_AREA_DEPTH - buffer))&&
+            (y > -1 * PARAM::Field::PENALTY_AREA_WIDTH / 2 - buffer&& y < PARAM::Field::PENALTY_AREA_WIDTH / 2 +buffer))
         {
             return true;
         }

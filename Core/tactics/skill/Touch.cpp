@@ -24,16 +24,23 @@ void CTouch::plan(const CVisionModule* pVision){
     const double ballVelDir = ball.Vel().dir();
     const CGeoPoint& ballPos = ball.RawPos();
     const CGeoLine ballVelLine(ballPos, ballVelDir);
+    const CGeoSegment ballSegment(ballPos, ballPos + Utils::Polar2Vector(99999 ,ballVelDir));
     const double ballVelMod = ball.Vel().mod();
     const CGeoPoint projectionPos = ballVelLine.projection(mousePos);
     const double toBallDist = (mousePos - ballPos).mod();
     CGeoPoint targetPos;
     double targetDir;
-    if(ballVelMod < 300){
+    if(ballVelMod > 300 && !ballSegment.IsPointOnLineOnSegment(projectionPos)){
+        targetDir = (target - ballPos).dir();
+        targetPos = ballPos + Utils::Polar2Vector(300,ballVelDir);
+        taskFlag |= PlayerStatus::DODGE_BALL;
+    }
+    else if(ballVelMod < 300){
         targetDir = (target - ballPos).dir();
         targetPos = ballPos + Utils::Polar2Vector(PARAM::Vehicle::V2::PLAYER_CENTER_TO_BALL_CENTER,targetDir + PARAM::Math::PI);
 
-    }else{
+    }
+    else{
         targetDir = useInter ? Utils::Normalize(ballVelDir + PARAM::Math::PI) : (target - mousePos).dir();
         targetPos = projectionPos + Utils::Polar2Vector(PARAM::Vehicle::V2::PLAYER_CENTER_TO_BALL_CENTER,targetDir + PARAM::Math::PI);
     }

@@ -6,14 +6,6 @@ module(..., package.seeall)
 
 --- ///  /// --- /// /// --- /// /// --- /// /// --- /// /// ---
 
-
-
-
-
-
-
-
-
 -- dribbling_player_num = 1
 -- ballRights = -1
 -- shoot_pos = CGeoPoint:new_local(0,0)
@@ -30,24 +22,6 @@ module(..., package.seeall)
 -- function getShootPos()
 -- 	return shoot_pos
 -- end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 function power (p,Kp) --根据目标点与球之间的距离求出合适的 击球力度 kp系数需要调节   By Umbrella 2022 06
 	return function()
@@ -74,8 +48,6 @@ function power (p,Kp) --根据目标点与球之间的距离求出合适的 击�
 		if res < 3400 then
 			res = 5000
 		end
-
-
 		debugEngine:gui_debug_msg(CGeoPoint:new_local(-4300,-2000),res,3)
 		return res
 	end
@@ -113,14 +85,16 @@ end
 
 
 
-function GetBallV2(role,p,dist,speed)-------dist开始减速的距离   speed减速的速度 
+function GetBallV2(role,p,dist1,speed1)-------dist开始减速的距离   speed减速的速度 
 --参数说明
 --role  使用这个函数的角色
 --p	    拿到球后指向的目标点
 --dist  距离球dist mm时开始减速
 --speed 减速后的速度 （范围 0～2500）			
 	return function()
-		local dist1
+
+		local dist = dist1 or 0
+		local speed = speed1 or 0
 		local minDist = 9999999
 		local longDist = 0
 		local ballspeed = 800
@@ -150,7 +124,7 @@ function GetBallV2(role,p,dist,speed)-------dist开始减速的距离   speed减
 				return {mexe, mpos}
 			end
 		else
-			local idir = (p - player.pos(role)):dir()
+			local idir = (p1 - player.pos(role)):dir()
 			local pp = player.pos(role)+ Utils.Polar2Vector(0 + 10,idir)
 			local mexe, mpos = GoCmuRush{pos = pp, dir = idir, acc = 50, flag = 0x00000100 + 0x04000000,rec = 1,vel = v}
 			return {mexe, mpos}
@@ -188,7 +162,32 @@ function Getballv4(role,p)
 end
 
 
+function TurnToPoint(role,p)
+--参数说明 
+--role   使用这个函数的角色
+--p	     指向坐标
+	return function()
+		local p1 = p
+		if type(p) == 'function' then
+		  	p1 = p()
+		else
+		  	p1 = p
+		end
+		if ball.velMod() > 1000 then
+			local ball_line = CGeoLine:new_local(ball.pos(),ball.velDir())
+			local target_pos = ball_line:projection(player.pos(role))
+			local mexe, mpos = GoCmuRush{pos = target_pos, dir = (ball.pos() - player.pos(role)):dir(), acc = a, flag = 0x00000100,rec = r,vel = v}
+			return {mexe, mpos}
+		-- elseif ball.velMod() > 2000 and ball.velMod() < 2000  and (ball.pos() - player.pos(role)):mod() > 150 then
+		-- 	local mexe, mpos = GoCmuRush{pos = ball.pos() + Utils.Polar2Vector(100,(player.pos(role) - ball.pos()):dir()), dir = (ball.pos() - player.pos(role)):dir(), acc = a, flag = 0x00000100,rec = r,vel = v}
+		-- 	return {mexe, mpos}
+		else 
+			local mexe, mpos = GoCmuRush{pos = p1, dir = (ball.pos() - player.pos(role)):dir(), acc = 1300, flag = 0x00000100,rec = r,vel = v}
+			return {mexe, mpos}
+		end
 
+	end
+end
 
 
 
@@ -211,7 +210,7 @@ function ShootdotV2(p,Kp,error_,flag)
 			return error_ * math.pi / 180.0
 		end
 
-		local mexe, mpos = GoCmuRush{pos = shootpos, dir = idir, acc = a, flag = 0x00000100 ,rec = r,vel = v}
+		local mexe, mpos = GoCmuRush{pos = shootpos, dir = idir, acc = a, flag = 0x00000010 ,rec = r,vel = v}
 		return {mexe, mpos, flag, idir, error__, power(p,Kp), power(p,Kp), 0x00000000}
 	end
 end
@@ -246,7 +245,19 @@ end
 -- TODO
 ------------------------------------ 跑位相关的skill ---------------------------------------
 --~ p为要走的点,d默认为射门朝向
+function pointToPointAngleSub(p,p2) -- 检测 某座标点  球  playe 是否在一条直线上
+	if type(p) == 'function' then
+	  	p1 = p()
+	else
+	  	p1 = p
+	end
+	local dir_pass = (ball.pos() - p2):dir() * 57.3 + 180
+	local dir_xy = (p1 - ball.pos()):dir() * 57.3 + 180
+	local sub = math.abs(dir_pass - dir_xy)
+	debugEngine:gui_debug_msg(CGeoPoint:new_local(-1000,0),sub)
+	return sub
 
+end
 
 function goalie()
 	local mexe, mpos = Goalie()

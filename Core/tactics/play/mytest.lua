@@ -40,6 +40,11 @@ local closures_dir_ball = function(role)
     end
 end
 
+local ballPos = function()
+	return function()
+		return CGeoPoint:new_local(ball.pos():x(),ball.pos():y())
+	end
+end
 
 local shootPos = function()
 	return function()
@@ -51,10 +56,22 @@ local passPos = function()
 		return CGeoPoint:new_local(player.posX(pass_player_num),player.posY(pass_player_num))
 	end
 end
+local function correctionPos()
+	return function()
+		return CGeoPoint:new_local(CorrectionPos:x(),CorrectionPos:y())
+	end
+end
 
+error_dir = 15
+-- 校正坐标初始化
+correction_pos = CGeoPoint:new_local(0,0)
+-- 带球车初始化
 dribbling_player_num = 1
+-- 球权初始化
 ballRights = -1
+-- 射门坐标初始化
 shoot_pos = CGeoPoint:new_local(4500,-999)
+-- 被传球机器人
 pass_player_num = 0
 function UpdataTickMessage(defend_num1,defend_num2)
 	GlobalMessage.Tick = Utils.UpdataTickMessage(vision,defend_num1,defend_num2)
@@ -91,8 +108,6 @@ firstState = "Init",
 	switch = function()
 		UpdataTickMessage(1,2) 	  -- 更新帧信息
 		status.getGlobalStatus(0)  -- 获取全局状态，进攻状态为传统
-
-
 		if task.ball_rights == 1 then	-- 我方球权的情况 获取进攻状态
 		UpdataTickMessage(1,2)
 
@@ -107,11 +122,11 @@ firstState = "Init",
 		elseif ball_rights == -1 then   	-- 敌方球权情况，一个抢球，其余防守
 			-- return "defendState"
 		else 								-- 顶牛 或 为定义情况 一个抢球，其余跑位
-			-- return "getballState"
+			-- return "defendState"
 		end
 		debugStatus()
 	end,
-	Assister = task.stop(),--task.goCmuRush(closures_point(ball.pos()),closures_dir_ball("Assister"),_,flag.dribbling),
+	Assister = task.stop(), --task.GetBallV2("Assister",ballPos()),
 	Kicker = task.stop(),
 	Special = task.stop(),
 	Tier = task.stop(),
@@ -120,11 +135,23 @@ firstState = "Init",
 	match = "[AKS]{TDG}"
 },
 
+-- 射门状态
 ["Shoot"] = {
 	switch = function()
-		-- debugEngine:gui_debug_msg(task.shoot_pos,dribblingStatus)
+		UpdataTickMessage(1,2) 
+		if(player.infraredCount("Assister") < 20) then
+			return "defendState"
+		end
+		if(task.pointToPointAngleSub(player.pos("Assister"),shoot_pos) > 15) then 
+			CorrectionPos = shoot_pos
+			return "Correction"
+		end
+
+		if(player.kickBall("Assister"))then 
+			return "GetGlobalMessage"
+		end
 	end,
-	Assister = task.ShootdotV2(shootPos(),0.2,8,kick.flat),
+	Assister = task.Shootdot(shootPos(),0.2,15,kick.flat),
 	Kicker = task.stop(),
 	Special = task.stop(),
 	Tier = task.stop(),
@@ -133,7 +160,41 @@ firstState = "Init",
 	match = "[AKS]{TDG}"
 },
 
+-- 方向校正
+["Correction"] = {
+	switch = function()
+		if(task.pointToPointAngleSub(player.pos("Assister"),CorrectionPos) < 15) then 
+			return "Shoot"
+		end
+	end,
+	Assister = task.GetBallV2("Assister",correctionPos()),
+	Kicker = task.stop(),
+	Special = task.stop(),
+	Tier = task.stop(),
+	Defender = task.stop(),
+	Goalie = task.stop(),
+	match = "[AKS]{TDG}"
+},
+
+
+
+
+
+
 ["passToPlayer"] = {
+	switch = function()
+		-- debugEngine:gui_debug_msg(passPos,dribblingStatus)
+	end,
+	Assister = task.touchKick(passPos(),false,4000,kick.flat),
+	Kicker = task.stop(),
+	Special = task.stop(),
+	Tier = task.stop(),
+	Defender = task.stop(),
+	Goalie = task.stop(),
+	match = "[AKS]{TDG}"
+},
+
+["Dribbling"] = {
 	switch = function()
 		-- debugEngine:gui_debug_msg(passPos,dribblingStatus)
 	end,
@@ -146,6 +207,22 @@ firstState = "Init",
 	match = "[AKS]{TDG}"
 },
 
+
+["defendState"] = {
+	switch = function()
+		if(player.infraredCount("Assister") > 30) then
+			return "GetGlobalMessage"
+		end
+		-- debugEngine:gui_debug_msg(passPos,dribblingStatus)
+	end,
+	Assister = task.GetBallV2("Assister",CGeoPoint:new_local(0,0),8,3000),
+	Kicker = task.stop(),
+	Special = task.stop(),
+	Tier = task.stop(),
+	Defender = task.stop(),
+	Goalie = task.stop(),
+	match = "[AKS]{TDG}"
+},
 
 name = "mytest",
 applicable ={

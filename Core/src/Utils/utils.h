@@ -34,7 +34,7 @@ namespace Utils {
 extern std::string GlobalComputingPos(const CVisionModule *pVision); //计算所有点位
 extern double map(double value, double min_in, double max_in, double min_out, double max_out); // 映射
 extern bool InField(CGeoPoint Point);// 判断点是否在场地内
-extern bool InExclusionZone(CGeoPoint Point); // 判断点是否在禁区内
+extern bool InExclusionZone(CGeoPoint Point,double buffer = 150); // 判断点是否在禁区内
 extern double NumberNormalize(double data, double max_data,double min_data); // [0,1] 标准化
 extern bool isValidPass(const CVisionModule* pVision, CGeoPoint start, CGeoPoint end, double buffer = 150);
 extern GlobalTick UpdataTickMessage(const CVisionModule *pVision,int defend_player_num1,int defend_player_num2); //获取帧信息
@@ -45,8 +45,12 @@ extern CGeoPoint GetShootPoint(const CVisionModule *pVision, double x, double y)
 extern CGeoPoint GetShootPoint(const CVisionModule *pVision, int num);// 获取某坐标而言对方守门员的空位 + 持球员朝向
 extern double GetAttackGrade(const CVisionModule *pVision, double x, double y,CGeoPoint player_pos,CGeoPoint shoot_pos); // 计算某坐标点的跑位分
 extern CGeoPoint GetAttackPos(const CVisionModule *pVision,int num); // 计算已某玩家为圆心，半径，范围圆内 最佳跑位点
+
+extern CGeoPoint GetTouchPassPos(const CVisionModule *pVision,CGeoPoint touch_pos);
+extern CGeoPoint GetTouchPos(const CVisionModule *pVision,CGeoPoint player_pos,bool double_flag);
+extern double GetTouchGrade(const CVisionModule *pVision, double x, double y,CGeoPoint player_pos,CGeoPoint shoot_pos);
 extern double ConfidenceShoot(const CVisionModule *pVision, int num);
-extern double ConfidenceShoot(const CVisionModule *pVision, int run_player_num,int flag);
+extern double ConfidenceShoot(const CVisionModule *pVision, CGeoPoint player_pos);
 extern double ConfidencePass(const CVisionModule *pVision, int dribbling_player_num,int getball_player_num,double getball_player_confidence_shoot);
 extern double RobotToPosDirGrade(const CVisionModule *pVision,int num,CGeoPoint start,CGeoPoint end);
 extern double GlobalConfidence(const CVisionModule *pVision,int attack_flag = 0);
