@@ -20,7 +20,6 @@
 GlobalTick Tick[PARAM::Tick::TickLength];
 int now = PARAM::Tick::TickLength - 1;
 int last = PARAM::Tick::TickLength - 2;
-LeastSquaresfit fitFunction;
 
 int isInit = 0;
 
@@ -28,28 +27,6 @@ namespace Utils
 {
     // 没写完 START
 
-    /**
-     * 初始化擬合類
-     *
-     *
-     */
-    int InitFitFunction(const CVisionModule *pVision)
-    {
-
-        UpdataTickMessage(pVision);
-
-        fitFunction.GetFitData(Tick);
-
-        //        if (Tick[1].ball.vel > 0 && Tick[0].ball.vel == 0)
-        //        {
-        //            for (int i = 0; i < PARAM::Tick::TickLength;i++)
-        //            {
-
-        //            }
-        //        }
-
-        return 0;
-    }
 
     /**
      * 计算全局位置
