@@ -222,11 +222,11 @@ namespace Utils
 
     /**
      * 获取球运动的最远距离
-     * @brief GetBallMaxDist
+     * @brief GetBestInterPos
      * @param pVision
      * @return
      */
-    double GetBallMaxDist(const CVisionModule *pVision){
+    double GetBestInterPos(const CVisionModule *pVision){
         double a = PARAM::Field::V_DECAY_RATE;
         double v = pVision ->ball().Vel().mod();
         double maxT = v / a;
@@ -256,18 +256,71 @@ namespace Utils
 
     /**
      * 获取相对某坐标最佳截球点（动态：球在运动过程中）
-     * @param  {CVisionModule*} pVision : pVision
-     * @param  {CGeoPoint} player_pos   : 坐标
-     * @param  {double} velocity        : 速度
-     * @return {CGeoPoint}              : 最佳截球点
+     * @brief BestGetBallPos
+     * @param pVision
+     * @param playerPos
+     * @param playerVel
+     * @param flag 不同模式（默认0）,0-最早能拿到球的截球点，1-时间最充裕的截球点
+     * @return
      */
-    CGeoPoint BestGetBallPos(const CVisionModule *pVision)
+    CGeoPoint BestGetBallPos(const CVisionModule *pVision, CGeoPoint playerPos, double playerVel, int flag=0)
     {
-        double maxDist = GetBallMaxDist(pVision);
+        double maxDist = GetBestInterPos(pVision);
+        CGeoPoint maxTolerancePos = CGeoPoint(99999, 99999);
+        CGeoPoint minGetBallPos = CGeoPoint(99999, 99999);
+
+        double maxTolerance = -1;
+        double minTime = 999999;
+
         for(int dist=0;dist<maxDist;dist+=100){
 //            GetBallToDistTime(pVision, dist);
-            GDebugEngine::Instance()->gui_debug_msg(pVision->ball().Pos()+Polar2Vector(dist, pVision->ball().Vel().dir()), to_string(GetBallToDistTime(pVision, dist)),1,10);
-            GDebugEngine::Instance()->gui_debug_x(pVision->ball().Pos()+Polar2Vector(dist, pVision->ball().Vel().dir()));
+            CGeoPoint ballPrePos = pVision->ball().Pos()+Polar2Vector(dist, pVision->ball().Vel().dir());
+            GDebugEngine::Instance()->gui_debug_x(playerPos, 2);
+
+            double playerToBallDist = playerPos.dist(ballPrePos);
+            double t = (playerToBallDist / playerVel) * 10;
+
+            double getBallTime = GetBallToDistTime(pVision, dist);
+            double tolerance = getBallTime - t;
+
+
+            if(tolerance >= 0){
+                GDebugEngine::Instance()->gui_debug_line(playerPos, ballPrePos);
+
+                // 记录最快截球点
+                if(getBallTime < minTime){
+                    minTime = getBallTime;
+                    minGetBallPos = ballPrePos;
+                }
+                // 记录时间最充裕的截球点
+                if(tolerance > maxTolerance){
+                    maxTolerance = tolerance;
+                    maxTolerancePos = ballPrePos;
+                }
+                GDebugEngine::Instance()->gui_debug_x(ballPrePos, 2);
+            }
+
+//            playerToBallDist
+
+            GDebugEngine::Instance()->gui_debug_msg(ballPrePos, to_string(GetBallToDistTime(pVision, dist)),1,10);
+            GDebugEngine::Instance()->gui_debug_x(ballPrePos);
+        }
+
+        if(maxTolerance != -1){
+            switch(flag){
+                case 0:
+                   GDebugEngine::Instance()->gui_debug_line(playerPos, minGetBallPos,5,1);
+                   return minGetBallPos;
+                   break;
+                case 1:
+                   GDebugEngine::Instance()->gui_debug_line(playerPos, maxTolerancePos,5,1);
+                   return maxTolerancePos;
+                   break;
+                default :
+                   break;
+            }
+
+
         }
         return pVision ->ball().Pos() + Polar2Vector(maxDist, pVision ->ball().Vel().dir());
     }
@@ -412,7 +465,6 @@ namespace Utils
         //如果是我方球权，那么先决定带球机器人状态
         if(Tick[now].ball.rights == 1)
         {
-
             double confidence_shoot = Tick[now].task[Tick[now].our.dribbling_num].confidence_shoot;
             double confidence_pass = Tick[now].task[Tick[now].our.dribbling_num].confidence_pass;
             //如果传球、射门的概率都 > 阈值，那么从中选择一项作为状态
@@ -440,7 +492,7 @@ namespace Utils
 
         //Debug
         GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(0,0), "testmsg");
-        GDebugEngine::Instance()->gui_debug_x(BestGetBallPos(pVision));
+        GDebugEngine::Instance()->gui_debug_x(BestGetBallPos(pVision, CGeoPoint(0, 0), 3));
 
         for(int i = 0;i < PARAM::Field::MAX_PLAYER;i++)
         {
