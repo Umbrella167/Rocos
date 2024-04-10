@@ -393,7 +393,7 @@ function shoot(p, d, chip, power)
 end
 
 ------------------------------------ 防守相关的skill ---------------------------------------
--- TODO
+-- Defender
 
 function trackingDefenderPos(posType)
 	return function()
