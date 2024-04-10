@@ -9,7 +9,7 @@ namespace Utils{
 
 	CGeoPoint GetBestInterPos(const CVisionModule *pVision, CGeoPoint playerPos, double playerVel, int flag = 0);
 
-
+	CGeoPoint GetShootPoint(const CVisionModule *pVision, int num);
 	std::string GlobalStatus(const CVisionModule *pVision,int attack_flag);
 	//CGeoPoint GetInterPos(const CVisionModule *pVision, CGeoPoint player_pos,double velocity);
 	std::string GlobalComputingPos(const CVisionModule *pVision);

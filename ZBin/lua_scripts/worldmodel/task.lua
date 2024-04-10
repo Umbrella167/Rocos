@@ -40,6 +40,11 @@ function getball(role,playerVel,inter_flag,target_point)
 		ipos = CGeoPoint:new_local(ipos:x(),ipos:y())
 		local mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = 0x00000100, rec = r, vel = v }
 				return { mexe, mpos }
+		else
+			local idir = (p1 - player.pos(role)):dir()
+			local pp = player.pos(role) + Utils.Polar2Vector(0 + 10, idir)
+			local mexe, mpos = GoCmuRush { pos = pp, dir = idir, acc = 50, flag = 0x00000100 + 0x04000000, rec = 1, vel = v }
+			return { mexe, mpos }
 		end
 	end
 
@@ -47,7 +52,7 @@ end
 
 
 
-function power (p,Kp) --根据目标点与球之间的距离求出合适的 击球力度 kp系数需要调节   By Umbrella 2022 06
+function power(p,Kp) --根据目标点与球之间的距离求出合适的 击球力度 kp系数需要调节   By Umbrella 2022 06
 	return function()
 		local p1
 		if type(p) == 'function' then
@@ -56,19 +61,19 @@ function power (p,Kp) --根据目标点与球之间的距离求出合适的 击�
 			p1 = p
 		end
 		local res = Kp * (p1 - ball.pos()):mod()
-		if res > 310 then
-			res = 310
-		end
-		if res < 230 then
-			res = 230
-		end
+		-- if res > 310 then
+		-- 	res = 310
+		-- end
+		-- if res < 230 then
+		-- 	res = 230
+		-- end
 
-		-- if res > 7000 then
-		-- 	res = 7000
-		-- end
-		-- if res < 3400 then
-		-- 	res = 3400
-		-- end
+		if res > 7000 then
+			res = 7000
+		end
+		if res < 3400 then
+			res = 3400
+		end
 		debugEngine:gui_debug_msg(CGeoPoint:new_local(-4300,-2000),res,3)
 		return res
 	end
@@ -288,7 +293,7 @@ function touchKick(p, ifInter, power, mode)
 	local ipower = function()
 		return power or 127
 	end
-	return { mexe, mpos, mode and kick.flat, idir, pre.low, ipower, cp.full, flag.nothing }
+	return { mexe, mpos, mode and kick.flat or kick.chip, idir, pre.low, ipower, cp.full, flag.nothing }
 end
 
 function goSpeciPos(p, d, f, a) -- 2014-03-26 增加a(加速度参数)

@@ -11,7 +11,6 @@ module(..., package.seeall)
 -- @2024/04/07
 -- 
 -- 
-
 -- 获取全局机器人状态、存放到 GlobalMessage.globalPlayerStatus / attackPlayerStatus
 function getGlobalStatus(attack_flag)
 	-- 我方球权的情况下 获取进攻状态
@@ -102,4 +101,12 @@ function getPlayerStatus(role)
 		playerStatus = "passToPlayer"
 	end
 	return playerStatus
+end
+
+
+function debugStatus()
+	for key,i in pairs(GlobalMessage.globalPlayerStatus) do
+		debugEngine:gui_debug_msg(CGeoPoint:new_local(-6000,3000 - 300 * key),i.num .. "  " .. i.status,3,0,90)
+	end
+
 end
