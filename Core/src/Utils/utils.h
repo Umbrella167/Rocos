@@ -65,6 +65,7 @@ namespace Utils
     extern double NumberNormalizeGauss(double data, double max_data, double min_data, double peak_pos, std::string model = "DOUBLELINE"); // [0,1] 高斯归一化
     extern double PosSafetyGrade(const CVisionModule *pVision, CGeoPoint start, CGeoPoint end, std::string model = "SHOOT");              // 路径安全性评分
     extern CGeoPoint GetBestInterPos(const CVisionModule *pVision, CGeoPoint playerPos, double playerVel, int flag);
+    extern int getInitData(const CVisionModule *pVision, int flag);
    /* =============== Defence =============== */
    /* 球场信息 */
    /* 己方半场信息 */
