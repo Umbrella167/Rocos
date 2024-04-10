@@ -58,20 +58,23 @@ local state_reset = function(store)
 end
 
 
-local time = os.clock()
+
+local time = 0
 local stopFlag = 0
 local file = io.open("data", "w+")
 io.output(file)
 
 
 local debug_F = function()
+    ttt = Utils.UpdataTickMessage(vision, 1, 1)
+    time = time + ttt.time.delta_time
     
     local sx,sy = 200,-1000
     local span = 140
     local sp = CGeoPoint:new_local(sx,sy)
     local v = CVector:new_local(0,-span)
 
-    local tTime = os.clock() - time
+    -- local tTime = os.clock() - time
     local role = "Leader"
     local playerPosX = player.posX(role)
     local playerPosY = player.posY(role)
@@ -90,7 +93,7 @@ local debug_F = function()
     -- debugEngine:gui_debug_msg(sp+v*2,string.format("Det MAX VEL : %4.0f",rawVel),param.BLUE)
     -- debugEngine:gui_debug_msg(sp+v*3,string.format("Det MAX VEL : %4.0f",det_max_vel),param.GREEN)
     -- debugEngine:gui_debug_msg(sp+v*4,string.format("Rot MAX ERR°: %4.1f",det_rot_err),det_rot_err < FAIL_DEGREE and param.GREEN or param.RED)
-    debugEngine:gui_debug_msg(sp+v*-1,string.format("time:          %6.3f", tTime),param.BLUE)
+    debugEngine:gui_debug_msg(sp+v*-1,string.format("time:          %6.3f", time),param.BLUE)
     debugEngine:gui_debug_msg(sp+v*0,string.format("playerPosX:     %6.3f", playerPosX),param.BLUE)
     debugEngine:gui_debug_msg(sp+v*1,string.format("playerPosY:     %6.3f", playerPosY),param.BLUE)
     debugEngine:gui_debug_msg(sp+v*2,string.format("velMod:         %6.3f", playerVelMod),param.BLUE)
@@ -100,11 +103,11 @@ local debug_F = function()
     debugEngine:gui_debug_msg(sp+v*6,string.format("targetPosY:     %6.3f", targetPosY),param.GREEN)
 
 
-    io.write(string.format("%f %f %f %f %f %f %f\n",tTime,  playerPosX, playerPosY, playerVelMod, playerVelDir, targetPosX, targetPosY))
+    io.write(string.format("%f %f %f %f %f %f %f\n", time,  playerPosX, playerPosY, playerVelMod, playerVelDir, targetPosX, targetPosY))
 
     if playerToTargetDist < 10 and playerVelMod < 11 then
         io.write(string.format("split\n"))
-        time = os.clock()
+        time = 0
         stopFlag = stopFlag + 1
     end
     if stopFlag == 10 then
