@@ -269,7 +269,7 @@ namespace Utils
      * @param flag 不同模式（默认0）,0-最早能拿到球的截球点，1-时间最充裕的截球点
      * @return
      */
-    CGeoPoint GetBestInterPos(const CVisionModule *pVision, CGeoPoint playerPos, double playerVel, int flag = 0)
+    CGeoPoint GetBestInterPos(const CVisionModule *pVision, CGeoPoint playerPos, double playerVel, int flag)
     {
         double maxDist = GetBallMaxDist(pVision);
         CGeoPoint maxTolerancePos = CGeoPoint(inf, inf);
@@ -277,7 +277,7 @@ namespace Utils
 
         double maxTolerance = -inf;
         double minTime = inf;
-
+//        GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(0,-1000),to_string(playerPos.x()) + "   " +to_string(playerPos.y()));
         for (int dist = 0; dist < maxDist; dist += 100)
         {
             //            GetBallToDistTime(pVision, dist);
@@ -295,7 +295,7 @@ namespace Utils
 
             if (tolerance >= 0)
             {
-                //                GDebugEngine::Instance()->gui_debug_line(playerPos, ballPrePos);
+//                GDebugEngine::Instance()->gui_debug_line(playerPos, ballPrePos);
                 // 记录最快截球点
                 if (getBallTime < minTime)
                 {
@@ -319,11 +319,11 @@ namespace Utils
             switch (flag)
             {
             case 0:
-                //                   GDebugEngine::Instance()->gui_debug_line(playerPos, minGetBallPos,5,1);
+                                   GDebugEngine::Instance()->gui_debug_line(playerPos, minGetBallPos,5,1);
                 return minGetBallPos;
                 break;
             case 1:
-                //                   GDebugEngine::Instance()->gui_debug_line(playerPos, maxTolerancePos,5,1);
+                                   GDebugEngine::Instance()->gui_debug_line(playerPos, maxTolerancePos,5,1);
                 return maxTolerancePos;
                 break;
             default:
@@ -1215,31 +1215,31 @@ namespace Utils
      * @param  {CGeoPoint} hitPoint : 交点
      * @return {double}             : 两后卫之间距离
      */
-    double ComputeDistance(MobileVisionT ball, CGeoPoint hitPoint)
-    {
-        double ballDis = ball.Pos().dist(hitPoint);
-        if (ballDis > PARAM::Field::PITCH_WIDTH / 2)
-            return DEFAULT_DISTANCE_MAX;
-        else if (ballDis < PARAM::Field::PENALTY_AREA_DEPTH)
-            return DEFAULT_DISTANCE_MIN;
-        else
-            return DEFAULT_DISTANCE_MIN + (DEFAULT_DISTANCE_MAX - DEFAULT_DISTANCE_MIN) * (ballDis / (PARAM::Field::PITCH_WIDTH / 2 - PARAM::Field::PENALTY_AREA_DEPTH));
-    }
+//    double ComputeDistance(MobileVisionT ball, CGeoPoint hitPoint)
+//    {
+//        double ballDis = ball.Pos().dist(hitPoint);
+//        if (ballDis > PARAM::Field::PITCH_WIDTH / 2)
+//            return DEFAULT_DISTANCE_MAX;
+//        else if (ballDis < PARAM::Field::PENALTY_AREA_DEPTH)
+//            return DEFAULT_DISTANCE_MIN;
+//        else
+//            return DEFAULT_DISTANCE_MIN + (DEFAULT_DISTANCE_MAX - DEFAULT_DISTANCE_MIN) * (ballDis / (PARAM::Field::PITCH_WIDTH / 2 - PARAM::Field::PENALTY_AREA_DEPTH));
+//    }
 
     /**
      * 球方向与禁区边的交点
      * @param  {MobileVisionT} ball : 球
      * @return {CGeoPoint}          : {NULL, NULL} 时表示无交点
      */
-    CGeoPoint ComputeCrossPENALTY(MobileVisionT ball)
-    {
-        CGeoLineLineIntersection intersection(FIELD_PENALTYBOR, {ball.Pos(), ball.Vel().dir()}); // 获取球运动姿态的交点
-        if (true == intersection.Intersectant())
-        {
-            return intersection.IntersectPoint();
-        }
-        return {NULL, NULL};
-    }
+//    CGeoPoint ComputeCrossPENALTY(MobileVisionT ball)
+//    {
+//        CGeoLineLineIntersection intersection(FIELD_PENALTYBOR, {ball.Pos(), ball.Vel().dir()}); // 获取球运动姿态的交点
+//        if (true == intersection.Intersectant())
+//        {
+//            return intersection.IntersectPoint();
+//        }
+//        return {NULL, NULL};
+//    }
 
     /****************************
      *                           *
@@ -1288,7 +1288,8 @@ namespace Utils
     {
         return p.x() >= (std::min)(p1.x(), p2.x()) && p.x() <= (std::max)(p1.x(), p2.x()) && p.y() >= (std::min)(p1.y(), p2.y()) && p.y() <= (std::max)(p1.y(), p2.y());
     }
-    turn{bool} : bool InBetween(double v, double v1, double v2)
+
+    bool InBetween(double v, double v1, double v2)
     {
         return (v > v1 && v < v2) || (v < v1 && v > v2);
     }

@@ -63,7 +63,7 @@ extern double PosToBallDistGrade(CGeoPoint ball_pos,double x, double y, double p
 extern double PosToPosDistGrade(double x, double y,double x1,double y1, int dir = 1,std::string model = "GAUSS"); // 坐标到坐标的距离评分
 extern double NumberNormalizeGauss(double data, double max_data, double min_data, double peak_pos, std::string model = "DOUBLELINE"); // [0,1] 高斯归一化
 extern double PosSafetyGrade(const CVisionModule *pVision, CGeoPoint start, CGeoPoint end,std::string model = "SHOOT"); // 路径安全性评分
-
+extern CGeoPoint GetBestInterPos(const CVisionModule *pVision, CGeoPoint playerPos, double playerVel, int flag = 0);
 
 // Robocup-SSL-China
 extern double Normalize(double angle);///<把角度规范化到(-PI,PI]

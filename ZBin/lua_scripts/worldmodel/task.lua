@@ -23,7 +23,9 @@ module(..., package.seeall)
 -- 	return shoot_pos
 -- end
 
-
+function getball(role,inter_flag,)
+	-- body
+end
 
 
 
