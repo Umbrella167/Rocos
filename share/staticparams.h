@@ -26,8 +26,8 @@ namespace PARAM {
         const double BALL_DECAY = 0.2928; // 场地对球的衰减因子（越小线越短）
         /* Player */
         const double MAX_PLAYER_SIZE = 180;
-        const double PITCH_LENGTH = 12000;                 // 场地长
-        const double PITCH_WIDTH = 9000;                  // 场地宽
+        const double PITCH_LENGTH = 9000;                 // 场地长
+        const double PITCH_WIDTH = 6000;                  // 场地宽
         const double PITCH_MARGIN = 10;                   // 边界宽度
         const double CENTER_CIRCLE_R = 500;               // 中圈半径
 
