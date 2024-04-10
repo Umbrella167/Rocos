@@ -32,10 +32,6 @@ namespace Utils
      */
     string GlobalComputingPos(const CVisionModule *pVision)
     {
-        //Debug
-        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(0,0), "testmsg1");
-//        GDebugEngine::Instance()->gui_debug_x(GetBestInterPos(pVision, CGeoPoint(0, 0), 2, 0));
-        GetPlayerToDistTime(pVision, CGeoPoint(0, 0), 2, CGeoPoint(1000, 1000), 3);
 
         CGeoPoint touchpos = GetTouchPos(pVision,pVision -> ourPlayer(0).Pos(),true);
 
@@ -330,13 +326,14 @@ namespace Utils
     /**
      * NOTE: temp
      * 临时函数，用于采集玩家数据
-     * @brief getPlayToDistTimeData
+     * @brief getPlayerToDistTimeData
      * @param pVision
      */
-    void getPlayToDistTimeData(const CVisionModule *pVision){
+    void getPlayerToDistTimeData(const CVisionModule *pVision){
         GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(2000, 1500), "v:"+to_string(pVision->ball().Vel().mod()));
         GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(2000, 2000), "playerNum:"+to_string(pVision -> getValidNum()));
         GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(2000, 2500), "player0Vel:"+to_string(pVision -> ourPlayer(0).Vel().mod()));
+
     }
 
     /**
@@ -349,10 +346,9 @@ namespace Utils
      * @param targetV
      * @return
      */
-    double GetPlayerToDistTime(const CVisionModule *pVision, CGeoPoint playerPos, double playerV, CGeoPoint target, double targetV){
+    double GetPlayerToDistTime(const CVisionModule *pVision, CGeoPoint playerPos, CVector playerV, CGeoPoint target, CVector targetV){
 
-        getPlayToDistTimeData(pVision);
-
+        getPlayerToDistTimeData(pVision);
         return 0;
     }
 
@@ -525,7 +521,7 @@ namespace Utils
         //Debug
 //        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(0,0), "testmsg0");
 //        GDebugEngine::Instance()->gui_debug_x(GetBestInterPos(pVision, CGeoPoint(0, 0), 2, 0));
-//        GetPlayerToDistTime(pVision, CGeoPoint(0, 0), 2, CGeoPoint(1000, 1000), 3);
+        GetPlayerToDistTime(pVision, CGeoPoint(0, 0), pVision->ourPlayer(0).Vel(), CGeoPoint(1000, 1000), pVision->ball().Vel());
 
         for(int i = 0;i < PARAM::Field::MAX_PLAYER;i++)
         {
@@ -905,12 +901,6 @@ namespace Utils
         GDebugEngine::Instance() -> gui_debug_x(max_grade_pos,3);
         return max_grade_pos;
     }
-
-
-
-
-
-
 
 
     /**
