@@ -3,7 +3,7 @@ module(..., package.seeall)
 function instance(role)
 	local realIns
 	if type(role) == "string" then
-		realIns = vision:ourPlayer(gRoleNum[role])
+		realIns = vision:ourPlayer(num(role))
 	elseif type(role) == "number" then
 --	and	role >= 1 and role <= param.maxPlayer then
 		realIns = vision:ourPlayer(role)
@@ -16,8 +16,12 @@ end
 
 function num(role)
 	local retNum
+	if type(role) == "function" then
+		role = role()
+	end
 	if type(role) == "string" then
-		retNum = gRoleNum[role]
+		retNum = gSubPlay.getRoleNum(role)
+		-- retNum = gRoleNum[role]
 	elseif type(role) == "number" then
 		retNum = role
 	else
@@ -52,21 +56,24 @@ function name(role)
 	return retNum
 end
 
-function canTouch(role,shoot_pos,interPos)
-			local p
-		if type(shoot_pos) == 'function' then
-	  		p = shoot_pos()
+function canTouch(role,p,interPos,touchAngle)
+			local shoot_pos
+		if type(p) == 'function' then
+	  		shoot_pos = p()
 		else
-	  		
-	  		 p = shoot_pos
+	  		 shoot_pos = p
 		end
-	local ball_dir = 90 + ball.velDir() * 57.3
-	local shoot_dir = 90 + (p-pos(role)):dir() * 57.3
-	local touch_dir = 180 - (ball_dir - shoot_dir)
-	touch_dir = 180 - (ball_dir-shoot_dir); 
-	-- touch_dir = pos(role):y() < ball.posY() and 360 - touch_dir or touch_dir
+	local touchAngle = touchAngle or 30
+	local shoot_dir = 90 + (shoot_pos-pos(role)):dir() * 57.3
+	local pass_dir = 90 + (pos(role) - ball.pos()):dir() * 57.3
+	touch_dir = 180 - (pass_dir-shoot_dir); 
+	touch_dir = pos(role):y() < ball.posY() and 360 - touch_dir or touch_dir
 	debugEngine:gui_debug_msg(CGeoPoint:new_local(-4000,-2500),touch_dir,3)
-	return touch_dir
+	if touch_dir > touchAngle then
+		return false
+	else
+		return true
+	end
 end
 
 function pos(role)
@@ -193,10 +200,14 @@ end
 
 function toTargetDist(role)
 	local p
-	if type(gRolePos[role]) == "function" then
-		p = gRolePos[role]()
+	local realrole = gSubPlay.getRole(role)
+	if type(gRolePos[realrole]) == "function" then
+		p = gRolePos[realrole]()
 	else
-		p = gRolePos[role]
+		p = gRolePos[realrole]
+	end
+	if p == nil then
+		return 9999
 	end
 	return player.pos(role):dist(p)
 end
@@ -284,12 +295,13 @@ function canBreak(role)
 	for i=1,param.maxPlayer do
 		if enemy.valid(i) then
 			local p
-			if type(gRolePos[role]) == "function" then
-				p = gRolePos[role]()
+			local realrole = gSubPlay.getRole(role)
+			if type(gRolePos[realrole]) == "function" then
+				p = gRolePos[realrole]()
 			else
-				p = gRolePos[role]
+				p = gRolePos[realrole]
 			end
-			local breakSeg = CGeoSegment:new_local(player.pos(role), p)
+			local breakSeg = CGeoSegment:new_local(player.pos(realrole), p)
 			local projP = breakSeg:projection(enemy.pos(i))
 			if breakSeg:IsPointOnLineOnSegment(projP) then
 				if enemy.pos(i):dist(projP) < 40 then
@@ -396,7 +408,7 @@ function canFlatPassToPos(role, targetpos)
 		end
 	end
 	for j = 1, param.maxPlayer do
-		if player.valid(j) and j ~= gRoleNum["Leader"] and player.pos(j):dist(p2) > 20 then
+		if player.valid(j) and j ~= num("Leader") and player.pos(j):dist(p2) > 20 then
 			local dist = seg:projection(player.pos(j)):dist(player.pos(j))
 			local isprjon = seg:IsPointOnLineOnSegment(seg:projection(player.pos(j)))
 			if dist < 12 and isprjon then
