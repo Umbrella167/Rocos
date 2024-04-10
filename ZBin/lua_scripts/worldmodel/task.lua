@@ -23,31 +23,28 @@ module(..., package.seeall)
 -- 	return shoot_pos
 -- end
 
-function getball(role,playerVel,inter_flag,target_point)
+function getball(role, playerVel, inter_flag, target_point)
 	return function()
 		if player.infraredCount(role) < 5 then
-		local flag = inter_flag or 0
-		local playerPos = CGeoPoint:new_local( player.pos(role):x(),player.pos(role):y())
-		local inter_pos = Utils.GetBestInterPos(vision,playerPos,playerVel,flag)
-		
-		local idir = player.toBallDir(role)
-		local ipos = ball.pos()
-		if inter_pos:x()  ==  -param.INF or inter_pos:y()  == -param.INF then
-			ipos = ball.pos()
-		else
-			ipos = inter_pos
-		end
-		ipos = CGeoPoint:new_local(ipos:x(),ipos:y())
-		local mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = 0x00000100, rec = r, vel = v }
-				return { mexe, mpos }
+			local flag = inter_flag or 0
+			local playerPos = CGeoPoint:new_local(player.pos(role):x(), player.pos(role):y())
+			local inter_pos = Utils.GetBestInterPos(vision, playerPos, playerVel, flag)
+
+			local idir = player.toBallDir(role)
+			local ipos = ball.pos()
+			if inter_pos:x() == -param.INF or inter_pos:y() == -param.INF then
+				ipos = ball.pos()
+			else
+				ipos = inter_pos
+			end
+			ipos = CGeoPoint:new_local(ipos:x(), ipos:y())
+			local mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = 0x00000100, rec = r, vel = v }
+			return { mexe, mpos }
 		end
 	end
-
 end
 
-
-
-function power (p,Kp) --根据目标点与球之间的距离求出合适的 击球力度 kp系数需要调节   By Umbrella 2022 06
+function power(p, Kp) --根据目标点与球之间的距离求出合适的 击球力度 kp系数需要调节   By Umbrella 2022 06
 	return function()
 		local p1
 		if type(p) == 'function' then
@@ -69,7 +66,7 @@ function power (p,Kp) --根据目标点与球之间的距离求出合适的 击�
 		-- if res < 3400 then
 		-- 	res = 3400
 		-- end
-		debugEngine:gui_debug_msg(CGeoPoint:new_local(-4300,-2000),res,3)
+		debugEngine:gui_debug_msg(CGeoPoint:new_local(-4300, -2000), res, 3)
 		return res
 	end
 end
@@ -397,26 +394,29 @@ end
 
 function trackingDefenderPos(posType)
 	return function()
-		local mexe, mpos
-
-		UpdataTickMessage(1, 2)
-
-		local p
-		local hitPoint = Utils.ComputeCrossPENALTY(GlobalMessage.Tick.ball)
-		local distanceDT = Utils.ComputeDistance(GlobalMessage.Tick.ball,hitPoint)
+		local mexe, mpos = nil, nil
+		local p, idir = nil, dir.shoot()
+		local hitPoint = Utils.ComputeCrossPENALTY()
+		local distanceDT = Utils.ComputeDistance(hitPoint)
 		local POS_NULL = CGeoPoint:new_local(0, 0)
+
+		debugEngine:gui_debug_msg(
+			CGeoPoint:new_local(DEFENDER_DEBUG_POSITION_X,
+				DEFENDER_DEBUG_POSITION_Y),
+			tostring(distanceDT))
 
 		if hitPoint ~= POS_NULL then
 			if "l" == posType then
-				p = CGeoPoint:new_local(hitPoint.x(), hitPoint.y() + distanceDT )
-				mexe, mpos = GoCmuRush { pos = p }
+				p = CGeoPoint:new_local(hitPoint:x(),
+					hitPoint:y() + distanceDT / 2 < 2000 and hitPoint:y() + distanceDT / 2 or 2000)
 			elseif "m" == posType then
-				p = hitPoint
-				mexe, mpos = GoCmuRush { pos = p }
+				p = CGeoPoint:new_local(hitPoint:x(), hitPoint:y())
 			elseif "r" == posType then
-				p = CGeoPoint:new_local(hitPoint.x(), hitPoint.y() - distanceDT)
-				mexe, mpos = GoCmuRush { pos = p }
+				p = CGeoPoint:new_local(hitPoint:x(),
+					hitPoint:y() - distanceDT / 2 > -2000 and hitPoint:y() - distanceDT / 2 or -2000)
 			end
+
+			mexe, mpos = GoCmuRush { pos = p, dir = idir, acc = a, flag = f, rec = r, vel = v, speed = s, force_manual = force_manual }
 			return { mexe, mpos }
 		end
 	end
