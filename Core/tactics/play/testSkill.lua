@@ -33,13 +33,13 @@ firstState = "readyShoot",
 		-- debugEngine:gui_debug_msg(CGeoPoint:new_local(0,0),pos1:x() .. "  " .. pos1:y())
 		-- Utils.UpdataTickMessage(vision,1,2)
 		-- Utils.GlobalComputingPos(vision)
-		-- player.canTouch("Assister",CGeoPoint:new_local(4500,0))
-
+		aa = player.canTouch("Assister",CGeoPoint:new_local(4500,0))
+		debugEngine:gui_debug_msg(CGeoPoint:new_local(0,0),tostring(aa))
 		-- if(player.infraredCount("Assister") > 30) then 
 		-- 	return "Shoot"
 		-- end
 	end,
-	Assister = task.touchKick(_,_,500,kick.flat);--task.getball("Assister",6,2),--task.GetBallV2("Assister",CGeoPoint(4500,0)),
+	Assister = task.stop,--task.touchKick(_,_,500,kick.flat);--task.getball("Assister",6,2),--task.GetBallV2("Assister",CGeoPoint(4500,0)),
 
 	match = "[AKS]{TDG}"
 },

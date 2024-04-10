@@ -19,6 +19,8 @@ local debugStatus = function()
 		tostring(i.status),3)
 	end
 
+	debugEngine:gui_debug_msg(CGeoPoint:new_local(-4400,-2000),ball_rights)
+
 	
 end
 
@@ -64,7 +66,7 @@ local passPos = function()
 end
 local function correctionPos()
 	return function()
-		return CGeoPoint:new_local(CorrectionPos:x(),CorrectionPos:y())
+		return CGeoPoint:new_local(correction_pos:x(),correction_pos:y())
 	end
 end
 local function runPos(role)
@@ -102,12 +104,20 @@ function UpdataTickMessage(defend_num1,defend_num2)
 	dribbling_player_num = GlobalMessage.Tick.our.dribbling_num
 	ball_rights = GlobalMessage.Tick.ball.rights
 	if ball_rights == 1 then
+		
 		pass_player_num = GlobalMessage.Tick.task[dribbling_player_num].max_confidence_pass_num
 		pass_pos = CGeoPoint:new_local(player.posX(pass_player_num),player.posY(pass_player_num))
 		shoot_pos = GlobalMessage.Tick.task[dribbling_player_num].shoot_pos
 		shoot_pos = CGeoPoint:new_local(shoot_pos:x(),shoot_pos:y())
+		dribblingStatus = status.getPlayerStatus(dribbling_player_num)	-- 获取带球机器人状态
+		status.getPlayerRunPos()	-- 获取跑位点
 	end
+	status.getGlobalStatus(0)  -- 获取全局状态，进攻状态为传统
+	debugStatus()
 end
+
+defend_num1 = 7
+defend_num2 = 8
 gPlayTable.CreatePlay{
 
 firstState = "Init",
@@ -125,23 +135,21 @@ firstState = "Init",
 	Special = task.stop(),
 	Tier = task.stop(),
 	Defender = task.stop(),
-	Goalie = task.stop(),
+	Goalie = task.goalie(),
 	match = "[A][KS]{TDG}"
 },
 
 ["GetGlobalMessage"] = {
 	switch = function()
 		
-		UpdataTickMessage(7,8) 	  -- 更新帧信息
-		status.getGlobalStatus(0)  -- 获取全局状态，进攻状态为传统
+		UpdataTickMessage(defend_num1,defend_num2) 	  -- 更新帧信息
+		status.debugStatus()
 		if task.ball_rights == 1 then	-- 我方球权的情况 获取进攻状态
-		UpdataTickMessage(7,8)
 		-- 	-- dribblingStatus -> [shoot,dribbling,XXpassToPlayerXX]
-			status.getPlayerRunPos()	-- 获取跑位点
-			dribblingStatus = status.getPlayerStatus(dribbling_player_num)	-- 获取带球机器人状态
+			
 			debugEngine:gui_debug_msg(CGeoPoint(3000,2800),dribbling_player_num .. "   ".. dribblingStatus)
-			if dribblingStatus == "NOTHING" then
-				return "defendOtherState"
+			if dribblingStatus == "NOTHING"  or dribblingStatus == "Run" or  dribblingStatus == "Getball" then
+				UpdataTickMessage(defend_num1,defend_num2)
 			else
 				return dribblingStatus
 			end
@@ -152,11 +160,15 @@ firstState = "Init",
 			return "defendOtherState"
 		end
 		runPos("Special")
-		debugStatus()
+		-- debugStatus()
 	end,
 	Assister = task.GetBallV2("Assister",ballPos()),
 	Kicker = task.goCmuRush(runPos("Kicker"),closures_dir_ball("Kicker")),
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
+
+	-- Assister = task.stop(),
+	-- Kicker = task.stop(),
+	-- Special = task.stop(),
 	Tier = task.stop(),
 	Defender = task.stop(),
 	Goalie = task.goalie(),
@@ -166,12 +178,12 @@ firstState = "Init",
 -- 射门
 ["Shoot"] = {
 	switch = function()
-		UpdataTickMessage(1,2) 
+		UpdataTickMessage(defend_num1,defend_num2)
 		if(player.infraredCount("Assister") < 20) then
 			return "defendOtherState"
 		end
 		if(task.playerDirToPointDirSub("Assister",shoot_pos) > error_dir) then 
-			CorrectionPos = shoot_pos
+			correction_pos = shoot_pos
 			correction_state = "Shoot"
 			return "Correction"
 		end
@@ -185,22 +197,40 @@ firstState = "Init",
 	Special = task.stop(),
 	Tier = task.stop(),
 	Defender = task.stop(),
-	Goalie = task.stop(),
+	Goalie = task.goalie(),
 	match = "{AKSTDG}"
 },
 
-
+-- 射门
+["Touch"] = {
+	switch = function()
+		UpdataTickMessage(defend_num1,defend_num2)
+		-- if(bufcnt(true,300))then 
+		-- 	return "GetGlobalMessage"
+		-- end
+		if(player.kickBall("Assister"))then 
+			return "GetGlobalMessage"
+		end
+	end,
+	Assister = task.touchKick(correctionPos(),_,5000,kick.flat),
+	Kicker = task.stop(),
+	Special = task.stop(),
+	Tier = task.stop(),
+	Defender = task.stop(),
+	Goalie = task.goalie(),
+	match = "[AKS]{TDG}"
+},
 
 -- 传球 
 ["passToPlayer"] = {
 	switch = function()
-		UpdataTickMessage(1,2) 
+		UpdataTickMessage(defend_num1,defend_num2)
 		if(player.kickBall("Assister")) then
 			local getballPlayer = player.name(pass_player_num)
 			return getballPlayer .. "getBall" 
 		end
 		if(task.playerDirToPointDirSub("Assister",shoot_pos) > error_dir) then 
-			CorrectionPos = pass_pos
+			correction_pos = pass_pos
 			correction_state = "passToPlayer"
 			return "Correction"
 		end
@@ -211,13 +241,18 @@ firstState = "Init",
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 	Tier = task.stop(),
 	Defender = task.stop(),
-	Goalie = task.stop(),
+	Goalie = task.goalie(),
 	match = "{AKSTDG}"
 },
 
 -- 接球
 ["KickergetBall"] = {
 	switch = function()
+		UpdataTickMessage(defend_num1,defend_num2)
+		correction_pos = Utils.GetShootPoint(vision,player.num("Kicker"))
+		if (player.canTouch("Kicker",correction_pos,40)) then
+			return "Touch"
+		end
 		if(player.toBallDist("Kicker") < 100) then 
 			return "GetGlobalMessage"
 		end
@@ -230,11 +265,17 @@ firstState = "Init",
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 	Tier = task.stop(),
 	Defender = task.stop(),
-	Goalie = task.stop(),
+	Goalie = task.goalie(),
 	match = "{AKSTDG}"
 },
 ["SpecialgetBall"] = {
 	switch = function()
+
+		UpdataTickMessage(defend_num1,defend_num2)
+		correction_pos = Utils.GetShootPoint(vision,player.num("Special"))
+		if (player.canTouch("Special",correction_pos,40)) then
+			return "Touch"
+		end
 		if(player.toBallDist("Special") < 100) then 
 			return "GetGlobalMessage"
 		end
@@ -247,7 +288,7 @@ firstState = "Init",
 	Special = task.Getballv4("Special",runPos("Special")),
 	Tier = task.stop(),
 	Defender = task.stop(),
-	Goalie = task.stop(),
+	Goalie = task.goalie(),
 	match = "{AKSTDG}"
 },
 
@@ -255,7 +296,7 @@ firstState = "Init",
 -- 带球
 ["Dribbling"] = {
 	switch = function()
-		-- debugEngine:gui_debug_msg(passPos,dribblingStatus)
+		UpdataTickMessage(defend_num1,defend_num2)
 		return "GetGlobalMessage"
 	end,
 	Assister = task.stop(),
@@ -263,7 +304,7 @@ firstState = "Init",
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 	Tier = task.stop(),
 	Defender = task.stop(),
-	Goalie = task.stop(),
+	Goalie = task.goalie(),
 	match = "{AKSTDG}"
 },
 
@@ -271,6 +312,7 @@ firstState = "Init",
 -- 防守 - 顶牛
 ["defendOtherState"] = {
 	switch = function()
+		UpdataTickMessage(defend_num1,defend_num2)
 		if(player.infraredCount("Assister") > 10) then
 			return "GetGlobalMessage"
 		end
@@ -284,13 +326,14 @@ firstState = "Init",
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 	Tier = task.stop(),
 	Defender = task.stop(),
-	Goalie = task.stop(),
+	Goalie = task.goalie(),
 	match = "{AKSTDG}"
 },
 
 -- 防守 盯防
 ["defendNormalState"] = {
 	switch = function()
+		UpdataTickMessage(defend_num1,defend_num2)
 		if(player.infraredCount("Assister") > 10) then
 			return "GetGlobalMessage"
 		end
@@ -304,7 +347,7 @@ firstState = "Init",
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 	Tier = task.stop(),
 	Defender = task.stop(),
-	Goalie = task.stop(),
+	Goalie = task.goalie(),
 	match = "{AKSTDG}"
 },
 
@@ -312,16 +355,18 @@ firstState = "Init",
 -- 方向校正
 ["Correction"] = {
 	switch = function()
-		if(task.playerDirToPointDirSub("Assister",CorrectionPos) < error_dir) then 
+		UpdataTickMessage(defend_num1,defend_num2)
+		if(task.playerDirToPointDirSub("Assister",correction_pos) < error_dir) then 
 				return correction_state
 		end
 	end,
-	Assister = task.GetBallV2("Assister",correctionPos()),
+	Assister = task.getball("Assister",4,1,correctionPos()),--task.GetBallV2("Assister",correctionPos()),
+
 	Kicker = task.goCmuRush(runPos("Kicker"),closures_dir_ball("Kicker")),
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 	Tier = task.stop(),
 	Defender = task.stop(),
-	Goalie = task.stop(),
+	Goalie = task.goalie(),
 	match = "{AKSTDG}"
 },
 
