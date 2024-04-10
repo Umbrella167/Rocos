@@ -2,43 +2,59 @@
 ballpos = function ()
 	return CGeoPoint:new_local(ball.posX(),ball.posY())
 end
-
+shoot_pos = CGeoPoint:new_local(4500,0)
+error_dir = 8
+KP = 0.01
+playerPos = function()
+	return CGeoPoint:new_local( player.pos("Assister"):x(),player.pos("Assister"):y())
+end
 gPlayTable.CreatePlay{
 
 firstState = "readyShoot",
+
+
+-- ["touch"] = {
+-- 	switch = function()
+-- 		-- Utils.UpdataTickMessage(vision,1,2)
+-- 		-- Utils.GlobalComputingPos(vision)
+
+-- 	end,
+-- 	Assister = task.touchKick("Assister",CGeoPoint(4500,0)),
+
+-- 	match = "[AKS]{TDG}"
+-- },
+
 ["readyShoot"] = {
 	switch = function()
-		-- Utils.UpdataTickMessage(vision,1,2)
-		-- Utils.GlobalComputingPos(vision)
-		if player.infraredCount("Assister") > 60 then
-			return "Shoot"
-		end
-	end,
-	Assister = task.GetBallV2("Assister",CGeoPoint(4500,0)),
-	Kicker = task.stop(),
-	Special = task.stop(),
-	Tier = task.stop(),
-	Defender = task.stop(),
-	Goalie = task.stop(),
-	match = "[AKS]{TDG}"
-},
-["Shoot"] = {
-	switch = function()
-		-- Utils.UpdataTickMessage(vision,1,2)
-		-- Utils.GlobalComputingPos(vision)
-		if(player.kickBall("Assister")) then 
-			return "readyShoot"
-		end
-	end,
-	Assister = task.ShootdotV2(CGeoPoint(4500,0),1.5,8,kick.flat),
-	Kicker = task.stop(),
-	Special = task.stop(),
-	Tier = task.stop(),
-	Defender = task.stop(),
-	Goalie = task.stop(),
-	match = "[AKS]{TDG}"
-},
+		-- local pos1 = Utils.GetBestInterPos(vision,playerPos(),4,2)
 
+		-- debugEngine:gui_debug_x(pos1,3)
+
+		-- debugEngine:gui_debug_msg(CGeoPoint:new_local(0,0),pos1:x() .. "  " .. pos1:y())
+		-- Utils.UpdataTickMessage(vision,1,2)
+		-- Utils.GlobalComputingPos(vision)
+		-- player.canTouch("Assister",CGeoPoint:new_local(4500,0))
+
+		-- if(player.infraredCount("Assister") > 30) then 
+		-- 	return "Shoot"
+		-- end
+	end,
+	Assister = task.touchKick(_,_,500,kick.flat);--task.getball("Assister",6,2),--task.GetBallV2("Assister",CGeoPoint(4500,0)),
+
+	match = "[AKS]{TDG}"
+},
+-- ["Shoot"] = {
+-- 	switch = function()
+-- 		-- Utils.UpdataTickMessage(vision,1,2)
+-- 		-- Utils.GlobalComputingPos(vision)
+-- 		if(player.kickBall("Assister")) then 
+-- 			return "readyShoot"
+-- 		end
+-- 	end,
+-- 	Assister = task.ShootdotV2(CGeoPoint(4500,0),KP,error_dir,kick.flat),
+
+-- 	match = "[AKS]{TDG}"
+-- },
 
 
 name = "testSkill",

@@ -23,7 +23,31 @@ module(..., package.seeall)
 -- 	return shoot_pos
 -- end
 
-function power(p, Kp) --根据目标点与球之间的距离求出合适的 击球力度 kp系数需要调节   By Umbrella 2022 06
+function getball(role,playerVel,inter_flag,target_point)
+	return function()
+		if player.infraredCount(role) < 5 then
+		local flag = inter_flag or 0
+		local playerPos = CGeoPoint:new_local( player.pos(role):x(),player.pos(role):y())
+		local inter_pos = Utils.GetBestInterPos(vision,playerPos,playerVel,flag)
+		
+		local idir = player.toBallDir(role)
+		local ipos = ball.pos()
+		if inter_pos:x()  ==  -param.INF or inter_pos:y()  == -param.INF then
+			ipos = ball.pos()
+		else
+			ipos = inter_pos
+		end
+		ipos = CGeoPoint:new_local(ipos:x(),ipos:y())
+		local mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = 0x00000100, rec = r, vel = v }
+				return { mexe, mpos }
+		end
+	end
+
+end
+
+
+
+function power (p,Kp) --根据目标点与球之间的距离求出合适的 击球力度 kp系数需要调节   By Umbrella 2022 06
 	return function()
 		local p1
 		if type(p) == 'function' then
@@ -32,23 +56,20 @@ function power(p, Kp) --根据目标点与球之间的距离求出合适的 击�
 			p1 = p
 		end
 		local res = Kp * (p1 - ball.pos()):mod()
-		-- if res > 310 then
-		-- 	res = 310
-		-- end
-		-- if res < 230 then
-		-- 	res = 230
-		-- end
+		if res > 310 then
+			res = 310
+		end
+		if res < 230 then
+			res = 230
+		end
 
-		-- if Kp == -1 then
-		-- 	res = 130
+		-- if res > 7000 then
+		-- 	res = 7000
 		-- end
-		if res > 7000 then
-			res = 7000
-		end
-		if res < 3400 then
-			res = 3400
-		end
-		debugEngine:gui_debug_msg(CGeoPoint:new_local(-4300, -2000), res, 3)
+		-- if res < 3400 then
+		-- 	res = 3400
+		-- end
+		debugEngine:gui_debug_msg(CGeoPoint:new_local(-4300,-2000),res,3)
 		return res
 	end
 end
@@ -231,10 +252,6 @@ function pointToPointAngleSub(p, p2) -- 检测 某座标点  球  playe 是否�
 	return sub
 end
 
-function trackingDefenderPos()
-
-end
-
 --- ///  /// --- /// /// --- /// /// --- /// /// --- /// /// ---
 
 --			               HU-ROCOS-2024   	                 ---
@@ -271,7 +288,7 @@ function touchKick(p, ifInter, power, mode)
 	local ipower = function()
 		return power or 127
 	end
-	return { mexe, mpos, mode and kick.flat or kick.chip, idir, pre.low, ipower, cp.full, flag.nothing }
+	return { mexe, mpos, mode and kick.flat, idir, pre.low, ipower, cp.full, flag.nothing }
 end
 
 function goSpeciPos(p, d, f, a) -- 2014-03-26 增加a(加速度参数)
@@ -377,6 +394,34 @@ end
 
 ------------------------------------ 防守相关的skill ---------------------------------------
 -- TODO
+
+function trackingDefenderPos(posType)
+	return function()
+		local mexe, mpos
+
+		UpdataTickMessage(1, 2)
+
+		local p
+		local hitPoint = Utils.ComputeCrossPENALTY(GlobalMessage.Tick.ball)
+		local distanceDT = Utils.ComputeDistance(GlobalMessage.Tick.ball,hitPoint)
+		local POS_NULL = CGeoPoint:new_local(0, 0)
+
+		if hitPoint ~= POS_NULL then
+			if "l" == posType then
+				p = CGeoPoint:new_local(hitPoint.x(), hitPoint.y() + distanceDT )
+				mexe, mpos = GoCmuRush { pos = p }
+			elseif "m" == posType then
+				p = hitPoint
+				mexe, mpos = GoCmuRush { pos = p }
+			elseif "r" == posType then
+				p = CGeoPoint:new_local(hitPoint.x(), hitPoint.y() - distanceDT)
+				mexe, mpos = GoCmuRush { pos = p }
+			end
+			return { mexe, mpos }
+		end
+	end
+end
+
 ----------------------------------------- 其他动作 --------------------------------------------
 
 -- p为朝向，如果p传的是pos的话，不需要根据ball.antiY()进行反算

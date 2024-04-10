@@ -16,7 +16,7 @@ module(..., package.seeall)
 -- widthRatio	= 1.5
 -- stopRatio = 1.1
 
-
+INF = 1e9
 maxPlayer   = 16
 pitchLength = 9000
 pitchWidth  = 6000

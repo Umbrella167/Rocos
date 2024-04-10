@@ -89,12 +89,12 @@ void Defender::plan(const CVisionModule *pVision, const GlobalTick tick)
 }
 
 /**
- * 根据球的位置动态调整后卫间距离
- * @param  {MobileVisionT} ball : 球
+ * 根置动态调整后卫间距离
+ @pam  {MobileVisionT} ball : 球    
  * @param  {CGeoPoint} hitPoint : 交点
  * @return {double}             : 两后卫之间距离
  */
-double ComputeDistance(MobileVisionT ball, CGeoPoint hitPoint)
+double ComputeDistance(MobileVisionT ball, CGeoPoint  )
 {
     double ballDis = ball.Pos().dist(hitPoint);
     if (ballDis > PARAM::Field::PITCH_WIDTH / 2)
@@ -113,9 +113,9 @@ double ComputeDistance(MobileVisionT ball, CGeoPoint hitPoint)
 CGeoPoint ComputeCrossPENALTY(MobileVisionT ball)
 {
     CGeoLineLineIntersection intersection(FIELD_PENALTYBOR, {ball.Pos(), ball.Vel().dir()}); // 获取球运动姿态的交点
-    if (true == intersection.Intersectant)
+    if (true == intersection.Intersectant())
     {
-        return intersection.IntersectPoint;
+        return intersection.IntersectPoint();
     }
     return {NULL, NULL};
 }
