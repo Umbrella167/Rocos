@@ -347,9 +347,9 @@ namespace Utils
      * @param pVision
      */
     void getPlayerToDistTimeData(const CVisionModule *pVision){
-        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(2000, 1500), "v:"+to_string(pVision->ball().Vel().mod()));
-        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(2000, 2000), "playerNum:"+to_string(pVision -> getValidNum()));
-        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(2000, 2500), "player0Vel:"+to_string(pVision -> ourPlayer(0).Vel().mod()));
+//        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(2000, 1500), "v:"+to_string(pVision->ball().Vel().mod()));
+//        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(2000, 2000), "playerNum:"+to_string(pVision -> getValidNum()));
+//        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(2000, 2500), "player0Vel:"+to_string(pVision -> ourPlayer(0).Vel().mod()));
     }
 
     /**

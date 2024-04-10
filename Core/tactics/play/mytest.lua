@@ -101,10 +101,10 @@ shootKp = 0.0001
 pass_pos = CGeoPoint:new_local(4500,-999)
 function UpdataTickMessage(defend_num1,defend_num2)
 	GlobalMessage.Tick = Utils.UpdataTickMessage(vision,defend_num1,defend_num2)
-	dribbling_player_num = GlobalMessage.Tick.our.dribbling_num
+	dribbling_player_num = -1
 	ball_rights = GlobalMessage.Tick.ball.rights
 	if ball_rights == 1 then
-		
+		dribbling_player_num = GlobalMessage.Tick.our.dribbling_num
 		pass_player_num = GlobalMessage.Tick.task[dribbling_player_num].max_confidence_pass_num
 		pass_pos = CGeoPoint:new_local(player.posX(pass_player_num),player.posY(pass_player_num))
 		shoot_pos = GlobalMessage.Tick.task[dribbling_player_num].shoot_pos
@@ -358,6 +358,9 @@ firstState = "Init",
 		UpdataTickMessage(defend_num1,defend_num2)
 		if(task.playerDirToPointDirSub("Assister",correction_pos) < error_dir) then 
 				return correction_state
+		end
+		if (bufcnt(true,200)) then
+			return "GetGlobalMessage"
 		end
 	end,
 	Assister = task.getball("Assister",4,1,correctionPos()),--task.GetBallV2("Assister",correctionPos()),
