@@ -277,7 +277,7 @@ namespace Utils
 
         double maxTolerance = -inf;
         double minTime = inf;
-//        GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(0,-1000),to_string(playerPos.x()) + "   " +to_string(playerPos.y()));
+        //        GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(0,-1000),to_string(playerPos.x()) + "   " +to_string(playerPos.y()));
         for (int dist = 0; dist < maxDist; dist += 100)
         {
             //            GetBallToDistTime(pVision, dist);
@@ -295,7 +295,7 @@ namespace Utils
 
             if (tolerance >= 0)
             {
-//                GDebugEngine::Instance()->gui_debug_line(playerPos, ballPrePos);
+                //                GDebugEngine::Instance()->gui_debug_line(playerPos, ballPrePos);
                 // 记录最快截球点
                 if (getBallTime < minTime)
                 {
@@ -1221,31 +1221,31 @@ namespace Utils
      * @param  {CGeoPoint} hitPoint : 交点
      * @return {double}             : 两后卫之间距离
      */
-//    double ComputeDistance(MobileVisionT ball, CGeoPoint hitPoint)
-//    {
-//        double ballDis = ball.Pos().dist(hitPoint);
-//        if (ballDis > PARAM::Field::PITCH_WIDTH / 2)
-//            return DEFAULT_DISTANCE_MAX;
-//        else if (ballDis < PARAM::Field::PENALTY_AREA_DEPTH)
-//            return DEFAULT_DISTANCE_MIN;
-//        else
-//            return DEFAULT_DISTANCE_MIN + (DEFAULT_DISTANCE_MAX - DEFAULT_DISTANCE_MIN) * (ballDis / (PARAM::Field::PITCH_WIDTH / 2 - PARAM::Field::PENALTY_AREA_DEPTH));
-//    }
+    double ComputeDistance(MobileVisionT ball, CGeoPoint hitPoint)
+    {
+        double ballDis = ball.Pos().dist(hitPoint);
+        if (ballDis > PARAM::Field::PITCH_WIDTH / 2)
+            return DEFAULT_DISTANCE_MAX;
+        else if (ballDis < PARAM::Field::PENALTY_AREA_DEPTH)
+            return DEFAULT_DISTANCE_MIN;
+        else
+            return DEFAULT_DISTANCE_MIN + (DEFAULT_DISTANCE_MAX - DEFAULT_DISTANCE_MIN) * (ballDis / (PARAM::Field::PITCH_WIDTH / 2 - PARAM::Field::PENALTY_AREA_DEPTH));
+    }
 
     /**
      * 球方向与禁区边的交点
      * @param  {MobileVisionT} ball : 球
      * @return {CGeoPoint}          : {NULL, NULL} 时表示无交点
      */
-//    CGeoPoint ComputeCrossPENALTY(MobileVisionT ball)
-//    {
-//        CGeoLineLineIntersection intersection(FIELD_PENALTYBOR, {ball.Pos(), ball.Vel().dir()}); // 获取球运动姿态的交点
-//        if (true == intersection.Intersectant())
-//        {
-//            return intersection.IntersectPoint();
-//        }
-//        return {NULL, NULL};
-//    }
+    CGeoPoint ComputeCrossPENALTY(MobileVisionT ball)
+    {
+        CGeoLineLineIntersection intersection(FIELD_PENALTYBOR, {ball.Pos(), ball.Vel().dir()}); // 获取球运动姿态的交点
+        if (true == intersection.Intersectant())
+        {
+            return intersection.IntersectPoint();
+        }
+        return {NULL, NULL};
+    }
 
     /****************************
      *                           *
