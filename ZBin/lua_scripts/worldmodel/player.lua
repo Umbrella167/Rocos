@@ -52,7 +52,22 @@ function name(role)
 	return retNum
 end
 
-
+function canTouch(role,shoot_pos,interPos)
+			local p
+		if type(shoot_pos) == 'function' then
+	  		p = shoot_pos()
+		else
+	  		
+	  		 p = shoot_pos
+		end
+	local ball_dir = 90 + ball.velDir() * 57.3
+	local shoot_dir = 90 + (p-pos(role)):dir() * 57.3
+	local touch_dir = 180 - (ball_dir - shoot_dir)
+	touch_dir = 180 - (ball_dir-shoot_dir); 
+	-- touch_dir = pos(role):y() < ball.posY() and 360 - touch_dir or touch_dir
+	debugEngine:gui_debug_msg(CGeoPoint:new_local(-4000,-2500),touch_dir,3)
+	return touch_dir
+end
 
 function pos(role)
 	return instance(role):Pos()

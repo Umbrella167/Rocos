@@ -90,10 +90,11 @@ dribbling_player_num = 1
 -- 球权初始化
 ballRights = -1
 -- 射门坐标初始化
-shoot_pos = CGeoPoint:new_local(4500,-999)
+shoot_pos = CGeoPoint:new_local(4500,0)
 -- 被传球机器人
 pass_player_num = 0
 
+shootKp = 0.0001
 
 pass_pos = CGeoPoint:new_local(4500,-999)
 function UpdataTickMessage(defend_num1,defend_num2)
@@ -131,20 +132,24 @@ firstState = "Init",
 ["GetGlobalMessage"] = {
 	switch = function()
 		
-		UpdataTickMessage(1,2) 	  -- 更新帧信息
+		UpdataTickMessage(7,8) 	  -- 更新帧信息
 		status.getGlobalStatus(0)  -- 获取全局状态，进攻状态为传统
 		if task.ball_rights == 1 then	-- 我方球权的情况 获取进攻状态
-		UpdataTickMessage(1,2)
-			-- dribblingStatus -> [shoot,dribbling,XXpassToPlayerXX]
+		UpdataTickMessage(7,8)
+		-- 	-- dribblingStatus -> [shoot,dribbling,XXpassToPlayerXX]
 			status.getPlayerRunPos()	-- 获取跑位点
 			dribblingStatus = status.getPlayerStatus(dribbling_player_num)	-- 获取带球机器人状态
-			debugEngine:gui_debug_msg(CGeoPoint(3000,2800),dribblingStatus)
-			-- return dribblingStatus
+			debugEngine:gui_debug_msg(CGeoPoint(3000,2800),dribbling_player_num .. "   ".. dribblingStatus)
+			if dribblingStatus == "NOTHING" then
+				return "defendOtherState"
+			else
+				return dribblingStatus
+			end
 
 		elseif ball_rights == -1 then   	-- 敌方球权情况，一个抢球，其余防守
-			-- return "defendState"
+			return "defendNormalState"
 		else 								-- 顶牛 或 未定义情况 一个抢球，其余跑位
-			-- return "defendState"
+			return "defendOtherState"
 		end
 		runPos("Special")
 		debugStatus()
@@ -163,7 +168,7 @@ firstState = "Init",
 	switch = function()
 		UpdataTickMessage(1,2) 
 		if(player.infraredCount("Assister") < 20) then
-			return "defendState"
+			return "defendOtherState"
 		end
 		if(task.playerDirToPointDirSub("Assister",shoot_pos) > error_dir) then 
 			CorrectionPos = shoot_pos
@@ -175,7 +180,7 @@ firstState = "Init",
 			return "GetGlobalMessage"
 		end
 	end,
-	Assister = task.ShootdotV2(shootPos(),0.02,error_dir,kick.flat),
+	Assister = task.ShootdotV2(shootPos(),shootKp,error_dir,kick.flat),
 	Kicker = task.stop(),
 	Special = task.stop(),
 	Tier = task.stop(),
@@ -201,7 +206,7 @@ firstState = "Init",
 		end
 
 	end,
-	Assister = task.Shootdot(passPos(),0.02,error_dir,kick.flat),
+	Assister = task.Shootdot(passPos(),shootKp,error_dir,kick.flat),
 	Kicker = task.goCmuRush(runPos("Kicker"),closures_dir_ball("Kicker")),
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 	Tier = task.stop(),
@@ -263,8 +268,8 @@ firstState = "Init",
 },
 
 
--- 防守 顶牛
-["defendState"] = {
+-- 防守 - 顶牛
+["defendOtherState"] = {
 	switch = function()
 		if(player.infraredCount("Assister") > 10) then
 			return "GetGlobalMessage"
@@ -283,7 +288,25 @@ firstState = "Init",
 	match = "{AKSTDG}"
 },
 
-
+-- 防守 盯防
+["defendNormalState"] = {
+	switch = function()
+		if(player.infraredCount("Assister") > 10) then
+			return "GetGlobalMessage"
+		end
+		if (bufcnt(true,200)) then
+			return "GetGlobalMessage"
+		end
+		-- debugEngine:gui_debug_msg(passPos,dribblingStatus)
+	end,
+	Assister = task.GetBallV2("Assister",CGeoPoint:new_local(0,0),8,3000),
+	Kicker = task.goCmuRush(runPos("Kicker"),closures_dir_ball("Kicker")),
+	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
+	Tier = task.stop(),
+	Defender = task.stop(),
+	Goalie = task.stop(),
+	match = "{AKSTDG}"
+},
 
 
 -- 方向校正

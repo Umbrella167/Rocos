@@ -851,7 +851,7 @@ namespace Utils
                             min_dist_to_player = dist;
                         }
                     }
-                    grade = grade - 0.3 * (1 - NumberNormalize(min_dist_to_player,1300,500));
+                    grade = grade - 0.8 * (1 - NumberNormalize(min_dist_to_player,1300,500));
                     grade = grade - 0.8 * (1 - NumberNormalize(x,1500,0));
 //                    std::ostringstream stream;
 //                    stream << std::fixed << std::setprecision(2) << grade;
