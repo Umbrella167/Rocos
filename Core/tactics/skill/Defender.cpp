@@ -89,8 +89,8 @@ void Defender::plan(const CVisionModule *pVision, const GlobalTick tick)
 }
 
 /**
- * 根据球的位置动态调整后卫间距离
- * @param  {MobileVisionT} ball : 球
+ * 根置动态调整后卫间距离
+ @pam  {MobileVisionT} ball : 球    
  * @param  {CGeoPoint} hitPoint : 交点
  * @return {double}             : 两后卫之间距离
  */

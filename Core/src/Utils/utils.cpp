@@ -37,11 +37,11 @@ namespace Utils
 
         return to_string(1); // FIXME: 字符串可能还是抽象了点，到时候看看修一下
     }
+
     /**
      * 全局视觉、物理信息保存
      * @param  {CVisionModule*} pVision : 视觉模块
      */
-
     GlobalTick UpdataTickMessage(const CVisionModule *pVision, int defend_player_num1, int defend_player_num2)
     {
         CWorldModel RobotSensor;
@@ -858,13 +858,13 @@ namespace Utils
                             min_dist_to_player = dist;
                         }
                     }
-                    grade = grade - 0.8 * (1 - NumberNormalize(min_dist_to_player,1300,500));
-                    grade = grade - 0.8 * (1 - NumberNormalize(x,1500,0));
-//                    std::ostringstream stream;
-//                    stream << std::fixed << std::setprecision(2) << grade;
-//                    std::string a_str = stream.str();
-//                    GDebugEngine::Instance() ->gui_debug_x(CGeoPoint(x,y),3);
-//                    GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(x,y),a_str,3,0,80);
+                    grade = grade - 0.8 * (1 - NumberNormalize(min_dist_to_player, 1300, 500));
+                    grade = grade - 0.8 * (1 - NumberNormalize(x, 1500, 0));
+                    //                    std::ostringstream stream;
+                    //                    stream << std::fixed << std::setprecision(2) << grade;
+                    //                    std::string a_str = stream.str();
+                    //                    GDebugEngine::Instance() ->gui_debug_x(CGeoPoint(x,y),3);
+                    //                    GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(x,y),a_str,3,0,80);
                     if (max_grade < grade)
                     {
                         max_grade = grade;
