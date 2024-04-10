@@ -23,8 +23,26 @@ module(..., package.seeall)
 -- 	return shoot_pos
 -- end
 
-function getball(role,inter_flag,)
-	-- body
+function getball(role,playerVel,inter_flag,target_point)
+	return function()
+		if player.infraredCount(role) < 5 then
+		local flag = inter_flag or 0
+		local playerPos = CGeoPoint:new_local( player.pos(role):x(),player.pos(role):y())
+		local inter_pos = Utils.GetBestInterPos(vision,playerPos,playerVel,flag)
+		
+		local idir = player.toBallDir(role)
+		local ipos = ball.pos()
+		if inter_pos:x()  ==  -param.INF or inter_pos:y()  == -param.INF then
+			ipos = ball.pos()
+		else
+			ipos = inter_pos
+		end
+		ipos = CGeoPoint:new_local(ipos:x(),ipos:y())
+		local mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = 0x00000100, rec = r, vel = v }
+				return { mexe, mpos }
+		end
+	end
+
 end
 
 

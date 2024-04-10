@@ -64,28 +64,28 @@ namespace Utils
     extern double PosToPosDistGrade(double x, double y, double x1, double y1, int dir = 1, std::string model = "GAUSS");                  // 坐标到坐标的距离评分
     extern double NumberNormalizeGauss(double data, double max_data, double min_data, double peak_pos, std::string model = "DOUBLELINE"); // [0,1] 高斯归一化
     extern double PosSafetyGrade(const CVisionModule *pVision, CGeoPoint start, CGeoPoint end, std::string model = "SHOOT");              // 路径安全性评分
+    extern CGeoPoint GetBestInterPos(const CVisionModule *pVision, CGeoPoint playerPos, double playerVel, int flag);
+//    /* =============== Defence =============== */
+//    /* 球场信息 */
+//    /* 己方半场信息 */
+//    const int FIELD_X_MIN = -PARAM::Field::PITCH_LENGTH / 2 + PARAM::Field::PENALTY_AREA_DEPTH;
+//    const int FIELD_X_MAX = 0;
+//    const int FIELD_Y_MIN = -PARAM::Field::PITCH_WIDTH / 2;
+//    const int FIELD_Y_MAX = PARAM::Field::PITCH_WIDTH / 2;
 
-    /* =============== Defence =============== */
-    /* 球场信息 */
-    /* 己方半场信息 */
-    const int FIELD_X_MIN = -PARAM::Field::PITCH_LENGTH / 2 + PARAM::Field::PENALTY_AREA_DEPTH;
-    const int FIELD_X_MAX = 0;
-    const int FIELD_Y_MIN = -PARAM::Field::PITCH_WIDTH / 2;
-    const int FIELD_Y_MAX = PARAM::Field::PITCH_WIDTH / 2;
+//    const CGeoLine FIELD_BOR[3] = {
+//        {{FIELD_X_MIN, PARAM::Field::PENALTY_AREA_WIDTH / 2}, {FIELD_X_MIN, -PARAM::Field::PENALTY_AREA_WIDTH / 2}},
+//        {{PARAM::Field::PITCH_LENGTH / 2, PARAM::Field::PENALTY_AREA_WIDTH / 2}, {FIELD_X_MIN, PARAM::Field::PENALTY_AREA_WIDTH / 2}},
+//        {{-PARAM::Field::PITCH_LENGTH / 2, PARAM::Field::PENALTY_AREA_WIDTH / 2}, {FIELD_X_MIN, PARAM::Field::PENALTY_AREA_WIDTH / 2}}};
+//    const CGeoLine FIELD_PENALTYBOR({FIELD_X_MIN, PARAM::Field::PENALTY_AREA_WIDTH / 2}, {FIELD_X_MIN, -PARAM::Field::PENALTY_AREA_WIDTH / 2}); // 禁区所在直线
 
-    const CGeoLine FIELD_BOR[3] = {
-        {{FIELD_X_MIN, PARAM::Field::PENALTY_AREA_WIDTH / 2}, {FIELD_X_MIN, -PARAM::Field::PENALTY_AREA_WIDTH / 2}},
-        {{PARAM::Field::PITCH_LENGTH / 2, PARAM::Field::PENALTY_AREA_WIDTH / 2}, {FIELD_X_MIN, PARAM::Field::PENALTY_AREA_WIDTH / 2}},
-        {{-PARAM::Field::PITCH_LENGTH / 2, PARAM::Field::PENALTY_AREA_WIDTH / 2}, {FIELD_X_MIN, PARAM::Field::PENALTY_AREA_WIDTH / 2}}};
-    const CGeoLine FIELD_PENALTYBOR({FIELD_X_MIN, PARAM::Field::PENALTY_AREA_WIDTH / 2}, {FIELD_X_MIN, -PARAM::Field::PENALTY_AREA_WIDTH / 2}); // 禁区所在直线
+//    /* 禁区信息 */
 
-    /* 禁区信息 */
-
-    /* 球员默认站位信息 */
-    const CGeoPoint DEFAULT_STAND_POS(FIELD_X_MIN, PARAM::Field::PENALTY_AREA_WIDTH / 2);
-    const double DEFAULT_STAND_DIR = 0;
-    const double DEFAULT_DISTANCE_MAX = PARAM::FILED::PENALTY_AREA_WIDTH; // 两个后卫之间的最大距离
-    const double DEFAULT_DISTANCE_MIN = 200.0;                            // 两个后卫之间的最小距离
+//    /* 球员默认站位信息 */
+//    const CGeoPoint DEFAULT_STAND_POS(FIELD_X_MIN, PARAM::Field::PENALTY_AREA_WIDTH / 2);
+//    const double DEFAULT_STAND_DIR = 0;
+//    const double DEFAULT_DISTANCE_MAX = PARAM::FILED::PENALTY_AREA_WIDTH; // 两个后卫之间的最大距离
+//    const double DEFAULT_DISTANCE_MIN = 200.0;                            // 两个后卫之间的最小距离
 
     extern double ComputeDistance(MobileVisionT ball, CGeoPoint hitPoint);
     extern CGeoPoint ComputeCrossPENALTY(MobileVisionT ball);
