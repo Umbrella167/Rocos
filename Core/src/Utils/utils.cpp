@@ -19,6 +19,7 @@
 GlobalTick Tick[PARAM::Tick::TickLength];
 int now = PARAM::Tick::TickLength - 1;
 int last = PARAM::Tick::TickLength - 2;
+const int inf = 1e9;
 namespace Utils
 {
     // 没写完 START
@@ -45,8 +46,8 @@ namespace Utils
     GlobalTick UpdataTickMessage(const CVisionModule *pVision,int defend_player_num1,int defend_player_num2){
         CWorldModel RobotSensor;
         int oldest = 0;
-        double our_min_dist = 9999;
-        double their_min_dist = 9999;
+        double our_min_dist = inf;
+        double their_min_dist = inf;
         ///记录帧信息
         for (int i = oldest; i < PARAM::Tick::TickLength -1;i++){
             Tick[i] = Tick[i+1];
@@ -151,7 +152,7 @@ namespace Utils
             CGeoSegment BallLine(start, end);
             //model SHOOT
             double dist = 0;
-            double min_dist = 99999;
+            double min_dist = inf;
             int min_num = 0;
             double grade = 0;
             for(int i = 0;i < Tick[now].their.player_num;i++)
@@ -175,7 +176,7 @@ namespace Utils
             double ball_max_speed = 4;
             double robot_max_speed = 1.5;
             double safty_grade;
-            double their_min_time = 9999;
+            double their_min_time = inf;
             double their_min_num = 0;
             double enemy_to_ball_time = 0;
             CGeoSegment ball_line(start,end);
@@ -222,11 +223,11 @@ namespace Utils
 
     /**
      * 获取球运动的最远距离
-     * @brief GetBestInterPos
+     * @brief GetBallMaxDist
      * @param pVision
      * @return
      */
-    double GetBestInterPos(const CVisionModule *pVision){
+    double GetBallMaxDist(const CVisionModule *pVision){
         double a = PARAM::Field::V_DECAY_RATE;
         double v = pVision ->ball().Vel().mod();
         double maxT = v / a;
@@ -256,21 +257,21 @@ namespace Utils
 
     /**
      * 获取相对某坐标最佳截球点（动态：球在运动过程中）
-     * @brief BestGetBallPos
+     * @brief GetBestInterPos
      * @param pVision
      * @param playerPos
      * @param playerVel
      * @param flag 不同模式（默认0）,0-最早能拿到球的截球点，1-时间最充裕的截球点
      * @return
      */
-    CGeoPoint BestGetBallPos(const CVisionModule *pVision, CGeoPoint playerPos, double playerVel, int flag=0)
+    CGeoPoint GetBestInterPos(const CVisionModule *pVision, CGeoPoint playerPos, double playerVel, int flag=0)
     {
-        double maxDist = GetBestInterPos(pVision);
-        CGeoPoint maxTolerancePos = CGeoPoint(99999, 99999);
-        CGeoPoint minGetBallPos = CGeoPoint(99999, 99999);
+        double maxDist = GetBallMaxDist(pVision);
+        CGeoPoint maxTolerancePos = CGeoPoint(inf, inf);
+        CGeoPoint minGetBallPos = CGeoPoint(inf, inf);
 
-        double maxTolerance = -1;
-        double minTime = 999999;
+        double maxTolerance = -inf;
+        double minTime = inf;
 
         for(int dist=0;dist<maxDist;dist+=100){
 //            GetBallToDistTime(pVision, dist);
@@ -283,10 +284,10 @@ namespace Utils
             double getBallTime = GetBallToDistTime(pVision, dist);
             double tolerance = getBallTime - t;
 
+            if(maxTolerance != -inf && tolerance < 0)break;
 
             if(tolerance >= 0){
-                GDebugEngine::Instance()->gui_debug_line(playerPos, ballPrePos);
-
+//                GDebugEngine::Instance()->gui_debug_line(playerPos, ballPrePos);
                 // 记录最快截球点
                 if(getBallTime < minTime){
                     minTime = getBallTime;
@@ -297,34 +298,34 @@ namespace Utils
                     maxTolerance = tolerance;
                     maxTolerancePos = ballPrePos;
                 }
-                GDebugEngine::Instance()->gui_debug_x(ballPrePos, 2);
+//                GDebugEngine::Instance()->gui_debug_x(ballPrePos, 2);
             }
-
-//            playerToBallDist
-
-            GDebugEngine::Instance()->gui_debug_msg(ballPrePos, to_string(GetBallToDistTime(pVision, dist)),1,10);
-            GDebugEngine::Instance()->gui_debug_x(ballPrePos);
+//            GDebugEngine::Instance()->gui_debug_msg(ballPrePos, to_string(GetBallToDistTime(pVision, dist)),1,10);
+//            GDebugEngine::Instance()->gui_debug_x(ballPrePos);
         }
 
-        if(maxTolerance != -1){
+        if(maxTolerance != -inf){
             switch(flag){
                 case 0:
-                   GDebugEngine::Instance()->gui_debug_line(playerPos, minGetBallPos,5,1);
+//                   GDebugEngine::Instance()->gui_debug_line(playerPos, minGetBallPos,5,1);
                    return minGetBallPos;
                    break;
                 case 1:
-                   GDebugEngine::Instance()->gui_debug_line(playerPos, maxTolerancePos,5,1);
+//                   GDebugEngine::Instance()->gui_debug_line(playerPos, maxTolerancePos,5,1);
                    return maxTolerancePos;
                    break;
                 default :
+                   return CGeoPoint(-inf, -inf);
                    break;
             }
-
-
         }
-        return pVision ->ball().Pos() + Polar2Vector(maxDist, pVision ->ball().Vel().dir());
+        return CGeoPoint(-inf, -inf);
     }
 
+
+    double PlayerToDistTime(const CVisionModule *pVision, CGeoPoint playerPos, double playerV, CGeoPoint target, double targetV){
+
+    }
     /**
      * 坐标到坐标之间的时间
      * @param  {CGeoPoint} start_pos : 起始位置
@@ -491,8 +492,8 @@ namespace Utils
         }
 
         //Debug
-//        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(0,0), "testmsg");
-//        GDebugEngine::Instance()->gui_debug_x(BestGetBallPos(pVision));
+        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(0,0), "testmsg");
+        GDebugEngine::Instance()->gui_debug_x(GetBestInterPos(pVision, CGeoPoint(0, 0), 2, 0));
 
         for(int i = 0;i < PARAM::Field::MAX_PLAYER;i++)
         {
@@ -547,7 +548,7 @@ namespace Utils
         double grade_shoot;
         double safty_grade;
         double grade;
-        double their_min_dist = 9999;
+        double their_min_dist = inf;
         double their_min_num = 0;
         CGeoPoint player_pos = pVision ->ourPlayer(dribbling_num).Pos();
         //获取射门点
@@ -555,7 +556,7 @@ namespace Utils
         Tick[now].task[dribbling_num].shoot_pos = shoot_pos;
         grade_shoot = Tick[now].globalData.confidence_shoot;
         //如果算不到射门点直接返回 0
-        if (shoot_pos.y() == -999 || player_pos.x() > 4000) return 0;
+        if (shoot_pos.y() == -inf || player_pos.x() > 4000) return 0;
         CGeoSegment ball_line(player_pos,shoot_pos);
         int count = 0;
         // 获取敌方距离截球点最近的车，过滤在球线以后的车
@@ -609,13 +610,13 @@ namespace Utils
         double grade_shoot;
         double safty_grade;
         double grade;
-        double their_min_dist = 9999;
+        double their_min_dist = inf;
         double their_min_num = 0;
         //获取射门点
         CGeoPoint shoot_pos = GetShootPoint(pVision,player_pos.x(),player_pos.y());
         grade_shoot = Tick[now].globalData.confidence_shoot;
         //如果算不到射门点直接返回 0
-        if (shoot_pos.y() == -999 || player_pos.x() > 4000) return 0;
+        if (shoot_pos.y() == -inf || player_pos.x() > 4000) return 0;
         CGeoSegment ball_line(player_pos,shoot_pos);
         int count = 0;
         // 获取敌方距离截球点最近的车，过滤在球线以后的车
@@ -732,7 +733,7 @@ namespace Utils
         int WIDTH = (PARAM::Field::PITCH_WIDTH / 2) - 350;
         int step = 230;
         double grade = 0;
-        double max_grade = -999;
+        double max_grade = -inf;
         CGeoPoint max_grade_point = CGeoPoint(0,0);
         CGeoPoint max_shoot_point = CGeoPoint(0,0);
 
@@ -744,7 +745,7 @@ namespace Utils
                 CGeoPoint now_pos = CGeoPoint(x,y);
                 CGeoPoint shoot_pos = GetShootPoint(pVision,x,y);
 
-                if( shoot_pos.y() == -999 || InExclusionZone(now_pos)  || !isValidPass(pVision,now_pos,shoot_pos))
+                if( shoot_pos.y() == -inf || InExclusionZone(now_pos)  || !isValidPass(pVision,now_pos,shoot_pos))
                     continue;
                 // 一传一touch的射门位计算
                 if (!double_flag)
@@ -810,8 +811,8 @@ namespace Utils
         //传球安全度评分
         double pass_safty_grade;
         double grade = 0.0;
-        double max_grade = -999;
-        double min_dist_to_player = 9999;
+        double max_grade = -inf;
+        double min_dist_to_player = inf;
         CGeoPoint max_grade_pos;
 
         // 圆心
@@ -827,7 +828,7 @@ namespace Utils
                 CGeoPoint pos(x,y);
                 CGeoPoint shoot_pos = GetShootPoint(pVision, x,y);
                 // 如果 无有效射门点 或 点位在禁区 或 传球路径被挡住 或 射门路径被挡住  跳过该点
-                if(!InField(pos) || shoot_pos.y() == -999 || InExclusionZone(pos) || (!isValidPass(pVision,dribbling_player_pos,CGeoPoint(x,y),PARAM::Player::playerBuffer)) || !isValidPass(pVision,pos,shoot_pos,PARAM::Player::playerBuffer)) continue;
+                if(!InField(pos) || shoot_pos.y() == -inf || InExclusionZone(pos) || (!isValidPass(pVision,dribbling_player_pos,CGeoPoint(x,y),PARAM::Player::playerBuffer)) || !isValidPass(pVision,pos,shoot_pos,PARAM::Player::playerBuffer)) continue;
 
                 if (pos.dist2(player_pos) < radius * radius)
                 {
@@ -895,8 +896,8 @@ namespace Utils
         double pos_to_pos_dir_grade = 0;
         double pos_safety_grade = 0;
         double grade = 0;
-        double max_grade = -999;
-        double max_y = -999;
+        double max_grade = -inf;
+        double max_y = -inf;
         double x1 = PARAM::Field::PITCH_LENGTH / 2 + PARAM::Field::GOAL_DEPTH / 2;
         for (int y1 = -1 * PARAM::Field::GOAL_WIDTH * 0.4; y1 < PARAM::Field::GOAL_WIDTH * 0.4; y1 += 50)
         {
@@ -926,8 +927,8 @@ namespace Utils
         double player_to_pos_dir_grade = 0;
         double pos_safety_grade = 0;
         double grade = 0;
-        double max_grade = -999;
-        double max_y = -999;
+        double max_grade = -inf;
+        double max_y = -inf;
         double x1 = PARAM::Field::PITCH_LENGTH / 2 + PARAM::Field::GOAL_DEPTH / 2;
         for (int y1 = -1 * PARAM::Field::GOAL_WIDTH * 0.4; y1 < PARAM::Field::GOAL_WIDTH * 0.4; y1 += 50)
         {
