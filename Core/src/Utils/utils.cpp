@@ -266,7 +266,7 @@ namespace Utils
      * @param pVision
      * @param playerPos
      * @param playerVel
-     * @param flag 不同模式（默认0）,0-最早能拿到球的截球点，1-时间最充裕的截球点
+     * @param flag 不同模式（默认0）,0-最早能拿到球的截球点，1-时间最充裕的截球点, 2- (0,1)方案取中点
      * @return
      */
     CGeoPoint GetBestInterPos(const CVisionModule *pVision, CGeoPoint playerPos, double playerVel, int flag)
@@ -282,12 +282,12 @@ namespace Utils
         {
             //            GetBallToDistTime(pVision, dist);
             CGeoPoint ballPrePos = pVision->ball().Pos() + Polar2Vector(dist, pVision->ball().Vel().dir());
-            GDebugEngine::Instance()->gui_debug_x(playerPos, 2);
+//            GDebugEngine::Instance()->gui_debug_x(playerPos, 2);
 
             double playerToBallDist = playerPos.dist(ballPrePos);
-            double t = (playerToBallDist / playerVel) * 10;
+            double t = (playerToBallDist / playerVel) * 10 / 1000;
 
-            double getBallTime = GetBallToDistTime(pVision, dist);
+            double getBallTime = GetBallToDistTime(pVision, dist) / 1000;
             double tolerance = getBallTime - t;
 
             if (maxTolerance != -inf && tolerance < 0)
@@ -310,7 +310,9 @@ namespace Utils
                 }
                 //                GDebugEngine::Instance()->gui_debug_x(ballPrePos, 2);
             }
-            //            GDebugEngine::Instance()->gui_debug_msg(ballPrePos, to_string(GetBallToDistTime(pVision, dist)),1,10);
+//            GDebugEngine::Instance()->gui_debug_msg(ballPrePos, to_string(getBallTime),3,0,90);
+//            GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(ballPrePos.x() + 1000,ballPrePos.y()), to_string(t),4,0,90);
+//            GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(ballPrePos.x() + 2000,ballPrePos.y()), to_string(tolerance),1,0,90);
             //            GDebugEngine::Instance()->gui_debug_x(ballPrePos);
         }
 
@@ -319,12 +321,16 @@ namespace Utils
             switch (flag)
             {
             case 0:
-                                   GDebugEngine::Instance()->gui_debug_line(playerPos, minGetBallPos,5,1);
+//                                   GDebugEngine::Instance()->gui_debug_line(playerPos, minGetBallPos,5,1);
                 return minGetBallPos;
                 break;
             case 1:
-                                   GDebugEngine::Instance()->gui_debug_line(playerPos, maxTolerancePos,5,1);
+//                                   GDebugEngine::Instance()->gui_debug_line(playerPos, maxTolerancePos,5,1);
                 return maxTolerancePos;
+                break;
+
+            case 2:
+                return CGeoPoint((minGetBallPos.x() + maxTolerancePos.x())/2, (minGetBallPos.y() + maxTolerancePos.y())/2);
                 break;
             default:
                 return CGeoPoint(-inf, -inf);

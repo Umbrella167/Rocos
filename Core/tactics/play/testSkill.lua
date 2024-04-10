@@ -26,9 +26,11 @@ firstState = "readyShoot",
 
 ["readyShoot"] = {
 	switch = function()
+		-- local pos1 = Utils.GetBestInterPos(vision,playerPos(),4,2)
 
-		local pos1 = Utils.GetBestInterPos(vision,playerPos(),0,1)
-		debugEngine:gui_debug_msg(CGeoPoint:new_local(0,0),pos1:x() .. "  " .. pos1:y())
+		-- debugEngine:gui_debug_x(pos1,3)
+
+		-- debugEngine:gui_debug_msg(CGeoPoint:new_local(0,0),pos1:x() .. "  " .. pos1:y())
 		-- Utils.UpdataTickMessage(vision,1,2)
 		-- Utils.GlobalComputingPos(vision)
 		-- player.canTouch("Assister",CGeoPoint:new_local(4500,0))
@@ -37,7 +39,7 @@ firstState = "readyShoot",
 		-- 	return "Shoot"
 		-- end
 	end,
-	Assister = task.getball("Assister",3,1),--task.GetBallV2("Assister",CGeoPoint(4500,0)),
+	Assister = task.touchKick(_,_,500,kick.flat);--task.getball("Assister",6,2),--task.GetBallV2("Assister",CGeoPoint(4500,0)),
 
 	match = "[AKS]{TDG}"
 },

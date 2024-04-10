@@ -288,7 +288,7 @@ function touchKick(p, ifInter, power, mode)
 	local ipower = function()
 		return power or 127
 	end
-	return { mexe, mpos, mode and kick.flat or kick.chip, idir, pre.low, ipower, cp.full, flag.nothing }
+	return { mexe, mpos, mode and kick.flat, idir, pre.low, ipower, cp.full, flag.nothing }
 end
 
 function goSpeciPos(p, d, f, a) -- 2014-03-26 增加a(加速度参数)
