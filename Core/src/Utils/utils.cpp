@@ -238,8 +238,8 @@ namespace Utils
         double maxT = v / a;
         double maxDist = a * maxT * maxT;
 
-        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(1000, 1500), "v:" + to_string(v));
-        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(1000, 1000), "d:" + to_string(maxDist));
+//        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(1000, 1500), "v:"+to_string(v));
+//        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(1000, 1000), "d:"+to_string(maxDist));
         return maxDist;
     }
 
@@ -340,9 +340,35 @@ namespace Utils
         return CGeoPoint(-inf, -inf);
     }
 
-    double PlayerToDistTime(const CVisionModule *pVision, CGeoPoint playerPos, double playerV, CGeoPoint target, double targetV)
-    {
+    /**
+     * NOTE: temp
+     * 临时函数，用于采集玩家数据
+     * @brief getPlayerToDistTimeData
+     * @param pVision
+     */
+    void getPlayerToDistTimeData(const CVisionModule *pVision){
+        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(2000, 1500), "v:"+to_string(pVision->ball().Vel().mod()));
+        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(2000, 2000), "playerNum:"+to_string(pVision -> getValidNum()));
+        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(2000, 2500), "player0Vel:"+to_string(pVision -> ourPlayer(0).Vel().mod()));
     }
+
+    /**
+     * 获取player到某点的时间
+     * @brief GetPlayerToDistTime
+     * @param pVision
+     * @param playerPos
+     * @param playerV
+     * @param target
+     * @param targetV
+     * @return
+     */
+    double GetPlayerToDistTime(const CVisionModule *pVision, CGeoPoint playerPos, CVector playerV, CGeoPoint target, CVector targetV){
+
+        getPlayerToDistTimeData(pVision);
+        return 0;
+    }
+
+
     /**
      * 坐标到坐标之间的时间
      * @param  {CGeoPoint} start_pos : 起始位置
@@ -508,9 +534,10 @@ namespace Utils
             }
         }
 
-        // Debug
-        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(0, 0), "testmsg");
-        GDebugEngine::Instance()->gui_debug_x(GetBestInterPos(pVision, CGeoPoint(0, 0), 2, 0));
+        //Debug
+//        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(0,0), "testmsg0");
+//        GDebugEngine::Instance()->gui_debug_x(GetBestInterPos(pVision, CGeoPoint(0, 0), 2, 0));
+        GetPlayerToDistTime(pVision, CGeoPoint(0, 0), pVision->ourPlayer(0).Vel(), CGeoPoint(1000, 1000), pVision->ball().Vel());
 
         for (int i = 0; i < PARAM::Field::MAX_PLAYER; i++)
         {
