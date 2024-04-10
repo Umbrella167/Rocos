@@ -83,6 +83,14 @@ function UpdataTickMessage(defend_num1,defend_num2)
 		shoot_pos = CGeoPoint(shoot_pos:x(),shoot_pos:y())
 	end
 end
+
+initPos = function()
+	return function()
+		return GeoPoint(math.random(-4000, 4000), math.random(-2500, 2500))
+	end
+end
+
+
 gPlayTable.CreatePlay{
 
 firstState = "Init",
@@ -90,17 +98,18 @@ firstState = "Init",
 
 ["Init"] = {
 	switch = function()
+		Utils.getInitData(vision, 1);
 		
-		if bufcnt(true,20) then
-			return "GetGlobalMessage"
-		end
+		-- if bufcnt(true,20) then
+			-- return "GetGlobalMessage"
+		-- end
 	end,
-	Assister = task.stop(),
-	Kicker = task.stop(),
-	Special = task.stop(),
-	Tier = task.stop(),
-	Defender = task.stop(),
-	Goalie = task.stop(),
+	Assister = task.getInitData("Assister", CGeoPoint(0, 0)),
+	-- Kicker = task.stop(),
+	-- Special = task.stop(),
+	-- Tier = task.stop(),
+	-- Defender = task.stop(),
+	-- Goalie = task.stop(),
 	match = "[AKS]{TDG}"
 },
 

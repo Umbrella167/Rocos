@@ -146,7 +146,6 @@ namespace Utils
         */
         if (model == "SHOOT")
         {
-
             // ConfidencePass()
             CGeoSegment BallLine(start, end);
             // model SHOOT
@@ -321,35 +320,44 @@ namespace Utils
             switch (flag)
             {
             case 0:
-//                                   GDebugEngine::Instance()->gui_debug_line(playerPos, minGetBallPos,5,1);
+//                GDebugEngine::Instance()->gui_debug_line(playerPos, minGetBallPos,5,1);
                 return minGetBallPos;
                 break;
             case 1:
-//                                   GDebugEngine::Instance()->gui_debug_line(playerPos, maxTolerancePos,5,1);
+//                GDebugEngine::Instance()->gui_debug_line(playerPos, maxTolerancePos,5,1);
                 return maxTolerancePos;
                 break;
-
             case 2:
-                return CGeoPoint((minGetBallPos.x() + maxTolerancePos.x())/2, (minGetBallPos.y() + maxTolerancePos.y())/2);
-                break;
-            default:
-                return CGeoPoint(-inf, -inf);
+                CGeoPoint posMid = CGeoPoint((minGetBallPos.x() + maxTolerancePos.x())/2, (minGetBallPos.y() + maxTolerancePos.y())/2);
+//                GDebugEngine::Instance()->gui_debug_line(posMid, maxTolerancePos,5,1);
+                return posMid;
                 break;
             }
         }
-        return CGeoPoint(-inf, -inf);
+        return CGeoPoint(inf, inf);
     }
 
     /**
-     * NOTE: temp
      * 临时函数，用于采集玩家数据
-     * @brief getPlayerToDistTimeData
+     * @brief getInitData
      * @param pVision
+     * @param flag
      */
-    void getPlayerToDistTimeData(const CVisionModule *pVision){
-        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(2000, 1500), "v:"+to_string(pVision->ball().Vel().mod()));
-        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(2000, 2000), "playerNum:"+to_string(pVision -> getValidNum()));
-        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(2000, 2500), "player0Vel:"+to_string(pVision -> ourPlayer(0).Vel().mod()));
+    int getInitData(const CVisionModule *pVision, int flag=1){
+        int debugInt = 0;
+
+        int ourPlayerNums = pVision -> getValidNum();
+        int theirPlayerNums = pVision -> getTheirValidNum();
+        CGeoPoint player0Pos = pVision -> ourPlayer(0).Pos();
+        CVector player0Vel = pVision -> ourPlayer(0).Vel();
+
+
+
+//        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(-2000, 1000+150*(debugInt++)), "ballVel:"+to_string(pVision->ball().Vel().mod()));
+//        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(-2000, 1000+150*(debugInt++)), "test:"+to_string(CVector(0, 0).dir())+"     "+to_string(CVector(0, 0).mod()));
+        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(-3000, 1000+150*(debugInt++)), "player0Pos:"+to_string(player0Pos.x())+"  "+to_string(player0Pos.y()));
+        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(-3000, 1000+150*(debugInt++)), "player0VelMod:"+to_string(pVision -> ourPlayer(0).Vel().mod())+"  player0VelDir"+to_string(player0Vel.dir()));
+        return 0;
     }
 
     /**
@@ -362,9 +370,8 @@ namespace Utils
      * @param targetV
      * @return
      */
-    double GetPlayerToDistTime(const CVisionModule *pVision, CGeoPoint playerPos, CVector playerV, CGeoPoint target, CVector targetV){
+    double GetPlayerToDistTime(const CVisionModule *pVision, CGeoPoint playerPos, CVector playerV, CGeoPoint target, CVector targetV=CVector(0, 0)){
 
-        getPlayerToDistTimeData(pVision);
         return 0;
     }
 
