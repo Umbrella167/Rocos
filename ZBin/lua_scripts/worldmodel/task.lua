@@ -148,10 +148,11 @@ function Getballv4(role, p)
 	end
 end
 
-function TurnToPoint(role, p)
+function TurnToPoint(role, p, speed)
 	--参数说明
-	--role   使用这个函数的角色
-	--p	     指向坐标
+	-- role 	 使用这个函数的角色
+	-- p	     指向坐标
+	-- speed	 旋转速度
 	return function()
 		local p1 = p
 		if type(p) == 'function' then
@@ -159,19 +160,59 @@ function TurnToPoint(role, p)
 		else
 			p1 = p
 		end
-		if ball.velMod() > 1000 then
-			local ball_line = CGeoLine:new_local(ball.pos(), ball.velDir())
-			local target_pos = ball_line:projection(player.pos(role))
-			local mexe, mpos = GoCmuRush { pos = target_pos, dir = (ball.pos() - player.pos(role)):dir(), acc = a, flag = 0x00000100, rec = r, vel = v }
+		if speed == nil then
+			speed = 300
+		end
+		local playerPos = player.pos(role)
+		local playerDir = player.dir(role)
+		local playerToBallDist = player.toBallDist(role)
+		local playerToBallDir = (ball.pos() - player.pos(role)):dir()
+		local playerToTargetDir = (p - player.pos(role)):dir()
+		local ballPos = ball.pos()
+		local ballToTargetDir = (p - ball.pos()):dir()
+		local subPlayerBallToTargetDir = playerToTargetDir - ballToTargetDir
+		-- Debug
+		-- debugEngine:gui_debug_msg(CGeoPoint(-3000, 1000+150*0), string.format("playerDir:         	   %6.3f", playerDir),param.BLUE)
+		-- debugEngine:gui_debug_msg(CGeoPoint(-3000, 1000+150*1), string.format("playerToBallDir:         %6.3f", playerToBallDir),param.BLUE)
+		-- debugEngine:gui_debug_msg(CGeoPoint(-3000, 1000+150*2), string.format("playerToTargetDir:       %6.3f", playerToTargetDir),param.BLUE)
+		-- debugEngine:gui_debug_msg(CGeoPoint(-3000, 1000+150*3), math.abs(playerDir-playerToTargetDir)*57.3)
+		-- debugEngine:gui_debug_msg(CGeoPoint(-3000, 1000+150*4), string.format("playerToBallDist:       %6.3f", playerToBallDist),param.BLUE)
+		-- debugEngine:gui_debug_msg(CGeoPoint(-3000, 1000+150*5), string.format("sub:       %6.3f", ballToTargetDir-playerToTargetDir),param.BLUE)
+		-- debugEngine:gui_debug_x(p)
+    	
+		-- 逆时针旋转
+		local idirLeft = (playerDir+param.PI/2)>param.PI and playerDir-(3/2)*param.PI or playerDir+param.PI/2 
+		-- 顺时针旋转
+		local idirRight = (playerDir-param.PI/2)>param.PI and playerDir+(3/2)*param.PI or playerDir-param.PI/2
+
+		-- if math.abs(playerDir-playerToTargetDir) > 0.14 or math.abs(playerDir-playerToBallDir) > 0.40 then
+		if math.abs(playerDir-playerToTargetDir) > 0.14 then
+			if subPlayerBallToTargetDir > 0 then
+				-- 逆时针旋转
+				debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "0")
+				local target_pos = playerPos+Utils.Polar2Vector(speed, idirLeft)+Utils.Polar2Vector(2*playerToBallDist, playerToBallDir)
+				debugEngine:gui_debug_x(target_pos)
+				local mexe, mpos = GoCmuRush { pos = target_pos, dir = playerToBallDir, acc = a, flag = 0x00000100, rec = r, vel = v }
+				return { mexe, mpos }
+			end
+			-- 顺时针旋转
+			debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "1")
+			local target_pos = playerPos+Utils.Polar2Vector(speed, idirRight)+Utils.Polar2Vector(2*playerToBallDist, playerToBallDir)
+			debugEngine:gui_debug_x(target_pos)
+			local mexe, mpos = GoCmuRush { pos = target_pos, dir = playerToBallDir, acc = a, flag = 0x00000100, rec = r, vel = v }
 			return { mexe, mpos }
-			-- elseif ball.velMod() > 2000 and ball.velMod() < 2000  and (ball.pos() - player.pos(role)):mod() > 150 then
-			-- 	local mexe, mpos = GoCmuRush{pos = ball.pos() + Utils.Polar2Vector(100,(player.pos(role) - ball.pos()):dir()), dir = (ball.pos() - player.pos(role)):dir(), acc = a, flag = 0x00000100,rec = r,vel = v}
-			-- 	return {mexe, mpos}
-		else
-			local mexe, mpos = GoCmuRush { pos = p1, dir = (ball.pos() - player.pos(role)):dir(), acc = 1300, flag = 0x00000100, rec = r, vel = v }
+		-- else
+		elseif playerToBallDist>1000 then
+			-- 这个不知道为什么这样写就不会报错
+			debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "2")
+			local mexe, mpos = GoCmuRush { pos = ballPos, dir = playerToTargetDir, acc = a, flag = 0x00000100, rec = r, vel = v }
 			return { mexe, mpos }
+		-- else
+		-- 	debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "3")
+		-- 	return Shootdot(p1, 0.0001, 4, kick.flat)
 		end
 	end
+		
 end
 
 function ShootdotV2(p, Kp, error_, flag)
