@@ -72,27 +72,26 @@ namespace Utils
             if (pVision->ourPlayer(i).Valid())
             {
                 num_count+=1;
-                // 获取有效机器人
-                Tick[now].our.player[i] = i;
+
                 // 我方距离球最近的车号
                 double to_ball_dist = pVision->ourPlayer(i).Pos().dist(Tick[now].ball.pos);
                 if (our_min_dist > to_ball_dist)
                     our_min_dist = to_ball_dist, Tick[now].our.to_balldist_min_num = i;
                 // 获取我方守门员
-                if (InExclusionZone(pVision->ourPlayer(Tick[now].our.player[i]).Pos()))
+                if (InExclusionZone(pVision->ourPlayer(i).Pos()))
                     Tick[now].our.goalie_num = i;
             }
 
             if (pVision->theirPlayer(i).Valid())
             {
                 // 获取有效机器人
-                Tick[now].their.player[i] = i;
+
                 // 敌方距离球最近的车号
                 double to_ball_dist = pVision->theirPlayer(i).Pos().dist(Tick[now].ball.pos);
                 if (their_min_dist > to_ball_dist)
                     their_min_dist = to_ball_dist, Tick[now].their.to_balldist_min_num = i;
                 // 获取敌方守门员
-                if (InExclusionZone(pVision->theirPlayer(Tick[now].their.player[i]).Pos()))
+                if (InExclusionZone(pVision->theirPlayer(i).Pos()))
                     Tick[now].their.goalie_num = i;
             }
         }
@@ -996,11 +995,12 @@ namespace Utils
                         pass_grade = pass_grade - 0.4 * (1 - NumberNormalize(pVision->ourPlayer(num).Pos().x(), 1000, -500));
                     grade = 0.15 * pass_grade + 0.2 * pass_safty_grade + 0.05 * shoot_dir_grade + 0.6 * shoot_dist_grade;
 
-                    for (int j = 0; j < Tick[now].our.player_num; j++)
+                    for (int j = 0; j < PARAM::Field::MAX_PLAYER; j++)
                     {
-                        if (Tick[now].our.player[j] == Tick[now].our.goalie_num || Tick[now].our.player[j] == num)
+                        if (!pVision ->ourPlayer(j).Valid()) continue;
+                        if (j == Tick[now].our.goalie_num || j == num)
                             continue;
-                        double dist = pos.dist(pVision->ourPlayer(Tick[now].our.player[j]).Pos());
+                        double dist = pos.dist(pVision->ourPlayer(j).Pos());
                         if (min_dist_to_player > dist)
                         {
                             min_dist_to_player = dist;

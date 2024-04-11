@@ -106,7 +106,7 @@ touchPower = 400
 
 -- 后卫号码
 defend_num1 = 9
-defend_num2 = 2
+defend_num2 = 8
 
 -- 射门Kp
 shootKp = 0.09
