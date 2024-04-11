@@ -416,51 +416,69 @@ end
 --[[ 防守 ]]
 function defender_defence(role)
 	return function()
-		local mexe, mpos = nil, nil
-		local ipos, idir = nil, d and d or dir.shoot()
+		Utils.UpdataTickMessage(vision, DEFENDER_NUM1, DEFENDER_NUM2)
 
-		role = "number" == type(role) and player:name("role") or role -- type(role) == "string"
+		local mexe, mpos = nil, nil
+		local ipos, idir = "Defender" == role and DEFENDER_INITPOS_DEFENDER or DEFENDER_INITPOS_TIER,
+			player.toBallDir(role)
+
 		local ROLE_DEFENDER = "Defender"
 		local ROLE_TIER = "Tier"
 		local role_major = player.toBallDist(ROLE_DEFENDER) < player.toBallDist(ROLE_TIER) and ROLE_DEFENDER
-			or ROLE_TIER                 -- defender
+			or ROLE_TIER -- defender
 		local role_minor = role_major == ROLE_DEFENDER and ROLE_TIER
-			or ROLE_DEFENDER             -- tier
+			or ROLE_DEFENDER -- tier
 
-		if player.toBallDist(role) < 1000 then -- 可抢球
-			mexe, mpos = Touch { pos = pos.ourGoal() }
-		elseif player.toBallDist(role) < 4000 then
-			-- local distanceDT = Utils.ComputeDistance(hitPoint)
-			local hitPoint = Utils.ComputeCrossPENALTY()
+		role = player.name(role)
+
+		if player.toBallDist(role) < DEFENDER_SAFEDISTANCE / 2 or ball.pos():x() < -param.pitchLength / 2 + param.penaltyDepth then -- 可抢球机会
+			if role == role_major then
+				local ipos = pos.theirGoal()
+				local idir = function(runner)
+					return (_c(ipos) - player.pos(runner)):dir()
+				end
+				local mexe, mpos = Touch { pos = ipos, useInter = ifInter }
+				local ipower = function()
+					return power or 127
+				end
+				return { mexe, mpos, mode and kick.flat or kick.chip, idir, pre.low, ipower, cp.full, flag.nothing }
+			end
+		elseif player.toBallDist(role) < DEFENDER_SAFEDISTANCE * 2 then -- 准备防御
+			-- local distanceDT = Utils.DEFENDER_ComputeDistance(hitPoint)
+			local hitPoint = Utils.DEFENDER_ComputeCrossPenalty()
 			local POS_NULL = CGeoPoint:new_local(0, 0)
 
-			if hitPoint ~= POS_NULL then
-				if role == role_major then
-					ipos = hitPoint
-				elseif role == role_minor then
-					-- 如果检测到有可能有敌人出现，那么需要回防
-					if player.toPlayerDist(utils.closestPlayer(role_minor == ROLE_DEFENDER and DEFENDER_INITPOS_DEFENDER or DEFENDER_INITPOS_TIER, 2, player:num(role))) < DEFENDER_SAFEDISTANCE then
-						ipos = enemy.pos(role) + Utils.Polar2Vector(300, (ball.pos() - enemy.pos(role)):dir())
-					else -- 不然就跟着 role_major
-						ipos = CGeoPoint:new_local(player.pos(role_major).x(),
-							player.pos(role_major).y() + role == ROLE_TIER and -DEFENDER_DEFAULT_DISTANCE_MIN
-							or DEFENDER_DEFAULT_DISTANCE_MIN)
-					end
-				end
+			-- if hitPoint ~= POS_NULL then
+			-- 	if role == role_major then
+			-- 		ipos = hitPoint
+			-- 	elseif role == role_minor then
+
+
+			debugEngine:gui_debug_msg(
+				CGeoPoint:new_local(DEFENDER_DEBUG_POSITION_X,
+					DEFENDER_DEBUG_POSITION_Y),
+				enemy.pos(role):x() .. " " .. enemy.pos(role):y())
+
+			-- 如果检测到有可能有敌人出现，那么需要回防
+			if player.toPlayerDist(role, player.name(Utils.closestPlayerToPoint(vision, role_minor == ROLE_DEFENDER and DEFENDER_INITPOS_DEFENDER or DEFENDER_INITPOS_TIER, 2, player.num(role)))) < DEFENDER_SAFEDISTANCE then
+				ipos = enemy.pos(role) +
+					Utils.Polar2Vector(DEFENDER_SAFEDISTANCE / 4, (ball.pos() - enemy.pos(role)):dir())
+
+				-- 	else -- 不然就跟着 role_major
+				-- 		ipos = CGeoPoint:new_local(player.pos(role_major):x(),
+				-- 			player.pos(role_major):y() + (role == ROLE_TIER and -DEFENDER_DEFAULT_DISTANCE_MIN
+				-- 				or DEFENDER_DEFAULT_DISTANCE_MIN))
+				-- 	end
+				-- end
 
 				mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = f, rec = r, vel = v, speed = s, force_manual = force_manual }
+				return { mexe, mpos }
 			end
 		else
-			ipos = "Defender" == role and INITPOS_DEFENDER or INITPOS_TIER
-			mexe, mpos = GoCmuRush { pos = p, dir = idir, acc = a, flag = f, rec = r, vel = v, speed = s, force_manual = force_manual }
+			-- NOTE: 可以更加智能一些
+			mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = f, rec = r, vel = v, speed = s, force_manual = force_manual }
+			return { mexe, mpos }
 		end
-
-		return { mexe, mpos }
-
-		-- debugEngine:gui_debug_msg(
-		-- 	CGeoPoint:new_local(DEFENDER_DEBUG_POSITION_X,
-		-- 		DEFENDER_DEBUG_POSITION_Y),
-		-- 	tostring(distanceDT))
 	end
 end
 

@@ -18,8 +18,8 @@ namespace Utils{
 	CGeoPoint GetAttackPos(const CVisionModule *pVision,int num);
 
 	// Defence
-	int closestPlayer(int role, int type);
-	int closestPlayer(CGeoPoint pos, int type, int role = -1);
+	int closestPlayerToPlayer(const CVisionModule *pVision, int role, int type);
+	int closestPlayerToPoint(const CVisionModule *pVision, CGeoPoint pos, int type, int role = -1);
 
 	CGeoPoint DEFENDER_ComputeCrossPenalty();
 	double DEFENDER_ComputeDistance(CGeoPoint hitPoint);

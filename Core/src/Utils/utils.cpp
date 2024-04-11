@@ -271,7 +271,7 @@ namespace Utils
      */
     CGeoPoint GetBestInterPos(const CVisionModule *pVision, CGeoPoint playerPos, double playerVel, int flag)
     {
-        pVision double maxDist = GetBallMaxDist(pVision);
+        double maxDist = GetBallMaxDist(pVision);
         CGeoPoint maxTolerancePos = CGeoPoint(inf, inf);
         CGeoPoint minGetBallPos = CGeoPoint(inf, inf);
 
@@ -287,7 +287,7 @@ namespace Utils
             double playerToBallDist = playerPos.dist(ballPrePos);
             double t = (playerToBallDist / playerVel) * 10 / 1000;
 
-            double getBallTime = GetBallToDistTime(pVission, dist) / 1000;
+            double getBallTime = GetBallToDistTime(pVision, dist) / 1000;
             double tolerance = getBallTime - t;
 
             if (maxTolerance != -inf && tolerance < 0)
@@ -1254,9 +1254,9 @@ namespace Utils
      * @param  {int} type : 类型 0全局 1我方 2敌方
      * @return {int}      : 球员编号
      */
-    int closestPlayer(int role, int type)
+    int closestPlayerToPlayer(const CVisionModule *pVision, int role, int type)
     {
-        int no[3] = {-1, -1, -1};
+        int res[3] = {-1, -1, -1};
         double minDis[3] = {inf, inf, inf};
 
         for (int i = 0; i < PARAM::Field::MAX_PLAYER; i++)
@@ -1268,7 +1268,7 @@ namespace Utils
 
             if (pVision->ourPlayer(i).Valid())
             {
-                double dist = pVision->ourPlayer(i).Pos().dist(Tick[now].our.player[role].Pos());
+                double dist = pVision->ourPlayer(i).Pos().dist(pVision->ourPlayer(role).Pos());
                 if (dist < minDis[1])
                 {
                     res[1] = i;
@@ -1282,7 +1282,7 @@ namespace Utils
             }
             else if (pVision->theirPlayer(i).Valid())
             {
-                double dist = pVision->theirPlayer(i).Pos().dist(Tick[now].their.player[role].Pos());
+                double dist = pVision->theirPlayer(i).Pos().dist(pVision->ourPlayer(role).Pos());
                 if (dist < minDis[2])
                 {
                     res[2] = i;
@@ -1306,9 +1306,9 @@ namespace Utils
      * @param  {int} role = 1  : （可选）排除的球员编号
      * @return {int}           : 球员编号
      */
-    int closestPlayer(CGeoPoint pos, int type, int role)
+    int closestPlayerToPoint(const CVisionModule *pVision, CGeoPoint pos, int type, int role)
     {
-        int no[3] = {-1, -1, -1};
+        int res[3] = {-1, -1, -1};
         double minDis[3] = {inf, inf, inf};
 
         for (int i = 0; i < PARAM::Field::MAX_PLAYER; i++)
@@ -1325,29 +1325,28 @@ namespace Utils
                 {
                     res[1] = i;
                     minDis[1] = dist;
+                    if (dist < minDis[0])
+                    {
+                        res[0] = i;
+                        minDis[0] = dist;
+                    }
                 }
-                if (dist < minDis[0])
+                else if (pVision->theirPlayer(i).Valid())
                 {
-                    res[0] = i;
-                    minDis[0] = dist;
-                }
-            }
-            else if (pVision->theirPlayer(i).Valid())
-            {
-                double dist = pVision->theirPlayer(i).Pos().dist(pos);
-                if (dist < minDis[2])
-                {
-                    res[2] = i;
-                    minDis[2] = dist;
-                }
-                if (dist < minDis[0])
-                {
-                    res[0] = i;
-                    minDis[0] = dist;
+                    double dist = pVision->theirPlayer(i).Pos().dist(pos);
+                    if (dist < minDis[2])
+                    {
+                        res[2] = i;
+                        minDis[2] = dist;
+                    }
+                    if (dist < minDis[0])
+                    {
+                        res[0] = i;
+                        minDis[0] = dist;
+                    }
                 }
             }
         }
-
         return res[type];
     }
 
@@ -1357,15 +1356,14 @@ namespace Utils
      */
     CGeoPoint DEFENDER_ComputeCrossPenalty()
     {
-        CGeoLine ball_line(Tick[now].ball.pos, Tick[now].ball.vel_dir); // 球的运动路径
-
+        CGeoLine ball_line(Tick[now].ball.pos, Tick[now].ball.vel_dir);              // 球的运动路径
         CGeoLineLineIntersection intersection(DEFENDER_FIELD_PENALTYBOR, ball_line); // 获取球运动姿态的交点
         if (intersection.Intersectant())
         {
-            if (intersection.IntersectPoint().y > -DEFENDER_FIELD_Y_BOR && intersection.IntersectPoint().y < DEFENDER_FIELD_Y_BOR)
-                return intersection.IntersectPoint();
-
+            // if (intersection.IntersectPoint().y() > -DEFENDER_FIELD_Y_BOR / 2 && intersection.IntersectPoint().y() < DEFENDER_FIELD_Y_BOR / 2)
+            // {
             return intersection.IntersectPoint();
+            // }
         }
 
         return {0, 0}; // 无焦点
