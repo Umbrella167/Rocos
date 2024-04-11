@@ -173,9 +173,9 @@ function TurnToPoint(role, p, speed)
 		local playerDir = player.dir(role)
 		local playerToBallDist = player.toBallDist(role)
 		local playerToBallDir = (ball.pos() - player.pos(role)):dir()
-		local playerToTargetDir = (p - player.pos(role)):dir()
-		local ballPos = ball.pos()
-		local ballToTargetDir = (p - ball.pos()):dir()
+		local playerToTargetDir = (p1 - player.pos(role)):dir()
+		local ballPos = CGeoPoint:new_local (ball.posX(),ball.posY())
+		local ballToTargetDir = (p1 - ball.pos()):dir()
 		local subPlayerBallToTargetDir = playerToTargetDir - ballToTargetDir
 		-- Debug
 		-- debugEngine:gui_debug_msg(CGeoPoint(-3000, 1000+150*0), string.format("playerDir:         	   %6.3f", playerDir),param.BLUE)
@@ -208,14 +208,16 @@ function TurnToPoint(role, p, speed)
 			local mexe, mpos = GoCmuRush { pos = target_pos, dir = playerToBallDir, acc = a, flag = 0x00000100, rec = r, vel = v }
 			return { mexe, mpos }
 		-- else
-		elseif playerToBallDist>1000 then
-			-- 这个不知道为什么这样写就不会报错
-			debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "2")
+		elseif playerToBallDist > 1 then
+			debugEngine:gui_debug_msg(CGeoPoint:new_local(1000, 1000), "2")
 			local mexe, mpos = GoCmuRush { pos = ballPos, dir = playerToTargetDir, acc = a, flag = 0x00000100, rec = r, vel = v }
 			return { mexe, mpos }
-		-- else
-		-- 	debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "3")
-		-- 	return Shootdot(p1, 0.0001, 4, kick.flat)
+		else
+			local idir = (p1 - player.pos(role)):dir()
+			local pp = player.pos(role) + Utils.Polar2Vector(0 + 10, idir)
+			local mexe, mpos = GoCmuRush { pos = pp, dir = idir, acc = 50, flag = 0x00000100 + 0x04000000, rec = 1, vel = v }
+			return { mexe, mpos }
+
 		end
 		-- NOTE: 这里两个if都不成立时没有写额外的操作，需要自行判断退出
 	end

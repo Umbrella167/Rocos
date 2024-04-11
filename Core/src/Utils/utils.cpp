@@ -711,7 +711,7 @@ namespace Utils
         Tick[now].task[dribbling_num].shoot_pos = shoot_pos;
         grade_shoot = Tick[now].globalData.confidence_shoot;
         // 如果算不到射门点直接返回 0
-        if (shoot_pos.y() == -inf || player_pos.x() > 4000)
+        if (shoot_pos.y() == -inf || player_pos.x() > PARAM::Field::PITCH_LENGTH / 2 * 0.9)
             return 0;
         CGeoSegment ball_line(player_pos, shoot_pos);
         int count = 0;

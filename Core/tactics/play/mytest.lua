@@ -411,8 +411,7 @@ firstState = "Init",
 			return "GetGlobalMessage"
 		end
 	end,
-	Assister = task.GetBallV2("Assister",correctionPos()),
-
+	Assister = task.TurnToPoint("Assister", correctionPos(),350),
 	Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker")),
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 	Tier = task.stop(),
