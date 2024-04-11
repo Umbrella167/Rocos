@@ -125,12 +125,31 @@ firstState = "Init",
 
 ["Init"] = {
 	switch = function()
-		Utils.GetBestInterPos(vision, playerPos("Assister")(), 4, 0)
+		UpdataTickMessage(defend_num1,defend_num2) 
+		-- Utils.GetBestInterPos(vision, playerPos("Assister")(), 4, 0)
+		if player.infraredCount("Assister") > 10 then
+			return "run1"
+		end
+	end,
+	Assister = task.GetBallV2("Assister", ballPos()),
+	-- Kicker = task.stop(),
+	-- Special = task.stop(),
+	-- Tier = task.stop(),
+	-- Defender = task.stop(),
+	-- Goalie = task.goalie(),
+	match = "[A][KS]{TDG}"
+},
+["run1"] = {
+	switch = function()
+		-- Utils.GetBestInterPos(vision, playerPos("Assister")(), 4, 0)
 		-- if bufcnt(true,20) then
-		-- 	return "GetGlobalMessage"
+		-- 	return "run1"
+		-- end
+		-- if bufcnt(true, 30) then
+		-- 	return "Init"
 		-- end
 	end,
-	Assister = task.stop(),
+	Assister = task.TurnToPoint("Assister", CGeoPoint:new_local(4500,0)),
 	-- Kicker = task.stop(),
 	-- Special = task.stop(),
 	-- Tier = task.stop(),
@@ -178,26 +197,29 @@ firstState = "Init",
 -- 射门
 ["Shoot"] = {
 	switch = function()
-		UpdataTickMessage(defend_num1,defend_num2)
-		if(player.infraredCount("Assister") < 20) then
-			return "defendOtherState"
-		end
-		if(task.playerDirToPointDirSub("Assister",shoot_pos) > error_dir) then 
-			correction_pos = shoot_pos
-			correction_state = "Shoot"
-			return "Correction"
-		end
+		-- UpdataTickMessage(defend_num1,defend_num2)
+		-- if(player.infraredCount("Assister") < 20) then
+		-- 	return "defendOtherState"
+		-- end
+		-- if(task.playerDirToPointDirSub("Assister",shoot_pos) > error_dir) then 
+		-- 	correction_pos = shoot_pos
+		-- 	correction_state = "Shoot"
+		-- 	return "Correction"
+		-- end
 
-		if(player.kickBall("Assister"))then 
-			return "GetGlobalMessage"
+		-- if(player.kickBall("Assister"))then 
+		-- 	return "GetGlobalMessage"
+		-- end
+		if bufcnt(true, 20) then
+			return "Init"
 		end
 	end,
 	Assister = task.ShootdotV2(shootPos(),shootKp,error_dir,kick.flat),
-	Kicker = task.stop(),
-	Special = task.stop(),
-	Tier = task.stop(),
-	Defender = task.stop(),
-	Goalie = task.goalie(),
+	-- Kicker = task.stop(),
+	-- Special = task.stop(),
+	-- Tier = task.stop(),
+	-- Defender = task.stop(),
+	-- Goalie = task.goalie(),
 	match = "{AKSTDG}"
 },
 

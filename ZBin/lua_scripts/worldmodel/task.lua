@@ -23,23 +23,23 @@ module(..., package.seeall)
 -- 	return shoot_pos
 -- end
 
-function getball(role,playerVel,inter_flag,target_point)
+function getball(role, playerVel, inter_flag, target_point)
 	return function()
 		if player.infraredCount(role) < 5 then
-		local flag = inter_flag or 0
-		local playerPos = CGeoPoint:new_local( player.pos(role):x(),player.pos(role):y())
-		local inter_pos = Utils.GetBestInterPos(vision,playerPos,playerVel,flag)
-		
-		local idir = player.toBallDir(role)
-		local ipos = ball.pos()
-		if inter_pos:x()  ==  -param.INF or inter_pos:y()  == -param.INF then
-			ipos = ball.pos()
-		else
-			ipos = inter_pos
-		end
-		ipos = CGeoPoint:new_local(ipos:x(),ipos:y())
-		local mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = 0x00000100, rec = r, vel = v }
-				return { mexe, mpos }
+			local flag = inter_flag or 0
+			local playerPos = CGeoPoint:new_local(player.pos(role):x(), player.pos(role):y())
+			local inter_pos = Utils.GetBestInterPos(vision, playerPos, playerVel, flag)
+
+			local idir = player.toBallDir(role)
+			local ipos = ball.pos()
+			if inter_pos:x() == -param.INF or inter_pos:y() == -param.INF then
+				ipos = ball.pos()
+			else
+				ipos = inter_pos
+			end
+			ipos = CGeoPoint:new_local(ipos:x(), ipos:y())
+			local mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = 0x00000100, rec = r, vel = v }
+			return { mexe, mpos }
 		else
 			local idir = (p1 - player.pos(role)):dir()
 			local pp = player.pos(role) + Utils.Polar2Vector(0 + 10, idir)
@@ -47,12 +47,9 @@ function getball(role,playerVel,inter_flag,target_point)
 			return { mexe, mpos }
 		end
 	end
-
 end
 
-
-
-function power(p,Kp) --根据目标点与球之间的距离求出合适的 击球力度 kp系数需要调节   By Umbrella 2022 06
+function power(p, Kp) --根据目标点与球之间的距离求出合适的 击球力度 kp系数需要调节   By Umbrella 2022 06
 	return function()
 		local p1
 		if type(p) == 'function' then
@@ -74,7 +71,7 @@ function power(p,Kp) --根据目标点与球之间的距离求出合适的 击�
 		if res < 3400 then
 			res = 3400
 		end
-		debugEngine:gui_debug_msg(CGeoPoint:new_local(-4300,-2000),res,3)
+		debugEngine:gui_debug_msg(CGeoPoint:new_local(-4300, -2000), res, 3)
 		return res
 	end
 end
@@ -151,10 +148,11 @@ function Getballv4(role, p)
 	end
 end
 
-function TurnToPoint(role, p)
+function TurnToPoint(role, p, speed)
 	--参数说明
-	--role   使用这个函数的角色
-	--p	     指向坐标
+	-- role 	 使用这个函数的角色
+	-- p	     指向坐标
+	-- speed	 旋转速度
 	return function()
 		local p1 = p
 		if type(p) == 'function' then
@@ -162,19 +160,60 @@ function TurnToPoint(role, p)
 		else
 			p1 = p
 		end
-		if ball.velMod() > 1000 then
-			local ball_line = CGeoLine:new_local(ball.pos(), ball.velDir())
-			local target_pos = ball_line:projection(player.pos(role))
-			local mexe, mpos = GoCmuRush { pos = target_pos, dir = (ball.pos() - player.pos(role)):dir(), acc = a, flag = 0x00000100, rec = r, vel = v }
-			return { mexe, mpos }
-			-- elseif ball.velMod() > 2000 and ball.velMod() < 2000  and (ball.pos() - player.pos(role)):mod() > 150 then
-			-- 	local mexe, mpos = GoCmuRush{pos = ball.pos() + Utils.Polar2Vector(100,(player.pos(role) - ball.pos()):dir()), dir = (ball.pos() - player.pos(role)):dir(), acc = a, flag = 0x00000100,rec = r,vel = v}
-			-- 	return {mexe, mpos}
-		else
-			local mexe, mpos = GoCmuRush { pos = p1, dir = (ball.pos() - player.pos(role)):dir(), acc = 1300, flag = 0x00000100, rec = r, vel = v }
-			return { mexe, mpos }
+		if speed == nil then
+			speed = 300
 		end
+		local playerPos = player.pos(role)
+		local playerDir = player.dir(role)
+		local playerToBallDist = player.toBallDist(role)
+		local playerToBallDir = (ball.pos() - player.pos(role)):dir()
+		local playerToTargetDir = (p - player.pos(role)):dir()
+		local ballPos = ball.pos()
+		local ballToTargetDir = (p - ball.pos()):dir()
+		local subPlayerBallToTargetDir = playerToTargetDir - ballToTargetDir
+		-- Debug
+		-- debugEngine:gui_debug_msg(CGeoPoint(-3000, 1000+150*0), string.format("playerDir:         	   %6.3f", playerDir),param.BLUE)
+		-- debugEngine:gui_debug_msg(CGeoPoint(-3000, 1000+150*1), string.format("playerToBallDir:         %6.3f", playerToBallDir),param.BLUE)
+		-- debugEngine:gui_debug_msg(CGeoPoint(-3000, 1000+150*2), string.format("playerToTargetDir:       %6.3f", playerToTargetDir),param.BLUE)
+		-- debugEngine:gui_debug_msg(CGeoPoint(-3000, 1000+150*3), math.abs(playerDir-playerToTargetDir)*57.3)
+		-- debugEngine:gui_debug_msg(CGeoPoint(-3000, 1000+150*4), string.format("playerToBallDist:       %6.3f", playerToBallDist),param.BLUE)
+		-- debugEngine:gui_debug_msg(CGeoPoint(-3000, 1000+150*5), string.format("sub:       %6.3f", ballToTargetDir-playerToTargetDir),param.BLUE)
+		-- debugEngine:gui_debug_x(p)
+    	
+		-- 逆时针旋转
+		local idirLeft = (playerDir+param.PI/2)>param.PI and playerDir-(3/2)*param.PI or playerDir+param.PI/2 
+		-- 顺时针旋转
+		local idirRight = (playerDir-param.PI/2)>param.PI and playerDir+(3/2)*param.PI or playerDir-param.PI/2
+
+		-- if math.abs(playerDir-playerToTargetDir) > 0.14 or math.abs(playerDir-playerToBallDir) > 0.40 then
+		if math.abs(playerDir-playerToTargetDir) > 0.14 then
+			if subPlayerBallToTargetDir > 0 then
+				-- 逆时针旋转
+				debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "0")
+				local target_pos = playerPos+Utils.Polar2Vector(speed, idirLeft)+Utils.Polar2Vector(2*playerToBallDist, playerToBallDir)
+				debugEngine:gui_debug_x(target_pos)
+				local mexe, mpos = GoCmuRush { pos = target_pos, dir = playerToBallDir, acc = a, flag = 0x00000100, rec = r, vel = v }
+				return { mexe, mpos }
+			end
+			-- 顺时针旋转
+			debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "1")
+			local target_pos = playerPos+Utils.Polar2Vector(speed, idirRight)+Utils.Polar2Vector(2*playerToBallDist, playerToBallDir)
+			debugEngine:gui_debug_x(target_pos)
+			local mexe, mpos = GoCmuRush { pos = target_pos, dir = playerToBallDir, acc = a, flag = 0x00000100, rec = r, vel = v }
+			return { mexe, mpos }
+		-- else
+		elseif playerToBallDist>1000 then
+			-- 这个不知道为什么这样写就不会报错
+			debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "2")
+			local mexe, mpos = GoCmuRush { pos = ballPos, dir = playerToTargetDir, acc = a, flag = 0x00000100, rec = r, vel = v }
+			return { mexe, mpos }
+		-- else
+		-- 	debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "3")
+		-- 	return Shootdot(p1, 0.0001, 4, kick.flat)
+		end
+		-- NOTE: 这里两个if都不成立时没有写额外的操作，需要自行判断退出
 	end
+		
 end
 
 function ShootdotV2(p, Kp, error_, flag)
@@ -398,30 +437,33 @@ function shoot(p, d, chip, power)
 end
 
 ------------------------------------ 防守相关的skill ---------------------------------------
--- TODO
+-- Defender
 
 function trackingDefenderPos(posType)
 	return function()
-		local mexe, mpos
-
-		UpdataTickMessage(1, 2)
-
-		local p
-		local hitPoint = Utils.ComputeCrossPENALTY(GlobalMessage.Tick.ball)
-		local distanceDT = Utils.ComputeDistance(GlobalMessage.Tick.ball,hitPoint)
+		local mexe, mpos = nil, nil
+		local p, idir = nil, dir.shoot()
+		local hitPoint = Utils.ComputeCrossPENALTY()
+		local distanceDT = Utils.ComputeDistance(hitPoint)
 		local POS_NULL = CGeoPoint:new_local(0, 0)
+
+		debugEngine:gui_debug_msg(
+			CGeoPoint:new_local(DEFENDER_DEBUG_POSITION_X,
+				DEFENDER_DEBUG_POSITION_Y),
+			tostring(distanceDT))
 
 		if hitPoint ~= POS_NULL then
 			if "l" == posType then
-				p = CGeoPoint:new_local(hitPoint.x(), hitPoint.y() + distanceDT )
-				mexe, mpos = GoCmuRush { pos = p }
+				p = CGeoPoint:new_local(hitPoint:x(),
+					hitPoint:y() + distanceDT / 2 < 2000 and hitPoint:y() + distanceDT / 2 or 2000)
 			elseif "m" == posType then
-				p = hitPoint
-				mexe, mpos = GoCmuRush { pos = p }
+				p = CGeoPoint:new_local(hitPoint:x(), hitPoint:y())
 			elseif "r" == posType then
-				p = CGeoPoint:new_local(hitPoint.x(), hitPoint.y() - distanceDT)
-				mexe, mpos = GoCmuRush { pos = p }
+				p = CGeoPoint:new_local(hitPoint:x(),
+					hitPoint:y() - distanceDT / 2 > -2000 and hitPoint:y() - distanceDT / 2 or -2000)
 			end
+
+			mexe, mpos = GoCmuRush { pos = p, dir = idir, acc = a, flag = f, rec = r, vel = v, speed = s, force_manual = force_manual }
 			return { mexe, mpos }
 		end
 	end
@@ -457,14 +499,13 @@ function openSpeed(vx, vy, vw, iflag)
 	return { mexe, mpos }
 end
 
-
 function getInitData(role, p)
 	return function()
 		debugEngine:gui_debug_msg(p, "targetIsHere")
 		if player.pos(role):dist(p) < 10 and player.velMod(role) < 11 then
 			p = CGeoPoint:new_local(math.random(-3200, 3200), math.random(-2500, 2500))
 		end
-		idir =  player.toPointDir(p, role)
+		idir = player.toPointDir(p, role)
 		local mexe, mpos = GoCmuRush { pos = p, dir = idir, acc = a, flag = f, rec = r, vel = v }
 
 		return { mexe, mpos }

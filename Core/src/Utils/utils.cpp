@@ -272,10 +272,16 @@ namespace Utils
     CGeoPoint GetBestInterPos(const CVisionModule *pVision, CGeoPoint playerPos, double playerVel, int flag)
     {
         double maxDist = GetBallMaxDist(pVision);
+        CGeoPoint maxBallPos = pVision->ball().Pos() + Polar2Vector(maxDist, pVision->ball().Vel().dir());
+        CGeoPoint maxAllowedBallPos = CGeoPoint(inf, inf);
         CGeoPoint maxTolerancePos = CGeoPoint(inf, inf);
         CGeoPoint minGetBallPos = CGeoPoint(inf, inf);
         double maxTolerance = -inf;
         double minTime = inf;
+
+        double timeWeight = 1.0;
+
+
         // 遍历每个点，寻找最有可能的截球点
         for (int dist = 0; dist < maxDist; dist += 100)
         {
@@ -284,14 +290,16 @@ namespace Utils
             double t = (playerToBallDist / playerVel) * 10 / 1000;
             double getBallTime = GetBallToDistTime(pVision, dist) / 1000;
             double tolerance = getBallTime - t;
+            // 判断是否在禁区
             if (InExclusionZone(ballPrePos))
                 continue;
-            if (maxTolerance != -inf && tolerance < 0)
+            if (maxTolerance != -inf && tolerance < 0 || !InField(ballPrePos))
                 break;
+
             // 可能截到球的点
             if (tolerance >= 0)
             {
-                GDebugEngine::Instance()->gui_debug_line(playerPos, ballPrePos);
+//                GDebugEngine::Instance()->gui_debug_line(playerPos, ballPrePos);
                 // 记录最快截球点
                 if (getBallTime < minTime)
                 {
@@ -306,10 +314,11 @@ namespace Utils
                 }
                 //                GDebugEngine::Instance()->gui_debug_x(ballPrePos, 2);
             }
+            maxAllowedBallPos = ballPrePos;
 //            GDebugEngine::Instance()->gui_debug_msg(ballPrePos, to_string(getBallTime),3,0,90);
 //            GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(ballPrePos.x() + 1000,ballPrePos.y()), to_string(t),4,0,90);
 //            GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(ballPrePos.x() + 2000,ballPrePos.y()), to_string(tolerance),1,0,90);
-              GDebugEngine::Instance()->gui_debug_x(ballPrePos);
+//            GDebugEngine::Instance()->gui_debug_x(ballPrePos);
         }
 
         // 返回结果
@@ -318,19 +327,32 @@ namespace Utils
             switch (flag)
             {
             case 0:
+                // 返回最小能拿到球的位置
                 GDebugEngine::Instance()->gui_debug_line(playerPos, minGetBallPos,5,1);
                 return minGetBallPos;
                 break;
             case 1:
+                // 返回最大容忍度的位置
                 GDebugEngine::Instance()->gui_debug_line(playerPos, maxTolerancePos,5,1);
                 return maxTolerancePos;
                 break;
             case 2:
+                // 返回0,1方案的中点
                 CGeoPoint posMid = CGeoPoint((minGetBallPos.x() + maxTolerancePos.x())/2, (minGetBallPos.y() + maxTolerancePos.y())/2);
                 GDebugEngine::Instance()->gui_debug_line(posMid, maxTolerancePos,5,1);
                 return posMid;
                 break;
             }
+        }
+        else if(InField(maxBallPos) && !InExclusionZone(maxBallPos)){
+            // 返回最远的球位置(场内)
+            GDebugEngine::Instance()->gui_debug_line(playerPos, maxBallPos,5,1);
+            return maxBallPos;
+        }
+        else{
+            // 返回最后一个预测球的位置
+            GDebugEngine::Instance()->gui_debug_line(playerPos, maxAllowedBallPos,5,1);
+            return maxAllowedBallPos;
         }
         return CGeoPoint(inf, inf);
     }
@@ -341,20 +363,19 @@ namespace Utils
      * @param pVision
      * @param flag
      */
-    int getInitData(const CVisionModule *pVision, int flag=1){
+    int getInitData(const CVisionModule *pVision, int flag = 1)
+    {
         int debugInt = 0;
 
-        int ourPlayerNums = pVision -> getValidNum();
-        int theirPlayerNums = pVision -> getTheirValidNum();
-        CGeoPoint player0Pos = pVision -> ourPlayer(0).Pos();
-        CVector player0Vel = pVision -> ourPlayer(0).Vel();
+        int ourPlayerNums = pVision->getValidNum();
+        int theirPlayerNums = pVision->getTheirValidNum();
+        CGeoPoint player0Pos = pVision->ourPlayer(0).Pos();
+        CVector player0Vel = pVision->ourPlayer(0).Vel();
 
-
-
-//        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(-2000, 1000+150*(debugInt++)), "ballVel:"+to_string(pVision->ball().Vel().mod()));
-//        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(-2000, 1000+150*(debugInt++)), "test:"+to_string(CVector(0, 0).dir())+"     "+to_string(CVector(0, 0).mod()));
-        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(-3000, 1000+150*(debugInt++)), "player0Pos:"+to_string(player0Pos.x())+"  "+to_string(player0Pos.y()));
-        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(-3000, 1000+150*(debugInt++)), "player0VelMod:"+to_string(pVision -> ourPlayer(0).Vel().mod())+"  player0VelDir"+to_string(player0Vel.dir()));
+        //        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(-2000, 1000+150*(debugInt++)), "ballVel:"+to_string(pVision->ball().Vel().mod()));
+        //        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(-2000, 1000+150*(debugInt++)), "test:"+to_string(CVector(0, 0).dir())+"     "+to_string(CVector(0, 0).mod()));
+        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(-3000, 1000 + 150 * (debugInt++)), "player0Pos:" + to_string(player0Pos.x()) + "  " + to_string(player0Pos.y()));
+        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(-3000, 1000 + 150 * (debugInt++)), "player0VelMod:" + to_string(pVision->ourPlayer(0).Vel().mod()) + "  player0VelDir" + to_string(player0Vel.dir()));
         return 0;
     }
 
@@ -368,11 +389,11 @@ namespace Utils
      * @param targetV
      * @return
      */
-    double GetPlayerToDistTime(const CVisionModule *pVision, CGeoPoint playerPos, CVector playerV, CGeoPoint target, CVector targetV=CVector(0, 0)){
+    double GetPlayerToDistTime(const CVisionModule *pVision, CGeoPoint playerPos, CVector playerV, CGeoPoint target, CVector targetV = CVector(0, 0))
+    {
 
         return 0;
     }
-
 
     /**
      * 坐标到坐标之间的时间
@@ -539,9 +560,9 @@ namespace Utils
             }
         }
 
-        //Debug
-//        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(0,0), "testmsg0");
-//        GDebugEngine::Instance()->gui_debug_x(GetBestInterPos(pVision, CGeoPoint(0, 0), 2, 0));
+        // Debug
+        //        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(0,0), "testmsg0");
+        //        GDebugEngine::Instance()->gui_debug_x(GetBestInterPos(pVision, CGeoPoint(0, 0), 2, 0));
         GetPlayerToDistTime(pVision, CGeoPoint(0, 0), pVision->ourPlayer(0).Vel(), CGeoPoint(1000, 1000), pVision->ball().Vel());
 
         for (int i = 0; i < PARAM::Field::MAX_PLAYER; i++)
@@ -1248,35 +1269,38 @@ namespace Utils
     // Defence
 
     /**
-     * 根据球的位置动态调整后卫间距离
-     * @param  {MobileVisionT} ball : 球
-     * @param  {CGeoPoint} hitPoint : 交点
-     * @return {double}             : 两后卫之间距离
-     */
-    double ComputeDistance(MobileVisionT ball, CGeoPoint hitPoint)
-    {
-        double ballDis = ball.Pos().dist(hitPoint);
-        if (ballDis > PARAM::Field::PITCH_WIDTH / 2)
-            return DEFAULT_DISTANCE_MAX;
-        else if (ballDis < PARAM::Field::PENALTY_AREA_DEPTH)
-            return DEFAULT_DISTANCE_MIN;
-        else
-            return DEFAULT_DISTANCE_MIN + (DEFAULT_DISTANCE_MAX - DEFAULT_DISTANCE_MIN) * (ballDis / (PARAM::Field::PITCH_WIDTH / 2 - PARAM::Field::PENALTY_AREA_DEPTH));
-    }
-
-    /**
      * 球方向与禁区边的交点
-     * @param  {MobileVisionT} ball : 球
-     * @return {CGeoPoint}          : {NULL, NULL} 时表示无交点
+     * @return {CGeoPoint} : {0, 0} 时表示无交点
      */
-    CGeoPoint ComputeCrossPENALTY(MobileVisionT ball)
+    CGeoPoint ComputeCrossPENALTY()
     {
-        CGeoLineLineIntersection intersection(FIELD_PENALTYBOR, {ball.Pos(), ball.Vel().dir()}); // 获取球运动姿态的交点
+        auto ball = Tick[now].ball;
+        CGeoLine ball_line(ball.pos, ball.vel_dir);
+
+        CGeoLineLineIntersection intersection(FIELD_PENALTYBOR, ball_line); // 获取球运动姿态的交点
         if (true == intersection.Intersectant())
         {
             return intersection.IntersectPoint();
         }
-        return {NULL, NULL};
+
+        return {0, 0};
+    }
+
+    /**
+     * 根据球的位置动态调整后卫间距离
+     * @param  {CGeoPoint} hitPoint : 交点
+     * @return {double}             : 两后卫之间距离
+     */
+    double ComputeDistance(CGeoPoint hitPoint)
+    {
+        auto ball = Tick[now].ball;
+        double ballDist = ball.pos.dist(hitPoint);
+        if (ballDist > PARAM::Field::PITCH_WIDTH / 2)
+            return DEFAULT_DISTANCE_MAX;
+        else if (ballDist < PARAM::Field::PENALTY_AREA_DEPTH)
+            return DEFAULT_DISTANCE_MIN;
+        else
+            return DEFAULT_DISTANCE_MIN + (DEFAULT_DISTANCE_MAX - DEFAULT_DISTANCE_MIN) * (ballDist / (PARAM::Field::PITCH_WIDTH / 2 - PARAM::Field::PENALTY_AREA_DEPTH));
     }
 
     /****************************

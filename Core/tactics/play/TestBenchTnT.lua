@@ -154,7 +154,7 @@ firstState = "start",
         --     return "run1"
         -- end
     end,
-    Leader = task.getInitData("Leader", CGeoPoint:new_local(0, 0)),
+    Leader = task.getInitData("Leader", CGeoPoint:new_local(0, 0), 0),
     -- a = task.goCmuRush(p[2]+ROBOT_OFFSET,task_dir),
     a = task.stop(),
     match = "(L)(a)"
