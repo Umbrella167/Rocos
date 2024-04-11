@@ -160,10 +160,8 @@ struct balls{
         int rights = 0; // 球权 [-1：敌方, 0:无人, 1:我方, 2:顶牛(双方处于纠缠的状况，无法判断具体球权属于谁)]
         int our_min_dist_num = 0; // 我方距离球最近的车号
         int their_min_dist_num = 0; // 敌方距离球最近的车号
-
-
-
 };
+
 //我方相关
 struct ours{
     public:

@@ -17,6 +17,7 @@ module(..., package.seeall)
 -- stopRatio = 1.1
 powerShoot = 3000
 INF = 1e9
+PI = 3.141592653589793238462643383279
 maxPlayer   = 16
 pitchLength = 9000
 pitchWidth  = 6000

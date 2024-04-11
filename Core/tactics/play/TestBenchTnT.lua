@@ -58,25 +58,33 @@ local state_reset = function(store)
 end
 
 
-local time = os.clock()
-local stopFlag = 0
-local file = io.open("data", "w+")
+local time = 0
+local label = 0
+local file = io.open("data.csv", "w+")
 io.output(file)
-
+io.write("time,playerPosX,playerPosY,playerVelMod,playerVelDir,playerRowVelMod,playerRowVelDir,targetPosX,targetPosY,label\n")
 
 local debug_F = function()
+    ttt = Utils.UpdataTickMessage(vision, 1, 1)
+    time = time + ttt.time.delta_time
     
     local sx,sy = 200,-1000
     local span = 140
     local sp = CGeoPoint:new_local(sx,sy)
     local v = CVector:new_local(0,-span)
 
-    local tTime = os.clock() - time
+    -- local tTime = os.clock() - time
     local role = "Leader"
+    -- local playerRawPos = player.rawPos(role)
+    -- local playerRawPosX = player.rawPos(role):posX()  
+    -- local playerRawPosY = player.rawPos(role):posY()  
+
     local playerPosX = player.posX(role)
     local playerPosY = player.posY(role)
     local playerVelMod = player.velMod(role)
     local playerVelDir = player.vel(role):dir()
+    local playerRowVelMod = player.rawVelMod(role)
+    local playerRowVelDir = player.rawVel(role):dir()
     local targetPos = player.gRolePos[role]()
     local targetPosX = targetPos:x()
     local targetPosY = targetPos:y()
@@ -90,24 +98,29 @@ local debug_F = function()
     -- debugEngine:gui_debug_msg(sp+v*2,string.format("Det MAX VEL : %4.0f",rawVel),param.BLUE)
     -- debugEngine:gui_debug_msg(sp+v*3,string.format("Det MAX VEL : %4.0f",det_max_vel),param.GREEN)
     -- debugEngine:gui_debug_msg(sp+v*4,string.format("Rot MAX ERR°: %4.1f",det_rot_err),det_rot_err < FAIL_DEGREE and param.GREEN or param.RED)
-    debugEngine:gui_debug_msg(sp+v*-1,string.format("time:          %6.3f", tTime),param.BLUE)
-    debugEngine:gui_debug_msg(sp+v*0,string.format("playerPosX:     %6.3f", playerPosX),param.BLUE)
-    debugEngine:gui_debug_msg(sp+v*1,string.format("playerPosY:     %6.3f", playerPosY),param.BLUE)
-    debugEngine:gui_debug_msg(sp+v*2,string.format("velMod:         %6.3f", playerVelMod),param.BLUE)
-    debugEngine:gui_debug_msg(sp+v*3,string.format("velDir:         %6.3f", playerVelDir),param.BLUE)
+    debugEngine:gui_debug_msg(sp+v*0,string.format("time:              %6.3f", time),param.BLUE)
+    debugEngine:gui_debug_msg(sp+v*1,string.format("playerPosX:        %6.3f", playerPosX),param.BLUE)
+    debugEngine:gui_debug_msg(sp+v*2,string.format("playerPosY:        %6.3f", playerPosY),param.BLUE)
+    -- debugEngine:gui_debug_msg(sp+v*3,string.format("playerRawPosX:     %6.3f", playerRawPosX),param.BLUE)
+    -- debugEngine:gui_debug_msg(sp+v*4,string.format("playerRawPosY:     %6.3f", playerRawPosY),param.BLUE)
+    debugEngine:gui_debug_msg(sp+v*5,string.format("velMod:            %6.3f", playerVelMod),param.BLUE)
+    debugEngine:gui_debug_msg(sp+v*6,string.format("velDir:            %6.3f", playerVelDir),param.BLUE)
+    debugEngine:gui_debug_msg(sp+v*7,string.format("rowVelMod:         %6.3f", playerRowVelMod),param.BLUE)
+    debugEngine:gui_debug_msg(sp+v*8,string.format("rowVelDir:         %6.3f", playerRowVelDir),param.BLUE)
     -- debugEngine:gui_debug_msg(sp+v*4,string.format("det_max_vel:    %6.3f", playerToTargetDist),param.GREEN)
-    debugEngine:gui_debug_msg(sp+v*5,string.format("targetPosX:     %6.3f", targetPosX),param.GREEN)
-    debugEngine:gui_debug_msg(sp+v*6,string.format("targetPosY:     %6.3f", targetPosY),param.GREEN)
+    debugEngine:gui_debug_msg(sp+v*10,string.format("targetPosX:       %6.3f", targetPosX),param.GREEN)
+    debugEngine:gui_debug_msg(sp+v*11,string.format("targetPosY:       %6.3f", targetPosY),param.GREEN)
 
 
-    io.write(string.format("%f %f %f %f %f %f %f\n",tTime,  playerPosX, playerPosY, playerVelMod, playerVelDir, targetPosX, targetPosY))
+    -- io.write(string.format("%f %f %f %f %f %f %f %f %f %f\n", time,  playerPosX, playerPosY, playerRawPosX, playerRawPosY, playerVelMod, playerVelDir, playerRowVelMod, playerRowVelDir, targetPosX, targetPosY))
+    io.write(string.format("%f,%f,%f,%f,%f,%f,%f,%f,%f,%d\n", time,  playerPosX, playerPosY, playerVelMod, playerVelDir, playerRowVelMod, playerRowVelDir, targetPosX, targetPosY, label))
 
     if playerToTargetDist < 10 and playerVelMod < 11 then
-        io.write(string.format("split\n"))
-        time = os.clock()
-        stopFlag = stopFlag + 1
+        -- io.write(string.format("split\n"))
+        time = 0
+        label = label + 1
     end
-    if stopFlag == 10 then
+    if label == 10 then
         io.close()
     end
 
@@ -141,7 +154,7 @@ firstState = "start",
         --     return "run1"
         -- end
     end,
-    Leader = task.getInitData("Leader", CGeoPoint:new_local(0, 0)),
+    Leader = task.getInitData("Leader", CGeoPoint:new_local(0, 0), 0),
     -- a = task.goCmuRush(p[2]+ROBOT_OFFSET,task_dir),
     a = task.stop(),
     match = "(L)(a)"

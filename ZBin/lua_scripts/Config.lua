@@ -1,25 +1,26 @@
+
 IS_YELLOW = CGetSettings("ZAlert/IsYellow","Bool")
 local team = IS_YELLOW and "Yellow" or "Blue"
-IS_TEST_MODE = CGetSettings("ZAlert/"..team.."_IsTest","Bool")
+IS_TEST_MODE = CGetSettings("ZAlert/" .. team .. "_IsTest", "Bool")
 IS_SIMULATION = CGetIsSimulation()
 USE_SWITCH = false
 USE_AUTO_REFEREE = false
 OPPONENT_NAME = "Other"
-SAO_ACTION = CGetSettings("Alert/SaoAction","Int")
+SAO_ACTION = CGetSettings("Alert/SaoAction", "Int")
 IS_RIGHT = CGetSettings("ZAlert/IsRight", "Bool")
-DEBUG_MATCH = CGetSettings("Debug/RoleMatch","Bool")
+DEBUG_MATCH = CGetSettings("Debug/RoleMatch", "Bool")
 
-USE_CUSTOM_REF_CONFIG = CGetSettings("ZAlert/"..team.."_UseRefConfig","Bool")
-REF_CONFIG_TACTIC_NAME = CGetSettings("ZAlert/"..team.."_RefConfigName","String")
+USE_CUSTOM_REF_CONFIG = CGetSettings("ZAlert/" .. team .. "_UseRefConfig", "Bool")
+REF_CONFIG_TACTIC_NAME = CGetSettings("ZAlert/" .. team .. "_RefConfigName", "String")
 
 gStateFileNameString = string.format(os.date("%Y%m%d%H%M"))
 
-gTestPlay = CGetSettings("ZAlert/"..team.."_TestScriptName","String")
+gTestPlay = CGetSettings("ZAlert/" .. team .. "_TestScriptName", "String")
 
 gRoleFixNum = {
-        ["Goalie"]   = {0},
-        ["Defender"]   = {9},
-        ["Tier"]     = {2},
+        ["Goalie"]   = { 0 },
+        ["Defender"] = { 1 },
+        ["Tier"]     = { 2 },
 }
 
 -- 用来进行定位球的保持
@@ -43,20 +44,20 @@ gRefPlayTable = {
         "Ref/Ref_OurTimeoutV1",
         "Ref/GameStop/Ref_StopV1",
         "Ref/GameStop/Ref_StopV2",
--- BallPlacement
+        -- BallPlacement
         -- "Ref/BallPlacement/Ref_BallPlace2Stop",
--- Penalty
+        -- Penalty
         "Ref/PenaltyDef/Ref_PenaltyDefV1",
         "Ref/PenaltyKick/Ref_PenaltyKickV1",
--- KickOff
+        -- KickOff
         "Ref/KickOffDef/Ref_KickOffDefV1",
         "Ref/KickOff/Ref_KickOffV1",
--- FreeKickDef
+        -- FreeKickDef
         "Ref/CornerDef/Ref_CornerDefV1",
         "Ref/FrontDef/Ref_FrontDefV1",
         "Ref/MiddleDef/Ref_MiddleDefV1",
         "Ref/BackDef/Ref_BackDefV1",
--- FreeKick
+        -- FreeKick
         "Ref/CornerKick/Ref_CornerKickV0",
         "Ref/CornerKick/Ref_CornerKickV1",
         "Ref/CornerKick/Ref_CornerKickV2",

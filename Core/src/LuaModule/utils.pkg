@@ -21,6 +21,9 @@ namespace Utils{
 	std::string GlobalComputingPos(const CVisionModule *pVision);
 	CGeoPoint GetAttackPos(const CVisionModule *pVision,int num);
 
+	// Defence
+    CGeoPoint ComputeCrossPENALTY();
+    double ComputeDistance(CGeoPoint hitPoint);
 
 	// // // // // END // // // // // 
 	double Normalize(double angle);
