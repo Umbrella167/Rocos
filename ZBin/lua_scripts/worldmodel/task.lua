@@ -211,6 +211,7 @@ function TurnToPoint(role, p, speed)
 		-- 	debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "3")
 		-- 	return Shootdot(p1, 0.0001, 4, kick.flat)
 		end
+		-- NOTE: 这里两个if都不成立时没有写额外的操作，需要自行判断退出
 	end
 		
 end
