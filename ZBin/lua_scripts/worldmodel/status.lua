@@ -58,6 +58,13 @@ function getPlayerRunPos()
 			table.insert(GlobalMessage.attackPlayerRunPos, run_pos_table)
 		end
 	end
+
+	local dribbling_run_pos =  Utils.GetAttackPos(vision,GlobalMessage.Tick.our.dribbling_num)
+	run_pos_table = {
+				num = GlobalMessage.Tick.our.dribbling_num,
+				pos = dribbling_run_pos
+			}
+	table.insert(GlobalMessage.attackPlayerRunPos, run_pos_table)
 end
 
 -- 获取主要（抢球、带球）机器人状态存入 attackMainPlayerStatus

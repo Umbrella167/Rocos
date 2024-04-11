@@ -35,7 +35,7 @@ namespace Utils
     extern std::string GlobalComputingPos(const CVisionModule *pVision);                           // 计算所有点位
     extern double map(double value, double min_in, double max_in, double min_out, double max_out); // 映射
     extern bool InField(CGeoPoint Point);                                                          // 判断点是否在场地内
-    extern bool InExclusionZone(CGeoPoint Point, double buffer = 150);                             // 判断点是否在禁区内
+    extern bool InExclusionZone(CGeoPoint Point, double buffer = 0);                             // 判断点是否在禁区内
     extern double NumberNormalize(double data, double max_data, double min_data);                  // [0,1] 标准化
     extern bool isValidPass(const CVisionModule *pVision, CGeoPoint start, CGeoPoint end, double buffer = 150);
     extern GlobalTick UpdataTickMessage(const CVisionModule *pVision, int defend_player_num1, int defend_player_num2); // 获取帧信息

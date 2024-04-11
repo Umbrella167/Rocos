@@ -19,7 +19,10 @@ local debugStatus = function()
 		tostring(i.status),3)
 	end
 
+
 	debugEngine:gui_debug_msg(CGeoPoint:new_local(-4400,-2000),ball_rights)
+	debugEngine:gui_debug_msg(CGeoPoint:new_local(-4300,-2000),dribbling_player_num,3)
+	
 
 	
 end
@@ -96,11 +99,18 @@ shoot_pos = CGeoPoint:new_local(4500,0)
 -- 被传球机器人
 pass_player_num = 0
 
+-- 后卫号码
+defend_num1 = 1
+defend_num2 = 2
+
+-- 射门Kp
 shootKp = 0.0001
 
+canTouchAngle = 60
 pass_pos = CGeoPoint:new_local(4500,-999)
 function UpdataTickMessage(defend_num1,defend_num2)
 	GlobalMessage.Tick = Utils.UpdataTickMessage(vision,defend_num1,defend_num2)
+	status.getGlobalStatus(0)  -- 获取全局状态，进攻状态为传统
 	dribbling_player_num = -1
 	ball_rights = GlobalMessage.Tick.ball.rights
 	if ball_rights == 1 then
@@ -112,12 +122,12 @@ function UpdataTickMessage(defend_num1,defend_num2)
 		dribblingStatus = status.getPlayerStatus(dribbling_player_num)	-- 获取带球机器人状态
 		status.getPlayerRunPos()	-- 获取跑位点
 	end
-	status.getGlobalStatus(0)  -- 获取全局状态，进攻状态为传统
+	
 	debugStatus()
 end
 
-defend_num1 = 7
-defend_num2 = 8
+
+
 gPlayTable.CreatePlay{
 
 firstState = "Init",
@@ -156,7 +166,7 @@ firstState = "Init",
 
 		elseif ball_rights == -1 then   	-- 敌方球权情况，一个抢球，其余防守
 			return "defendNormalState"
-		else 								-- 顶牛 或 未定义情况 一个抢球，其余跑位
+		elseif ball_rights == 2 then								-- 顶牛 或 未定义情况 一个抢球，其余跑位
 			return "defendOtherState"
 		end
 		runPos("Special")
@@ -212,7 +222,7 @@ firstState = "Init",
 			return "GetGlobalMessage"
 		end
 	end,
-	Assister = task.touchKick(correctionPos(),_,5000,kick.flat),
+	Assister = task.touchKick(correctionPos(),_,500,kick.flat),
 	Kicker = task.stop(),
 	Special = task.stop(),
 	Tier = task.stop(),
@@ -250,7 +260,7 @@ firstState = "Init",
 	switch = function()
 		UpdataTickMessage(defend_num1,defend_num2)
 		correction_pos = Utils.GetShootPoint(vision,player.num("Kicker"))
-		if (player.canTouch("Kicker",correction_pos,40)) then
+		if (player.canTouch("Kicker",correction_pos,canTouchAngle)) then
 			return "Touch"
 		end
 		if(player.toBallDist("Kicker") < 100) then 
@@ -273,7 +283,7 @@ firstState = "Init",
 
 		UpdataTickMessage(defend_num1,defend_num2)
 		correction_pos = Utils.GetShootPoint(vision,player.num("Special"))
-		if (player.canTouch("Special",correction_pos,40)) then
+		if (player.canTouch("Special",correction_pos,canTouchAngle)) then
 			return "Touch"
 		end
 		if(player.toBallDist("Special") < 100) then 
@@ -316,7 +326,7 @@ firstState = "Init",
 		if(player.infraredCount("Assister") > 10) then
 			return "GetGlobalMessage"
 		end
-		if (bufcnt(true,200)) then
+		if (bufcnt(true,100)) then
 			return "GetGlobalMessage"
 		end
 		-- debugEngine:gui_debug_msg(passPos,dribblingStatus)
@@ -337,7 +347,7 @@ firstState = "Init",
 		if(player.infraredCount("Assister") > 10) then
 			return "GetGlobalMessage"
 		end
-		if (bufcnt(true,200)) then
+		if (bufcnt(true,100)) then
 			return "GetGlobalMessage"
 		end
 		-- debugEngine:gui_debug_msg(passPos,dribblingStatus)
@@ -359,7 +369,7 @@ firstState = "Init",
 		if(task.playerDirToPointDirSub("Assister",correction_pos) < error_dir) then 
 				return correction_state
 		end
-		if (bufcnt(true,200)) then
+		if (bufcnt(true,100)) then
 			return "GetGlobalMessage"
 		end
 	end,
