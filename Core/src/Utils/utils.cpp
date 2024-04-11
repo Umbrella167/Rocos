@@ -551,7 +551,7 @@ namespace Utils
                 {
                     Tick[now].task[num].confidence_pass = 0;
                     // 如果无法被传球的非持球机器人 只能进行跑位
-                    if (!isValidPass(pVision, pVision->ourPlayer(Tick[now].our.dribbling_num).Pos(), pVision->ourPlayer(i).Pos(), PARAM::Player::playerBuffer) || !isValidPass(pVision, pVision->ourPlayer(Tick[now].our.dribbling_num).Pos(), pVision->ourPlayer(Tick[now].our.player[i]).Pos(), PARAM::Player::playerBuffer))
+                    if (!isValidPass(pVision, pVision->ourPlayer(Tick[now].our.dribbling_num).Pos(), pVision->ourPlayer(i).Pos(), PARAM::Player::playerBuffer) || !isValidPass(pVision, pVision->ourPlayer(num).Pos(), pVision->ourPlayer(num).Pos(), PARAM::Player::playerBuffer))
                     {
                         Tick[now].task[num].confidence_run = 1;
                         Tick[now].task[num].status = "Run";
