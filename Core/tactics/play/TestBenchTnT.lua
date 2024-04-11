@@ -74,7 +74,7 @@ local debug_F = function()
     local v = CVector:new_local(0,-span)
 
     -- local tTime = os.clock() - time
-    local role = "Leader"
+    local role = "Assister"
     -- local playerRawPos = player.rawPos(role)
     -- local playerRawPosX = player.rawPos(role):posX()  
     -- local playerRawPosY = player.rawPos(role):posY()  
@@ -143,45 +143,137 @@ local F_task_max_vel = function()
     return task_max_vel
 end
 
+-- 有用到的
+
+toPlayerDir = function(role1, role2)
+    return player.toPlayerDir(role1, role2)
+end
+
+-- 判断是否对准
+local function judgePlayerDir(role,targetPos,error)
+    local p = targetPos
+    if type(p) == 'function' then
+        p = p()
+    else
+        p = p
+    end
+
+    if math.abs(player.dir(role) - (p - player.pos( role )):dir()) < error then
+        return true
+    else 
+        return false
+    end
+end
+-- 准备的点
+readyPos = function(role)
+    return function()
+        if role == "Assister" then
+            return CGeoPoint(4000, 2000)
+        else
+            return CGeoPoint(-4000, -2000)
+        end
+    end
+end
+
+
 gPlayTable.CreatePlay{
 
-firstState = "start",
-["start"] = {
+firstState = "init",
+-- ["start"] = {
+--     switch = function()
+--         debug_F()
+--         -- if bufcnt(player.toTargetDist("Leader") < 30, 60) then
+--         --     state_reset()
+--         --     return "run1"
+--         -- end
+--     end,
+--     Leader = task.getInitData("Leader", CGeoPoint:new_local(0, 0), 0),
+--     -- a = task.goCmuRush(p[2]+ROBOT_OFFSET,task_dir),
+--     a = task.stop(),
+--     match = "(L)(a)"
+-- },
+["init"] = {
     switch = function()
         debug_F()
-        -- if bufcnt(player.toTargetDist("Leader") < 30, 60) then
-        --     state_reset()
-        --     return "run1"
-        -- end
-    end,
-    Leader = task.getInitData("Leader", CGeoPoint:new_local(0, 0), 0),
-    -- a = task.goCmuRush(p[2]+ROBOT_OFFSET,task_dir),
-    a = task.stop(),
-    match = "(L)(a)"
-},
-["run1"] = {
-    switch = function()
-        debug_F()
-        if bufcnt(player.toTargetDist("Leader") < 30, 60) then
-            state_reset(true)
-            return "run2"
+        if player.toBallDist("Assister") < player.toBallDist("Kicker") then
+            return "A_run_to_pos"
+        else
+            return "K_run_to_pos"
         end
     end,
-    Leader = task.goCmuRush(p[1],task_dir,F_task_max_acc,task_flag,nil,nil,F_task_max_vel,true),
-    a = task.goCmuRush(p[1]+ROBOT_OFFSET,task_dir,F_task_max_acc,task_flag,nil,nil,F_task_max_vel,true),
-    match = ""
+    Assister = task.stop(),
+    Kicker = task.stop(),
+    match = "(AK)"
 },
-["run2"] = {
+["A_run_to_pos"] = {
     switch = function()
-        debug_F()
-        if bufcnt(player.toTargetDist("Leader") < 30, 60) then
-            state_reset(true)
-            return "run1"
+        if judgePlayerDir("Assister", readyPos("Kicker"), 0.08) and player.toTargetDist("Assister") < 10 then
+            return "ready_to_shoot"
         end
     end,
-    Leader = task.goCmuRush(p[2],task_dir,F_task_max_acc,task_flag,nil,nil,F_task_max_vel,true),
-    a = task.goCmuRush(p[2]+ROBOT_OFFSET,task_dir,F_task_max_acc,task_flag,nil,nil,F_task_max_vel,true),
-    match = ""
+    Assister = task.GetBallV5("Assister", readyPos("Assister"), readyPos("Kicker")),
+    Kicker = task.goCmuRush(readyPos("Kicker"), toPlayerDir("Kicker", "Assister")),
+    match = "{AK}"
+},
+["K_run_to_pos"] = {
+    switch = function()
+        if judgePlayerDir("Kicker", readyPos("Assister"), 0.08) and player.toTargetDist("Kicker") < 10 then
+            return "ready_to_shoot"
+        end
+    end,
+    Assister = task.goCmuRush(readyPos("Assister"), toPlayerDir("Assister", "Kicker")),
+    Kicker = task.GetBallV5("Kicker", readyPos("Kicker"), readyPos("Assister")),
+    match = "{AK}"
+},
+["ready_to_shoot"] = {
+    switch = function()
+        Utils.InitFitFunction(vision, false)
+        if bufcnt(true, 110) then
+            if player.toBallDist("Assister") < player.toBallDist("Kicker") then
+                return "A_shoot_ball"
+            else
+                return "K_shoot_ball"
+            end
+        end
+        
+    end,
+    Assister = task.stop(),
+    Kicker = task.stop(),
+    match = "{AK}"
+},
+["A_shoot_ball"] = {
+    switch = function()
+        if player.kickBall("Assister") then
+            task.label = task.label + 1
+            return "recording"
+        end
+    end,
+    Assister = task.Shootdot(readyPos("Kicker"), task.label,8,kick.flat),
+    Kicker = task.Getballv4("Kicker", readyPos("Kicker")),
+    match = "{AK}"
+},
+["K_shoot_ball"] = {
+    switch = function()
+        if player.kickBall("Kicker") then
+            task.label = task.label + 1
+            return "recording"
+        end
+    end,
+    Assister = task.Getballv4("Assister", readyPos("Assister")),
+    Kicker = task.Shootdot(readyPos("Assister"), task.label,8,kick.flat),
+    match = "{AK}"
+},
+["recording"] = {
+    switch = function()
+        -- 采集数据
+        Utils.InitFitFunction(vision, true)
+        if ball.velMod() < 100 and bufcnt(true, 100) then
+            return "init"
+        end
+    end,
+    Assister = task.Getballv4("Assister", readyPos("Assister")),
+    Kicker = task.Getballv4("Kicker", readyPos("Kicker")),
+    match = "{AK}"
 },
 
 
