@@ -80,8 +80,10 @@ namespace Utils
     const CGeoPoint DEFAULT_STAND_POS(DEFENDER_FIELD_X_MIN, PARAM::Field::PENALTY_AREA_WIDTH / 2);
     const double DEFAULT_STAND_DIR = 0;
     const double DEFAULT_DISTANCE_MAX = PARAM::Field::PENALTY_AREA_WIDTH; // 两个后卫之间的最大距离
-    const double DEFAULT_DISTANCE_MIN = 100.0;                            // 两个后卫之间的最小距离
+    const double DEFAULT_DISTANCE_MIN = 300.0;                            // 两个后卫之间的最小距离
 
+    extern int closestPlayer(int role, int type);
+    extern int closestPlayer(CGeoPoint pos, int type, int role = -1);
     extern CGeoPoint DEFENDER_ComputeCrossPenalty();
     extern double DEFENDER_ComputeDistance(CGeoPoint hitPoint);
 

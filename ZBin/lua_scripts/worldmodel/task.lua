@@ -419,34 +419,42 @@ function defender_defence(role)
 		local mexe, mpos = nil, nil
 		local ipos, idir = nil, d and d or dir.shoot()
 
-		local role_defender = "Defender"
-		local role_tier = "Tier"
-		local role_major = player.toBallDist(role_defender) < player.toBallDist(role_tier) and role_defender
-			or role_tier                 -- defender
-		local role_minor = role_major == role_defender and role_tier
-			or role_defender             -- tier
+		role = "number" == type(role) and player:name("role") or role -- type(role) == "string"
+		local ROLE_DEFENDER = "Defender"
+		local ROLE_TIER = "Tier"
+		local role_major = player.toBallDist(ROLE_DEFENDER) < player.toBallDist(ROLE_TIER) and ROLE_DEFENDER
+			or ROLE_TIER                 -- defender
+		local role_minor = role_major == ROLE_DEFENDER and ROLE_TIER
+			or ROLE_DEFENDER             -- tier
 
-        if player.toBallDist(role) < 1000 then -- 可抢球
-            mexe, mpos = Touch { pos = pos.ourGoal() }
-        elseif player.toBallDist(role) < 4000 then
-            -- local distanceDT = Utils.ComputeDistance(hitPoint)
-            local hitPoint = Utils.ComputeCrossPENALTY()
-            local POS_NULL = CGeoPoint:new_local(0, 0)
+		if player.toBallDist(role) < 1000 then -- 可抢球
+			mexe, mpos = Touch { pos = pos.ourGoal() }
+		elseif player.toBallDist(role) < 4000 then
+			-- local distanceDT = Utils.ComputeDistance(hitPoint)
+			local hitPoint = Utils.ComputeCrossPENALTY()
+			local POS_NULL = CGeoPoint:new_local(0, 0)
 
-            if hitPoint ~= POS_NULL then
-                if role == role_major then
-                    ipos = hitPoint
-                elseif role == role_minor then
-                    ipos = enemy.pos(role) + Utils.Polar2Vector(300, (ball.pos() - enemy.pos(role)):dir())
-                end
+			if hitPoint ~= POS_NULL then
+				if role == role_major then
+					ipos = hitPoint
+				elseif role == role_minor then
+					-- 如果检测到有可能有敌人出现，那么需要回防
+					if player.toPlayerDist(utils.closestPlayer(role_minor == ROLE_DEFENDER and DEFENDER_INITPOS_DEFENDER or DEFENDER_INITPOS_TIER, 2, player:num(role))) < DEFENDER_SAFEDISTANCE then
+						ipos = enemy.pos(role) + Utils.Polar2Vector(300, (ball.pos() - enemy.pos(role)):dir())
+					else -- 不然就跟着 role_major
+						ipos = CGeoPoint:new_local(player.pos(role_major).x(),
+							player.pos(role_major).y() + role == ROLE_TIER and -DEFENDER_DEFAULT_DISTANCE_MIN
+							or DEFENDER_DEFAULT_DISTANCE_MIN)
+					end
+				end
 
-                mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = f, rec = r, vel = v, speed = s, force_manual = force_manual }
-            end
-        else
-            ipos = "Defender" == role and INITPOS_DEFENDER or INITPOS_TIER
-            mexe, mpos = GoCmuRush { pos = p, dir = idir, acc = a, flag = f, rec = r, vel = v, speed = s, force_manual = force_manual }
-        end
-		
+				mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = f, rec = r, vel = v, speed = s, force_manual = force_manual }
+			end
+		else
+			ipos = "Defender" == role and INITPOS_DEFENDER or INITPOS_TIER
+			mexe, mpos = GoCmuRush { pos = p, dir = idir, acc = a, flag = f, rec = r, vel = v, speed = s, force_manual = force_manual }
+		end
+
 		return { mexe, mpos }
 
 		-- debugEngine:gui_debug_msg(
