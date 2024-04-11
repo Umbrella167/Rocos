@@ -29,10 +29,9 @@ firstState = "readyShoot",
 
 ["readyShoot"] = {
 	switch = function()
+		Utils.GetTouchPos(vision,CGeoPoint:new_local(ball.posX(),ball.posY()))
 		-- local pos1 = Utils.GetBestInterPos(vision,playerPos(),4,2)
-
 		-- debugEngine:gui_debug_x(pos1,3)
-
 		-- debugEngine:gui_debug_msg(CGeoPoint:new_local(0,0),pos1:x() .. "  " .. pos1:y())
 		-- Utils.UpdataTickMessage(vision,1,2)
 		-- Utils.GlobalComputingPos(vision)

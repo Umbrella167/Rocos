@@ -56,7 +56,7 @@ function name(role)
 	return retNum
 end
 
-function canTouch(role,p,interPos,touchAngle)
+function canTouch(role,p,touchAngle)
 			local shoot_pos
 		if type(p) == 'function' then
 	  		shoot_pos = p()

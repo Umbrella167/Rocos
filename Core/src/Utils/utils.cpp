@@ -320,16 +320,16 @@ namespace Utils
             switch (flag)
             {
             case 0:
-//                GDebugEngine::Instance()->gui_debug_line(playerPos, minGetBallPos,5,1);
+                GDebugEngine::Instance()->gui_debug_line(playerPos, minGetBallPos,5,1);
                 return minGetBallPos;
                 break;
             case 1:
-//                GDebugEngine::Instance()->gui_debug_line(playerPos, maxTolerancePos,5,1);
+                GDebugEngine::Instance()->gui_debug_line(playerPos, maxTolerancePos,5,1);
                 return maxTolerancePos;
                 break;
             case 2:
                 CGeoPoint posMid = CGeoPoint((minGetBallPos.x() + maxTolerancePos.x())/2, (minGetBallPos.y() + maxTolerancePos.y())/2);
-//                GDebugEngine::Instance()->gui_debug_line(posMid, maxTolerancePos,5,1);
+                GDebugEngine::Instance()->gui_debug_line(posMid, maxTolerancePos,5,1);
                 return posMid;
                 break;
             }
@@ -798,7 +798,7 @@ namespace Utils
                 CGeoPoint now_pos = CGeoPoint(x, y);
                 CGeoPoint shoot_pos = GetShootPoint(pVision, x, y);
 
-                if (shoot_pos.y() == -inf || InExclusionZone(now_pos) || !isValidPass(pVision, now_pos, shoot_pos))
+                if (shoot_pos.y() == -inf || InExclusionZone(now_pos) || !isValidPass(pVision, now_pos, player_pos))
                     continue;
                 // 一传一touch的射门位计算
                 if (!double_flag)
@@ -825,7 +825,7 @@ namespace Utils
                     max_grade_point = now_pos;
                     max_shoot_point = shoot_pos;
                 }
-                GDebugEngine::Instance()->gui_debug_x(now_pos);
+//                GDebugEngine::Instance()->gui_debug_x(now_pos);
             }
         }
 

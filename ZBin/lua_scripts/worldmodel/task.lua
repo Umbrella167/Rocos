@@ -38,7 +38,7 @@ function getball(role,playerVel,inter_flag,target_point)
 			
 			local idir = player.toBallDir(role)
 			local ipos = ball.pos()
-			if inter_pos:x()  ==  -param.INF or inter_pos:y()  == -param.INF then
+			if inter_pos:x()  ==  param.INF or inter_pos:y()  == param.INF then
 				ipos = ball.pos()
 			else
 				ipos = inter_pos

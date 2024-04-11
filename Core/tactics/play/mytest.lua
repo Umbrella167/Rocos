@@ -1,5 +1,4 @@
 
-
 local debugStatus = function()
 	for num,i in pairs(GlobalMessage.attackPlayerRunPos) do
 		debugEngine:gui_debug_msg(CGeoPoint:new_local(-4400,num * 200),
@@ -18,13 +17,8 @@ local debugStatus = function()
 		"  " 					.. 
 		tostring(i.status),3)
 	end
-
-
 	debugEngine:gui_debug_msg(CGeoPoint:new_local(-4400,-2000),ball_rights)
 	debugEngine:gui_debug_msg(CGeoPoint:new_local(-4300,-2000),dribbling_player_num,3)
-	
-
-	
 end
 
 local closures_point = function(point)
@@ -72,18 +66,25 @@ local function correctionPos()
 		return CGeoPoint:new_local(correction_pos:x(),correction_pos:y())
 	end
 end
-local function runPos(role)
+local function runPos(role,touch_pos_flag)
 	return function()
+		local touch_pos_flag = touch_pos_flag or false
 		for num,i in pairs(GlobalMessage.attackPlayerRunPos) do
 			-- debugEngine:gui_debug_msg(CGeoPoint:new_local(-2000,-500 * num),i.num)
 			if player.num(role) == i.num then
+				if (touch_pos_flag == true and touchPos:x() ~= 0 and touchPos:y() ~= 0) then 
+					return CGeoPoint:new_local(touchPos:x(),touchPos:y())
+				else
 				-- debugEngine:gui_debug_msg(CGeoPoint:new_local(-2000,-2000),i.pos:x().."  ".. i.pos:y())
-				return CGeoPoint:new_local(i.pos:x(),i.pos:y())
+					return CGeoPoint:new_local(i.pos:x(),i.pos:y())
+				end
 			end
 		end
 		return CGeoPoint:new_local(0,0)
 	end
 end
+
+
 -- 校正返回的脚本
 correction_state = "Shoot"
 -- 角度误差常数
@@ -105,13 +106,27 @@ defend_num2 = 2
 
 -- 射门Kp
 shootKp = 0.0001
-
+-- Touch pos
+touchPos = CGeoPoint:new_local(0,0)
+-- Touch 角度
 canTouchAngle = 60
+
+-- 传球角度
 pass_pos = CGeoPoint:new_local(4500,-999)
+
+
+-- 此脚本的全局更新
 function UpdataTickMessage(defend_num1,defend_num2)
+	-- 获取 Tick 信息
 	GlobalMessage.Tick = Utils.UpdataTickMessage(vision,defend_num1,defend_num2)
-	status.getGlobalStatus(0)  -- 获取全局状态，进攻状态为传统
+
+	-- 获取全局状态，进攻状态为传统
+	status.getGlobalStatus(0)  
+
+	-- 带球机器人初始化
 	dribbling_player_num = -1
+
+	-- 获取球权
 	ball_rights = GlobalMessage.Tick.ball.rights
 	if ball_rights == 1 then
 		dribbling_player_num = GlobalMessage.Tick.our.dribbling_num
@@ -121,8 +136,8 @@ function UpdataTickMessage(defend_num1,defend_num2)
 		shoot_pos = CGeoPoint:new_local(shoot_pos:x(),shoot_pos:y())
 		dribblingStatus = status.getPlayerStatus(dribbling_player_num)	-- 获取带球机器人状态
 		status.getPlayerRunPos()	-- 获取跑位点
+		touchPos = Utils.GetTouchPos(vision,CGeoPoint:new_local(player.posX(dribbling_player_num),player.posY(dribbling_player_num)))
 	end
-	
 	debugStatus()
 end
 
@@ -156,24 +171,21 @@ firstState = "Init",
 		status.debugStatus()
 		if task.ball_rights == 1 then	-- 我方球权的情况 获取进攻状态
 		-- 	-- dribblingStatus -> [shoot,dribbling,XXpassToPlayerXX]
-			
 			debugEngine:gui_debug_msg(CGeoPoint(3000,2800),dribbling_player_num .. "   ".. dribblingStatus)
 			if dribblingStatus == "NOTHING"  or dribblingStatus == "Run" or  dribblingStatus == "Getball" then
 				UpdataTickMessage(defend_num1,defend_num2)
 			else
 				return dribblingStatus
 			end
-
 		elseif ball_rights == -1 then   	-- 敌方球权情况，一个抢球，其余防守
 			return "defendNormalState"
-		elseif ball_rights == 2 then								-- 顶牛 或 未定义情况 一个抢球，其余跑位
+		else	-- 顶牛 或 未定义情况 一个抢球，其余跑位
 			return "defendOtherState"
 		end
-		runPos("Special")
 		-- debugStatus()
 	end,
-	Assister = task.GetBallV2("Assister",ballPos()),
-	Kicker = task.goCmuRush(runPos("Kicker"),closures_dir_ball("Kicker")),
+	Assister = task.getball("Assister",4,1,ballPos()),--task.GetBallV2("Assister",ballPos()),
+	Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker")),
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 
 	-- Assister = task.stop(),
@@ -215,20 +227,20 @@ firstState = "Init",
 ["Touch"] = {
 	switch = function()
 		UpdataTickMessage(defend_num1,defend_num2)
-		-- if(bufcnt(true,300))then 
-		-- 	return "GetGlobalMessage"
-		-- end
+		if(bufcnt(true,110))then 
+			return "GetGlobalMessage"
+		end
 		if(player.kickBall("Assister"))then 
 			return "GetGlobalMessage"
 		end
 	end,
 	Assister = task.touchKick(correctionPos(),_,500,kick.flat),
-	Kicker = task.stop(),
-	Special = task.stop(),
+	Kicker = task.stop(),--task.goCmuRush(runPos("Kicker"),closures_dir_ball("Kicker")),
+	Special = task.stop(),--task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 	Tier = task.stop(),
 	Defender = task.stop(),
 	Goalie = task.goalie(),
-	match = "[AKS]{TDG}"
+	match = "[A][KS]{TDG}"
 },
 
 -- 传球 
@@ -247,7 +259,7 @@ firstState = "Init",
 
 	end,
 	Assister = task.Shootdot(passPos(),shootKp,error_dir,kick.flat),
-	Kicker = task.goCmuRush(runPos("Kicker"),closures_dir_ball("Kicker")),
+	Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker")),
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 	Tier = task.stop(),
 	Defender = task.stop(),
@@ -270,7 +282,7 @@ firstState = "Init",
 			return "GetGlobalMessage"
 		end
 	end,
-	Assister = task.goCmuRush(runPos("Assister"),closures_dir_ball("Assister")),
+	Assister = task.goCmuRush(runPos("Assister",true),closures_dir_ball("Assister")),
 	Kicker = task.Getballv4("Kicker",runPos("Kicker")),
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 	Tier = task.stop(),
@@ -294,7 +306,7 @@ firstState = "Init",
 		end
 	end,
 	Assister = task.goCmuRush(runPos("Assister"),closures_dir_ball("Assister")),
-	Kicker = task.goCmuRush(runPos("Kicker"),closures_dir_ball("Kicker")),
+	Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker")),
 	Special = task.Getballv4("Special",runPos("Special")),
 	Tier = task.stop(),
 	Defender = task.stop(),
@@ -310,7 +322,7 @@ firstState = "Init",
 		return "GetGlobalMessage"
 	end,
 	Assister = task.stop(),
-	Kicker = task.goCmuRush(runPos("Kicker"),closures_dir_ball("Kicker")),
+	Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker")),
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 	Tier = task.stop(),
 	Defender = task.stop(),
@@ -331,8 +343,8 @@ firstState = "Init",
 		end
 		-- debugEngine:gui_debug_msg(passPos,dribblingStatus)
 	end,
-	Assister = task.GetBallV2("Assister",CGeoPoint:new_local(0,0),8,3000),
-	Kicker = task.goCmuRush(runPos("Kicker"),closures_dir_ball("Kicker")),
+	Assister = task.getball("Assister",4,1,ballPos()),--,--task.GetBallV2("Assister",CGeoPoint:new_local(0,0),8,3000),
+	Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker")),
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 	Tier = task.stop(),
 	Defender = task.stop(),
@@ -352,8 +364,8 @@ firstState = "Init",
 		end
 		-- debugEngine:gui_debug_msg(passPos,dribblingStatus)
 	end,
-	Assister = task.GetBallV2("Assister",CGeoPoint:new_local(0,0),8,3000),
-	Kicker = task.goCmuRush(runPos("Kicker"),closures_dir_ball("Kicker")),
+	Assister = task.getball("Assister",4,1,ballPos()),
+	Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker")),
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 	Tier = task.stop(),
 	Defender = task.stop(),
@@ -373,9 +385,9 @@ firstState = "Init",
 			return "GetGlobalMessage"
 		end
 	end,
-	Assister = task.getball("Assister",4,1,correctionPos()),--task.GetBallV2("Assister",correctionPos()),
+	Assister = task.GetBallV2("Assister",correctionPos()),
 
-	Kicker = task.goCmuRush(runPos("Kicker"),closures_dir_ball("Kicker")),
+	Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker")),
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 	Tier = task.stop(),
 	Defender = task.stop(),

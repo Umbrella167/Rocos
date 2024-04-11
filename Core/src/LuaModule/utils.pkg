@@ -7,6 +7,9 @@ namespace Utils{
 	
 	GlobalTick UpdataTickMessage(const CVisionModule *pVision,int defend_player_num1,int defend_player_num2); //获取帧信息
 
+
+	CGeoPoint GetTouchPos(const CVisionModule *pVision, CGeoPoint player_pos, bool double_flag = false);
+
 	CGeoPoint GetBestInterPos(const CVisionModule *pVision, CGeoPoint playerPos, double playerVel, int flag = 0);
 
 	int getInitData(const CVisionModule *pVision, int flag=1);
