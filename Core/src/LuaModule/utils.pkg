@@ -18,9 +18,9 @@ namespace Utils{
 	CGeoPoint GetAttackPos(const CVisionModule *pVision,int num);
 
 	// Defence
-    CGeoPoint ComputeCrossPENALTY();
-    double ComputeDistance(CGeoPoint hitPoint);
-
+    CGeoPoint DEFENDER_ComputeCrossPenalty();
+    double DEFENDER_ComputeDistance(CGeoPoint hitPoint);
+	
 	// // // // // END // // // // // 
 	double Normalize(double angle);
 	CVector Polar2Vector(double m,double angle);

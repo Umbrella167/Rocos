@@ -1234,8 +1234,7 @@ namespace Utils
     {
         double x = Point.x();
         double y = Point.y();
-        if ((x > (-1 * PARAM::Field::PITCH_LENGTH / 2) &&
-             x < (PARAM::Field::PITCH_LENGTH / 2)) &&
+        if ((x > (-1 * PARAM::Field::PITCH_LENGTH / 2) && x < (PARAM::Field::PITCH_LENGTH / 2)) &&
             (y > -1 * PARAM::Field::PITCH_WIDTH / 2 && y < PARAM::Field::PITCH_WIDTH / 2))
         {
             return true;
@@ -1246,24 +1245,27 @@ namespace Utils
         }
     }
 
-    // Defence
+    // Defender
 
     /**
      * 球方向与禁区边的交点
-     * @return {CGeoPoint} : {0, 0} 时表示无交点
+     * @return {CGeoPoint} : 焦点；{0, 0} 时表示无交点
      */
-    CGeoPoint ComputeCrossPENALTY()
+    CGeoPoint DEFENDER_ComputeCrossPenalty()
     {
         auto ball = Tick[now].ball;
-        CGeoLine ball_line(ball.pos, ball.vel_dir);
+        CGeoLine ball_line(ball.pos, ball.vel_dir); // 球的运动路径
 
-        CGeoLineLineIntersection intersection(FIELD_PENALTYBOR, ball_line); // 获取球运动姿态的交点
-        if (true == intersection.Intersectant())
+        CGeoLineLineIntersection intersection(DEFENDER_FIELD_PENALTYBOR, ball_line); // 获取球运动姿态的交点
+        if (intersection.Intersectant())
         {
+            if (intersection.IntersectPoint().y > -DEFENDER_FIELD_Y_BOR && intersection.IntersectPoint().y < DEFENDER_FIELD_Y_BOR)
+                return intersection.IntersectPoint();
+
             return intersection.IntersectPoint();
         }
 
-        return {0, 0};
+        return {0, 0}; // 无焦点
     }
 
     /**
@@ -1271,7 +1273,7 @@ namespace Utils
      * @param  {CGeoPoint} hitPoint : 交点
      * @return {double}             : 两后卫之间距离
      */
-    double ComputeDistance(CGeoPoint hitPoint)
+    double DEFENDER_ComputeDistance(CGeoPoint hitPoint)
     {
         auto ball = Tick[now].ball;
         double ballDist = ball.pos.dist(hitPoint);
@@ -1283,14 +1285,17 @@ namespace Utils
             return DEFAULT_DISTANCE_MIN + (DEFAULT_DISTANCE_MAX - DEFAULT_DISTANCE_MIN) * (ballDist / (PARAM::Field::PITCH_WIDTH / 2 - PARAM::Field::PENALTY_AREA_DEPTH));
     }
 
-    /****************************
+    /*****************************
      *                           *
-     *         以下代码均是        *
-     *         该文件源代码        *
+     *         以下代码均是       *
+     *         该文件源代码       *
      *       Open-ssl-china      *
      *****************************/
 
-    double dirDiff(const CVector &v1, const CVector &v2) { return fabs(Normalize(v1.dir() - v2.dir())); }
+    double dirDiff(const CVector &v1, const CVector &v2)
+    {
+        return fabs(Normalize(v1.dir() - v2.dir()));
+    }
     double Normalize(double angle)
     {
         if (fabs(angle) > 10)

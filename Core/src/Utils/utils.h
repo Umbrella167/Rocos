@@ -65,31 +65,25 @@ namespace Utils
     extern double NumberNormalizeGauss(double data, double max_data, double min_data, double peak_pos, std::string model = "DOUBLELINE"); // [0,1] 高斯归一化
     extern double PosSafetyGrade(const CVisionModule *pVision, CGeoPoint start, CGeoPoint end, std::string model = "SHOOT");              // 路径安全性评分
     extern CGeoPoint GetBestInterPos(const CVisionModule *pVision, CGeoPoint playerPos, double playerVel, int flag);
-     extern int getInitData(const CVisionModule *pVision, int flag);
-   /* =============== Defence =============== */
+    extern int getInitData(const CVisionModule *pVision, int flag);
+    /* =============== Defence =============== */
     /* 球场信息 */
     /* 己方半场信息 */
-    const int FIELD_X_MIN = -PARAM::Field::PITCH_LENGTH / 2 + PARAM::Field::PENALTY_AREA_DEPTH + 50;
-    const int FIELD_X_MAX = 0;
-    const int FIELD_Y_MIN = -PARAM::Field::PITCH_WIDTH / 2;
-    const int FIELD_Y_MAX = PARAM::Field::PITCH_WIDTH / 2;
+    const int DEFENDER_FIELD_X_MIN = -PARAM::Field::PITCH_LENGTH / 2 + PARAM::Field::PENALTY_AREA_DEPTH + 50;
+    const int DEFENDER_FIELD_Y_BOR = PARAM::Field::PENALTY_AREA_WIDTH / 2;
 
-    const CGeoLine FIELD_BOR[3] = {
-        {{FIELD_X_MIN, PARAM::Field::PENALTY_AREA_WIDTH / 2}, {FIELD_X_MIN, -PARAM::Field::PENALTY_AREA_WIDTH / 2}},
-        {{PARAM::Field::PITCH_LENGTH / 2, PARAM::Field::PENALTY_AREA_WIDTH / 2}, {FIELD_X_MIN, PARAM::Field::PENALTY_AREA_WIDTH / 2}},
-        {{-PARAM::Field::PITCH_LENGTH / 2, PARAM::Field::PENALTY_AREA_WIDTH / 2}, {FIELD_X_MIN, PARAM::Field::PENALTY_AREA_WIDTH / 2}}};
-    const CGeoLine FIELD_PENALTYBOR({FIELD_X_MIN, PARAM::Field::PENALTY_AREA_WIDTH / 2}, {FIELD_X_MIN, -PARAM::Field::PENALTY_AREA_WIDTH / 2}); // 禁区所在直线
+    const CGeoLine DEFENDER_FIELD_PENALTYBOR({DEFENDER_FIELD_X_MIN, PARAM::Field::PENALTY_AREA_WIDTH / 2}, {DEFENDER_FIELD_X_MIN, -PARAM::Field::PENALTY_AREA_WIDTH / 2}); // 禁区直线
 
     /* 禁区信息 */
 
     /* 球员默认站位信息 */
-    const CGeoPoint DEFAULT_STAND_POS(FIELD_X_MIN, PARAM::Field::PENALTY_AREA_WIDTH / 2);
+    const CGeoPoint DEFAULT_STAND_POS(DEFENDER_FIELD_X_MIN, PARAM::Field::PENALTY_AREA_WIDTH / 2);
     const double DEFAULT_STAND_DIR = 0;
     const double DEFAULT_DISTANCE_MAX = PARAM::Field::PENALTY_AREA_WIDTH; // 两个后卫之间的最大距离
     const double DEFAULT_DISTANCE_MIN = 100.0;                            // 两个后卫之间的最小距离
 
-    extern CGeoPoint ComputeCrossPENALTY();
-    extern double ComputeDistance(CGeoPoint hitPoint);
+    extern CGeoPoint DEFENDER_ComputeCrossPenalty();
+    extern double DEFENDER_ComputeDistance(CGeoPoint hitPoint);
 
     /* =============== Robocup-SSL-China =============== */
     extern double Normalize(double angle);               ///< 把角度规范化到(-PI,PI]
