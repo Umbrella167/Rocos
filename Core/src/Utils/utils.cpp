@@ -236,7 +236,6 @@ namespace Utils
         double v = pVision->ball().Vel().mod();
         double maxT = v / a;
         double maxDist = a * maxT * maxT;
-
 //        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(1000, 1500), "v:"+to_string(v));
 //        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(1000, 1000), "d:"+to_string(maxDist));
         return maxDist;
@@ -251,10 +250,12 @@ namespace Utils
      */
     double GetBallToDistTime(const CVisionModule *pVision, double dist)
     {
+        // TODO: 当球运动到最后的时候停在最远点，此时球到达这个点的时间应该是无限大的（前提：没有人去拿球）
+        //       所以当球滚到最后（且速度较慢）的时候，应该相应的增加其权重
+
         double a = PARAM::Field::V_DECAY_RATE;
         double v = pVision->ball().Vel().mod();
         double t = sqrt((2 * a * dist + v * v) / a * a) - v / a;
-
         //        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(1000, 2000), "t:"+to_string(t));
         return t;
     }
@@ -273,28 +274,24 @@ namespace Utils
         double maxDist = GetBallMaxDist(pVision);
         CGeoPoint maxTolerancePos = CGeoPoint(inf, inf);
         CGeoPoint minGetBallPos = CGeoPoint(inf, inf);
-
         double maxTolerance = -inf;
         double minTime = inf;
-        //        GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(0,-1000),to_string(playerPos.x()) + "   " +to_string(playerPos.y()));
+        // 遍历每个点，寻找最有可能的截球点
         for (int dist = 0; dist < maxDist; dist += 100)
         {
-            //            GetBallToDistTime(pVision, dist);
             CGeoPoint ballPrePos = pVision->ball().Pos() + Polar2Vector(dist, pVision->ball().Vel().dir());
-//            GDebugEngine::Instance()->gui_debug_x(playerPos, 2);
-
             double playerToBallDist = playerPos.dist(ballPrePos);
             double t = (playerToBallDist / playerVel) * 10 / 1000;
-
             double getBallTime = GetBallToDistTime(pVision, dist) / 1000;
             double tolerance = getBallTime - t;
-
+            if (InExclusionZone(ballPrePos))
+                continue;
             if (maxTolerance != -inf && tolerance < 0)
                 break;
-
+            // 可能截到球的点
             if (tolerance >= 0)
             {
-                //                GDebugEngine::Instance()->gui_debug_line(playerPos, ballPrePos);
+                GDebugEngine::Instance()->gui_debug_line(playerPos, ballPrePos);
                 // 记录最快截球点
                 if (getBallTime < minTime)
                 {
@@ -312,24 +309,25 @@ namespace Utils
 //            GDebugEngine::Instance()->gui_debug_msg(ballPrePos, to_string(getBallTime),3,0,90);
 //            GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(ballPrePos.x() + 1000,ballPrePos.y()), to_string(t),4,0,90);
 //            GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(ballPrePos.x() + 2000,ballPrePos.y()), to_string(tolerance),1,0,90);
-            //            GDebugEngine::Instance()->gui_debug_x(ballPrePos);
+              GDebugEngine::Instance()->gui_debug_x(ballPrePos);
         }
 
+        // 返回结果
         if (maxTolerance != -inf)
         {
             switch (flag)
             {
             case 0:
-//                GDebugEngine::Instance()->gui_debug_line(playerPos, minGetBallPos,5,1);
+                GDebugEngine::Instance()->gui_debug_line(playerPos, minGetBallPos,5,1);
                 return minGetBallPos;
                 break;
             case 1:
-//                GDebugEngine::Instance()->gui_debug_line(playerPos, maxTolerancePos,5,1);
+                GDebugEngine::Instance()->gui_debug_line(playerPos, maxTolerancePos,5,1);
                 return maxTolerancePos;
                 break;
             case 2:
                 CGeoPoint posMid = CGeoPoint((minGetBallPos.x() + maxTolerancePos.x())/2, (minGetBallPos.y() + maxTolerancePos.y())/2);
-//                GDebugEngine::Instance()->gui_debug_line(posMid, maxTolerancePos,5,1);
+                GDebugEngine::Instance()->gui_debug_line(posMid, maxTolerancePos,5,1);
                 return posMid;
                 break;
             }
