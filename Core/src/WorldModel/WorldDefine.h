@@ -153,12 +153,14 @@ struct balls{
         double acc = 1; // 球加速度
         CGeoPoint pos = CGeoPoint(0,0); // 球位置
         CGeoPoint pos_move_befor = CGeoPoint(0,0); // 球运动之前的位置
+        CGeoPoint first_dribbling_pos = CGeoPoint (0,0); // 第一次带球位置
         double predict_vel_max = 0; // 预测的最大速度
         double avg_vel = 0; // 球平均速度
         double vel_dir = 0; // 球速度方向
         int rights = 0; // 球权 [-1：敌方, 0:无人, 1:我方, 2:顶牛(双方处于纠缠的状况，无法判断具体球权属于谁)]
         int our_min_dist_num = 0; // 我方距离球最近的车号
         int their_min_dist_num = 0; // 敌方距离球最近的车号
+
 
 
 };

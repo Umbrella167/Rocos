@@ -116,15 +116,6 @@ canTouchAngle = 30
 -- 传球角度
 pass_pos = CGeoPoint:new_local(4500,-999)
 
---dribbling pos
-dribbling_pos = CGeoPoint:new_local(0,0)
-
-dribblingPos = function()
-    return function()
-        return dribbling_pos
-    end
-end
-
 -- 此脚本的全局更新
 function UpdataTickMessage(defend_num1,defend_num2)
         -- 获取 Tick 信息
@@ -149,7 +140,6 @@ function UpdataTickMessage(defend_num1,defend_num2)
                 touchPos = Utils.GetTouchPos(vision,CGeoPoint:new_local(player.posX(dribbling_player_num),player.posY(dribbling_player_num)),canTouchAngle)
         end
         debugStatus()
-        dribbling_pos = Utils.GetShowDribblingPos(vision,player.pos(GlobalMessage.Tick.our.to_balldist_min_num),correction_pos)
 end
 
 
@@ -275,6 +265,7 @@ firstState = "Init",
 ["passToPlayer"] = {
         switch = function()
                 UpdataTickMessage(defend_num1,defend_num2)
+
                 if(player.kickBall("Assister")) then
                         local getballPlayer = player.name(pass_player_num)
                         return getballPlayer .. "getBall" 
@@ -348,11 +339,9 @@ firstState = "Init",
 ["Dribbling"] = {
         switch = function()
                 UpdataTickMessage(defend_num1,defend_num2)
-                if (bufcnt(true, 20)) then
-                    return "GetGlobalMessage"
-                end
+                return "GetGlobalMessage"
         end,
-        Assister = task.getball("Assister",4,1,ballPos()),
+        Assister = task.stop(),
         Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker")),
         Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
         Tier = task.stop(),

@@ -60,10 +60,12 @@ struct PlayerCapabilityT{
 
 struct balls{
     public:
+
         double vel; // 球速度
         double acc; // 球加速度
         CGeoPoint pos ; // 球位置
         CGeoPoint pos_move_befor; // 球运动之前的位置
+        CGeoPoint first_dribbling_pos; // 第一次带球位置
         double predict_vel_max; // 预测的最大速度
         double avg_vel; // 球平均速度
         double vel_dir; // 球速度方向

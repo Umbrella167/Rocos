@@ -1,4 +1,3 @@
-
 IS_YELLOW = CGetSettings("ZAlert/IsYellow","Bool")
 local team = IS_YELLOW and "Yellow" or "Blue"
 IS_TEST_MODE = CGetSettings("ZAlert/"..team.."_IsTest","Bool")
@@ -19,7 +18,7 @@ gTestPlay = CGetSettings("ZAlert/"..team.."_TestScriptName","String")
 
 gRoleFixNum = {
         ["Goalie"]   = {0},
-        ["Defender"]   = {1},
+        ["Defender"]   = {9},
         ["Tier"]     = {2},
 }
 
