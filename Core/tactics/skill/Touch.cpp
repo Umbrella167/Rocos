@@ -86,10 +86,18 @@ void CTouch::plan(const CVisionModule* pVision){
     const auto avoidDistDynamic = needAvoidDynamic ? 3*clip(90-diff4avoid_ball *180.0 / PARAM::Math::PI,0.0,90.0) : 0;
 
     double avoid_dist = 0;
-    if (toBallDist > 120 && (needAvoidStatic || needAvoidDynamic)){
+
+    double toBallDir = (pVision ->ball().Pos() - me.Pos()).dir() * 57.3;
+
+    double subDir = abs(toBallDir - abs(me.Dir() * 57.3));
+
+//     GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(0,0),to_string(subDir));
+    if (toBallDist > 120 && (needAvoidStatic || needAvoidDynamic) || subDir > 90){
         taskFlag |= PlayerStatus::DODGE_BALL;
         avoid_dist = std::max(avoidDistStatic, avoidDistDynamic);
     }
+
+
 
     TaskT newTask(task());
     newTask.player.pos = targetRunPos;

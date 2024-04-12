@@ -41,9 +41,9 @@ function getball(role, playerVel, inter_flag, target_point)
 			p1 = target_point
 		end
 		if player.infraredCount(role) < 5 then
-			local flag = inter_flag or 0
+			local qflag = inter_flag or 0
 			local playerPos = CGeoPoint:new_local( player.pos(role):x(),player.pos(role):y())
-			local inter_pos = Utils.GetBestInterPos(vision,playerPos,playerVel,flag)
+			local inter_pos = Utils.GetBestInterPos(vision,playerPos,playerVel,qflag)
 			
 			local idir = player.toBallDir(role)
 			local ipos = ball.pos()
@@ -52,14 +52,32 @@ function getball(role, playerVel, inter_flag, target_point)
 			else
 				ipos = inter_pos
 			end
-			local endvel = Utils.Polar2Vector(800,player.toBallDir(role))
+			local endvel = Utils.Polar2Vector(200,player.toBallDir(role))
+			-- local toballDir = math.abs(player.toBallDir(role))  * 57.3
+			local toballDir = math.abs(ball.rawPos() - player.rawPos(role))
+			local playerDir = math.abs(player.dir(role))* 57.3
+			local Subdir = math.abs(toballDir-playerDir)
+			local iflag = bit:_or(flag.allow_dss, flag.dodge_ball)
+			if Subdir > 10 then 
+				local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
+				iflag =  DSS_FLAG
+			else
+				iflag = flag.dribbling
+			end
+
+			-- if bufcnt(player.toBallDist(role) < 100 and not player.infraredOn(role),30) then
+			-- 	local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
+			-- 	iflag =  DSS_FLAG
+			-- end
 			ipos = CGeoPoint:new_local(ipos:x(),ipos:y())
-			local mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = 0x00000100, rec = r, vel = endvel }
+			
+			local mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = iflag, rec = r, vel = endvel }
 				return { mexe, mpos }
 		else
 			local idir = (p1 - player.pos(role)):dir()
 			local pp = player.pos(role) + Utils.Polar2Vector(0 + 10, idir)
-			local mexe, mpos = GoCmuRush { pos = pp, dir = idir, acc = 50, flag = 0x00000100 + 0x04000000, rec = 1, vel = v }
+			local iflag = flag.dribbling
+			local mexe, mpos = GoCmuRush { pos = pp, dir = idir, acc = 50, flag = iflag, rec = 1, vel = v }
 			return { mexe, mpos }
 		end
 	end
@@ -74,19 +92,19 @@ function power(p, Kp) --根据目标点与球之间的距离求出合适的 击�
 			p1 = p
 		end
 		local res = Kp * (p1 - ball.pos()):mod()
-		-- if res > 310 then
-		-- 	res = 310
-		-- end
-		-- if res < 230 then
-		-- 	res = 230
-		-- end
+		if res > 310 then
+			res = 310
+		end
+		if res < 230 then
+			res = 230
+		end
 
-		if res > 7000 then
-			res = 7000
-		end
-		if res < 3400 then
-			res = 3400
-		end
+		-- if res > 7000 then
+		-- 	res = 7000
+		-- end
+		-- if res < 3400 then
+		-- 	res = 3400
+		-- end
 		debugEngine:gui_debug_msg(CGeoPoint:new_local(-4300,-2000),"Power" .. res,3)
 		return res
 	end
