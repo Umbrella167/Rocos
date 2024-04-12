@@ -416,7 +416,7 @@ function defender_marking(role)
 
 		if player.toBallDist(role) < 500 then
 			local ipos = pos.theirGoal()
-			-- NOTE: 会有更好的解决办法放置卡禁区 1/2
+			-- NOTE: 会有更好的解决办法防止卡禁区 1/2
 			local idir = function(runner) return (_c(ipos) - player.pos(runner)):dir() end
 			local mexe, mpos = Touch { pos = ipos, useInter = ifInter }
 			local ipower = function()
@@ -464,7 +464,7 @@ function defender_defence(role)
 		if player.toBallDist(role) < DEFENDER_SAFEDISTANCE / 2 or ball.pos():x() < -param.pitchLength / 2 + param.penaltyDepth then -- 可抢球机会
 			if role == role_major then
 				local ipos = pos.theirGoal()
-				-- NOTE: 会有更好的解决办法放置卡禁区 2/2
+				-- NOTE: 会有更好的解决办法防止卡禁区 2/2
 				local idir = function(runner) return (_c(ipos) - player.pos(runner)):dir() end
 				-- if ball.pos():x() < -param.pitchLength / 2 + param.penaltyDepth then idir = 0 end -- FIXME: idir=0的时候会报错，但是可能会卡禁区
 				local mexe, mpos = Touch { pos = ipos, useInter = ifInter }
