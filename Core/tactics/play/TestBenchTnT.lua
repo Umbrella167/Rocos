@@ -9,7 +9,7 @@ local flag = true
 local finsh = True
 local file = io.open("./fitdatas/data.csv", "w+")
 io.output(file)
-io.write("playerNumber, power, maxBallVelMod, firstBallVel\n")
+io.write("playerNumber,power,maxBallVelMod,firstBallVel\n")
 
 local init_params = function()
     task.task.kickPower = {}
@@ -69,7 +69,7 @@ local updateFitParams = function()
 
     debugEngine:gui_debug_msg(sp+v*1, string.format("fitPower:                %6.3f", fitPower), param.BLUE)
     debugEngine:gui_debug_msg(sp+v*2, string.format("maxBallVelMod:           %6.3f", maxBallVelMod), param.BLUE)
-    debugEngine:gui_debug_msg(sp+v*3, string.format("firstBallVel:          %6.3f", firstBallVel), param.BLUE)
+    debugEngine:gui_debug_msg(sp+v*3, string.format("firstBallVel:            %6.3f", firstBallVel), param.BLUE)
     -- debugEngine:gui_debug_msg(sp+v*1,string.format("maxBallRawVelMod:        %6.3f", maxBallRawVelMod),param.BLUE)
 end
 
@@ -85,8 +85,14 @@ local saveFitParams = function()
     -- local ballRawVelMod = ball.rawVelMod()
     local fitPower = task.kickPower[fitPlayer1]
 
+
+    debugEngine:gui_debug_msg(sp+v*1, string.format("player:                  %6.3f", task.fitPlayer1), param.BLUE)
+    debugEngine:gui_debug_msg(sp+v*2, string.format("fitPower:                %6.3f", task.kickPower[task.fitPlayer1]), param.BLUE)
+    debugEngine:gui_debug_msg(sp+v*3, string.format("maxBallVelMod:           %6.3f", maxBallVelMod), param.BLUE)
+    debugEngine:gui_debug_msg(sp+v*4, string.format("firstBallVel:            %6.3f", firstBallVel), param.BLUE)
     -- 存储文件
     io.write(string.format("%d,%f,%f,%f\n", task.fitPlayer1, task.kickPower[task.fitPlayer1], maxBallVelMod, firstBallVel))
+    io.flush()
 
     task.task.kickPower[task.fitPlayer1] = task.kickPower[task.fitPlayer1] + task.powerStep
     maxBallVelMod = 0

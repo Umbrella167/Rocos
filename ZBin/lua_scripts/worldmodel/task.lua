@@ -741,9 +741,9 @@ function getInitData(role, p)
 end
 
 kickPower = {}
-minPower = 2000
-maxPower = 2400
-powerStep = 200
+minPower = 1000
+maxPower = 6000
+powerStep = 10
 playerCount = 0
 fitPlayerLen = 0
 fitPlayerList = {}
@@ -851,7 +851,7 @@ function getFitData_recording(role)
 
 		if playerNum == fitPlayer2 then
 			local rolePos = CGeoPoint:new_local(player.posX(role), player.posY(role))
-			local getBallPos = Utils.GetBestInterPos(vision, rolePos, 3, 0)
+			local getBallPos = Utils.GetBestInterPos(vision, rolePos, 3, 2)
 			-- if player.infraredCount(role) > 10 then
 			-- 	local ipos = player.pos(fitPlayer1)
 			-- 	local idir = function(runner)
@@ -870,11 +870,12 @@ function getFitData_recording(role)
 				local idir = function(runner)
 					return (_c(ipos) - player.pos(runner)):dir()
 				end
-				local mexe, mpos = Touch { pos = ipos, useInter = ifInter }
+				local mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = 0x00000000, rec = r, vel = v }
+
 				local ipower = function()
-					return 2500
+					return 3000
 				end
-				return { mexe, mpos, mode and kick.flat or kick.chip, idir, pre.low, ipower, ipower, 0x00000000 }
+				return { mexe, mpos, kick.flat, idir, pre.low, ipower, ipower, 0x00000000 }
 			end
 
 		elseif playerNum ~= fitPlayer1 then
