@@ -77,9 +77,7 @@ function canTouch(role,p,touchAngle)
 end
 
 
--- function rawPos(role)
--- 	return instance(role):RawPos()
--- end
+
 
 function pos(role)
 	return instance(role):Pos()
