@@ -1360,13 +1360,10 @@ namespace Utils
         CGeoLineLineIntersection intersection(DEFENDER_FIELD_PENALTYBOR, ball_line); // 获取球运动姿态的交点
         if (intersection.Intersectant())
         {
-            // if (intersection.IntersectPoint().y() > -DEFENDER_FIELD_Y_BOR / 2 && intersection.IntersectPoint().y() < DEFENDER_FIELD_Y_BOR / 2)
-            // {
             return intersection.IntersectPoint();
-            // }
         }
 
-        return {0, 0}; // 无焦点
+        return {0, 0}; // 无交点
     }
 
     /**

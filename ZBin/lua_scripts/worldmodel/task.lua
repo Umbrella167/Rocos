@@ -433,10 +433,10 @@ function defender_defence(role)
 
 		if player.toBallDist(role) < DEFENDER_SAFEDISTANCE / 2 or ball.pos():x() < -param.pitchLength / 2 + param.penaltyDepth then -- 可抢球机会
 			if role == role_major then
-				local ipos = pos.theirGoal()
-				local idir = function(runner)
-					return (_c(ipos) - player.pos(runner)):dir()
-				end
+                local ipos = pos.theirGoal()
+				-- NOTE: 会有更好的解决办法放置卡禁区
+				local idir = (ball.pos():x() < -param.pitchLength / 2 + param.penaltyDepth) and 0
+					or (function(runner) return (_c(ipos) - player.pos(runner)):dir() end)
 				local mexe, mpos = Touch { pos = ipos, useInter = ifInter }
 				local ipower = function()
 					return power or 127
@@ -453,14 +453,20 @@ function defender_defence(role)
 			-- 		ipos = hitPoint
 			-- 	elseif role == role_minor then
 
-
-			debugEngine:gui_debug_msg(
-				CGeoPoint:new_local(DEFENDER_DEBUG_POSITION_X,
-					DEFENDER_DEBUG_POSITION_Y),
-				enemy.pos(role):x() .. " " .. enemy.pos(role):y())
-
 			-- 如果检测到有可能有敌人出现，那么需要回防
-			if player.toPlayerDist(role, player.name(Utils.closestPlayerToPoint(vision, role_minor == ROLE_DEFENDER and DEFENDER_INITPOS_DEFENDER or DEFENDER_INITPOS_TIER, 2, player.num(role)))) < DEFENDER_SAFEDISTANCE then
+			-- FIXME: 不能修改
+			if 1 then
+				-- player.toPlayerDist(role, player.name(
+				-- Utils.closestPlayerToPoint(vision, role_minor == ROLE_DEFENDER and DEFENDER_INITPOS_DEFENDER or DEFENDER_INITPOS_TIER, 2, player.num(role)))) < DEFENDER_SAFEDISTANCE
+
+				debugEngine:gui_debug_msg(
+					CGeoPoint:new_local(DEFENDER_DEBUG_POSITION_X,
+						DEFENDER_DEBUG_POSITION_Y),
+					Utils.closestPlayerToPoint(vision,
+						role_minor == ROLE_DEFENDER and DEFENDER_INITPOS_DEFENDER or DEFENDER_INITPOS_TIER, 2,
+						player.num(role)) < TestDefender.DEFENDER_SAFEDISTANCE
+				)
+
 				ipos = enemy.pos(role) +
 					Utils.Polar2Vector(DEFENDER_SAFEDISTANCE / 4, (ball.pos() - enemy.pos(role)):dir())
 
