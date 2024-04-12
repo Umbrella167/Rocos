@@ -574,31 +574,128 @@ end
 ------------------------------------ 防守相关的skill ---------------------------------------
 -- Defender
 
-function trackingDefenderPos(posType)
+--[[ 盯防 ]]
+function defender_marking(role)
 	return function()
+		Utils.UpdataTickMessage(vision, DEFENDER_NUM1, DEFENDER_NUM2)
+
 		local mexe, mpos = nil, nil
-		local p, idir = nil, dir.shoot()
-		local hitPoint = Utils.ComputeCrossPENALTY()
-		local distanceDT = Utils.ComputeDistance(hitPoint)
-		local POS_NULL = CGeoPoint:new_local(0, 0)
+		local ipos, idir = "Defender" == role and DEFENDER_INITPOS_DEFENDER or DEFENDER_INITPOS_TIER,
+			player.toBallDir(role)
 
-		debugEngine:gui_debug_msg(
-			CGeoPoint:new_local(DEFENDER_DEBUG_POSITION_X,
-				DEFENDER_DEBUG_POSITION_Y),
-			tostring(distanceDT))
+		local ROLE_DEFENDER = "Defender"
+		local ROLE_TIER = "Tier"
+		local role_major = player.toBallDist(ROLE_DEFENDER) < player.toBallDist(ROLE_TIER) and ROLE_DEFENDER
+			or ROLE_TIER -- defender
+		-- FIXME: 这里容易出一个bug，如果在运动中导致两个后卫距离 ball 的距离差不多，会导致两个后卫被“互相卡住”
+		local role_minor = role_major == ROLE_DEFENDER and ROLE_TIER
+			or ROLE_DEFENDER -- tier
 
-		if hitPoint ~= POS_NULL then
-			if "l" == posType then
-				p = CGeoPoint:new_local(hitPoint:x(),
-					hitPoint:y() + distanceDT / 2 < 2000 and hitPoint:y() + distanceDT / 2 or 2000)
-			elseif "m" == posType then
-				p = CGeoPoint:new_local(hitPoint:x(), hitPoint:y())
-			elseif "r" == posType then
-				p = CGeoPoint:new_local(hitPoint:x(),
-					hitPoint:y() - distanceDT / 2 > -2000 and hitPoint:y() - distanceDT / 2 or -2000)
+		if player.toBallDist(role) < 500 then
+			local ipos = pos.theirGoal()
+			-- NOTE: 会有更好的解决办法防止卡禁区 1/2
+			local idir = function(runner) return (_c(ipos) - player.pos(runner)):dir() end
+			local mexe, mpos = Touch { pos = ipos, useInter = ifInter }
+			local ipower = function()
+				return power or 127
+			end
+			return { mexe, mpos, mode and kick.flat or kick.chip, idir, pre.low, ipower, cp.full, flag.nothing }
+		else
+			local closestEnemy = -- 最近的敌人位置，但是排除了守门员
+				Utils.closestPlayerToPoint(vision,
+					role_minor == ROLE_DEFENDER and DEFENDER_INITPOS_DEFENDER or DEFENDER_INITPOS_TIER, 2,
+					player.num(role))
+
+
+			if nil ~= closestEnemy then                                                -- 如果检测到有可能有敌人出现，那么需要回防
+				if player.toPointDist(role, closestEnemy) < DEFENDER_SAFEDISTANCE then -- 并且可能产生威胁 NOTE: 可以继续升级算法 1/2
+					ipos = closestEnemy +
+						Utils.Polar2Vector(DEFENDER_SAFEDISTANCE / 4, (ball.pos() - closestEnemy):dir()) -- 盯防一波
+				end
+			end
+			ipos = enemy.pos(role) + Utils.Polar2Vector(300, (ball.pos() - enemy.pos(role)):dir())
+			mexe, mpos = GoCmuRush { pos = ipos, dir = idir }
+		end
+		return { mexe, mpos }
+	end
+end
+
+--[[ 防守 ]]
+function defender_defence(role)
+	return function()
+		Utils.UpdataTickMessage(vision, DEFENDER_NUM1, DEFENDER_NUM2)
+
+		local mexe, mpos = nil, nil
+		local ipos, idir = "Defender" == role and DEFENDER_INITPOS_DEFENDER or DEFENDER_INITPOS_TIER,
+			player.toBallDir(role)
+
+		local ROLE_DEFENDER = "Defender"
+		local ROLE_TIER = "Tier"
+		local role_major = player.toBallDist(ROLE_DEFENDER) < player.toBallDist(ROLE_TIER) and ROLE_DEFENDER
+			or ROLE_TIER -- defender
+		local role_minor = role_major == ROLE_DEFENDER and ROLE_TIER
+			or ROLE_DEFENDER -- tier
+
+		role = player.name(role)
+
+		if player.toBallDist(role) < DEFENDER_SAFEDISTANCE / 2 or ball.pos():x() < -param.pitchLength / 2 + param.penaltyDepth then -- 可抢球机会
+			if role == role_major then
+				local ipos = pos.theirGoal()
+				-- NOTE: 会有更好的解决办法防止卡禁区 2/2
+				local idir = function(runner) return (_c(ipos) - player.pos(runner)):dir() end
+				-- if ball.pos():x() < -param.pitchLength / 2 + param.penaltyDepth then idir = 0 end -- FIXME: idir=0的时候会报错，但是可能会卡禁区
+				local mexe, mpos = Touch { pos = ipos, useInter = ifInter }
+				local ipower = function()
+					return power or 127
+				end
+				return { mexe, mpos, mode and kick.flat or kick.chip, idir, pre.low, ipower, cp.full, flag.nothing }
+			end
+		elseif player.toBallDist(role) < DEFENDER_SAFEDISTANCE * 2 then -- 准备防御
+			-- local distanceDT = Utils.DEFENDER_ComputeDistance(hitPoint)
+			local line = CGeoLine:new_local(ball.pos(), ball.velDir()) -- 球的朝向
+			local hitPoint = Utils.DEFENDER_ComputeCrossPenalty(vision, line) -- 可能的射击朝向与禁区线的预测点
+			local POS_NULL = CGeoPoint:new_local(0, 0)
+
+			-- -- FIXME: 如果球权不在自己手上，提前朝向对面瞄准位置，现在不瞄准了，甚至还会跑路
+			-- if GlobalMessage.Tick.ball.rights ~= 1 then --如果球权不在自己手上
+			-- 	local theirAttacker = Utils.closestPlayerNoToPoint(vision,
+			-- 		CGeoPoint:new_local(ball.posX(), ball.posY()), 2) -- 获取离球最近的敌人
+
+			-- 	-- debugEngine:gui_debug_msg(CGeoPoint:new_local(DEFENDER_DEBUG_POSITION_X, DEFENDER_DEBUG_POSITION_Y),
+			-- 	-- type(ball.pos()))
+
+			-- 	line = CGeoLine:new_local(player.pos(theirAttacker), player.dir(theirAttacker))
+			-- 	hitPoint = Utils.DEFENDER_ComputeCrossPenalty(vision, line)
+			-- end
+
+			if hitPoint ~= POS_NULL then -- 有防御交点
+				if role == role_major then
+					ipos = hitPoint
+				elseif role == role_minor then
+					local closestEnemy = -- 最近的敌人位置，但是排除了守门员
+						Utils.closestPlayerToPoint(vision,
+							role_minor == ROLE_DEFENDER and DEFENDER_INITPOS_DEFENDER or DEFENDER_INITPOS_TIER, 2,
+							player.num(role))
+
+					if nil ~= closestEnemy then                                          -- 如果检测到有可能有敌人出现，那么需要回防
+						if player.toPointDist(role, closestEnemy) < DEFENDER_SAFEDISTANCE then -- 并且可能产生威胁 NOTE: 可以继续升级算法
+							ipos = closestEnemy +
+								Utils.Polar2Vector(DEFENDER_SAFEDISTANCE / 4, (ball.pos() - closestEnemy):dir()) -- 盯防一波
+						else                                                             -- 不然就跟着 role_major
+							ipos = CGeoPoint:new_local(player.pos(role_major):x(),
+								player.pos(role_major):y() + (role == ROLE_TIER and -DEFENDER_DEFAULT_DISTANCE_MIN
+									or DEFENDER_DEFAULT_DISTANCE_MIN))
+						end
+					end
+				end
 			end
 
-			mexe, mpos = GoCmuRush { pos = p, dir = idir, acc = a, flag = f, rec = r, vel = v, speed = s, force_manual = force_manual }
+			mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = f, rec = r, vel = v, speed = s, force_manual = force_manual }
+			return { mexe, mpos }
+			-- end
+		else
+			-- NOTE: 可以更加智能一些
+			mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = f, rec = r, vel = v, speed = s, force_manual = force_manual }
 			return { mexe, mpos }
 		end
 	end
