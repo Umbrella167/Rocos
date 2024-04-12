@@ -21,8 +21,17 @@ module(..., package.seeall)
 powerShoot = 3000
 ---------------------------------
 --旋转参数
-rotPos = CGeoPoint(150,120)
-rotVel = 5
+-- 顺时针
+rotPos = CGeoPoint(100, 0)
+rotVel = -5
+
+-- -- 逆时针
+-- rotPos = CGeoPoint(150,120)
+-- rotVel = 5
+
+-- rotPos = CGeoPoint(150,120)
+-- rotVel = 5
+
 ---------------------------------
 
 

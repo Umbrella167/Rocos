@@ -54,18 +54,18 @@ function getball(role, playerVel, inter_flag, target_point)
 			end
 			local endvel = Utils.Polar2Vector(500,player.toBallDir(role))
 			-- local toballDir = math.abs(player.toBallDir(role))  * 57.3
-			local toballDir = math.abs((ball.pos() - player.pos(role)):dir() * 57.3)
+			local toballDir = math.abs((ball.rawPos() - player.rawPos(role)):dir() * 57.3)
 			local playerDir = math.abs(player.dir(role)) * 57.3
 			local Subdir = math.abs(toballDir-playerDir)
 			local iflag = bit:_or(flag.allow_dss, flag.dodge_ball)
-			if Subdir > 20 then 
+			if Subdir > 10 then 
 				local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
 				iflag =  DSS_FLAG
 			else
 				iflag = flag.dribbling
 			end
 
-			-- if bufcnt(player.toBallDist(role) < 100 and not player.infraredOn(role),30) then
+			-- if bufcnt(player.toBallDist(role) < 100 and not player.infraredOn(role),) then
 			-- 	local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
 			-- 	iflag =  DSS_FLAG
 			-- end
@@ -324,15 +324,17 @@ function TurnToPointV2(role, p, speed)
 			if subPlayerBallToTargetDir > 0 then
 				-- 顺时针旋转
 				debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "顺时针")
-				local ipos = param.rotPos  --自身相对坐标 旋转
-				local ivel = speed * -1
+				local ipos = param.rotPos --自身相对坐标 旋转
+				local ivel = speed
 				local mexe, mpos = CircleRun {pos = ipos , vel = ivel}
 				return { mexe, mpos }
+				
 			end
 			-- 逆时针旋转
 			debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "逆时针")
-			local ipos = param.rotPos --自身相对坐标 旋转
-			local ivel = speed
+			local ipos = param.rotPos  --自身相对坐标 旋转
+			local ipos = CGeoPoint(-150,-120)
+			local ivel = speed * -1
 			local mexe, mpos = CircleRun {pos = ipos , vel = ivel}
 			return { mexe, mpos }
 		-- elseif playerToBallDist > 1 then

@@ -120,7 +120,7 @@ defend_num1 = 7
 defend_num2 = 8
 gPlayTable.CreatePlay{
 
-firstState = "Init",
+firstState = "run1",
 
 ["Init"] = {
 	switch = function()
@@ -148,8 +148,8 @@ firstState = "Init",
 		-- 	return "Init"
 		-- end
 	end,
-	Assister = task.TurnToPointV2("Assister", CGeoPoint:new_local(4500,0)),
-	-- Assister = task.TurnRun(param.rotPos, param.rotVel),
+	-- Assister = task.TurnToPointV2("Assister", CGeoPoint:new_local(4500,0)),
+	Assister = task.TurnRun(param.rotPos, param.rotVel),
 	-- Kicker = task.stop(),
 	-- Special = task.stop(),
 	-- Tier = task.stop(),

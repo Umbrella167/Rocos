@@ -221,6 +221,7 @@ firstState = "init",
         --     return "shoot_ball"
         -- end
     end,
+
     Assister = task.getFitData_recording("Assister"),
     Kicker = task.getFitData_recording("Kicker"),
     Special = task.getFitData_recording("Special"),
