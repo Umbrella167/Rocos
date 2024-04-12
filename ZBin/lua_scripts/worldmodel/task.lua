@@ -281,6 +281,57 @@ function TurnToPoint(role, p, speed)
 		
 end
 
+function TurnToPointV2(role, p, speed)
+	--参数说明
+	-- role 	 使用这个函数的角色
+	-- p	     指向坐标
+	-- speed	 旋转速度
+	return function()
+		local p1 = p
+		if type(p) == 'function' then
+			p1 = p()
+		else
+			p1 = p
+		end
+		if speed == nil then
+			speed = param.rotVel
+		end
+
+		local playerDir = player.dir(role)
+		local playerToTargetDir = (p1 - player.pos(role)):dir()
+		local ballToTargetDir = (p1 - ball.pos()):dir()
+		local subPlayerBallToTargetDir = playerToTargetDir - ballToTargetDir
+
+		if math.abs(playerDir-playerToTargetDir) > 0.14 then
+			if subPlayerBallToTargetDir > 0 then
+				-- 顺时针旋转
+				debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "顺时针")
+				local ipos = param.rotPos  --自身相对坐标 旋转
+				local ivel = speed * -1
+				local mexe, mpos = CircleRun {pos = ipos , vel = ivel}
+				return { mexe, mpos }
+			end
+			-- 逆时针旋转
+			debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "逆时针")
+			local ipos = param.rotPos --自身相对坐标 旋转
+			local ivel = speed
+			local mexe, mpos = CircleRun {pos = ipos , vel = ivel}
+			return { mexe, mpos }
+		-- elseif playerToBallDist > 1 then
+		-- 	local mexe, mpos = GoCmuRush { pos = ballPos, dir = playerToTargetDir, acc = a, flag = 0x00000100, rec = r, vel = v }
+		-- 	return { mexe, mpos }
+		-- else
+		-- 	local idir = (p1 - player.pos(role)):dir()
+		-- 	local pp = player.pos(role) + Utils.Polar2Vector(0 + 10, idir)
+		-- 	local mexe, mpos = GoCmuRush { pos = pp, dir = idir, acc = 50, flag = 0x00000100 + 0x04000000, rec = 1, vel = v }
+		-- 	return { mexe, mpos }  
+
+		end
+		-- NOTE: 这里两个if都不成立时没有写额外的操作，需要自行判断退出
+	end
+		
+end
+
 function ShootdotV2(p, Kp, error_, flag)
 	return function()
 		local p1
