@@ -40,7 +40,7 @@ namespace Utils
      * 全局视觉、物理信息保存
      * @param  {CVisionModule*} pVision : 视觉模块
      */
-    GlobalTick UpdataTickMessage(const CVisionModule *pVision, int defend_player_num1, int defend_player_num2)
+    GlobalTick UpdataTickMessage(const CVisionModule *pVision,int goalie_num ,int defend_player_num1, int defend_player_num2)
     {
         CWorldModel RobotSensor;
         int oldest = 0;
@@ -56,17 +56,23 @@ namespace Utils
         /// 更新帧信息
         Tick[now].our.defend_player_num1 = defend_player_num1;
         Tick[now].our.defend_player_num2 = defend_player_num2;
+        Tick[now].our.goalie_num = goalie_num;
+        if(pVision->ball().Valid())
+            Tick[now].ball.pos = pVision->ball().Pos();
+        else
+            Tick[now].ball.pos = pVision ->rawBall().Pos();
         Tick[now].time.time = std::chrono::high_resolution_clock::now();
         Tick[now].time.delta_time = (double)std::chrono::duration_cast<std::chrono::microseconds>(Tick[now].time.time - Tick[last].time.time).count() / 1000000;
         Tick[now].time.tick_count += 1;
-        Tick[now].ball.pos = pVision->ball().Pos();
+
         Tick[now].ball.vel = pVision->ball().Vel().mod() / 1000;
         Tick[now].ball.vel_dir = pVision->ball().Vel().dir();
         Tick[now].ball.acc = (Tick[now].ball.vel - Tick[last].ball.vel) / Tick[now].time.delta_time;
 
-        Tick[now].their.player_num = pVision->getTheirValidNum();
+
         /// 获取场上机器人信息
         int num_count = 0;
+        int num_count_their = 0;
         Tick[now].our.goalie_num = -1;
         for (int i = 0; i < PARAM::Field::MAX_PLAYER; i++)
         {
@@ -78,15 +84,15 @@ namespace Utils
                 double to_ball_dist = pVision->ourPlayer(i).Pos().dist(Tick[now].ball.pos);
                 if (our_min_dist > to_ball_dist)
                     our_min_dist = to_ball_dist, Tick[now].our.to_balldist_min_num = i;
-                // 获取我方守门员
-                if (InExclusionZone(pVision->ourPlayer(i).Pos()))
-                    Tick[now].our.goalie_num = i;
+//                // 获取我方守门员
+//                if (InExclusionZone(pVision->ourPlayer(i).Pos()))
+//                    Tick[now].our.goalie_num = i;
             }
 
             if (pVision->theirPlayer(i).Valid())
             {
-                // 获取有效机器人
 
+                num_count_their+=1;
                 // 敌方距离球最近的车号
                 double to_ball_dist = pVision->theirPlayer(i).Pos().dist(Tick[now].ball.pos);
                 if (their_min_dist > to_ball_dist)
@@ -97,6 +103,7 @@ namespace Utils
             }
         }
         Tick[now].our.player_num = num_count;
+        Tick[now].their.player_num = num_count_their;
         /// 球权判断
         // 球权一定是我方的情况
         if (RobotSensor.IsInfraredOn(Tick[now].our.to_balldist_min_num) || (our_min_dist < PARAM::Player::playerBallRightsBuffer && their_min_dist > PARAM::Player::playerBallRightsBuffer))
@@ -268,7 +275,7 @@ namespace Utils
             }
         }
         // 与敌人距离 得分
-        min_enemy_grade = NumberNormalize(min_dist,700,180);
+        min_enemy_grade = NumberNormalize(min_dist,300,100);
          // 目标点方向 得分
         double target_pos_dist = run_pos.dist(target_pos);
         double target_pos_dist_grade = NumberNormalize(target_pos_dist,4000,500);
@@ -356,8 +363,13 @@ namespace Utils
 
     CGeoPoint GetBestInterPos(const CVisionModule *pVision, CGeoPoint playerPos, double playerVel, int flag)
     {
+        CGeoPoint ball_pos = pVision->ball().Pos();
+        if(pVision->ball().Valid())
+            ball_pos = pVision->ball().Pos();
+        else
+            ball_pos = pVision ->rawBall().Pos();
         double maxDist = GetBallMaxDist(pVision);
-        CGeoPoint maxBallPos = pVision->ball().Pos() + Polar2Vector(maxDist, pVision->ball().Vel().dir());
+        CGeoPoint maxBallPos = ball_pos + Polar2Vector(maxDist, pVision->ball().Vel().dir());
         CGeoPoint maxAllowedBallPos = CGeoPoint(inf, inf);
         CGeoPoint maxTolerancePos = CGeoPoint(inf, inf);
         CGeoPoint minGetBallPos = CGeoPoint(inf, inf);
@@ -370,7 +382,7 @@ namespace Utils
         // 遍历每个点，寻找最有可能的截球点
         for (int dist = 0; dist < maxDist; dist += 100)
         {
-            CGeoPoint ballPrePos = pVision->ball().Pos() + Polar2Vector(dist, pVision->ball().Vel().dir());
+            CGeoPoint ballPrePos = ball_pos + Polar2Vector(dist, pVision->ball().Vel().dir());
             double playerToBallDist = playerPos.dist(ballPrePos);
             double t = (playerToBallDist / playerVel) * 10 / 1000;
             double getBallTime = GetBallToDistTime(pVision, dist) / 1000;

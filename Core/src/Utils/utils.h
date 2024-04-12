@@ -38,7 +38,7 @@ namespace Utils
     extern bool InExclusionZone(CGeoPoint Point, double buffer = 0);                             // 判断点是否在禁区内
     extern double NumberNormalize(double data, double max_data, double min_data);                  // [0,1] 标准化
     extern bool isValidPass(const CVisionModule *pVision, CGeoPoint start, CGeoPoint end, double buffer = 150);
-    extern GlobalTick UpdataTickMessage(const CVisionModule *pVision, int defend_player_num1, int defend_player_num2); // 获取帧信息
+    extern GlobalTick UpdataTickMessage(const CVisionModule *pVision,int goalie_num ,int defend_player_num1, int defend_player_num2); // 获取帧信息
     extern CGeoPoint GetInterPos(const CVisionModule *pVision, CGeoPoint player_pos, double velocity);                 // 获取最佳截球点
     extern CGeoSegment PredictBallLine(const CVisionModule *pVision);
     extern double PosToPosTime(CGeoPoint start_pos, CGeoPoint end_pos, double velocity);

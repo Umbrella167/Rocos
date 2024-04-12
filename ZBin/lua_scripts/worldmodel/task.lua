@@ -22,11 +22,16 @@ module(..., package.seeall)
 -- 	return shoot_pos
 -- end
 
-function TurnRun(role)
-
-	local mexe, mpos = CircleRun {}
+function TurnRun(pos,vel)
+	local ipos = pos or  CGeoPoint:new_local(0,80)  --自身相对坐标 旋转
+	local ivel = vel -- 旋转速度 -+ 改变方向
+	local mexe, mpos = CircleRun {pos = ipos , vel = ivel}
 	return { mexe, mpos }
 end
+
+
+
+
 function getball(role, playerVel, inter_flag, target_point)
 	return function()
 		local p1
@@ -47,7 +52,7 @@ function getball(role, playerVel, inter_flag, target_point)
 			else
 				ipos = inter_pos
 			end
-			local endvel = Utils.Polar2Vector(200,player.toBallDir(role))
+			local endvel = Utils.Polar2Vector(800,player.toBallDir(role))
 			ipos = CGeoPoint:new_local(ipos:x(),ipos:y())
 			local mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = 0x00000100, rec = r, vel = endvel }
 				return { mexe, mpos }
@@ -69,20 +74,20 @@ function power(p, Kp) --根据目标点与球之间的距离求出合适的 击�
 			p1 = p
 		end
 		local res = Kp * (p1 - ball.pos()):mod()
-		if res > 310 then
-			res = 310
-		end
-		if res < 230 then
-			res = 230
-		end
+		-- if res > 310 then
+		-- 	res = 310
+		-- end
+		-- if res < 230 then
+		-- 	res = 230
+		-- end
 
-		-- if res > 7000 then
-		-- 	res = 7000
-		-- end
-		-- if res < 3400 then
-		-- 	res = 3400
-		-- end
-		debugEngine:gui_debug_msg(CGeoPoint:new_local(-4300,-2000),res,3)
+		if res > 7000 then
+			res = 7000
+		end
+		if res < 3400 then
+			res = 3400
+		end
+		debugEngine:gui_debug_msg(CGeoPoint:new_local(-4300,-2000),"Power" .. res,3)
 		return res
 	end
 end

@@ -5,7 +5,7 @@ namespace Utils{
 	// // // // // Hu-ROCOS-2024 // // // // // 
 
 	
-	GlobalTick UpdataTickMessage(const CVisionModule *pVision,int defend_player_num1,int defend_player_num2); //获取帧信息
+	GlobalTick UpdataTickMessage(const CVisionModule *pVision,int goalie_num ,int defend_player_num1, int defend_player_num2); //获取帧信息
 
 	CGeoPoint GetShowDribblingPos(const CVisionModule *pVision,CGeoPoint player_pos,CGeoPoint target_pos);
 

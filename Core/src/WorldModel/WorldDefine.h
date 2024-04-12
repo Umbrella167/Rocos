@@ -166,7 +166,7 @@ struct balls{
 struct ours{
     public:
         int player_num = 6; // 我方玩家数目
-        int goalie_num = 0; // 我方守门员号码
+        int goalie_num = -1; // 我方守门员号码
         int dribbling_num = -1; //带球的机器人编号
         int to_balldist_min_num = 0; //距离球最近的机器人
         int defend_player_num1 = 0;

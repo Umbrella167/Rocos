@@ -99,37 +99,52 @@ ballRights = -1
 shoot_pos = CGeoPoint:new_local(4500,0)
 -- 被传球机器人
 pass_player_num = 0
-
 -- touch power
 touchPower = 400
-
+-- 守门员号码
+our_goalie_num =3
 -- 后卫号码
-defend_num1 = 9
-defend_num2 = 8
-
+defend_num1 = 4
+defend_num2 = 5
 -- 射门Kp
 shootKp = 0.09
 -- Touch pos
 touchPos = CGeoPoint:new_local(0,0)
 -- Touch 角度
 canTouchAngle = 120
-
 -- 传球角度
 pass_pos = CGeoPoint:new_local(4500,-999)
+-- getball参数
+playerVel = 4
+getballMode = 1
+-- 带球速度
+dribblingVel = 800
+
+-- dribblingPos 带球目标坐标
+dribbling_target_pos = CGeoPoint:new_local(0,0)
+show_dribbling_pos = CGeoPoint:new_local(0,0)
+
+local ShowDribblingPos = function ()
+	return function()
+		return CGeoPoint:new_local(show_dribbling_pos:x(),show_dribbling_pos:y())
+	end
+end
+local dribblingDir = function(role)
+	return function()
+		local playerPos = CGeoPoint(player.posX(role),player.posY(role))
+		return  (playerPos - show_dribbling_pos):dir()
+	end
+end
 
 -- 此脚本的全局更新
 local UpdataTickMessage = function (defend_num1,defend_num2)
 	-- 获取 Tick 信息
-	GlobalMessage.Tick = Utils.UpdataTickMessage(vision,defend_num1,defend_num2)
-
+	GlobalMessage.Tick = Utils.UpdataTickMessage(vision,our_goalie_num,defend_num1,defend_num2)
 	-- debugEngine:gui_debug_msg(CGeoPoint:new_local(4500,-3000),GlobalMessage.Tick.our.player_num)
-
 	-- 获取全局状态，进攻状态为传统
 	status.getGlobalStatus(1)  
-
 	-- 带球机器人初始化
 	dribbling_player_num = -1
-
 	-- 获取球权
 	ball_rights = GlobalMessage.Tick.ball.rights
 	if ball_rights == 1 then
@@ -138,10 +153,12 @@ local UpdataTickMessage = function (defend_num1,defend_num2)
 		pass_pos = CGeoPoint:new_local(player.posX(pass_player_num),player.posY(pass_player_num))
 		shoot_pos = GlobalMessage.Tick.task[dribbling_player_num].shoot_pos
 		shoot_pos = CGeoPoint:new_local(shoot_pos:x(),shoot_pos:y())
+		dribbling_target_pos = shoot_pos
 		dribblingStatus = status.getPlayerStatus(dribbling_player_num)	-- 获取带球机器人状态
 		status.getPlayerRunPos()	-- 获取跑位点
 		touchPos = Utils.GetTouchPos(vision,CGeoPoint:new_local(player.posX(dribbling_player_num),player.posY(dribbling_player_num)),canTouchAngle)
 	end
+	show_dribbling_pos = Utils.GetShowDribblingPos(vision,CGeoPoint(player.posX("Assister"),player.posY("Assister")),dribbling_target_pos);
 	debugStatus()
 end
 
@@ -157,7 +174,7 @@ firstState = "Init",
 		
 		if bufcnt(true,20) then
 			return "GetGlobalMessage"
-		end
+		end 
 	end,
 	Assister = task.stop(),
 	Kicker = task.stop(),
@@ -172,11 +189,12 @@ firstState = "Init",
 	switch = function()
 		
 		UpdataTickMessage(defend_num1,defend_num2) 	  -- 更新帧信息
+		debugEngine:gui_debug_msg(CGeoPoint:new_local(-4400,200),tostring(GlobalMessage.Tick.our.goalie_num))
 		status.debugStatus()
 		-- debugEngine:gui_debug_msg(CGeoPoint:new_local(0,-2000),GlobalMessage.Tick.our.defend_num1)
 		-- debugEngine:gui_debug_msg(CGeoPoint:new_local(0,-2100),GlobalMessage.Tick.our.defend_num2,3)
 		if task.ball_rights == 1 then	-- 我方球权的情况 获取进攻状态
-		-- 	-- dribblingStatus -> [shoot,dribbling,XXpassToPlayerXX]
+			-- dribblingStatus -> [shoot,dribbling,XXpassToPlayerXX]
 			if dribblingStatus == "NOTHING"  or dribblingStatus == "Run" or  dribblingStatus == "Getball" then
 				UpdataTickMessage(defend_num1,defend_num2)
 			else
@@ -184,12 +202,14 @@ firstState = "Init",
 			end
 		elseif ball_rights == -1 then   	-- 敌方球权情况，一个抢球，其余防守
 			return "defendNormalState"
-		else	-- 顶牛 或 未定义情况 一个抢球，其余跑位
+		elseif ball_rights == 2 then   	--顶牛
+			return "Dribbling"
+		else	-- 未定义情况 一个抢球，其余跑位
 			return "defendOtherState"
 		end
 		debugStatus()
 	end,
-	Assister = task.getball("Assister",4,1,ballPos()),--task.GetBallV2("Assister",ballPos()),
+	Assister = task.getball("Assister",playerVel,playerMod,ballPos()),
 	Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker")),
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 
@@ -309,7 +329,7 @@ firstState = "Init",
 		end
 	end,
 	Assister = task.goCmuRush(runPos("Assister"),closures_dir_ball("Assister")),
-	Kicker = task.Getballv4("Kicker",runPos("Kicker")),
+	Kicker =   task.Getballv4("Kicker",runPos("Kicker")),
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 	Tier = task.stop(),
 	Defender = task.stop(),
@@ -333,7 +353,7 @@ firstState = "Init",
 	end,
 	Assister = task.goCmuRush(runPos("Assister"),closures_dir_ball("Assister")),
 	Kicker = task.goCmuRush(runPos("Kicker"),closures_dir_ball("Kicker")),
-	Special = task.Getballv4("Special",runPos("Special")),
+	Special =   task.Getballv4("Special",runPos("Special")),
 	Tier = task.stop(),
 	Defender = task.stop(),
 	Goalie = task.goalie(),
@@ -344,10 +364,13 @@ firstState = "Init",
 -- 带球
 ["Dribbling"] = {
 	switch = function()
-		UpdataTickMessage(defend_num1,defend_num2)
-		return "GetGlobalMessage"
+		-- UpdataTickMessage(defend_num1,defend_num2)
+		if bufcnt(true,30) then 
+			return "GetGlobalMessage"
+		end
 	end,
-	Assister = task.getball("Assister",4,1,ballPos()),
+	--dribbling_target_pos
+	Assister = task.goCmuRush(ShowDribblingPos(), dribblingDir("Assister"),dribblingVel,flag.dribbling),
 	Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker")),
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 	Tier = task.stop(),
@@ -369,7 +392,7 @@ firstState = "Init",
 		end
 		-- debugEngine:gui_debug_msg(passPos,dribblingStatus)
 	end,
-	Assister = task.getball("Assister",4,1,ballPos()),--,--task.GetBallV2("Assister",CGeoPoint:new_local(0,0),8,3000),
+	Assister = task.getball("Assister",playerVel,playerMod,ballPos()),
 	Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker")),
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 	Tier = task.stop(),
@@ -390,7 +413,7 @@ firstState = "Init",
 		end
 		-- debugEngine:gui_debug_msg(passPos,dribblingStatus)
 	end,
-	Assister = task.getball("Assister",4,1,ballPos()),
+	Assister = task.getball("Assister",playerVel,playerMod,ballPos()),
 	Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker")),
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 	Tier = task.stop(),
