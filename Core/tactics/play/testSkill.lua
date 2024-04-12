@@ -25,7 +25,16 @@ runPos = function()
 end
 gPlayTable.CreatePlay{
 
-firstState = "ready",
+firstState = "ready1",
+["ready1"] = {
+	switch = function()
+
+	end,
+	 -- = task.TurnRun("Assister"),
+	Assister = {CircleRun()},
+	-- match = "[AKS]{TDG}"
+	match = "[A]"
+},
 ["ready"] = {
 	switch = function()
 		Utils.UpdataTickMessage(vision,1,2)

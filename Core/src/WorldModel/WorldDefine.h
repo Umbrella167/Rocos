@@ -165,8 +165,6 @@ struct balls{
 //我方相关
 struct ours{
     public:
-        ours(){}
-        int player [16] = {}; // 我方机器人数组
         int player_num = 6; // 我方玩家数目
         int goalie_num = 0; // 我方守门员号码
         int dribbling_num = -1; //带球的机器人编号
@@ -178,8 +176,7 @@ struct ours{
 
 //敌方相关
 struct theirs{
-    public:
-        int player [16]; // 敌方机器人数组
+public:
         int player_num = 6; // 敌方玩家数目
         int goalie_num = -1; // 敌方守门员号码
         int dribbling_num = -1;//带球的机器人编号
