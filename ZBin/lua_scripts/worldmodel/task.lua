@@ -30,8 +30,6 @@ function TurnRun(pos,vel)
 end
 
 
-
-
 function getball(role, playerVel, inter_flag, target_point)
 	return function()
 		local p1
@@ -324,17 +322,15 @@ function TurnToPointV2(role, p, speed)
 			if subPlayerBallToTargetDir > 0 then
 				-- 顺时针旋转
 				debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "顺时针")
-				local ipos = param.rotPos --自身相对坐标 旋转
-				local ivel = speed
+				local ipos = CGeoPoint(param.rotPos:x(), param.rotPos:y() * -1)  --自身相对坐标 旋转
+				local ivel = speed * -1
 				local mexe, mpos = CircleRun {pos = ipos , vel = ivel}
 				return { mexe, mpos }
-				
 			end
 			-- 逆时针旋转
 			debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "逆时针")
 			local ipos = param.rotPos  --自身相对坐标 旋转
-			local ipos = CGeoPoint(-150,-120)
-			local ivel = speed * -1
+			local ivel = speed
 			local mexe, mpos = CircleRun {pos = ipos , vel = ivel}
 			return { mexe, mpos }
 		-- elseif playerToBallDist > 1 then

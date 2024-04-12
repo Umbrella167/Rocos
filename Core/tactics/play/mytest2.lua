@@ -120,9 +120,9 @@ defend_num1 = 7
 defend_num2 = 8
 gPlayTable.CreatePlay{
 
-firstState = "run1",
+firstState = "init",
 
-["Init"] = {
+["init"] = {
 	switch = function()
 		-- UpdataTickMessage(defend_num1,defend_num2) 
 		-- Utils.GetBestInterPos(vision, playerPos("Assister")(), 4, 0)
@@ -148,8 +148,8 @@ firstState = "run1",
 		-- 	return "Init"
 		-- end
 	end,
-	-- Assister = task.TurnToPointV2("Assister", CGeoPoint:new_local(4500,0)),
-	Assister = task.TurnRun(param.rotPos, param.rotVel),
+	Assister = task.TurnToPointV2("Assister", CGeoPoint:new_local(4500,0)),
+	-- Assister = task.TurnRun(param.rotPos, param.rotVel),
 	-- Kicker = task.stop(),
 	-- Special = task.stop(),
 	-- Tier = task.stop(),
