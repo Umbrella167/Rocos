@@ -65,7 +65,7 @@ function getball(role, playerVel, inter_flag, target_point)
 				iflag = flag.dribbling
 			end
 
-			-- if bufcnt(player.toBallDist(role) < 100 and not player.infraredOn(role),30) then
+			-- if bufcnt(player.toBallDist(role) < 100 and not player.infraredOn(role),) then
 			-- 	local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
 			-- 	iflag =  DSS_FLAG
 			-- end

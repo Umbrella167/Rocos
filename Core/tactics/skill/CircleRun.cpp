@@ -7,7 +7,7 @@
 #include "parammanager.h"
 #include "CircleRun.h"
 namespace {
-    double MAX_ACC = 6000;//mm/s^2
+    double MAX_ACC = 2000;//mm/s^2
     double MAX_ROT_ACC = 50;
     bool DEBUG = false;
 }
