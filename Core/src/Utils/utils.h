@@ -74,9 +74,7 @@ namespace Utils
     /* 己方半场信息 */
     const int DEFENDER_FIELD_X_MIN = -PARAM::Field::PITCH_LENGTH / 2 + PARAM::Field::PENALTY_AREA_DEPTH + 50;
     const int DEFENDER_FIELD_Y_BOR = PARAM::Field::PENALTY_AREA_WIDTH / 2;
-
     const CGeoLine DEFENDER_FIELD_PENALTYBOR({DEFENDER_FIELD_X_MIN, PARAM::Field::PENALTY_AREA_WIDTH / 2}, {DEFENDER_FIELD_X_MIN, -PARAM::Field::PENALTY_AREA_WIDTH / 2}); // 禁区直线
-
     /* 禁区信息 */
 
     /* 球员默认站位信息 */

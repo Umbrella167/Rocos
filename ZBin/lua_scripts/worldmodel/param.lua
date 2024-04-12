@@ -17,22 +17,17 @@ module(..., package.seeall)
 -- stopRatio = 1.1
 
 ---------------------------------
---射击力度
-powerShoot = 3000
+-- 射击力度
+powerShoot = 300
 ---------------------------------
---旋转参数
--- -- 顺时针
--- rotPos = CGeoPoint(150, -120)
--- rotVel = -5
-
--- 逆时针
+-- 旋转参数
 rotPos = CGeoPoint(150,120)
-rotVel = 5
-
-
+rotVel = 3.8
 ---------------------------------
-
-
+-- getball参数
+playerVel = 4
+getballMode = 1
+---------------------------------
 INF = 1e9
 PI = 3.141592653589793238462643383279
 maxPlayer   = 16

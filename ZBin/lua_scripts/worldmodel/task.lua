@@ -56,17 +56,12 @@ function getball(role, playerVel, inter_flag, target_point)
 			local playerDir = math.abs(player.dir(role)) * 57.3
 			local Subdir = math.abs(toballDir-playerDir)
 			local iflag = bit:_or(flag.allow_dss, flag.dodge_ball)
-			if Subdir > 10 then 
+			if Subdir > 20 then 
 				local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
 				iflag =  DSS_FLAG
 			else
 				iflag = flag.dribbling
 			end
-
-			-- if bufcnt(player.toBallDist(role) < 100 and not player.infraredOn(role),) then
-			-- 	local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
-			-- 	iflag =  DSS_FLAG
-			-- end
 			ipos = CGeoPoint:new_local(ipos:x(),ipos:y())
 			
 			local mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = iflag, rec = r, vel = endvel }
@@ -90,19 +85,18 @@ function power(p, Kp) --根据目标点与球之间的距离求出合适的 击�
 			p1 = p
 		end
 		local res = Kp * (p1 - ball.pos()):mod()
-		if res > 310 then
-			res = 310
-		end
-		if res < 230 then
-			res = 230
-		end
-
-		-- if res > 7000 then
-		-- 	res = 7000
+		-- if res > 310 then
+		-- 	res = 310
 		-- end
-		-- if res < 3400 then
-		-- 	res = 3400
+		-- if res < 230 then
+		-- 	res = 230
 		-- end
+		if res > 7000 then
+			res = 7000
+		end
+		if res < 3400 then
+			res = 3400
+		end
 		debugEngine:gui_debug_msg(CGeoPoint:new_local(-4300,-2000),"Power" .. res,3)
 		return res
 	end
@@ -294,7 +288,6 @@ function TurnToPoint(role, p, speed)
 		end
 		-- NOTE: 这里两个if都不成立时没有写额外的操作，需要自行判断退出
 	end
-		
 end
 
 function TurnToPointV2(role, p, speed)
@@ -313,40 +306,94 @@ function TurnToPointV2(role, p, speed)
 			speed = param.rotVel
 		end
 
-		local playerDir = player.dir(role)
-		local playerToTargetDir = (p1 - player.pos(role)):dir()
-		local ballToTargetDir = (p1 - ball.pos()):dir()
-		local subPlayerBallToTargetDir = playerToTargetDir - ballToTargetDir
-
-		if math.abs(playerDir-playerToTargetDir) > 0.14 then
-			if subPlayerBallToTargetDir > 0 then
+		-- local playerDir = player.dir(role)
+		-- local playerToTargetDir = (p1 - player.pos(role)):dir() * 57.3
+		-- local ballToTargetDir = (p1 - ball.pos()):dir() * 57.3
+		-- local subPlayerBallToTargetDir = playerToTargetDir - ballToTargetDir
+			local toballDir = (p1 - player.rawPos(role)):dir() * 57.3
+			local playerDir = player.dir(role) * 57.3
+			local subPlayerBallToTargetDir = toballDir - playerDir 
+			-- local Subdir = math.abs(toballDir-playerDir)
+			debugEngine:gui_debug_msg(CGeoPoint:new_local(1000,220),math.abs(toballDir-playerDir) .. "                     " .. subPlayerBallToTargetDir,3)
+		if math.abs(toballDir-playerDir) > 8 then
+			if subPlayerBallToTargetDir < 0 then
 				-- 顺时针旋转
-				debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "顺时针")
+				-- debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "顺时针")
 				local ipos = CGeoPoint(param.rotPos:x(), param.rotPos:y() * -1)  --自身相对坐标 旋转
 				local ivel = speed * -1
 				local mexe, mpos = CircleRun {pos = ipos , vel = ivel}
 				return { mexe, mpos }
+			else
+				-- 逆时针旋转
+				-- debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "逆时针")
+				local ipos = param.rotPos  --自身相对坐标 旋转
+				local ivel = speed
+				local mexe, mpos = CircleRun {pos = ipos , vel = ivel}
+				return { mexe, mpos }
 			end
-			-- 逆时针旋转
-			debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "逆时针")
-			local ipos = param.rotPos  --自身相对坐标 旋转
-			local ivel = speed
-			local mexe, mpos = CircleRun {pos = ipos , vel = ivel}
-			return { mexe, mpos }
-		-- elseif playerToBallDist > 1 then
-		-- 	local mexe, mpos = GoCmuRush { pos = ballPos, dir = playerToTargetDir, acc = a, flag = 0x00000100, rec = r, vel = v }
-		-- 	return { mexe, mpos }
-		-- else
-		-- 	local idir = (p1 - player.pos(role)):dir()
-		-- 	local pp = player.pos(role) + Utils.Polar2Vector(0 + 10, idir)
-		-- 	local mexe, mpos = GoCmuRush { pos = pp, dir = idir, acc = 50, flag = 0x00000100 + 0x04000000, rec = 1, vel = v }
-		-- 	return { mexe, mpos }  
-
+		else
+			local idir = (ball.pos() - player.pos(role)):dir()
+			local pp = ball.pos() + Utils.Polar2Vector(50, idir)
+			local mexe, mpos = GoCmuRush { pos = pp, dir = idir, acc = 50, flag = 0x00000100 + 0x04000000, rec = 1, vel = v }
+			return { mexe, mpos }  
+			
 		end
+
 		-- NOTE: 这里两个if都不成立时没有写额外的操作，需要自行判断退出
 	end
-		
 end
+
+-- function TurnToPointV2(role, p, speed)
+-- 	--参数说明
+-- 	-- role 	 使用这个函数的角色
+-- 	-- p	     指向坐标
+-- 	-- speed	 旋转速度
+-- 	return function()
+-- 		local p1 = p
+-- 		if type(p) == 'function' then
+-- 			p1 = p()
+-- 		else
+-- 			p1 = p
+-- 		end
+-- 		if speed == nil then
+-- 			speed = param.rotVel
+-- 		end
+
+-- 		local playerDir = player.dir(role)
+-- 		local playerToTargetDir = (p1 - player.pos(role)):dir()
+-- 		local ballToTargetDir = (p1 - ball.pos()):dir()
+-- 		local subPlayerBallToTargetDir = playerToTargetDir - ballToTargetDir
+
+-- 			debugEngine:gui_debug_msg(CGeoPoint:new_local(1000,220),math.abs(playerDir-playerToTargetDir) .. "                     " .. subPlayerBallToTargetDir,3)
+-- 		if math.abs(playerDir-playerToTargetDir) > 0.14 then
+
+-- 			if subPlayerBallToTargetDir > 0 then
+-- 				-- 顺时针旋转
+-- 				debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "顺时针")
+-- 				local ipos = CGeoPoint(param.rotPos:x(), param.rotPos:y() * -1)  --自身相对坐标 旋转
+-- 				local ivel = speed * -1
+-- 				local mexe, mpos = CircleRun {pos = ipos , vel = ivel}
+-- 				return { mexe, mpos }
+-- 			else
+-- 				-- 逆时针旋转
+-- 				debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "逆时针")
+-- 				local ipos = param.rotPos  --自身相对坐标 旋转
+-- 				local ivel = speed
+-- 				local mexe, mpos = CircleRun {pos = ipos , vel = ivel}
+-- 				return { mexe, mpos }
+-- 			end
+-- 		else
+-- 			local idir = (ball.pos() - player.pos(role)):dir()
+-- 			local pp = ball.pos() + Utils.Polar2Vector(50, idir)
+-- 			local mexe, mpos = GoCmuRush { pos = pp, dir = idir, acc = 50, flag = 0x00000100 + 0x04000000, rec = 1, vel = v }
+-- 			return { mexe, mpos }  
+			
+-- 		end
+
+-- 		-- NOTE: 这里两个if都不成立时没有写额外的操作，需要自行判断退出
+-- 	end
+		
+-- end
 
 function ShootdotV2(p, Kp, error_, flag)
 	return function()
@@ -575,7 +622,6 @@ end
 --[[ 盯防 ]]
 function defender_marking(role)
 	return function()
-		Utils.UpdataTickMessage(vision, DEFENDER_NUM1, DEFENDER_NUM2)
 
 		local mexe, mpos = nil, nil
 		local ipos, idir = "Defender" == role and DEFENDER_INITPOS_DEFENDER or DEFENDER_INITPOS_TIER,
@@ -621,7 +667,6 @@ end
 --[[ 防守 ]]
 function defender_defence(role)
 	return function()
-		Utils.UpdataTickMessage(vision, DEFENDER_NUM1, DEFENDER_NUM2)
 
 		local mexe, mpos = nil, nil
 		local ipos, idir = "Defender" == role and DEFENDER_INITPOS_DEFENDER or DEFENDER_INITPOS_TIER,

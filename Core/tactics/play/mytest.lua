@@ -88,7 +88,7 @@ end
 -- 校正返回的脚本
 correction_state = "Shoot"
 -- 角度误差常数
-error_dir = 8
+error_dir = 4
 -- 校正坐标初始化
 correction_pos = CGeoPoint:new_local(0,0)
 -- 带球车初始化
@@ -100,25 +100,25 @@ shoot_pos = CGeoPoint:new_local(4500,0)
 -- 被传球机器人
 pass_player_num = 0
 -- touch power
-touchPower = 400
+touchPower = 3000
 -- 守门员号码
-our_goalie_num =3
+our_goalie_num =0
 -- 后卫号码
-defend_num1 = 4
-defend_num2 = 5
+defend_num1 = 1
+defend_num2 = 2
 -- 射门Kp
 shootKp = 0.09
 -- Touch pos
 touchPos = CGeoPoint:new_local(0,0)
 -- Touch 角度
-canTouchAngle = 60
+canTouchAngle = 40
 -- 传球角度
 pass_pos = CGeoPoint:new_local(4500,-999)
 -- getball参数
 playerVel = 4
 getballMode = 1
 -- 带球速度
-dribblingVel = 800
+dribblingVel = 2000
 
 -- dribblingPos 带球目标坐标
 dribbling_target_pos = CGeoPoint:new_local(0,0)
@@ -197,10 +197,7 @@ firstState = "Init",
 			if dribblingStatus == "NOTHING"  or dribblingStatus == "Run" or  dribblingStatus == "Getball" then
 				UpdataTickMessage(defend_num1,defend_num2)
 			else
-				if dribblingStatus ~= "Shoot" then 
-
 				return dribblingStatus
-			end
 			end
 		elseif ball_rights == -1 then   	-- 敌方球权情况，一个抢球，其余防守
 			return "defendNormalState"
@@ -271,7 +268,6 @@ firstState = "Init",
 	Goalie = task.goalie(),
 	match = "{ASKTDG}"
 },
-
 ["SpecialTouch"] = {
 	switch = function()
 		UpdataTickMessage(defend_num1,defend_num2)
@@ -428,19 +424,18 @@ firstState = "Init",
 	match = "{AKSTDG}"
 },
 
-
 -- 方向校正
 ["Correction"] = {
 	switch = function()
 		UpdataTickMessage(defend_num1,defend_num2)
-		if(task.playerDirToPointDirSub("Assister",correction_pos) < error_dir) then 
-				return correction_state
-		end
-		if (bufcnt(true,100)) then
-			return "GetGlobalMessage"
-		end
+        if(task.playerDirToPointDirSub("Assister",correction_pos) < error_dir) then 
+            return correction_state
+        end
+        if (bufcnt(true,40)) then
+            return "GetGlobalMessage"
+        end
 	end,
-	Assister = task.TurnToPoint("Assister", correctionPos(),200),
+	Assister = task.TurnToPointV2("Assister", correctionPos(),param.rotVel), --param.rotVel
 	Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker")),
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 	Tier = task.stop(),

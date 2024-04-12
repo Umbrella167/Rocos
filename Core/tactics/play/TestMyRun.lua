@@ -18,7 +18,7 @@ return {
     ["skill"] = {
         switch = function()
         end,
-        Leader = {CircleRun{pos=CGeoPoint(0,100), rotVel=4}},
+        Leader = {CircleRun{pos=CGeoPoint(0,150), vel=-1}},
         match = "[L]"
     },
     ["run1"] = {

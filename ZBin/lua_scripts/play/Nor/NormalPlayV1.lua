@@ -410,10 +410,10 @@ firstState = "Init",
         switch = function()
                 UpdataTickMessage(defend_num1,defend_num2)
                 if(task.playerDirToPointDirSub("Assister",correction_pos) < error_dir) then 
-                                return correction_state
+                    return correction_state
                 end
                 if (bufcnt(true,100)) then
-                        return "GetGlobalMessage"
+                    return "GetGlobalMessage"
                 end
         end,
         Assister = task.GetBallV2("Assister",correctionPos()),

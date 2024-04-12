@@ -31,20 +31,21 @@ gPlayTable.CreatePlay {
         switch = function()
             return "defenderTestmode"
         end,
+        Assister = task.getball("Assister",3.5,1,CGeoPoint:new_local(0,0)),
         Defender = task.stop(),
         Tier = task.stop(),
-
-        match = "{DT}"
+        Goalie = task.goalie(),
+        match = "[A]{DTG}"
     },
 
     ["defenderTestmode"] = {
         switch = function()
         end,
-
+        Assister = task.getball("Assister",3.5,1,CGeoPoint:new_local(0,0)),
         Defender = task.defender_defence("Defender"),
         Tier = task.defender_defence("Tier"),
-
-        match = "{DT}"
+        Goalie = task.goalie(),
+         match = "[A]{DTG}"
     },
 
     name = "TestDefender",
