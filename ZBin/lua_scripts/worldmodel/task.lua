@@ -566,8 +566,9 @@ function shoot(p, d, chip, power)
 	local ikick = chip and kick.chip or kick.flat
 	local ipower = power and power or 8000
 	local idir = d and d or dir.shoot()
-	local mexe, mpos = GoCmuRush { pos = p, dir = idir, acc = a, flag = f, rec = r, vel = v }
-	return { mexe, mpos, ikick, idir, pre.low, kp.specified(ipower), cp.full, flag.nothing }
+	local iflag = 0x00000000
+	local mexe, mpos = GoCmuRush { pos = p, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
+	return { mexe, mpos, ikick, idir, pre.low, kp.specified(8000), cp.full, iflag }
 end
 
 ------------------------------------ 防守相关的skill ---------------------------------------
@@ -647,7 +648,8 @@ function getInitData(role, p)
 end
 
 kickPower = {}
-maxPower = 1000
+minPower = 2000
+maxPower = 8000
 powerStep = 200
 playerCount = 0
 fitPlayer1 = -1
@@ -731,31 +733,27 @@ function getFitData_runToPos(role)
 				local mexe, mpos = GoCmuRush { pos = p1, dir = idir, acc = a, flag = 0x00000100, rec = r, vel = v }
 				return { mexe, mpos }
 			elseif flag == 1 then
-
-
-				kickPower[fitPlayer1] = kickPower[fitPlayer1] + powerStep
-
 				-- 踢球
-				debugEngine:gui_debug_msg(CGeoPoint(-4000, -4500), "role: "..role)
-				-- local idir = (CGeoPoint(0, 0) - player.pos(role)):dir()
-				-- local error__ = function()
-				-- 	return error_ * math.pi / 180.0
-				-- end
-				debugEngine:gui_debug_msg(CGeoPoint(-4000, -4000), "fitPower: "..tostring(kickPower[playerNum]))
-				-- local mexe, mpos, flag, idir, t_low, t_p, t_p, t_f = shoot(p1, idir, kick.flat, fitPower(playerNum))
-				-- return { mexe, mpos, kick.flat, idir, t_low, fitPower(playerNum), fitPower(playerNum), 0x00000000 }
+				kickPower[fitPlayer1] = kickPower[fitPlayer1] + powerStep
+				-- debugEngine:gui_debug_msg(CGeoPoint(-4000, -4500), "role: "..role)
+				-- debugEngine:gui_debug_msg(CGeoPoint(-4000, -4000), "fitPower: "..tostring(kickPower[playerNum]))
 
-    		
+				local ipos = CGeoPoint:new_local(0, 0)
+				local idir = function(runner)
+					return (_c(ipos) - player.pos(runner)):dir()
+				end
+				local mexe, mpos = Touch { pos = ipos, useInter = ifInter }
+				local ipower = function()
+					return kickPower[fitPlayer1]
+				end
 
-
-
-
-
+				return { mexe, mpos, mode and kick.flat or kick.chip, idir, pre.low, ipower, ipower, 0x00000000 }
     		end
 		else
     		-- 跑去待机位
     		p = CGeoPoint(param.pitchWidth/2-param.playerRadius*3*playerNum, param.pitchLength/2-1500)
     		idir = 0
+
 			local mexe, mpos = GoCmuRush { pos = p, dir = idir, acc = a, flag = f, rec = r, vel = v }
 			return { mexe, mpos }
     	end
