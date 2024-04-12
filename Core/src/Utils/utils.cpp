@@ -1304,9 +1304,9 @@ namespace Utils
      * @param  {CGeoPoint} pos : 目标位置
      * @param  {int} type      : 类型 0全局 1我方 2敌方
      * @param  {int} role = 1  : （可选）排除的球员编号
-     * @return {int}           : 球员编号
+     * @return {CGeoPoint}     : 球员位置
      */
-    int closestPlayerToPoint(const CVisionModule *pVision, CGeoPoint pos, int type, int role)
+    CGeoPoint closestPlayerToPoint(const CVisionModule *pVision, CGeoPoint pos, int type, int role)
     {
         int res[3] = {-1, -1, -1};
         double minDis[3] = {inf, inf, inf};
@@ -1325,29 +1325,31 @@ namespace Utils
                 {
                     res[1] = i;
                     minDis[1] = dist;
-                    if (dist < minDis[0])
-                    {
-                        res[0] = i;
-                        minDis[0] = dist;
-                    }
                 }
-                else if (pVision->theirPlayer(i).Valid())
+                if (dist < minDis[0])
                 {
-                    double dist = pVision->theirPlayer(i).Pos().dist(pos);
-                    if (dist < minDis[2])
-                    {
-                        res[2] = i;
-                        minDis[2] = dist;
-                    }
-                    if (dist < minDis[0])
-                    {
-                        res[0] = i;
-                        minDis[0] = dist;
-                    }
+                    res[0] = i;
+                    minDis[0] = dist;
+                }
+            }
+            else if (pVision->theirPlayer(i).Valid())
+            {
+                double dist = pVision->theirPlayer(i).Pos().dist(pos);
+                if (dist < minDis[2])
+                {
+                    res[2] = i;
+                    minDis[2] = dist;
+                }
+                if (dist < minDis[0])
+                {
+                    res[0] = i;
+                    minDis[0] = dist;
                 }
             }
         }
-        return res[type];
+
+        // return res[type];
+        return pVision->theirPlayer(res[type]).Pos();
     }
 
     /**

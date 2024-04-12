@@ -83,7 +83,7 @@ namespace Utils
     const double DEFAULT_DISTANCE_MIN = 300.0;                            // 两个后卫之间的最小距离
 
     extern int closestPlayerToPlayer(const CVisionModule *pVision, int role, int type);
-    extern int closestPlayerToPoint(const CVisionModule *pVision, CGeoPoint pos, int type, int role = -1);
+    extern CGeoPoint closestPlayerToPoint(const CVisionModule *pVision, CGeoPoint pos, int type, int role = -1);
     extern CGeoPoint DEFENDER_ComputeCrossPenalty();
     extern double DEFENDER_ComputeDistance(CGeoPoint hitPoint);
 

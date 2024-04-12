@@ -5,7 +5,7 @@ function instance(role)
 	if type(role) == "string" then
 		realIns = vision:ourPlayer(num(role))
 	elseif type(role) == "number" then
---	and	role >= 1 and role <= param.maxPlayer then
+		--	and	role >= 1 and role <= param.maxPlayer then
 		realIns = vision:ourPlayer(role)
 	else
 		print("Invalid role in player.instance!!!2222222")
@@ -30,45 +30,43 @@ function num(role)
 	return retNum
 end
 
-
 function name(role)
 	local RoleNum = {
-		"Goalie","Kicker" ,"Assister","Special" ,"Defender" ,"Middle" ,
-		"Leader" ,"Tier" ,"Breaker","Fronter","Receiver","Center" ,
-		"a","b","c","d","e","f","g","h","i","j","k","l","m",
-		"n","o","p","q","r","s","t","u","v","w","x","y","z"
+		"Goalie", "Kicker", "Assister", "Special", "Defender", "Middle",
+		"Leader", "Tier", "Breaker", "Fronter", "Receiver", "Center",
+		"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
+		"n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"
 	}
 	local retNum
 	if type(role) == "string" then
 		retNum = role
 	elseif type(role) == "number" then
 		retNum = "ERROR"
-		for num,i in pairs(RoleNum) do
+		for num, i in pairs(RoleNum) do
 			if role == gRoleNum[i] then
 				retNum = i
 				break
 			end
 		end
-
 	else
 		print("Invalid role in player.instance!!!11111")
 	end
 	return retNum
 end
 
-function canTouch(role,p,interPos,touchAngle)
-			local shoot_pos
-		if type(p) == 'function' then
-	  		shoot_pos = p()
-		else
-	  		 shoot_pos = p
-		end
+function canTouch(role, p, interPos, touchAngle)
+	local shoot_pos
+	if type(p) == 'function' then
+		shoot_pos = p()
+	else
+		shoot_pos = p
+	end
 	local touchAngle = touchAngle or 30
-	local shoot_dir = 90 + (shoot_pos-pos(role)):dir() * 57.3
+	local shoot_dir = 90 + (shoot_pos - pos(role)):dir() * 57.3
 	local pass_dir = 90 + (pos(role) - ball.pos()):dir() * 57.3
-	touch_dir = 180 - (pass_dir-shoot_dir); 
+	touch_dir = 180 - (pass_dir - shoot_dir);
 	touch_dir = pos(role):y() < ball.posY() and 360 - touch_dir or touch_dir
-	debugEngine:gui_debug_msg(CGeoPoint:new_local(-4000,-2500),touch_dir,3)
+	debugEngine:gui_debug_msg(CGeoPoint:new_local(-4000, -2500), touch_dir, 3)
 	if touch_dir > touchAngle then
 		return false
 	else
@@ -176,7 +174,7 @@ function toPlayerDist(role1, role2)
 	end
 end
 
-function toTargetTime(p,role)
+function toTargetTime(p, role)
 	if role == nil then
 		return function(role)
 			local target
@@ -223,9 +221,10 @@ function toTargetDir(p, role)
 		end
 	end
 end
+
 --need to modify
 function toTheirPenaltyDist(role)
-	local tmpToGoalDist = (CGeoPoint:new_local(param.pitchLength/2.0,0) - player.pos(role)):mod()
+	local tmpToGoalDist = (CGeoPoint:new_local(param.pitchLength / 2.0, 0) - player.pos(role)):mod()
 	return tmpToGoalDist - 80
 end
 
@@ -241,22 +240,21 @@ end
 
 -- 用在冲球时求出传球点后面的一个点
 function backShootPos(p)
-	local tmpShootDir = (p - CGeoPoint:new_local(param.pitchLength/2.0,0)):dir()
+	local tmpShootDir = (p - CGeoPoint:new_local(param.pitchLength / 2.0, 0)):dir()
 	return p + Utils.Polar2Vector(9, tmpShootDir)
 end
 
 function toPointDir(p, role)
 	if role == nil then
 		if type(p) == "function" then
-			return function ( role1 )
+			return function(role1)
 				return (p() - player.pos(role1)):dir()
 			end
 		else
-			return function ( role1 )
+			return function(role1)
 				return (p - player.pos(role1)):dir()
 			end
 		end
-
 	else
 		return (p - player.pos(role)):dir()
 	end
@@ -266,17 +264,18 @@ function kickBall(role)
 	return world:IsBallKicked(num(role))
 end
 
-function infraredOn( role )
+function infraredOn(role)
 	return world:IsInfraredOn(num(role))
 end
 
-function infraredCount( role )
+function infraredCount(role)
 	return world:InfraredOnCount(num(role))
 end
+
 -- role1为传球车
 function toShootOrRobot(role1)
 	return function(role2)
-		local shootDir = ( CGeoPoint:new_local(param.pitchLength / 2.0, 0) - pos(role2) ):dir()
+		local shootDir = (CGeoPoint:new_local(param.pitchLength / 2.0, 0) - pos(role2)):dir()
 		local faceDir
 		if toBallDist(role1) > 50 then
 			faceDir = (ball.pos() - pos(role2)):dir()
@@ -292,7 +291,7 @@ function toShootOrRobot(role1)
 end
 
 function canBreak(role)
-	for i=1,param.maxPlayer do
+	for i = 1, param.maxPlayer do
 		if enemy.valid(i) then
 			local p
 			local realrole = gSubPlay.getRole(role)
@@ -316,12 +315,12 @@ end
 
 function isMarked(role)
 	local closestDist = 9999
-	for i=1,param.maxPlayer do
+	for i = 1, param.maxPlayer do
 		if enemy.valid(i) then
-			local dir1 = player.toPointDir(CGeoPoint:new_local(param.pitchLength / 2.0, 0),role)
-			local dirDiff = Utils.Normalize( dir1- player.toPointDir(enemy.pos(i),role))
-			if math.abs(dirDiff) < math.pi/2 then
-				local tmpDist = player.toPointDist(role,enemy.pos(i))
+			local dir1 = player.toPointDir(CGeoPoint:new_local(param.pitchLength / 2.0, 0), role)
+			local dirDiff = Utils.Normalize(dir1 - player.toPointDir(enemy.pos(i), role))
+			if math.abs(dirDiff) < math.pi / 2 then
+				local tmpDist = player.toPointDist(role, enemy.pos(i))
 				if tmpDist < closestDist then
 					closestDist = tmpDist
 				end
@@ -337,14 +336,14 @@ end
 
 function testPassPos(role)
 	local factor
-	return function ()
+	return function()
 		if posX(role) > 0 then
 			factor = -1
 		else
 			factor = 1
 		end
 
-		return CGeoPoint:new_local(150*factor, 0)
+		return CGeoPoint:new_local(150 * factor, 0)
 	end
 end
 
@@ -364,8 +363,9 @@ function canFlatPassTo(role1, role2)
 
 	return true
 end
+
 --for autoball placement
-function ifBlockBallLine( role, originpos, targetpos)
+function ifBlockBallLine(role, originpos, targetpos)
 	local p1
 	local p2
 	if type(originpos) == "function" then
@@ -378,7 +378,7 @@ function ifBlockBallLine( role, originpos, targetpos)
 	else
 		p2 = targetpos
 	end
-	local seg = CGeoSegment:new_local(p1,p2)
+	local seg = CGeoSegment:new_local(p1, p2)
 	local dist = seg:projection(player.pos(role)):dist(player.pos(role))
 	local isprjon = seg:IsPointOnLineOnSegment(seg:projection(player.pos(role)))
 	--print (role , dist,isprjon)
@@ -428,7 +428,7 @@ function canDirectShoot(role1, d, proj_d)
 		proj_d = 12
 	end
 	local p1 = player.pos(role1)
-	local p2 = player.pos(role1) + Utils.Polar2Vector(d,player.dir(role1))
+	local p2 = player.pos(role1) + Utils.Polar2Vector(d, player.dir(role1))
 	local seg = CGeoSegment:new_local(p1, p2)
 	for i = 1, param.maxPlayer do
 		if enemy.valid(i) then
@@ -460,26 +460,26 @@ function canChipPassTo(role1, role2)
 end
 
 ------------------------------------------------------
-function isBallPassed(role1,role2)
+function isBallPassed(role1, role2)
 	local p1 = player.pos(role1)
 	local p2 = player.pos(role2)
-	local ptrDir = ( p2 - p1 ):dir()
+	local ptrDir = (p2 - p1):dir()
 	if (math.abs(Utils.Normalize(ball.velDir() - ptrDir)) < math.pi / 18) and
-	   (ball.velMod() > 80) then
+		(ball.velMod() > 80) then
 		return true
 	else
 		return false
 	end
 end
 
-function isBallPassedNormalPlay(role1,role2)
+function isBallPassedNormalPlay(role1, role2)
 	local passerDir = player.dir(role1)
 	local p1 = player.pos(role1)
 	local p2 = player.pos(role2)
-	local ptrDir = ( p2 - p1 ):dir()
+	local ptrDir = (p2 - p1):dir()
 	if (math.abs(Utils.Normalize(ball.velDir() - ptrDir)) < math.pi / 18) and
-	   (math.abs(Utils.Normalize(ball.velDir() - passerDir)) < math.pi / 10) and
-	   (ball.velMod() > 160)  then
+		(math.abs(Utils.Normalize(ball.velDir() - passerDir)) < math.pi / 10) and
+		(ball.velMod() > 160) then
 		return true
 	else
 		return false
@@ -488,8 +488,8 @@ end
 
 function passIntercept(role)
 	local receiver = player.pos(role)
-	local ptrDir = ( receiver - ball.pos()):dir()
-	if ball.toPointDist(receiver) >50 then
+	local ptrDir = (receiver - ball.pos()):dir()
+	if ball.toPointDist(receiver) > 50 then
 		if math.abs(Utils.Normalize(ball.velDir() - ptrDir)) > math.pi / 10 or
 			ball.velMod() < 120 then
 			return true
@@ -500,7 +500,6 @@ function passIntercept(role)
 		return false
 	end
 end
-
 
 function InfoControlled(role)
 	local roleNum = player.num(role)
@@ -514,11 +513,12 @@ function InfoControlled(role)
 	--end
 	return skillUtils:getOurBestPlayer() == roleNum
 end
+
 ------------------------------------------------------
 
 -- p为传入的点
 function antiYDir(p)
-	return function (role)
+	return function(role)
 		if type(p) == "userdata" then
 			return (ball.antiYPos(p)() - player.pos(role)):dir()
 		end
@@ -532,106 +532,106 @@ end
 -- 	return false
 -- end
 
-function faceball2target(role,t,diff)
-  local target
-  local d
+function faceball2target(role, t, diff)
+	local target
+	local d
 
-  if diff == nil then
-  	d = 0.2
-  elseif type(diff) == "function" then
-    d = diff()
-  else
-    d = diff
-  end
+	if diff == nil then
+		d = 0.2
+	elseif type(diff) == "function" then
+		d = diff()
+	else
+		d = diff
+	end
 
-  if type(t) == "function" then
-    target = t()
-  else
-    target = t
-  end
+	if type(t) == "function" then
+		target = t()
+	else
+		target = t
+	end
 
-  local temp = ball.toPointDir(target)
-   -- print(temp())
-   --  print(player.dir(role))
-   if math.abs(temp()-player.dir(role))<=d or math.abs(temp()-player.dir(role))>=6.28-d then
-    return true
-  else
-    return false
-  end
+	local temp = ball.toPointDir(target)
+	-- print(temp())
+	--  print(player.dir(role))
+	if math.abs(temp() - player.dir(role)) <= d or math.abs(temp() - player.dir(role)) >= 6.28 - d then
+		return true
+	else
+		return false
+	end
 end
 
-function faceball2target(role,t,diff)
-  local target
-  local d
+function faceball2target(role, t, diff)
+	local target
+	local d
 
-  if diff == nil then
-  	d = 0.2
-  elseif type(diff) == "function" then
-    d = diff()
-  else
-    d = diff
-  end
+	if diff == nil then
+		d = 0.2
+	elseif type(diff) == "function" then
+		d = diff()
+	else
+		d = diff
+	end
 
-  if type(t) == "function" then
-    target = t()
-  else
-    target = t
-  end
+	if type(t) == "function" then
+		target = t()
+	else
+		target = t
+	end
 
-  local temp = ball.toPointDir(target)
-   -- print(temp())
-   --  print(player.dir(role))
-   if math.abs(temp()-player.dir(role))<=d or math.abs(temp()-player.dir(role))>=6.28-d then
-    return true
-  else
-    return false
-  end
+	local temp = ball.toPointDir(target)
+	-- print(temp())
+	--  print(player.dir(role))
+	if math.abs(temp() - player.dir(role)) <= d or math.abs(temp() - player.dir(role)) >= 6.28 - d then
+		return true
+	else
+		return false
+	end
 end
 
 function isInForbiddenZone4ballplace(role)
-  local thereShouldDist=60--规则要求50cm，这里设定大于规则
-  local p1= CGeoPoint:new_local(ball.placementPos():x(), ball.placementPos():y())
-  local p2 =ball.pos()
-  local seg = CGeoSegment:new_local(p1,p2)
-  local dist = seg:projection(player.pos(role)):dist(player.pos(role))
-  local isprjon = seg:IsPointOnLineOnSegment(seg:projection(player.pos(role)))
-   if player.toBallDist(role)<=thereShouldDist or player.toPointDist(role,p1)<=thereShouldDist or (dist<=thereShouldDist and isprjon) then
-     return true
-  else
-    return false
-  end
+	local thereShouldDist = 60 --规则要求50cm，这里设定大于规则
+	local p1 = CGeoPoint:new_local(ball.placementPos():x(), ball.placementPos():y())
+	local p2 = ball.pos()
+	local seg = CGeoSegment:new_local(p1, p2)
+	local dist = seg:projection(player.pos(role)):dist(player.pos(role))
+	local isprjon = seg:IsPointOnLineOnSegment(seg:projection(player.pos(role)))
+	if player.toBallDist(role) <= thereShouldDist or player.toPointDist(role, p1) <= thereShouldDist or (dist <= thereShouldDist and isprjon) then
+		return true
+	else
+		return false
+	end
 end
 
 function stayPos4ballplace(role)
-		local thereShouldDist=70
-        local myposX
-        local myposY
-        local TargetPos = function ()
-        	return CGeoPoint:new_local(ball.placementPos():x(), ball.placementPos():y())
+	local thereShouldDist = 70
+	local myposX
+	local myposY
+	local TargetPos = function()
+		return CGeoPoint:new_local(ball.placementPos():x(), ball.placementPos():y())
+	end
+	local getPos = function()
+		if player.isInForbiddenZone4ballplace(role) then
+			local seg = CGeoSegment:new_local(ball.pos(), TargetPos())
+			local projectPoint = CGeoPoint:new_local(seg:projection(player.pos(role)):x(),
+				seg:projection(player.pos(role)):y())
+			myposX = (projectPoint + Utils.Polar2Vector(-thereShouldDist, player.toPointDir(projectPoint, role))):x()
+			myposY = (projectPoint + Utils.Polar2Vector(-thereShouldDist, player.toPointDir(projectPoint, role))):y()
+			if ((math.abs(myposX) > (param.pitchLength / 2 - param.penaltyDepth)) and
+					math.abs(myposY) < (param.penaltyWidth / 2))
+				or (math.abs(myposX) > param.pitchLength / 2)
+				or (math.abs(myposY) > param.pitchWidth / 2)
+			then
+				myposX = (projectPoint + Utils.Polar2Vector(thereShouldDist, player.toPointDir(projectPoint, role))):x()
+				myposY = (projectPoint + Utils.Polar2Vector(thereShouldDist, player.toPointDir(projectPoint, role))):y()
+			end
+		else
+			myposX = player.posX(role)
+			myposY = player.posY(role)
 		end
-        local getPos = function()
-                if player.isInForbiddenZone4ballplace(role) then
-                   local seg = CGeoSegment:new_local(ball.pos(),TargetPos())
-                   local projectPoint=CGeoPoint:new_local(seg:projection(player.pos(role)):x(),seg:projection(player.pos(role)):y())
-                    myposX = (projectPoint + Utils.Polar2Vector(-thereShouldDist,player.toPointDir(projectPoint,role))):x()
-                    myposY =(projectPoint + Utils.Polar2Vector(-thereShouldDist,player.toPointDir(projectPoint,role))):y()
-                    if ((math.abs(myposX)>(param.pitchLength/2-param.penaltyDepth)) and 
-                      math.abs(myposY)<(param.penaltyWidth/2))
-                      or (math.abs(myposX) > param.pitchLength/2) 
-                      or (math.abs(myposY) > param.pitchWidth/2) 
-                      then 
-                      myposX = (projectPoint + Utils.Polar2Vector(thereShouldDist,player.toPointDir(projectPoint,role))):x()
-                      myposY =(projectPoint + Utils.Polar2Vector(thereShouldDist,player.toPointDir(projectPoint,role))):y()
-                    end
-                else
-                        myposX = player.posX(role)
-                        myposY = player.posY(role)
-
-                end
-        end
-        local compute = function()
-                getPos()
-                return CGeoPoint:new_local(myposX,myposY)
-        end
-        return compute
+	end
+	local compute = function()
+		getPos()
+		return CGeoPoint:new_local(myposX, myposY)
+	end
+	return compute
 end
