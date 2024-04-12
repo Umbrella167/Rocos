@@ -15,18 +15,28 @@ module(..., package.seeall)
 -- lengthRatio	= 1.5
 -- widthRatio	= 1.5
 -- stopRatio = 1.1
+
+---------------------------------
+--射击力度
 powerShoot = 3000
+---------------------------------
+--旋转参数
+rotPos = CGeoPoint:new_local(0,0)
+rotVel = 5
+---------------------------------
+
+
 INF = 1e9
 PI = 3.141592653589793238462643383279
 maxPlayer   = 16
-pitchLength = 9000
-pitchWidth  = 6000
+pitchLength = 12000
+pitchWidth  = 9000
 goalWidth = 1000
 goalDepth = 200
 freeKickAvoidBallDist = 500
 playerRadius	= 90
-penaltyWidth    = 2000
-penaltyDepth	= 1000
+penaltyWidth    = 3600
+penaltyDepth	= 1800
 penaltyRadius	= 1000
 penaltySegment	= 500
 playerFrontToCenter = 76

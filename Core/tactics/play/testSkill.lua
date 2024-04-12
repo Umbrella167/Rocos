@@ -31,7 +31,7 @@ firstState = "ready1",
 
 	end,
 	 -- = task.TurnRun("Assister"),
-	Assister = {CircleRun()},
+	Assister = task.TurnRun(),
 	-- match = "[AKS]{TDG}"
 	match = "[A]"
 },
