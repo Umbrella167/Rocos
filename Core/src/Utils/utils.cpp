@@ -1250,9 +1250,10 @@ namespace Utils
 
     /**
      * 距离某球员最近的球员
-     * @param  {int} role : 目标球员
-     * @param  {int} type : 类型 0全局 1我方 2敌方
-     * @return {int}      : 球员编号
+     * @param  {CVisionModule*} pVision : vision
+     * @param  {int} role               : 目标球员
+     * @param  {int} type               : 类型 0全局 1我方 2敌方
+     * @return {int}                    : 球员编号
      */
     int closestPlayerToPlayer(const CVisionModule *pVision, int role, int type)
     {
@@ -1301,10 +1302,64 @@ namespace Utils
 
     /**
      * 距离某点最近的球员
-     * @param  {CGeoPoint} pos : 目标位置
-     * @param  {int} type      : 类型 0全局 1我方 2敌方
-     * @param  {int} role = 1  : （可选）排除的球员编号
-     * @return {CGeoPoint}     : 球员位置
+     * @param  {CVisionModule*} pVision : vision
+     * @param  {CGeoPoint} pos          : 目标位置
+     * @param  {int} type               : 类型 0全局 1我方 2敌方
+     * @param  {int} role = 1           : （可选）排除的球员编号
+     * @return {int}                    : 球员编号
+     */
+    int closestPlayerNoToPoint(const CVisionModule *pVision, CGeoPoint pos, int type, int role)
+    {
+        int res[3] = {-1, -1, -1};
+        double minDis[3] = {inf, inf, inf};
+
+        for (int i = 0; i < PARAM::Field::MAX_PLAYER; i++)
+        {
+            if (i == role || i == Tick[now].our.goalie_num || i == Tick[now].their.goalie_num) // 实际上也排除了守门员
+            {
+                continue;
+            }
+
+            if (pVision->ourPlayer(i).Valid())
+            {
+                double dist = pVision->ourPlayer(i).Pos().dist(pos);
+                if (dist < minDis[1])
+                {
+                    res[1] = i;
+                    minDis[1] = dist;
+                }
+                if (dist < minDis[0])
+                {
+                    res[0] = i;
+                    minDis[0] = dist;
+                }
+            }
+            else if (pVision->theirPlayer(i).Valid())
+            {
+                double dist = pVision->theirPlayer(i).Pos().dist(pos);
+                if (dist < minDis[2])
+                {
+                    res[2] = i;
+                    minDis[2] = dist;
+                }
+                if (dist < minDis[0])
+                {
+                    res[0] = i;
+                    minDis[0] = dist;
+                }
+            }
+        }
+
+        return res[type];
+    }
+
+    /**
+     * 距离某点最近的球员的位置
+     * @param  {CVisionModule*} pVision : vision
+     * @param  {CGeoPoint} pos          : 目标位置
+     * @param  {int} type               : 类型 0全局 1我方 2敌方
+     * @param  {int} role = 1           : （可选）排除的球员编号
+     * @return {CGeoPoint}               : 球员位置
      */
     CGeoPoint closestPlayerToPoint(const CVisionModule *pVision, CGeoPoint pos, int type, int role)
     {
@@ -1356,7 +1411,7 @@ namespace Utils
      * 球方向与禁区边的交点
      * @return {CGeoPoint} : 焦点；{0, 0} 时表示无交点
      */
-    CGeoPoint DEFENDER_ComputeCrossPenalty(CVisionModule *pVision, CGeoLine line)
+    CGeoPoint DEFENDER_ComputeCrossPenalty(const CVisionModule *pVision, CGeoLine line)
     {
         CGeoLineLineIntersection intersection(DEFENDER_FIELD_PENALTYBOR, line); // 获取球运动姿态的交点
         if (intersection.Intersectant())

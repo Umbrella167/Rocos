@@ -84,6 +84,8 @@ namespace Utils
 
     extern int closestPlayerToPlayer(const CVisionModule *pVision, int role, int type);
     extern CGeoPoint closestPlayerToPoint(const CVisionModule *pVision, CGeoPoint pos, int type, int role = -1);
+    extern int closestPlayerNoToPoint(const CVisionModule *pVision, CGeoPoint pos, int type, int role = -1);
+   
     extern CGeoPoint DEFENDER_ComputeCrossPenalty(const CVisionModule *pVision, CGeoLine line);
     extern double DEFENDER_ComputeDistance(CGeoPoint hitPoint);
 

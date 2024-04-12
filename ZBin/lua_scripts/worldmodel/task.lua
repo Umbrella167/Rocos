@@ -475,16 +475,21 @@ function defender_defence(role)
 			end
 		elseif player.toBallDist(role) < DEFENDER_SAFEDISTANCE * 2 then -- 准备防御
 			-- local distanceDT = Utils.DEFENDER_ComputeDistance(hitPoint)
-			local line = CGeoLine:new_local(ball.pos(), ball.vel())
-			local hitPoint = Utils.DEFENDER_ComputeCrossPenalty(vision, line) -- 可能的射击朝向
+			local line = CGeoLine:new_local(ball.pos(), ball.velDir()) -- 球的朝向
+			local hitPoint = Utils.DEFENDER_ComputeCrossPenalty(vision, line) -- 可能的射击朝向与禁区线的预测点
 			local POS_NULL = CGeoPoint:new_local(0, 0)
 
-			if 1 ~= GlobalMessage.Tick.ball.rights then --如果球权在人家手上
-				local theirAttacker = vision:theirPlayer(GlobalMessage.Tick.their.to_balldist_min_num)
-				line = CGeoLine:new_local(theirAttacker.pos(), theirAttacker.vel_dir())
-				hitPoint = Utils.DEFENDER_ComputeCrossPenalty(vision, line)
-			end
+			-- -- FIXME: 如果球权不在自己手上，提前朝向对面瞄准位置，现在不瞄准了，甚至还会跑路
+			-- if GlobalMessage.Tick.ball.rights ~= 1 then --如果球权不在自己手上
+			-- 	local theirAttacker = Utils.closestPlayerNoToPoint(vision,
+			-- 		CGeoPoint:new_local(ball.posX(), ball.posY()), 2) -- 获取离球最近的敌人
 
+			-- 	-- debugEngine:gui_debug_msg(CGeoPoint:new_local(DEFENDER_DEBUG_POSITION_X, DEFENDER_DEBUG_POSITION_Y),
+			-- 	-- type(ball.pos()))
+
+			-- 	line = CGeoLine:new_local(player.pos(theirAttacker), player.dir(theirAttacker))
+			-- 	hitPoint = Utils.DEFENDER_ComputeCrossPenalty(vision, line)
+			-- end
 
 			if hitPoint ~= POS_NULL then -- 有防御交点
 				if role == role_major then
@@ -518,9 +523,6 @@ function defender_defence(role)
 		end
 	end
 end
-
--- debugEngine:gui_debug_msg(CGeoPoint:new_local(DEFENDER_DEBUG_POSITION_X, DEFENDER_DEBUG_POSITION_Y),
--- 	closestEnemy:x() .. ", " .. closestEnemy:y())
 
 ----------------------------------------- 其他动作 --------------------------------------------
 
