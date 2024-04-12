@@ -159,6 +159,53 @@ function Getballv4(role, p)
 	end
 end
 
+
+function GetBallV5(role, p, target)
+--参数说明
+--role  	  使用这个函数的角色
+--p      	  拿到球后跑去目标点
+--target      朝向的点
+    return function()
+        local minDist = 9999999
+        local ballspeed = 800
+
+        if type(p) == 'function' then
+            p = p()
+        end
+        if type(target) == 'function' then
+            target = target()
+        end
+
+        
+        if(player.infraredCount(role) < 20) then 
+        	-- 拿球
+            local idir = (ball.pos() - player.pos(role)):dir()
+            local pp = ball.pos() + Utils.Polar2Vector(10,idir)
+            if ball.velMod() > ballspeed and minDist > 180 then
+                pp = ball.pos() + Utils.Polar2Vector(350,idir)
+            end
+            local mexe, mpos = GoCmuRush{pos = pp, dir = idir, acc = a, flag = 0x00000100,rec = r,vel = v}
+            return {mexe, mpos}
+        else
+
+        	if player.toPointDist(role, p) > 10 then
+        	 	-- 拿到球后跑点
+	            local idir = (ball.pos() - player.pos(role)):dir()
+	            local pp = p
+	            local mexe, mpos = GoCmuRush{pos = pp, dir = idir, acc = a, flag = 0x00000100,rec = r,vel = v}
+            	return {mexe, mpos}
+        	else
+        		-- 到点后指向
+        		local idir = (target - player.pos(role)):dir()
+	            local pp = p
+	            local mexe, mpos = GoCmuRush{pos = pp, dir = idir, acc = a, flag = 0x00000100,rec = r,vel = v}
+	            return {mexe, mpos}
+        	end
+
+        end
+    end
+end
+
 function TurnToPoint(role, p, speed)
 	--参数说明
 	-- role 	 使用这个函数的角色
