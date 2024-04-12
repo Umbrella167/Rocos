@@ -22,6 +22,11 @@ module(..., package.seeall)
 -- 	return shoot_pos
 -- end
 
+function TurnRun(role)
+
+	local mexe, mpos = CircleRun {}
+	return { mexe, mpos }
+end
 function getball(role, playerVel, inter_flag, target_point)
 	return function()
 		local p1

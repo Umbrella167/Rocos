@@ -67,6 +67,7 @@ namespace Utils
         Tick[now].their.player_num = pVision->getTheirValidNum();
         /// 获取场上机器人信息
         int num_count = 0;
+        Tick[now].our.goalie_num = -1;
         for (int i = 0; i < PARAM::Field::MAX_PLAYER; i++)
         {
             if (pVision->ourPlayer(i).Valid())
@@ -652,9 +653,7 @@ namespace Utils
 
         for (int i = 0; i < PARAM::Field::MAX_PLAYER; i++)
         {
-            if (pVision->ourPlayer(i).Valid() &&
-                (attack_flag == 0 &&
-                 (Tick[now].task[i].player_num != -1 && Tick[now].task[i].player_num != Tick[now].our.goalie_num)))
+            if (pVision->ourPlayer(i).Valid() && i != Tick[now].our.goalie_num)
             {
                 global_status = global_status + "[" + to_string(Tick[now].task[i].player_num) + "," + Tick[now].task[i].status + "]";
                 GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision->ourPlayer(i).Pos().x(), pVision->ourPlayer(i).Pos().y() - 160), "Number: " + to_string(Tick[now].task[i].player_num), 4, 0, 80);
@@ -717,7 +716,7 @@ namespace Utils
         // 获取敌方距离截球点最近的车，过滤在球线以后的车
         for (int i = 0; i < PARAM::Field::MAX_PLAYER; i++)
         {
-            if(pVision -> theirPlayer(i).Valid()) continue;
+            if(!pVision -> theirPlayer(i).Valid()) continue;
             // 如果有车在球后 计数
             if (Tick[now].their.goalie_num == i || !ball_line.IsPointOnLineOnSegment(ball_line.projection(pVision->theirPlayer(i).Pos())))
             {
@@ -780,7 +779,7 @@ namespace Utils
         // 获取敌方距离截球点最近的车，过滤在球线以后的车
         for (int i = 0; i < PARAM::Field::MAX_PLAYER; i++)
         {
-            if (pVision ->theirPlayer(i).Valid()) continue;
+            if (!pVision ->theirPlayer(i).Valid()) continue;
             // 如果有车在球后 计数
             if (Tick[now].their.goalie_num == i || !ball_line.IsPointOnLineOnSegment(ball_line.projection(pVision->theirPlayer(i
                                                                                                                                ).Pos())))

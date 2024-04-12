@@ -17,8 +17,7 @@ local debugStatus = function()
 		"  " 					.. 
 		tostring(i.status),3)
 	end
-	debugEngine:gui_debug_msg(CGeoPoint:new_local(-4400,-2000),ball_rights)
-	debugEngine:gui_debug_msg(CGeoPoint:new_local(-4300,-2000),dribbling_player_num,3)
+
 
 end
 
@@ -119,13 +118,14 @@ canTouchAngle = 120
 pass_pos = CGeoPoint:new_local(4500,-999)
 
 -- 此脚本的全局更新
-function UpdataTickMessage(defend_num1,defend_num2)
+local UpdataTickMessage = function (defend_num1,defend_num2)
 	-- 获取 Tick 信息
 	GlobalMessage.Tick = Utils.UpdataTickMessage(vision,defend_num1,defend_num2)
 
-	debugEngine:gui_debug_msg(CGeoPoint:new_local(4500,-3000),GlobalMessage.Tick.our.player_num)
+	-- debugEngine:gui_debug_msg(CGeoPoint:new_local(4500,-3000),GlobalMessage.Tick.our.player_num)
+
 	-- 获取全局状态，进攻状态为传统
-	status.getGlobalStatus(0)  
+	status.getGlobalStatus(1)  
 
 	-- 带球机器人初始化
 	dribbling_player_num = -1
@@ -173,10 +173,10 @@ firstState = "Init",
 		
 		UpdataTickMessage(defend_num1,defend_num2) 	  -- 更新帧信息
 		status.debugStatus()
-		debugEngine:gui_debug_msg(CGeoPoint(3000,-2800),GlobalMessage.Tick.our.player_num)
+		-- debugEngine:gui_debug_msg(CGeoPoint:new_local(0,-2000),GlobalMessage.Tick.our.defend_num1)
+		-- debugEngine:gui_debug_msg(CGeoPoint:new_local(0,-2100),GlobalMessage.Tick.our.defend_num2,3)
 		if task.ball_rights == 1 then	-- 我方球权的情况 获取进攻状态
 		-- 	-- dribblingStatus -> [shoot,dribbling,XXpassToPlayerXX]
-			debugEngine:gui_debug_msg(CGeoPoint(3000,2800),dribbling_player_num .. "   ".. dribblingStatus)
 			if dribblingStatus == "NOTHING"  or dribblingStatus == "Run" or  dribblingStatus == "Getball" then
 				UpdataTickMessage(defend_num1,defend_num2)
 			else
@@ -187,7 +187,7 @@ firstState = "Init",
 		else	-- 顶牛 或 未定义情况 一个抢球，其余跑位
 			return "defendOtherState"
 		end
-		-- debugStatus()
+		debugStatus()
 	end,
 	Assister = task.getball("Assister",4,1,ballPos()),--task.GetBallV2("Assister",ballPos()),
 	Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker")),
