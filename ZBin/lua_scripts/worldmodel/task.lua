@@ -681,7 +681,6 @@ function getFitData_runToPos(role)
 
 		-- debugEngine:gui_debug_msg(CGeoPoint(100, 100), tostring(fitPlayerList[0]))
 
-
 		-- 打印需要测试的车
 		-- for i=0, fitPlayerLen-1 do
 		-- 	debugEngine:gui_debug_msg(CGeoPoint(-6000, 2800-(200*i)),"player: "..tostring(fitPlayerList[i]).."  "..tostring(i))
@@ -692,7 +691,6 @@ function getFitData_runToPos(role)
 			fitPlayer1 = fitPlayerList[0]
 			fitPlayer2 = fitPlayerList[1] 
 		elseif playerCount > 1 then
-			-- 这个还没有测试过
 			fitPlayer1 = fitPlayerList[0]
 			for i=0,param.maxPlayer-1 do
 				if kickPower[i] < 0 then
@@ -704,7 +702,6 @@ function getFitData_runToPos(role)
 			end
 		else
 			debugEngine:gui_debug_msg(CGeoPoint(-3000, -3000), "车不够多") 
-			-- 测到最后一台车的时候fitPlayer2会为空，要额外判断, 还没写
 		end
     	
     	if playerNum == fitPlayer1 or playerNum == fitPlayer2 then
@@ -735,9 +732,6 @@ function getFitData_runToPos(role)
 			elseif flag == 1 then
 				-- 踢球
 				kickPower[fitPlayer1] = kickPower[fitPlayer1] + powerStep
-				-- debugEngine:gui_debug_msg(CGeoPoint(-4000, -4500), "role: "..role)
-				-- debugEngine:gui_debug_msg(CGeoPoint(-4000, -4000), "fitPower: "..tostring(kickPower[playerNum]))
-
 				local ipos = CGeoPoint:new_local(0, 0)
 				local idir = function(runner)
 					return (_c(ipos) - player.pos(runner)):dir()
@@ -746,14 +740,103 @@ function getFitData_runToPos(role)
 				local ipower = function()
 					return kickPower[fitPlayer1]
 				end
-
 				return { mexe, mpos, mode and kick.flat or kick.chip, idir, pre.low, ipower, ipower, 0x00000000 }
     		end
 		else
     		-- 跑去待机位
     		p = CGeoPoint(param.pitchWidth/2-param.playerRadius*3*playerNum, param.pitchLength/2-1500)
     		idir = 0
+			local mexe, mpos = GoCmuRush { pos = p, dir = idir, acc = a, flag = f, rec = r, vel = v }
+			return { mexe, mpos }
+    	end
+	end
+end
 
+function getFitData_runToPos(role)
+	return function()
+		-- 当前角色
+		local playerNum = player.num(role)
+		local fitPlayerLen = 0
+		local fitPlayerList = {}
+		
+		local i = 0
+		-- debugEngine:gui_debug_msg(CGeoPoint(-3000, 2800-(200*playerNum)),string.format("%s playerNum:            %d", role, playerNum))
+		for i=0,param.maxPlayer-1 do
+			debugEngine:gui_debug_msg(CGeoPoint(-4500, 2800-(200*i)),"kickPower: "..tostring(kickPower[i]).."  "..tostring(i))
+			if kickPower[i] < 0 or kickPower[i] > maxPower then
+				-- continue
+			else
+				fitPlayerList[fitPlayerLen] = i
+				fitPlayerLen = fitPlayerLen + 1
+			end
+		end
+
+		-- debugEngine:gui_debug_msg(CGeoPoint(100, 100), tostring(fitPlayerList[0]))
+		-- 打印需要测试的车
+		-- for i=0, fitPlayerLen-1 do
+		-- 	debugEngine:gui_debug_msg(CGeoPoint(-6000, 2800-(200*i)),"player: "..tostring(fitPlayerList[i]).."  "..tostring(i))
+		-- end
+
+		-- 角色选择器
+		if fitPlayerLen > 1 then
+			fitPlayer1 = fitPlayerList[0]
+			fitPlayer2 = fitPlayerList[1] 
+		elseif playerCount > 1 then
+			fitPlayer1 = fitPlayerList[0]
+			for i=0,param.maxPlayer-1 do
+				if kickPower[i] < 0 then
+					-- continue
+				else
+					fitPlayer2 = i
+					break
+				end
+			end
+		else
+			debugEngine:gui_debug_msg(CGeoPoint(-3000, -3000), "车不够多") 
+		end
+    	
+    	if playerNum == fitPlayer1 or playerNum == fitPlayer2 then
+    		-- 跑去接踢位
+
+    		-- 标记踢球人 1 - 踢球		-1 - 接球
+    		flag = playerNum == fitPlayer1 and 1 or -1
+    		-- 拿球点
+    		p0 = CGeoPoint:new_local(ball.posX(), ball.posY())
+	    	-- 踢球车的准备点
+	    	p1 = CGeoPoint:new_local(flag*param.pitchLength/2-flag*param.penaltyDepth-flag*param.penaltySegment, 0)
+
+    		if player.infraredCount(role) < 10 and flag == 1 then
+    			-- 踢球人如果没有拿到球，就去拿球
+	    		local idir = player.toPointDir(p0, role)
+				local mexe, mpos = GoCmuRush { pos = p0, dir = idir, acc = a, flag = 0x00000100, rec = r, vel = v }
+				return { mexe, mpos }
+			elseif player.toPointDist(role, p1) > param.playerRadius then
+				-- 非踢球人去固定点
+	    		local idir = (CGeoPoint(0, 0) - player.pos(role)):dir()
+				local mexe, mpos = GoCmuRush { pos = p1, dir = idir, acc = a, flag = 0x00000100, rec = r, vel = v }
+				return { mexe, mpos }
+			elseif ball.velMod() > 20 then
+				-- 稳定球
+				local idir = (CGeoPoint(0, 0) - player.pos(role)):dir()
+				local mexe, mpos = GoCmuRush { pos = p1, dir = idir, acc = a, flag = 0x00000100, rec = r, vel = v }
+				return { mexe, mpos }
+			elseif flag == 1 then
+				-- 踢球
+				kickPower[fitPlayer1] = kickPower[fitPlayer1] + powerStep
+				local ipos = CGeoPoint:new_local(0, 0)
+				local idir = function(runner)
+					return (_c(ipos) - player.pos(runner)):dir()
+				end
+				local mexe, mpos = Touch { pos = ipos, useInter = ifInter }
+				local ipower = function()
+					return kickPower[fitPlayer1]
+				end
+				return { mexe, mpos, mode and kick.flat or kick.chip, idir, pre.low, ipower, ipower, 0x00000000 }
+    		end
+		else
+    		-- 跑去待机位
+    		p = CGeoPoint(param.pitchWidth/2-param.playerRadius*3*playerNum, param.pitchLength/2-1500)
+    		idir = 0
 			local mexe, mpos = GoCmuRush { pos = p, dir = idir, acc = a, flag = f, rec = r, vel = v }
 			return { mexe, mpos }
     	end
