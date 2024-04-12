@@ -52,13 +52,13 @@ function getball(role, playerVel, inter_flag, target_point)
 			else
 				ipos = inter_pos
 			end
-			local endvel = Utils.Polar2Vector(200,player.toBallDir(role))
+			local endvel = Utils.Polar2Vector(500,player.toBallDir(role))
 			-- local toballDir = math.abs(player.toBallDir(role))  * 57.3
-			local toballDir = math.abs(ball.rawPos() - player.rawPos(role))
-			local playerDir = math.abs(player.dir(role))* 57.3
+			local toballDir = math.abs((ball.pos() - player.pos(role)):dir() * 57.3)
+			local playerDir = math.abs(player.dir(role)) * 57.3
 			local Subdir = math.abs(toballDir-playerDir)
 			local iflag = bit:_or(flag.allow_dss, flag.dodge_ball)
-			if Subdir > 10 then 
+			if Subdir > 20 then 
 				local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
 				iflag =  DSS_FLAG
 			else

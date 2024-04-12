@@ -47,7 +47,7 @@ firstState = "ready1",
 		end
 	end,
 	 -- = task.TurnRun("Assister"),
-	Assister = task.TurnToPoint("Assister", CGeoPoint:new_local(6000,0),300),
+	Assister = task.TurnToPointV2("Assister", CGeoPoint:new_local(6000,0),param.rotVel),
 	-- match = "[AKS]{TDG}"
 	match = "[A]"
 },

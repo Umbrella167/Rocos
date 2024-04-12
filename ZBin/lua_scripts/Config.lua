@@ -18,14 +18,9 @@ gStateFileNameString = string.format(os.date("%Y%m%d%H%M"))
 gTestPlay = CGetSettings("ZAlert/" .. team .. "_TestScriptName", "String")
 
 gRoleFixNum = {
-        ["Goalie"]   = { 0 },
-<<<<<<< HEAD
-        ["Defender"] = { 6 },
-        ["Tier"]     = { 5 },
-=======
+        ["Goalie"]   = { 4 },
         ["Defender"] = { 1 },
         ["Tier"]     = { 2 },
->>>>>>> bdd40ce9ad2ff7e089b8895bf299b3fa11906184
 }
 
 -- 用来进行定位球的保持
