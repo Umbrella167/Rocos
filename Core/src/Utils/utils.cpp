@@ -333,6 +333,18 @@ namespace Utils
         return maxDist;
     }
 
+    CGeoPoint GetBallMaxPos(const CVisionModule *pVision)
+    {
+        CGeoPoint ball_pos = pVision->ball().Pos();
+        double maxDist = GetBallMaxDist(pVision);
+        if(pVision->ball().Valid())
+            ball_pos = pVision->ball().Pos();
+        else
+            ball_pos = pVision ->rawBall().Pos();
+        CGeoPoint maxBallPos = ball_pos + Polar2Vector(maxDist, pVision->ball().Vel().dir());
+
+        return maxBallPos;
+    }
     /**
      * 给球要经过的距离,返回到达此处的时间
      * @brief GetBallToDistTime
@@ -426,18 +438,18 @@ namespace Utils
             {
             case 0:
                 // 返回最小能拿到球的位置
-                GDebugEngine::Instance()->gui_debug_line(playerPos, minGetBallPos,5,1);
+//                GDebugEngine::Instance()->gui_debug_line(playerPos, minGetBallPos,5,1);
                 return minGetBallPos;
                 break;
             case 1:
                 // 返回最大容忍度的位置
-                GDebugEngine::Instance()->gui_debug_line(playerPos, maxTolerancePos,5,1);
+//                GDebugEngine::Instance()->gui_debug_line(playerPos, maxTolerancePos,5,1);
                 return maxTolerancePos;
                 break;
             case 2:
                 // 返回0,1方案的中点
+//                GDebugEngine::Instance()->gui_debug_line(posMid, maxTolerancePos,5,1);
                 CGeoPoint posMid = CGeoPoint((minGetBallPos.x() + maxTolerancePos.x())/2, (minGetBallPos.y() + maxTolerancePos.y())/2);
-                GDebugEngine::Instance()->gui_debug_line(posMid, maxTolerancePos,5,1);
                 return posMid;
                 break;
             }

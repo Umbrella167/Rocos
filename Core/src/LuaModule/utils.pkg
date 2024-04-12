@@ -12,6 +12,7 @@ namespace Utils{
 	CGeoPoint GetTouchPos(const CVisionModule *pVision, CGeoPoint player_pos, double touchAngle,bool double_flag = false);
 
 	CGeoPoint GetBestInterPos(const CVisionModule *pVision, CGeoPoint playerPos, double playerVel, int flag = 0);
+	CGeoPoint GetBallMaxPos(const CVisionModule *pVision);
 
 	int getInitData(const CVisionModule *pVision, int flag=1);
 
