@@ -58,15 +58,24 @@ local state_reset = function(store)
 end
 
 
+local ourPlayerCount = 0
+for i=1,param.maxPlayer do
+    if player.valid(i) then
+        ourPlayerCount = ourPlayerCount + 1
+
+    end
+end
 local time = 0
 local label = 0
-local file = io.open("data.csv", "w+")
-io.output(file)
-io.write("time,playerPosX,playerPosY,playerVelMod,playerVelDir,playerRowVelMod,playerRowVelDir,targetPosX,targetPosY,label\n")
+-- local file = io.open("data.csv", "w+")
+-- io.output(file)
+-- io.write("time,playerPosX,playerPosY,playerVelMod,playerVelDir,playerRowVelMod,playerRowVelDir,targetPosX,targetPosY,label\n")
+
 
 local debug_F = function()
-    ttt = Utils.UpdataTickMessage(vision, 1, 1)
-    time = time + ttt.time.delta_time
+    local ttick = Utils.UpdataTickMessage(vision, 1, 1)
+
+    local time = time + ttick.time.delta_time
     
     local sx,sy = 200,-1000
     local span = 140
@@ -74,7 +83,7 @@ local debug_F = function()
     local v = CVector:new_local(0,-span)
 
     -- local tTime = os.clock() - time
-    local role = "Leader"
+    local role = "Assister"
     -- local playerRawPos = player.rawPos(role)
     -- local playerRawPosX = player.rawPos(role):posX()  
     -- local playerRawPosY = player.rawPos(role):posY()  
@@ -89,7 +98,7 @@ local debug_F = function()
     local targetPosX = targetPos:x()
     local targetPosY = targetPos:y()
     local playerToTargetDist = player.pos(role):dist(targetPos)
-    det_max_vel = math.max(det_max_vel,playerVelMod)
+    det_max_vel = math.max(det_max_vel, playerVelMod)
     -- det_rot_err = math.max(det_rot_err,math.abs(rawDir-task_dir)*180/math.pi)
 
     -- debugEngine:gui_debug_line(p[1],p[2],param.GRAY)
@@ -107,22 +116,24 @@ local debug_F = function()
     debugEngine:gui_debug_msg(sp+v*6,string.format("velDir:            %6.3f", playerVelDir),param.BLUE)
     debugEngine:gui_debug_msg(sp+v*7,string.format("rowVelMod:         %6.3f", playerRowVelMod),param.BLUE)
     debugEngine:gui_debug_msg(sp+v*8,string.format("rowVelDir:         %6.3f", playerRowVelDir),param.BLUE)
-    -- debugEngine:gui_debug_msg(sp+v*4,string.format("det_max_vel:    %6.3f", playerToTargetDist),param.GREEN)
+    debugEngine:gui_debug_msg(sp+v*4,string.format("det_max_vel:    %6.3f", det_max_vel),param.GREEN)
     debugEngine:gui_debug_msg(sp+v*10,string.format("targetPosX:       %6.3f", targetPosX),param.GREEN)
     debugEngine:gui_debug_msg(sp+v*11,string.format("targetPosY:       %6.3f", targetPosY),param.GREEN)
 
 
+    -- 存储文件
     -- io.write(string.format("%f %f %f %f %f %f %f %f %f %f\n", time,  playerPosX, playerPosY, playerRawPosX, playerRawPosY, playerVelMod, playerVelDir, playerRowVelMod, playerRowVelDir, targetPosX, targetPosY))
-    io.write(string.format("%f,%f,%f,%f,%f,%f,%f,%f,%f,%d\n", time,  playerPosX, playerPosY, playerVelMod, playerVelDir, playerRowVelMod, playerRowVelDir, targetPosX, targetPosY, label))
+    -- io.write(string.format("%f,%f,%f,%f,%f,%f,%f,%f,%f,%d\n", time,  playerPosX, playerPosY, playerVelMod, playerVelDir, playerRowVelMod, playerRowVelDir, targetPosX, targetPosY, label))
 
-    if playerToTargetDist < 10 and playerVelMod < 11 then
-        -- io.write(string.format("split\n"))
-        time = 0
-        label = label + 1
-    end
-    if label == 10 then
-        io.close()
-    end
+    -- if playerToTargetDist < 10 and playerVelMod < 11 then
+    --     -- io.write(string.format("split\n"))
+    --     time = 0
+    --     label = label + 1
+    -- end
+    -- if label == 10 then
+    --     io.close()
+    -- end
+
 
     -- local rx,ry = 2000,-1000
     -- local span = 85
@@ -154,10 +165,14 @@ firstState = "start",
         --     return "run1"
         -- end
     end,
-    Leader = task.getInitData("Leader", CGeoPoint:new_local(0, 0), 0),
     -- a = task.goCmuRush(p[2]+ROBOT_OFFSET,task_dir),
-    a = task.stop(),
-    match = "(L)(a)"
+    Assister = task.getInitData("Assister", CGeoPoint:new_local(0, 0), 0),
+    Kicker = task.stop(),
+    Special = task.stop(),
+    Tier = task.stop(),
+    Defender = task.stop(),
+    Goalie = task.stop(),
+    match = "{AKSTDG}"
 },
 ["run1"] = {
     switch = function()

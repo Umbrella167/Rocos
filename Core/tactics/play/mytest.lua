@@ -154,7 +154,6 @@ firstState = "Init",
 
 ["Init"] = {
 	switch = function()
-		
 		if bufcnt(true,20) then
 			return "GetGlobalMessage"
 		end

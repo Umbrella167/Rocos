@@ -519,3 +519,18 @@ function getInitData(role, p)
 		return { mexe, mpos }
 	end
 end
+
+
+function getFitData(role, p)
+	return function()
+		debugEngine:gui_debug_msg(p, "targetIsHere")
+		if player.pos(role):dist(p) < 10 and player.velMod(role) < 11 then
+			p = CGeoPoint:new_local(math.random(-3200, 3200), math.random(-2500, 2500))
+		end
+		idir = player.toPointDir(p, role)
+		local mexe, mpos = GoCmuRush { pos = p, dir = idir, acc = a, flag = f, rec = r, vel = v }
+
+		return { mexe, mpos }
+	end
+end
+
