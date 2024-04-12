@@ -88,7 +88,7 @@ end
 -- 校正返回的脚本
 correction_state = "Shoot"
 -- 角度误差常数
-error_dir = 4
+error_dir = 8
 -- 校正坐标初始化
 correction_pos = CGeoPoint:new_local(0,0)
 -- 带球车初始化
@@ -111,7 +111,7 @@ shootKp = 0.09
 -- Touch pos
 touchPos = CGeoPoint:new_local(0,0)
 -- Touch 角度
-canTouchAngle = 120
+canTouchAngle = 60
 -- 传球角度
 pass_pos = CGeoPoint:new_local(4500,-999)
 -- getball参数
@@ -197,7 +197,10 @@ firstState = "Init",
 			if dribblingStatus == "NOTHING"  or dribblingStatus == "Run" or  dribblingStatus == "Getball" then
 				UpdataTickMessage(defend_num1,defend_num2)
 			else
+				if dribblingStatus ~= "Shoot" then 
+
 				return dribblingStatus
+			end
 			end
 		elseif ball_rights == -1 then   	-- 敌方球权情况，一个抢球，其余防守
 			return "defendNormalState"
@@ -247,6 +250,7 @@ firstState = "Init",
 	match = "{AKSTDG}"
 },
 
+
 -- 射门
 ["KickerTouch"] = {
 	switch = function()
@@ -289,7 +293,7 @@ firstState = "Init",
 -- 传球 
 ["passToPlayer"] = {
 	switch = function()
-		UpdataTickMessage(defend_num1,defend_num2)
+		-- UpdataTickMessage(defend_num1,defend_num2)
 
 		if(player.kickBall("Assister")) then
 			local getballPlayer = player.name(pass_player_num)
@@ -301,6 +305,9 @@ firstState = "Init",
 			return "Correction"
 		end
 
+		if (bufcnt(true,130)) then
+			return "GetGlobalMessage"
+		end
 
 	end,
 	Assister = task.Shootdot(passPos(),shootKp,error_dir,kick.flat),
@@ -315,7 +322,7 @@ firstState = "Init",
 -- 接球
 ["KickergetBall"] = {
 	switch = function()
-		UpdataTickMessage(defend_num1,defend_num2)
+		-- UpdataTickMessage(defend_num1,defend_num2)
 		correction_pos = Utils.GetShootPoint(vision,player.num("Kicker"))
 		if (player.canTouch("Kicker",correction_pos,canTouchAngle)) then
 			return "KickerTouch"
@@ -323,7 +330,7 @@ firstState = "Init",
 		if(player.toBallDist("Kicker") < 100) then 
 			return "GetGlobalMessage"
 		end
-		if (bufcnt(true,100)) then
+		if (bufcnt(true,130)) then
 			return "GetGlobalMessage"
 		end
 	end,
@@ -433,7 +440,7 @@ firstState = "Init",
 			return "GetGlobalMessage"
 		end
 	end,
-	Assister = task.TurnToPoint("Assister", correctionPos(),350),
+	Assister = task.TurnToPoint("Assister", correctionPos(),200),
 	Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker")),
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 	Tier = task.stop(),

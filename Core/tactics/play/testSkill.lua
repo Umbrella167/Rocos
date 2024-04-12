@@ -28,26 +28,38 @@ gPlayTable.CreatePlay{
 firstState = "ready1",
 ["ready1"] = {
 	switch = function()
-
+		debugEngine:gui_debug_msg(CGeoPoint:new_local(0,0),player.toBallDist("Assister"))
+		if(player.infraredCount("Assister") > 5) then
+			return "shoot"
+		end
 	end,
 	 -- = task.TurnRun("Assister"),
-	Assister = task.TurnRun(),
+	Assister = task.getball("Assister",3.5,1,CGeoPoint:new_local(0,0)),
 	-- match = "[AKS]{TDG}"
 	match = "[A]"
 },
-["ready"] = {
+
+
+["shoot"] = {
 	switch = function()
-		Utils.UpdataTickMessage(vision,1,2)
-		run_pos = Utils.GetShowDribblingPos(vision,CGeoPoint:new_local(player.pos("Assister"):x(),player.pos("Assister"):y()),CGeoPoint(0,0))
-		if(player.infraredCount("Assister") > 5) then 
-			return "dribbling"
+		if(task.playerDirToPointDirSub("Assister",CGeoPoint:new_local(6000,0)) < 8) then 
+				return "shoot1"
 		end
 	end,
-	Assister = task.getball("Assister",3,inter_flag,CGeoPoint:new_local(0,0)),
-
-	match = "[AKS]{TDG}"
+	 -- = task.TurnRun("Assister"),
+	Assister = task.TurnToPointV2("Assister", CGeoPoint:new_local(6000,0),param.rotVel),
+	-- match = "[AKS]{TDG}"
+	match = "[A]"
 },
+["shoot1"] = {
+	switch = function()
 
+	end,
+	 -- = task.TurnRun("Assister"),
+	Assister = task.ShootdotV2(CGeoPoint:new_local(6000,0),10000,8,kick.flat),
+	-- match = "[AKS]{TDG}"
+	match = "[A]"
+},
 ["dribbling"] = {
 	switch = function()
 		Utils.UpdataTickMessage(vision,1,2)

@@ -976,7 +976,7 @@ namespace Utils
         double max_grade = -inf;
         double min_dist_to_player = inf;
         CGeoPoint max_grade_pos;
-
+        double grade_avd_ball = 0;
         // 圆心
         CGeoPoint player_pos = pVision->ourPlayer(num).Pos();
         CGeoPoint dribbling_player_pos = pVision->ourPlayer(Tick[now].our.dribbling_num).Pos();
@@ -995,6 +995,9 @@ namespace Utils
 
                 if (pos.dist2(player_pos) < radius * radius)
                 {
+                    double toballdist = player_pos.dist(Tick[now].ball.pos);
+
+                    grade_avd_ball = NumberNormalize(toballdist,1200,100);
                     shoot_dir_grade = PosToPosDirGrade(x, y, shoot_pos.x(), shoot_pos.y(), 4 / PARAM::Math::RADIAN * PARAM::Math::PI);
                     shoot_dist_grade = PosToPosDistGrade(x, y, shoot_pos.x(), shoot_pos.y(), -1, "NORMAL");
                     shoot_grade = 0.2 * shoot_dir_grade + 0.8 * shoot_dist_grade;
@@ -1004,7 +1007,7 @@ namespace Utils
                     pass_grade = 0.5 * pass_dir_grade + 0.5 * pass_dist_grade;
                     if (x < 1000)
                         pass_grade = pass_grade - 0.4 * (1 - NumberNormalize(pVision->ourPlayer(num).Pos().x(), 1000, -500));
-                    grade = 0.15 * pass_grade + 0.2 * pass_safty_grade + 0.05 * shoot_dir_grade + 0.6 * shoot_dist_grade;
+                    grade = 0.15 * pass_grade + 0.2 * pass_safty_grade + 0.05 * shoot_dir_grade + 0.6 * shoot_dist_grade + 0.6 * grade_avd_ball;
 
                     for (int j = 0; j < PARAM::Field::MAX_PLAYER; j++)
                     {
