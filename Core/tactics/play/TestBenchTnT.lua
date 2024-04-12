@@ -73,7 +73,7 @@ local init_params = function()
         ballMaxSpeed[i] = -1
         if player.valid(i) then
             ballMaxSpeed[i] = 0
-            task.kickPower[i] = 0
+            task.kickPower[i] = task.minPower
             task.playerCount = task.playerCount + 1
         end
     end
@@ -202,9 +202,9 @@ firstState = "init",
     switch = function()
         debug_F()
         -- debugEngine(CGeoPoint(1000,1000), task.fitPlayer1)
-        -- if player.kickBall(task.fitPlayer1) then
-        --     return "recording"
-        -- end
+        if player.kickBall(task.fitPlayer1) then
+            return "recording"
+        end
     end,
     Assister = task.getFitData_runToPos("Assister"),
     Kicker = task.getFitData_runToPos("Kicker"),
@@ -221,12 +221,12 @@ firstState = "init",
         --     return "shoot_ball"
         -- end
     end,
-    Assister = task.stop(),
-    Kicker = task.stop(),
-    Special = task.stop(),
-    Tier = task.stop(),
-    Defender = task.stop(),
-    Goalie = task.stop(),
+    Assister = task.getFitData_reconding("Assister"),
+    Kicker = task.getFitData_reconding(),
+    Special = task.getFitData_reconding(),
+    Tier = task.getFitData_reconding(),
+    Defender = task.getFitData_reconding(),
+    Goalie = task.getFitData_reconding(),
     -- Assister = task.getFitData_recording("Assister"),
     -- Kicker = task.getFitData_recording("Kicker"),
     -- Special = task.getFitData_recording("Special"),
