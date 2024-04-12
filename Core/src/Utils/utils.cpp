@@ -7,19 +7,22 @@
 #include <Eigen/Dense>
 #include <fstream>
 /*
-            C++ 传数据到 Lua 总结
-        1.utils.cpp        写好功能
-        2.utils.h          定义好函数
-        3.到 utils.pkg 仿照相应的函数定义
-        4.重新构建
+    C++ 传数据到 Lua 总结
+    1.utils.cpp        写好功能
+    2.utils.h          定义好函数
+    3.到 utils.pkg 仿照相应的函数定义
+    4.重新构建
 
-@ data   : 20240205
-@ author : Umbrella
+    @ data   : 20240205
+    @ author : Umbrella
 */
+
+const int inf = 1e9;
+
 GlobalTick Tick[PARAM::Tick::TickLength];
 int now = PARAM::Tick::TickLength - 1;
 int last = PARAM::Tick::TickLength - 2;
-const int inf = 1e9;
+
 namespace Utils
 {
     // 没写完 START
@@ -119,7 +122,6 @@ namespace Utils
             Tick[now].their.dribbling_num = Tick[now].their.to_balldist_min_num;
             //            Tick[now].our.dribbling_num = -1;
         }
-
         // 传球或射门失误导致的双方都无球权的情况
 
         else
@@ -152,16 +154,15 @@ namespace Utils
     /**
      * 坐标安全性评分计算
      * @param  {CVisionModule*} pVision : pVision
-     * @param  {CGeoPoint} start        :
-     * @param  {CGeoPoint} end          :
-     * @return {double}                 :
+     * @param  {CGeoPoint} start        : 起点
+     * @param  {CGeoPoint} end          : 终点
+     * @return {double}                 : 评判模型
      */
     double PosSafetyGrade(const CVisionModule *pVision, CGeoPoint start, CGeoPoint end, string model)
     {
         /*
             SHOOT 模式考虑守门员
             PASS  模式不考虑守门员
-
         */
         if (model == "SHOOT")
         {
@@ -1357,8 +1358,7 @@ namespace Utils
     {
         double x = Point.x();
         double y = Point.y();
-        if ((x > (-1 * PARAM::Field::PITCH_LENGTH / 2) &&
-             x < (PARAM::Field::PITCH_LENGTH / 2)) &&
+        if ((x > (-1 * PARAM::Field::PITCH_LENGTH / 2) && x < (PARAM::Field::PITCH_LENGTH / 2)) &&
             (y > -1 * PARAM::Field::PITCH_WIDTH / 2 && y < PARAM::Field::PITCH_WIDTH / 2))
         {
             return true;
@@ -1369,24 +1369,180 @@ namespace Utils
         }
     }
 
-    // Defence
+    // Defender
+
+    /**
+     * 距离某球员最近的球员
+     * @param  {CVisionModule*} pVision : vision
+     * @param  {int} role               : 目标球员
+     * @param  {int} type               : 类型 0全局 1我方 2敌方
+     * @return {int}                    : 球员编号
+     */
+    int closestPlayerToPlayer(const CVisionModule *pVision, int role, int type)
+    {
+        int res[3] = {-1, -1, -1};
+        double minDis[3] = {inf, inf, inf};
+
+        for (int i = 0; i < PARAM::Field::MAX_PLAYER; i++)
+        {
+            if (role == i || role == Tick[now].our.goalie_num || role == Tick[now].their.goalie_num)
+            {
+                continue;
+            }
+
+            if (pVision->ourPlayer(i).Valid())
+            {
+                double dist = pVision->ourPlayer(i).Pos().dist(pVision->ourPlayer(role).Pos());
+                if (dist < minDis[1])
+                {
+                    res[1] = i;
+                    minDis[1] = dist;
+                }
+                if (dist < minDis[0])
+                {
+                    res[0] = i;
+                    minDis[0] = dist;
+                }
+            }
+            else if (pVision->theirPlayer(i).Valid())
+            {
+                double dist = pVision->theirPlayer(i).Pos().dist(pVision->ourPlayer(role).Pos());
+                if (dist < minDis[2])
+                {
+                    res[2] = i;
+                    minDis[2] = dist;
+                }
+                if (dist < minDis[0])
+                {
+                    res[0] = i;
+                    minDis[0] = dist;
+                }
+            }
+        }
+
+        return res[type];
+    }
+
+    /**
+     * 距离某点最近的球员
+     * @param  {CVisionModule*} pVision : vision
+     * @param  {CGeoPoint} pos          : 目标位置
+     * @param  {int} type               : 类型 0全局 1我方 2敌方
+     * @param  {int} role = 1           : （可选）排除的球员编号
+     * @return {int}                    : 球员编号
+     */
+    int closestPlayerNoToPoint(const CVisionModule *pVision, CGeoPoint pos, int type, int role)
+    {
+        int res[3] = {-1, -1, -1};
+        double minDis[3] = {inf, inf, inf};
+
+        for (int i = 0; i < PARAM::Field::MAX_PLAYER; i++)
+        {
+            if (i == role || i == Tick[now].our.goalie_num || i == Tick[now].their.goalie_num) // 实际上也排除了守门员
+            {
+                continue;
+            }
+
+            if (pVision->ourPlayer(i).Valid())
+            {
+                double dist = pVision->ourPlayer(i).Pos().dist(pos);
+                if (dist < minDis[1])
+                {
+                    res[1] = i;
+                    minDis[1] = dist;
+                }
+                if (dist < minDis[0])
+                {
+                    res[0] = i;
+                    minDis[0] = dist;
+                }
+            }
+            else if (pVision->theirPlayer(i).Valid())
+            {
+                double dist = pVision->theirPlayer(i).Pos().dist(pos);
+                if (dist < minDis[2])
+                {
+                    res[2] = i;
+                    minDis[2] = dist;
+                }
+                if (dist < minDis[0])
+                {
+                    res[0] = i;
+                    minDis[0] = dist;
+                }
+            }
+        }
+
+        return res[type];
+    }
+
+    /**
+     * 距离某点最近的球员的位置
+     * @param  {CVisionModule*} pVision : vision
+     * @param  {CGeoPoint} pos          : 目标位置
+     * @param  {int} type               : 类型 0全局 1我方 2敌方
+     * @param  {int} role = 1           : （可选）排除的球员编号
+     * @return {CGeoPoint}               : 球员位置
+     */
+    CGeoPoint closestPlayerToPoint(const CVisionModule *pVision, CGeoPoint pos, int type, int role)
+    {
+        int res[3] = {-1, -1, -1};
+        double minDis[3] = {inf, inf, inf};
+
+        for (int i = 0; i < PARAM::Field::MAX_PLAYER; i++)
+        {
+            if (i == role || i == Tick[now].our.goalie_num || i == Tick[now].their.goalie_num) // 实际上也排除了守门员
+            {
+                continue;
+            }
+
+            if (pVision->ourPlayer(i).Valid())
+            {
+                double dist = pVision->ourPlayer(i).Pos().dist(pos);
+                if (dist < minDis[1])
+                {
+                    res[1] = i;
+                    minDis[1] = dist;
+                }
+                if (dist < minDis[0])
+                {
+                    res[0] = i;
+                    minDis[0] = dist;
+                }
+            }
+            else if (pVision->theirPlayer(i).Valid())
+            {
+                double dist = pVision->theirPlayer(i).Pos().dist(pos);
+                if (dist < minDis[2])
+                {
+                    res[2] = i;
+                    minDis[2] = dist;
+                }
+                if (dist < minDis[0])
+                {
+                    res[0] = i;
+                    minDis[0] = dist;
+                }
+            }
+        }
+
+        // return res[type];
+        return pVision->theirPlayer(res[type]).Pos();
+    }
 
     /**
      * 球方向与禁区边的交点
-     * @return {CGeoPoint} : {0, 0} 时表示无交点
+     * @return {CGeoPoint} : 焦点；{0, 0} 时表示无交点
      */
-    CGeoPoint ComputeCrossPENALTY()
+    CGeoPoint DEFENDER_ComputeCrossPenalty(const CVisionModule *pVision, CGeoLine line)
     {
-        auto ball = Tick[now].ball;
-        CGeoLine ball_line(ball.pos, ball.vel_dir);
-
-        CGeoLineLineIntersection intersection(FIELD_PENALTYBOR, ball_line); // 获取球运动姿态的交点
-        if (true == intersection.Intersectant())
+        CGeoLineLineIntersection intersection(DEFENDER_FIELD_PENALTYBOR, line); // 获取球运动姿态的交点
+        if (intersection.Intersectant())
         {
             return intersection.IntersectPoint();
         }
 
-        return {0, 0};
+        return {0, 0}; // 无交点
     }
 
     /**
@@ -1394,10 +1550,9 @@ namespace Utils
      * @param  {CGeoPoint} hitPoint : 交点
      * @return {double}             : 两后卫之间距离
      */
-    double ComputeDistance(CGeoPoint hitPoint)
+    double DEFENDER_ComputeDistance(CGeoPoint hitPoint)
     {
-        auto ball = Tick[now].ball;
-        double ballDist = ball.pos.dist(hitPoint);
+        double ballDist = Tick[now].ball.pos.dist(hitPoint);
         if (ballDist > PARAM::Field::PITCH_WIDTH / 2)
             return DEFAULT_DISTANCE_MAX;
         else if (ballDist < PARAM::Field::PENALTY_AREA_DEPTH)
@@ -1406,14 +1561,17 @@ namespace Utils
             return DEFAULT_DISTANCE_MIN + (DEFAULT_DISTANCE_MAX - DEFAULT_DISTANCE_MIN) * (ballDist / (PARAM::Field::PITCH_WIDTH / 2 - PARAM::Field::PENALTY_AREA_DEPTH));
     }
 
-    /****************************
+    /*****************************
      *                           *
-     *         以下代码均是        *
-     *         该文件源代码        *
+     *         以下代码均是       *
+     *         该文件源代码       *
      *       Open-ssl-china      *
      *****************************/
 
-    double dirDiff(const CVector &v1, const CVector &v2) { return fabs(Normalize(v1.dir() - v2.dir())); }
+    double dirDiff(const CVector &v1, const CVector &v2)
+    {
+        return fabs(Normalize(v1.dir() - v2.dir()));
+    }
     double Normalize(double angle)
     {
         if (fabs(angle) > 10)
