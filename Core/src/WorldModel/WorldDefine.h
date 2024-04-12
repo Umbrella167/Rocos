@@ -8,7 +8,7 @@
 /************************************************************************/
 class ObjectPoseT {
   public:
-    ObjectPoseT() : _valid(false), _pos(CGeoPoint(-9999, -9999)) { }
+    ObjectPoseT() : _valid(false), _pos(CGeoPoint(-9999, -9999)), _rawPos(CGeoPoint(-9999, -9999)) { }
     const CGeoPoint& Pos() const {
         return _pos;
     }
@@ -69,19 +69,7 @@ class ObjectPoseT {
     bool Valid() const {
         return _valid;
     }
-  private:
-    CGeoPoint _pos;
-    CVector _vel;
-    CVector _rawVel;
-    CVector _acc;
-    bool _valid;
-};
-/************************************************************************/
-/*                      VisionObjectT                                   */
-/************************************************************************/
-class VisionObjectT {
-  public:
-    VisionObjectT() : _rawPos(CGeoPoint(-9999, -9999)) { }
+
     const CGeoPoint& RawPos() const {
         return _rawPos;
     }
@@ -107,16 +95,19 @@ class VisionObjectT {
         _rawDir = rawdir;
     }
   private:
+    CGeoPoint _pos;
+    CVector _vel;
+    CVector _rawVel;
+    CVector _acc;
+    bool _valid;
+
     CGeoPoint _rawPos; // 视觉的原始信息，没有经过预测
     CGeoPoint _chipPredict; //挑球预测
     double _rawDir;
 };
-/************************************************************************/
-/*                       MobileVisionT                                  */
-/************************************************************************/
-class MobileVisionT : public ObjectPoseT, public VisionObjectT {
 
-};
+// using ObjectPoseT = ObjectPoseT;
+
 /************************************************************************/
 /*                        机器人姿态数据结构                               */
 /************************************************************************/
@@ -226,11 +217,11 @@ struct GlobalTick{
 };
 
 /************************************************************************/
-/*                      PlayerTypeT                                     */
+/*                       PlayerVisionT                                  */
 /************************************************************************/
-class PlayerTypeT {
+class PlayerVisionT : public PlayerPoseT {
   public:
-    PlayerTypeT(): _type(0) {}
+    PlayerVisionT() : _type(0) {}
     void SetType(int t) {
         _type = t;
     }
@@ -239,12 +230,6 @@ class PlayerTypeT {
     }
   private:
     int _type;
-};
-/************************************************************************/
-/*                       PlayerVisionT                                  */
-/************************************************************************/
-class PlayerVisionT : public PlayerPoseT, public VisionObjectT, public PlayerTypeT {
-
 };
 
 /************************************************************************/
