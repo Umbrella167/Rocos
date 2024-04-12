@@ -93,6 +93,10 @@ function posY(role)
 	return instance(role):Y()
 end
 
+function rawPos(role)
+	return instance(role):RawPos()
+end
+
 function dir(role)
 	return instance(role):Dir()
 end
