@@ -1356,10 +1356,9 @@ namespace Utils
      * 球方向与禁区边的交点
      * @return {CGeoPoint} : 焦点；{0, 0} 时表示无交点
      */
-    CGeoPoint DEFENDER_ComputeCrossPenalty()
+    CGeoPoint DEFENDER_ComputeCrossPenalty(CVisionModule *pVision, CGeoLine line)
     {
-        CGeoLine ball_line(Tick[now].ball.pos, Tick[now].ball.vel_dir);              // 球的运动路径
-        CGeoLineLineIntersection intersection(DEFENDER_FIELD_PENALTYBOR, ball_line); // 获取球运动姿态的交点
+        CGeoLineLineIntersection intersection(DEFENDER_FIELD_PENALTYBOR, line); // 获取球运动姿态的交点
         if (intersection.Intersectant())
         {
             return intersection.IntersectPoint();

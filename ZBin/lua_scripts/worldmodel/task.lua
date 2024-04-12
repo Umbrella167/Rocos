@@ -475,10 +475,18 @@ function defender_defence(role)
 			end
 		elseif player.toBallDist(role) < DEFENDER_SAFEDISTANCE * 2 then -- 准备防御
 			-- local distanceDT = Utils.DEFENDER_ComputeDistance(hitPoint)
-			local hitPoint = Utils.DEFENDER_ComputeCrossPenalty()
+			local line = CGeoLine:new_local(ball.pos(), ball.vel())
+			local hitPoint = Utils.DEFENDER_ComputeCrossPenalty(vision, line) -- 可能的射击朝向
 			local POS_NULL = CGeoPoint:new_local(0, 0)
 
-			if hitPoint ~= POS_NULL then
+			if 1 ~= GlobalMessage.Tick.ball.rights then --如果球权在人家手上
+				local theirAttacker = vision:theirPlayer(GlobalMessage.Tick.their.to_balldist_min_num)
+				line = CGeoLine:new_local(theirAttacker.pos(), theirAttacker.vel_dir())
+				hitPoint = Utils.DEFENDER_ComputeCrossPenalty(vision, line)
+			end
+
+
+			if hitPoint ~= POS_NULL then -- 有防御交点
 				if role == role_major then
 					ipos = hitPoint
 				elseif role == role_minor then

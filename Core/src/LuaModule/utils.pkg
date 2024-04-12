@@ -21,7 +21,7 @@ namespace Utils{
 	int closestPlayerToPlayer(const CVisionModule *pVision, int role, int type);
 	CGeoPoint closestPlayerToPoint(const CVisionModule *pVision, CGeoPoint pos, int type, int role = -1);
 
-	CGeoPoint DEFENDER_ComputeCrossPenalty();
+	CGeoPoint DEFENDER_ComputeCrossPenalty(const CVisionModule *pVision, CGeoLine line);
 	double DEFENDER_ComputeDistance(CGeoPoint hitPoint);
 	
 	// // // // // END // // // // // 
