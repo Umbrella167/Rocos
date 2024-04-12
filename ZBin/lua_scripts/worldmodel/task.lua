@@ -743,7 +743,7 @@ end
 kickPower = {}
 minPower = 1000
 maxPower = 6000
-powerStep = 10
+powerStep = 100
 playerCount = 0
 fitPlayerLen = 0
 fitPlayerList = {}

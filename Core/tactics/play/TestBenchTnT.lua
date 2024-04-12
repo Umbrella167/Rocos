@@ -42,6 +42,9 @@ local debug_F = function()
     for i=0, task.fitPlayerLen-1 do
         debugEngine:gui_debug_msg(CGeoPoint(-3000, 2600-(200*i)),"player: "..tostring(task.fitPlayerList[i]).."  "..tostring(i))
     end
+    debugEngine:gui_debug_msg(CGeoPoint(-3000, 2600-(200*19)),"minPower:  "..tostring(task.minPower))
+    debugEngine:gui_debug_msg(CGeoPoint(-3000, 2600-(200*20)),"maxPower:  "..tostring(task.maxPower))
+    debugEngine:gui_debug_msg(CGeoPoint(-3000, 2600-(200*21)),"powerStep: "..tostring(task.powerStep))
 
 end
 
