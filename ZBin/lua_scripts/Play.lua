@@ -240,6 +240,7 @@ function RunPlay(name)
 				end
 				
 				if roleNum ~= -1 then
+					-- debugEngine:gui_debug_msg(CGeoPoint(1000,1000+(150 * roleNum)), tostring(roleNum))
 					if task[3] ~= nil then
 						local mkick = task[3](roleNum)
 						local mdir = task[4](roleNum)

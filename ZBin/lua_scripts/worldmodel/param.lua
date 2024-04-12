@@ -21,7 +21,7 @@ module(..., package.seeall)
 powerShoot = 3000
 ---------------------------------
 --旋转参数
-rotPos = CGeoPoint:new_local(0,0)
+rotPos = CGeoPoint(30,80)
 rotVel = 5
 ---------------------------------
 

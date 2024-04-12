@@ -122,10 +122,9 @@ gPlayTable.CreatePlay{
 
 firstState = "Init",
 
-
 ["Init"] = {
 	switch = function()
-		UpdataTickMessage(defend_num1,defend_num2) 
+		-- UpdataTickMessage(defend_num1,defend_num2) 
 		-- Utils.GetBestInterPos(vision, playerPos("Assister")(), 4, 0)
 		if player.infraredCount("Assister") > 10 then
 			return "run1"
@@ -149,7 +148,7 @@ firstState = "Init",
 		-- 	return "Init"
 		-- end
 	end,
-	Assister = task.TurnToPoint("Assister", CGeoPoint:new_local(4500,0)),
+	Assister = task.TurnToPointV2("Assister", CGeoPoint:new_local(4500,0)),
 	-- Kicker = task.stop(),
 	-- Special = task.stop(),
 	-- Tier = task.stop(),

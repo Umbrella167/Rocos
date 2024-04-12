@@ -58,15 +58,39 @@ local state_reset = function(store)
 end
 
 
-local time = 0
+-- 有用到的
+
+local maxPower = task.maxPower
+local powerStep = task.powerStep
+local ballMaxSpeed = {}
+
+local init_params = function()
+    task.kickPower = {}
+    ballMaxSpeed = {}
+    task.playerCount = 0
+    for i=0,param.maxPlayer do
+        task.kickPower[i] = -1
+        ballMaxSpeed[i] = -1
+        if player.valid(i) then
+            ballMaxSpeed[i] = 0
+            task.kickPower[i] = 0
+            task.playerCount = task.playerCount + 1
+        end
+    end
+    task.playerCount = task.playerCount - 1
+end
+
+
+-- local time = 0
 local label = 0
-local file = io.open("data.csv", "w+")
-io.output(file)
-io.write("time,playerPosX,playerPosY,playerVelMod,playerVelDir,playerRowVelMod,playerRowVelDir,targetPosX,targetPosY,label\n")
+-- local file = io.open("data.csv", "w+")
+-- io.output(file)
+-- io.write("time,playerPosX,playerPosY,playerVelMod,playerVelDir,playerRowVelMod,playerRowVelDir,targetPosX,targetPosY,label\n")
+
 
 local debug_F = function()
-    ttt = Utils.UpdataTickMessage(vision, 1, 1)
-    time = time + ttt.time.delta_time
+    -- local ttick = Utils.UpdataTickMessage(vision, 1, 1)
+    -- local time = time + ttick.time.delta_time
     
     local sx,sy = 200,-1000
     local span = 140
@@ -85,11 +109,11 @@ local debug_F = function()
     local playerVelDir = player.vel(role):dir()
     local playerRowVelMod = player.rawVelMod(role)
     local playerRowVelDir = player.rawVel(role):dir()
-    local targetPos = player.gRolePos[role]()
-    local targetPosX = targetPos:x()
-    local targetPosY = targetPos:y()
-    local playerToTargetDist = player.pos(role):dist(targetPos)
-    det_max_vel = math.max(det_max_vel,playerVelMod)
+    -- local targetPos = player.gRolePos[role]()
+    -- local targetPosX = targetPos:x()
+    -- local targetPosY = targetPos:y()
+    -- local playerToTargetDist = player.pos(role):dist(targetPos)
+    det_max_vel = math.max(det_max_vel, playerVelMod)
     -- det_rot_err = math.max(det_rot_err,math.abs(rawDir-task_dir)*180/math.pi)
 
     -- debugEngine:gui_debug_line(p[1],p[2],param.GRAY)
@@ -98,7 +122,7 @@ local debug_F = function()
     -- debugEngine:gui_debug_msg(sp+v*2,string.format("Det MAX VEL : %4.0f",rawVel),param.BLUE)
     -- debugEngine:gui_debug_msg(sp+v*3,string.format("Det MAX VEL : %4.0f",det_max_vel),param.GREEN)
     -- debugEngine:gui_debug_msg(sp+v*4,string.format("Rot MAX ERR°: %4.1f",det_rot_err),det_rot_err < FAIL_DEGREE and param.GREEN or param.RED)
-    debugEngine:gui_debug_msg(sp+v*0,string.format("time:              %6.3f", time),param.BLUE)
+    -- debugEngine:gui_debug_msg(sp+v*0,string.format("time:              %6.3f", time),param.BLUE)
     debugEngine:gui_debug_msg(sp+v*1,string.format("playerPosX:        %6.3f", playerPosX),param.BLUE)
     debugEngine:gui_debug_msg(sp+v*2,string.format("playerPosY:        %6.3f", playerPosY),param.BLUE)
     -- debugEngine:gui_debug_msg(sp+v*3,string.format("playerRawPosX:     %6.3f", playerRawPosX),param.BLUE)
@@ -107,43 +131,34 @@ local debug_F = function()
     debugEngine:gui_debug_msg(sp+v*6,string.format("velDir:            %6.3f", playerVelDir),param.BLUE)
     debugEngine:gui_debug_msg(sp+v*7,string.format("rowVelMod:         %6.3f", playerRowVelMod),param.BLUE)
     debugEngine:gui_debug_msg(sp+v*8,string.format("rowVelDir:         %6.3f", playerRowVelDir),param.BLUE)
-    -- debugEngine:gui_debug_msg(sp+v*4,string.format("det_max_vel:    %6.3f", playerToTargetDist),param.GREEN)
-    debugEngine:gui_debug_msg(sp+v*10,string.format("targetPosX:       %6.3f", targetPosX),param.GREEN)
-    debugEngine:gui_debug_msg(sp+v*11,string.format("targetPosY:       %6.3f", targetPosY),param.GREEN)
+    debugEngine:gui_debug_msg(sp+v*4,string.format("det_max_vel:    %6.3f", det_max_vel),param.GREEN)
+    -- debugEngine:gui_debug_msg(sp+v*10,string.format("targetPosX:       %6.3f", targetPosX),param.GREEN)
+    -- debugEngine:gui_debug_msg(sp+v*11,string.format("targetPosY:       %6.3f", targetPosY),param.GREEN)
+    debugEngine:gui_debug_msg(sp+v*12,string.format("task.playerCount:       %d", task.playerCount),param.GREEN)
 
+    debugEngine:gui_debug_msg(sp+v*13,string.format("task.kickPower:"))
+    for i=0, task.playerCount-1 do
+        debugEngine:gui_debug_msg(sp+v*(14+i),string.format("%d task.kickPower:       %d", i, task.kickPower[i]),param.GREEN)
+    end
+    debugEngine:gui_debug_msg(CGeoPoint(-2000, -2800),string.format("BallMaxSpeed:"))
+    for i=0, task.playerCount-1 do
+        debugEngine:gui_debug_msg(CGeoPoint(-2000, -2800-150*(i+1)), string.format("%d ballMaxSpeed:       %d", i, ballMaxSpeed[i]), param.GREEN)
+    end
 
+    -- 存储文件
     -- io.write(string.format("%f %f %f %f %f %f %f %f %f %f\n", time,  playerPosX, playerPosY, playerRawPosX, playerRawPosY, playerVelMod, playerVelDir, playerRowVelMod, playerRowVelDir, targetPosX, targetPosY))
-    io.write(string.format("%f,%f,%f,%f,%f,%f,%f,%f,%f,%d\n", time,  playerPosX, playerPosY, playerVelMod, playerVelDir, playerRowVelMod, playerRowVelDir, targetPosX, targetPosY, label))
+    -- io.write(string.format("%f,%f,%f,%f,%f,%f,%f,%f,%f,%d\n", time,  playerPosX, playerPosY, playerVelMod, playerVelDir, playerRowVelMod, playerRowVelDir, targetPosX, targetPosY, label))
 
-    if playerToTargetDist < 10 and playerVelMod < 11 then
-        -- io.write(string.format("split\n"))
-        time = 0
-        label = label + 1
-    end
-    if label == 10 then
-        io.close()
-    end
-
-    -- local rx,ry = 2000,-1000
-    -- local span = 85
-    -- local rp = CGeoPoint:new_local(rx,ry)
-    -- local rv = CVector:new_local(0,-span)
-    -- debugEngine:gui_debug_msg(rp+rv*0,                  " N,  ACC, DetV, RotE, Time",param.ORANGE,0,80)
-    -- for i=1,#result_list do
-    --     local res = result_list[i]
-    --     debugEngine:gui_debug_msg(rp+rv*i,string.format("%2d, %4.0f, %4.0f, %4.1f, %4.1fs",i,res[1],res[3],res[4],res[5]),res[4] < FAIL_DEGREE and param.GREEN or param.RED, 0, 80)
+    -- if playerToTargetDist < 10 and playerVelMod < 11 then
+    --     -- io.write(string.format("split\n"))
+    --     time = 0
+    --     label = label + 1
+    -- end
+    -- if label == 10 then
+    --     io.close()
     -- end
 end
 
-local F_task_max_acc = function()
-    return task_max_acc
-end
-
-local F_task_max_vel = function()
-    return task_max_vel
-end
-
--- 有用到的
 
 toPlayerDir = function(role1, role2)
     return player.toPlayerDir(role1, role2)
@@ -164,119 +179,62 @@ local function judgePlayerDir(role,targetPos,error)
         return false
     end
 end
--- 准备的点
-readyPos = function(role)
-    return function()
-        if role == "Assister" then
-            return CGeoPoint(4000, 2000)
-        else
-            return CGeoPoint(-4000, -2000)
-        end
-    end
-end
 
 
 gPlayTable.CreatePlay{
 
 firstState = "init",
--- ["start"] = {
---     switch = function()
---         debug_F()
---         -- if bufcnt(player.toTargetDist("Leader") < 30, 60) then
---         --     state_reset()
---         --     return "run1"
---         -- end
---     end,
---     Leader = task.getInitData("Leader", CGeoPoint:new_local(0, 0), 0),
---     -- a = task.goCmuRush(p[2]+ROBOT_OFFSET,task_dir),
---     a = task.stop(),
---     match = "(L)(a)"
--- },
 ["init"] = {
     switch = function()
+        init_params()
         debug_F()
-        if player.toBallDist("Assister") < player.toBallDist("Kicker") then
-            return "A_run_to_pos"
-        else
-            return "K_run_to_pos"
-        end
+        return "run_to_pos"
     end,
     Assister = task.stop(),
     Kicker = task.stop(),
-    match = "(AK)"
+    Special = task.stop(),
+    Tier = task.stop(),
+    Defender = task.stop(),
+    Goalie = task.stop(),
+    match = "[AKSTDG]"
 },
-["A_run_to_pos"] = {
+["run_to_pos"] = {
     switch = function()
-        if judgePlayerDir("Assister", readyPos("Kicker"), 0.08) and player.toTargetDist("Assister") < 10 then
-            return "ready_to_shoot"
-        end
+        debug_F()
+        -- debugEngine(CGeoPoint(1000,1000), task.fitPlayer1)
+        -- if player.kickBall(task.fitPlayer1) then
+        --     return "recording"
+        -- end
     end,
-    Assister = task.GetBallV5("Assister", readyPos("Assister"), readyPos("Kicker")),
-    Kicker = task.goCmuRush(readyPos("Kicker"), toPlayerDir("Kicker", "Assister")),
-    match = "{AK}"
-},
-["K_run_to_pos"] = {
-    switch = function()
-        if judgePlayerDir("Kicker", readyPos("Assister"), 0.08) and player.toTargetDist("Kicker") < 10 then
-            return "ready_to_shoot"
-        end
-    end,
-    Assister = task.goCmuRush(readyPos("Assister"), toPlayerDir("Assister", "Kicker")),
-    Kicker = task.GetBallV5("Kicker", readyPos("Kicker"), readyPos("Assister")),
-    match = "{AK}"
-},
-["ready_to_shoot"] = {
-    switch = function()
-        Utils.InitFitFunction(vision, false)
-        if bufcnt(true, 110) then
-            if player.toBallDist("Assister") < player.toBallDist("Kicker") then
-                return "A_shoot_ball"
-            else
-                return "K_shoot_ball"
-            end
-        end
-        
-    end,
-    Assister = task.stop(),
-    Kicker = task.stop(),
-    match = "{AK}"
-},
-["A_shoot_ball"] = {
-    switch = function()
-        if player.kickBall("Assister") then
-            task.label = task.label + 1
-            return "recording"
-        end
-    end,
-    Assister = task.Shootdot(readyPos("Kicker"), task.label,8,kick.flat),
-    Kicker = task.Getballv4("Kicker", readyPos("Kicker")),
-    match = "{AK}"
-},
-["K_shoot_ball"] = {
-    switch = function()
-        if player.kickBall("Kicker") then
-            task.label = task.label + 1
-            return "recording"
-        end
-    end,
-    Assister = task.Getballv4("Assister", readyPos("Assister")),
-    Kicker = task.Shootdot(readyPos("Assister"), task.label,8,kick.flat),
-    match = "{AK}"
+    Assister = task.getFitData_runToPos("Assister"),
+    Kicker = task.getFitData_runToPos("Kicker"),
+    Special = task.getFitData_runToPos("Special"),
+    Tier = task.getFitData_runToPos("Tier"),
+    Defender = task.getFitData_runToPos("Defender"),
+    Goalie = task.getFitData_runToPos("Goalie"),
+    match = "{AKSTDG}"
 },
 ["recording"] = {
     switch = function()
-        -- 采集数据
-        Utils.InitFitFunction(vision, true)
-        if ball.velMod() < 100 and bufcnt(true, 100) then
-            return "init"
-        end
+        debug_F()
+        -- if ball.velMod() < 20 then
+        --     return "shoot_ball"
+        -- end
     end,
-    Assister = task.Getballv4("Assister", readyPos("Assister")),
-    Kicker = task.Getballv4("Kicker", readyPos("Kicker")),
-    match = "{AK}"
+    Assister = task.stop(),
+    Kicker = task.stop(),
+    Special = task.stop(),
+    Tier = task.stop(),
+    Defender = task.stop(),
+    Goalie = task.stop(),
+    -- Assister = task.getFitData_recording("Assister"),
+    -- Kicker = task.getFitData_recording("Kicker"),
+    -- Special = task.getFitData_recording("Special"),
+    -- Tier = task.getFitData_recording("Tier"),
+    -- Defender = task.getFitData_recording("Defender"),
+    -- Goalie = task.getFitData_recording("Goalie"),
+    match = "{AKSTDG}"
 },
-
-
 name = "TestBenchTnT",
 applicable ={
 	exp = "a",
