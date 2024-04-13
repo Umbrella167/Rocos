@@ -233,7 +233,6 @@ firstState = "Init",
 			correction_state = "Shoot"
 			return "Correction"
 		end
-
 		if(player.kickBall("Assister"))then 
 			return "GetGlobalMessage"
 		end
@@ -281,8 +280,8 @@ firstState = "Init",
 	Assister = task.goCmuRush(runPos("Assister"),closures_dir_ball("Assister")),
 	Kicker = task.goCmuRush(runPos("Kicker"),closures_dir_ball("Kicker")),
 	Special = task.touchKick(correctionPos(),_,touchPower,kick.flat),--task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
-	Tier = task.stop(),
-	Defender = task.stop(),
+	Tier = task.defender_defence("Tier"),
+	Defender = task.defender_defence("Defender"),
 	Goalie = task.goalie(),
 	match = "{ASKTDG}"
 },
@@ -293,11 +292,13 @@ firstState = "Init",
 
 		if(player.kickBall("Assister")) then
 			local getballPlayer = player.name(pass_player_num)
+			debugEngine:gui_debug_msg(CGeoPoint:new_local(-4500,-3000),getballPlayer)
 			return getballPlayer .. "getBall" 
-		end
-		if(task.playerDirToPointDirSub("Assister",shoot_pos) > error_dir) then 
+		end-- [0,1,2]
+		if(task.playerDirToPointDirSub("Assister",shoot_pos) > error_dir and (GlobalMessage.Tick.ball.rights ~= 0 or GlobalMessage.Tick.ball.rights == 1)) then 
 			correction_pos = pass_pos
 			correction_state = "passToPlayer"
+			debugEngine:gui_debug_msg(CGeoPoint:new_local(-4500,-3000),correction_state)
 			return "Correction"
 		end
 
@@ -309,8 +310,8 @@ firstState = "Init",
 	Assister = task.Shootdot(passPos(),shootKp,error_dir,kick.flat),
 	Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker")),
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
-	Tier = task.stop(),
-	Defender = task.stop(),
+	Tier = task.defender_defence("Tier"),
+	Defender = task.defender_defence("Defender"),
 	Goalie = task.goalie(),
 	match = "{AKSTDG}"
 },
@@ -331,12 +332,12 @@ firstState = "Init",
 		end
 	end,
 	Assister = task.goCmuRush(runPos("Assister"),closures_dir_ball("Assister")),
-	Kicker =   task.Getballv4("Kicker",runPos("Kicker")),
+	Kicker =   task.getball("Kicker",playerVel,1,ballPos()),
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
-	Tier = task.stop(),
-	Defender = task.stop(),
+	Tier = task.defender_defence("Tier"),
+	Defender = task.defender_defence("Defender"),
 	Goalie = task.goalie(),
-	match = "[K][AS]{TDG}"
+	match = "{AKSTDG}"
 },
 ["SpecialgetBall"] = {
 	switch = function()
@@ -355,11 +356,11 @@ firstState = "Init",
 	end,
 	Assister = task.goCmuRush(runPos("Assister"),closures_dir_ball("Assister")),
 	Kicker = task.goCmuRush(runPos("Kicker"),closures_dir_ball("Kicker")),
-	Special =   task.Getballv4("Special",runPos("Special")),
-	Tier = task.stop(),
-	Defender = task.stop(),
+	Special = task.getball("Special",playerVel,1,ballPos()),
+	Tier = task.defender_defence("Tier"),
+	Defender = task.defender_defence("Defender"),
 	Goalie = task.goalie(),
-	match = "[S][AK]{TDG}"
+	match = "{AKSTDG}"
 },
 
 
@@ -375,8 +376,8 @@ firstState = "Init",
 	Assister = task.goCmuRush(ShowDribblingPos(), dribblingDir("Assister"),dribblingVel,flag.dribbling),
 	Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker")),
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
-	Tier = task.stop(),
-	Defender = task.stop(),
+	Tier = task.defender_defence("Tier"),
+	Defender = task.defender_defence("Defender"),
 	Goalie = task.goalie(),
 	match = "{AKSTDG}"
 },
@@ -397,8 +398,8 @@ firstState = "Init",
 	Assister = task.getball("Assister",playerVel,playerMod,ballPos()),
 	Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker")),
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
-	Tier = task.stop(),
-	Defender = task.stop(),
+	Tier = task.defender_defence("Tier"),
+	Defender = task.defender_defence("Defender"),
 	Goalie = task.goalie(),
 	match = "{AKSTDG}"
 },
@@ -418,8 +419,8 @@ firstState = "Init",
 	Assister = task.getball("Assister",playerVel,playerMod,ballPos()),
 	Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker")),
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
-	Tier = task.stop(),
-	Defender = task.stop(),
+	Tier = task.defender_defence("Tier"),
+	Defender = task.defender_defence("Defender"),
 	Goalie = task.goalie(),
 	match = "{AKSTDG}"
 },
@@ -428,7 +429,7 @@ firstState = "Init",
 ["Correction"] = {
 	switch = function()
 		UpdataTickMessage(defend_num1,defend_num2)
-        if(task.playerDirToPointDirSub("Assister",correction_pos) < error_dir) then 
+        if(task.playerDirToPointDirSub("Assister",correction_pos) < error_dir and (GlobalMessage.Tick.ball.rights ~= 0 or GlobalMessage.Tick.ball.rights ~= 1)) then 
             return correction_state
         end
         if (bufcnt(true,40)) then
@@ -438,8 +439,8 @@ firstState = "Init",
 	Assister = task.TurnToPointV2("Assister", correctionPos(),param.rotVel), --param.rotVel
 	Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker")),
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
-	Tier = task.stop(),
-	Defender = task.stop(),
+	Tier = task.defender_defence("Tier"),
+	Defender = task.defender_defence("Defender"),
 	Goalie = task.goalie(),
 	match = "{AKSTDG}"
 },

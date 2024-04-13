@@ -315,7 +315,7 @@ function TurnToPointV2(role, p, speed)
 			local subPlayerBallToTargetDir = toballDir - playerDir 
 			-- local Subdir = math.abs(toballDir-playerDir)
 			debugEngine:gui_debug_msg(CGeoPoint:new_local(1000,220),math.abs(toballDir-playerDir) .. "                     " .. subPlayerBallToTargetDir,3)
-		if math.abs(toballDir-playerDir) > 8 then
+		if math.abs(toballDir-playerDir) > 4 then
 			if subPlayerBallToTargetDir < 0 then
 				-- 顺时针旋转
 				-- debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "顺时针")
@@ -365,18 +365,18 @@ end
 -- 		local subPlayerBallToTargetDir = playerToTargetDir - ballToTargetDir
 
 -- 			debugEngine:gui_debug_msg(CGeoPoint:new_local(1000,220),math.abs(playerDir-playerToTargetDir) .. "                     " .. subPlayerBallToTargetDir,3)
--- 		if math.abs(playerDir-playerToTargetDir) > 0.14 then
+-- 		if math.abs(playerDir-playerToTargetDir) > 0.08 then
 
 -- 			if subPlayerBallToTargetDir > 0 then
 -- 				-- 顺时针旋转
--- 				debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "顺时针")
+-- 				-- debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "顺时针")
 -- 				local ipos = CGeoPoint(param.rotPos:x(), param.rotPos:y() * -1)  --自身相对坐标 旋转
 -- 				local ivel = speed * -1
 -- 				local mexe, mpos = CircleRun {pos = ipos , vel = ivel}
 -- 				return { mexe, mpos }
 -- 			else
 -- 				-- 逆时针旋转
--- 				debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "逆时针")
+-- 				-- debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "逆时针")
 -- 				local ipos = param.rotPos  --自身相对坐标 旋转
 -- 				local ivel = speed
 -- 				local mexe, mpos = CircleRun {pos = ipos , vel = ivel}
