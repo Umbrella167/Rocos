@@ -802,7 +802,7 @@ function getFitData_runToPos(role)
     		-- 拿球点
     		-- p0 = CGeoPoint:new_local(ball.posX(), ball.posY())
     		local rolePos = CGeoPoint:new_local(player.posX(fitPlayer1), player.posY(fitPlayer1))
-    		local p0 = Utils.GetBestInterPos(vision, rolePos, 3, 2)
+    		local p0 = Utils.GetBestInterPos(vision, rolePos, 3, 1)
 	    	-- 踢球车的准备点
 	    	local p1 = CGeoPoint:new_local(flag*param.FIT_PLAYER_POS_X, flag*param.FIT_PLAYER_POS_Y)
 
@@ -811,14 +811,13 @@ function getFitData_runToPos(role)
 	    		local idir = player.toPointDir(p0, role)
 				local mexe, mpos = GoCmuRush { pos = p0, dir = idir, acc = a, flag = 0x00000100, rec = r, vel = v }
 				return { mexe, mpos }
-			elseif player.toPointDist(role, p1) > param.playerRadius then
+			elseif player.toPointDist(role, p1) > param.playerRadius or ball.velMod() > 20  then
+				-- ::TODO there has some bugs
 				-- 非踢球人去固定点
 	    		local idir = (player.pos(fitPlayer2)- player.pos(role)):dir()
-				local mexe, mpos = GoCmuRush { pos = p1, dir = idir, acc = a, flag = 0x00000100, rec = r, vel = v }
-				return { mexe, mpos }
-			elseif ball.velMod() > 20 then
-				-- 稳定球
-				local idir = (player.pos(fitPlayer2) - player.pos(role)):dir()
+	    		if playerNum == fitPlayer2 then
+		    		idir = (player.pos(fitPlayer1)- player.pos(role)):dir()
+	    		end
 				local mexe, mpos = GoCmuRush { pos = p1, dir = idir, acc = a, flag = 0x00000100, rec = r, vel = v }
 				return { mexe, mpos }
 			elseif flag == 1 then
@@ -832,7 +831,7 @@ function getFitData_runToPos(role)
 				local ipower = function()
 					return kickPower[fitPlayer1]
 				end
-				return { mexe, mpos, mode and kick.flat or kick.chip, idir, pre.low, ipower, ipower, 0x00000000 }
+				return { mexe, mpos, kick.flat, idir, pre.low, ipower, ipower, 0x00000000 }
     		end
 		else
     		-- 跑去待机位
@@ -851,7 +850,7 @@ function getFitData_recording(role)
 
 		if playerNum == fitPlayer2 then
 			local rolePos = CGeoPoint:new_local(player.posX(role), player.posY(role))
-			local getBallPos = Utils.GetBestInterPos(vision, rolePos, 3, 2)
+			local getBallPos = Utils.GetBestInterPos(vision, rolePos, 3, 1)
 			-- if player.infraredCount(role) > 10 then
 			-- 	local ipos = player.pos(fitPlayer1)
 			-- 	local idir = function(runner)
@@ -866,16 +865,16 @@ function getFitData_recording(role)
 			-- if player.toBallDist(role) < player.toBallDist(fitPlayer1) or kickPower[fitPlayer1] > 2000 then
 			if getBallPos:x() < 0 or getBallPos:y() < 0 then
 				-- 踢球
+				local p = player.pos(fitPlayer1)
+				local kp = 1
 				local ipos = CGeoPoint:new_local(getBallPos:x(), getBallPos:y())
 				local idir = function(runner)
-					return (_c(ipos) - player.pos(runner)):dir()
+					return (player.pos(fitPlayer1) - player.pos(runner)):dir()
 				end
 				local mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = 0x00000000, rec = r, vel = v }
 
-				local ipower = function()
-					return 3000
-				end
-				return { mexe, mpos, kick.flat, idir, pre.low, ipower, ipower, 0x00000000 }
+
+				return { mexe, mpos, kick.flat, idir, pre.low, power(p, kp), power(p, kp), 0x00000000 }
 			end
 
 		elseif playerNum ~= fitPlayer1 then

@@ -144,7 +144,7 @@ firstState = "init",
         debug_F()
         updateFitParams()
 
-        if player.kickBall(task.fitPlayer2) or ball.velMod() < 25 then
+        if player.kickBall(task.fitPlayer2) or bufcnt(ball.velMod() < 25, 10) then
             saveFitParams()
             if task.fitPlayerLen == 1 and task.kickPower[task.fitPlayer1] > maxPower then
                 return "finished"
