@@ -28,6 +28,11 @@ rotVel = 3.8
 playerVel = 4
 getballMode = 1
 ---------------------------------
+-- 固定匹配
+defend_num1 = 1
+defend_num2 = 2
+our_goalie_num = 0
+---------------------------------
 INF = 1e9
 PI = 3.141592653589793238462643383279
 maxPlayer   = 16

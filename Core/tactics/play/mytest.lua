@@ -100,7 +100,7 @@ shoot_pos = CGeoPoint:new_local(4500,0)
 -- 被传球机器人
 pass_player_num = 0
 -- touch power
-touchPower = 3000
+touchPower = 6000
 -- 守门员号码
 our_goalie_num =0
 -- 后卫号码
@@ -292,8 +292,19 @@ firstState = "Init",
 		if(player.kickBall("Assister")) then
 			local getballPlayer = player.name(pass_player_num)
 			debugEngine:gui_debug_msg(CGeoPoint:new_local(-4500,-3000),getballPlayer)
-			return getballPlayer .. "getBall" 
+
+
+			-- 补丁： 修复传球给Goalie 或者 Defender
+			if getballPlayer == "Kicker" or getballPlayer == "Special" then
+				return getballPlayer .. "getBall" 
+			else
+				
+				return "GetGlobalMessage"
+			end
+			
 		end-- [0,1,2]
+
+		-- 如果角度不正确 那么传入校正脚本
 		if(task.playerDirToPointDirSub("Assister",shoot_pos) > error_dir and (GlobalMessage.Tick.ball.rights ~= 0 or GlobalMessage.Tick.ball.rights == 1)) then 
 			correction_pos = pass_pos
 			correction_state = "passToPlayer"

@@ -53,7 +53,7 @@ namespace PARAM {
         const int playerFrontToCenter = 76; // 机器人圆心到嘴的距离
         const int playerRadiusr = 90; // 机器人半径
         const int playerBuffer = 120; // 检测敌人是否在某直线上的缓冲值
-        const double playerBallRightsBuffer = 230; // 球权判断缓冲值
+        const double playerBallRightsBuffer = 130; // 球权判断缓冲值
         const int playerTouchAngle = 60;
     }
     namespace Tick{

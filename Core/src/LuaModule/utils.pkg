@@ -6,6 +6,7 @@ namespace Utils{
 
 	
 	GlobalTick UpdataTickMessage(const CVisionModule *pVision,int goalie_num ,int defend_player_num1, int defend_player_num2); //获取帧信息
+	CGeoPoint GetAttackPos(const CVisionModule *pVision,int num ,CGeoPoint shootPos,CGeoPoint startPoint,CGeoPoint endPoint,double step,double ballDist = 1000);
 
 	CGeoPoint GetShowDribblingPos(const CVisionModule *pVision,CGeoPoint player_pos,CGeoPoint target_pos);
 

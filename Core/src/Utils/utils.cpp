@@ -35,7 +35,7 @@ namespace Utils
      */
     string GlobalComputingPos(const CVisionModule *pVision)
     {
-        GetShowDribblingPos(pVision,pVision -> ourPlayer(0).Pos(),CGeoPoint(4500,0));
+
         return to_string(1); // FIXME: 字符串可能还是抽象了点，到时候看看修一下
     }
 
@@ -139,7 +139,6 @@ namespace Utils
             Tick[now].time.tick_key = 0;
             Tick[now].ball.predict_vel_max = 0;
         }
-
 
         // 获取第一次带球的位置
         // 如果远离球一定距离就一直更新
@@ -1053,7 +1052,41 @@ namespace Utils
         GDebugEngine::Instance()->gui_debug_x(max_grade_pos, 3);
         return max_grade_pos;
     }
-
+    CGeoPoint GetAttackPos(const CVisionModule *pVision,int num ,CGeoPoint shootPos,CGeoPoint startPoint,CGeoPoint endPoint,double step,double ballDist)
+    {
+       double flag = 0;
+       double grade = 0;
+       double max_grade = -inf;
+       CGeoPoint player_pos = pVision -> ourPlayer(num).Pos();
+       CGeoPoint max_pos = CGeoPoint(0,0);
+       CGeoPoint max_shoot_pos = CGeoPoint(0,0);
+       CGeoPoint ball_pos = Tick[now].ball.pos;
+       for(double x = min(startPoint.x(), endPoint.x()); x <= max(startPoint.x(), endPoint.x()); x += step)
+       {
+           for(double y = min(startPoint.y(), endPoint.y()); y <= max(startPoint.y(), endPoint.y()); y += step){
+               CGeoPoint new_local (x,y);
+               for(int i = 0;i < PARAM::Field::MAX_PLAYER;i++)
+                   if(pVision ->ourPlayer(i).Valid() && i != num)
+                       if(pVision->ourPlayer(i).Pos().dist(new_local) < ballDist) {flag = 1;break;}
+               if(flag == 1)
+               {
+                   flag = 0;
+                   continue;
+               }
+               if(!isValidPass(pVision,player_pos,shootPos) || !isValidPass(pVision,ball_pos,new_local) || new_local.dist(Tick[now].ball.pos) < ballDist || InExclusionZone(new_local) ) continue;
+               grade = GetAttackGrade(pVision,new_local.x(),new_local.y(),ball_pos,shootPos);
+//               GDebugEngine::Instance() ->gui_debug_msg(new_local,to_string( grade),1,0,80);
+               if (max_grade < grade)
+               {
+                    max_grade = grade;
+                    max_pos = new_local;
+                    max_shoot_pos = shootPos;
+               }
+           }
+       }
+        GDebugEngine::Instance()->gui_debug_x(max_pos,3);
+        return CGeoPoint(0,0);
+    }
 
     /**
      * 坐标点关于最佳射门点的评分

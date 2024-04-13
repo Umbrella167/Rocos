@@ -52,6 +52,7 @@ namespace Utils
     extern CGeoPoint GetShootPoint(const CVisionModule *pVision, int num);                                                     // 获取某坐标而言对方守门员的空位 + 持球员朝向
     extern double GetAttackGrade(const CVisionModule *pVision, double x, double y, CGeoPoint player_pos, CGeoPoint shoot_pos); // 计算某坐标点的跑位分
     extern CGeoPoint GetAttackPos(const CVisionModule *pVision, int num);                                                      // 计算已某玩家为圆心，半径，范围圆内 最佳跑位点
+    extern CGeoPoint GetAttackPos(const CVisionModule *pVision,int num ,CGeoPoint shootPos,CGeoPoint startPoint,CGeoPoint endPoint,double step,double ballDist = 1000);
     extern CGeoPoint GetTouchPassPos(const CVisionModule *pVision, CGeoPoint touch_pos);
     extern CGeoPoint GetTouchPos(const CVisionModule *pVision, CGeoPoint player_pos, double touchAngle,bool double_flag = false);
     extern double GetTouchGrade(const CVisionModule *pVision, double x, double y, CGeoPoint player_pos, CGeoPoint shoot_pos);

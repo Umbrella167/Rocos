@@ -174,8 +174,9 @@ function UpdataTickMessage(defend_num1,defend_num2)
 	end
 	debugStatus()
 end
-
-
+runPosKicker = CGeoPoint(0,0)
+runPosSpecial = CGeoPoint(0,0)
+shoot_pos = CGeoPoint(0,0)
 
 gPlayTable.CreatePlay{
 firstState = "ready",
@@ -184,8 +185,29 @@ firstState = "ready",
 		if cond.isNormalStart() then
 			return "exit"
 		elseif cond.isGameOn() then
-		 	return "finish"
+		 	return "OtherRunPos"
 		end
+		Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
+		--GetAttackPos(const CVisionModule *pVision,int num ,CGeoPoint shootPos,CGeoPoint startPoint,CGeoPoint endPoint,double step,double ballDist)
+		shoot_pos = Utils.GetShootPoint(vision,player.num("Kicker"))
+		runPosKicker = Utils.GetAttackPos(vision,player.num("Kicker"),shoot_pos,CGeoPoint(2000,0),CGeoPoint(4000,-2500),300)
+		runPosSpecial = Utils.GetAttackPos(vision,player.num("Special"),runPosKicker,CGeoPoint(1200,2500),CGeoPoint(2500,800),300)
+	end,
+	Assister   = task.goCmuRush(p1, Dir_ball("Assister"), a, f, r, v),
+	Special  = task.goCmuRush(p2, Dir_ball("Leader"), a, f, r, v),
+	Kicker = task.goCmuRush(p3, Dir_ball("Kicker"), a, f, r, v),
+	Tier = task.defender_defence("Tier"),
+	Defender = task.defender_defence("Defender"),
+	Goalie = task.goalie(),
+    match = "[A][KS]{TDG}"
+},
+
+
+["OtherRunPos"] = {
+	switch = function ()
+		
+
+
 	end,
 	Assister   = task.goCmuRush(p1, Dir_ball("Assister"), a, f, r, v),
 	Leader  = task.goCmuRush(p2, Dir_ball("Leader"), a, f, r, v),
