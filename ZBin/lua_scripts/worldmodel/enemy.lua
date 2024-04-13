@@ -44,6 +44,10 @@ function valid(role)
 	return instance(role):Valid()
 end
 
+function toBallDist(role)
+	return pos(role):dist(ball.pos())
+end
+
 function toBallDir(role)
 	return (ball.pos() - pos(role)):dir()
 end
@@ -147,4 +151,37 @@ function nearest()
 		end
 	end
 	return pos(nearNum), dir(nearNum)
+end
+
+function closestBall()
+	local minDist = param.INF
+	local enemyNum = -1
+	for i=0,param.maxPlayer do
+        if enemy.valid(i) and enemy.toBallDist(i)<minDist then
+        	minDist = enemy.toBallDist(i)
+        	enemyNum = i
+        end
+    end
+    return enemyNum
+end
+
+function atBallLine()
+	local minDist = param.INF
+	local enemyNum = -1
+
+	local ballPos = ball.rawPos()
+	local ballVelDir = ball.velDir()
+	for i=0, param.maxPlayer-1 do
+        if enemy.valid(i) then
+        	local enemyPos = CGeoPoint:new_local(enemy.posX(i), enemy.posY(i))
+        	local enemyToBallDir = enemy.toBallDir(i)
+        	local diff = math.abs(math.pi - math.abs(enemyToBallDir - ballVelDir))
+        	-- debugEngine:gui_debug_msg(CGeoPoint(-1500, 1000-(160*i)), "diff: "..diff)
+        	if diff < param.alignRate and enemy.toBallDist(i)<minDist and ball.velMod() > 20 then
+	        	minDist = enemy.toBallDist(i)
+	        	enemyNum = i
+        	end
+        end
+    end
+    return enemyNum
 end
