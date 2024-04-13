@@ -34,11 +34,26 @@ firstState = "ready1",
 		end
 	end,
 	 -- = task.TurnRun("Assister"),
-	Assister = task.getball("Assister",3.5,1,CGeoPoint:new_local(0,0)),
+	Assister = task.getball("Assister",4,1,CGeoPoint:new_local(0,0)),
 	-- match = "[AKS]{TDG}"
 	match = "[A]"
 },
 
+
+-- ["shoot"] = {
+-- 	switch = function()
+-- 		if(not bufcnt(player.infraredOn("Assister"),1)) then
+-- 			return "ready1"
+-- 		end
+-- 		if(task.playerDirToPointDirSub("Assister",CGeoPoint:new_local(0,0)) < 4) then 
+-- 			return "shoot32"
+-- 		end
+-- 	end,
+-- 	 -- = task.TurnRun("Assister"),
+-- 	Assister = task.TurnToPoint("Assister", CGeoPoint:new_local(0,0),800),
+-- 	-- match = "[AKS]{TDG}"
+-- 	match = "[A]"
+-- },
 
 ["shoot"] = {
 	switch = function()
@@ -54,6 +69,8 @@ firstState = "ready1",
 	-- match = "[AKS]{TDG}"
 	match = "[A]"
 },
+
+
 ["shoot1"] = {
 	switch = function()
 if(not bufcnt(player.infraredOn("Assister"),1)) then

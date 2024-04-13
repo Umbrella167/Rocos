@@ -289,7 +289,6 @@ firstState = "Init",
 ["passToPlayer"] = {
 	switch = function()
 		-- UpdataTickMessage(defend_num1,defend_num2)
-
 		if(player.kickBall("Assister")) then
 			local getballPlayer = player.name(pass_player_num)
 			debugEngine:gui_debug_msg(CGeoPoint:new_local(-4500,-3000),getballPlayer)
@@ -305,7 +304,6 @@ firstState = "Init",
 		if (bufcnt(true,130)) then
 			return "GetGlobalMessage"
 		end
-
 	end,
 	Assister = task.Shootdot(passPos(),shootKp,error_dir,kick.flat),
 	Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker")),

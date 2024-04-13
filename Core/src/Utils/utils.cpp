@@ -957,8 +957,8 @@ namespace Utils
     CGeoPoint GetAttackPos(const CVisionModule *pVision, int num)
     {
         // 圆的半径
-        int radius = 800;
-        int step = 200;
+        int radius = 1800;
+        int step = 350;
         // 射门评分
         double shoot_grade;
         // 射门方向评分
@@ -1041,6 +1041,7 @@ namespace Utils
         GDebugEngine::Instance()->gui_debug_x(max_grade_pos, 3);
         return max_grade_pos;
     }
+
 
     /**
      * 坐标点关于最佳射门点的评分

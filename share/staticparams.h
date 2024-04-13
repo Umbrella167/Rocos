@@ -46,8 +46,8 @@ namespace PARAM {
         const double GOAL_WIDTH = 1000;
         const double GOAL_DEPTH = 200;
         const double RATIO = 1.5;
-//        const double V_DECAY_RATE = 600;
-        const double V_DECAY_RATE = 2000;
+        const double V_DECAY_RATE = 600;
+//        const double V_DECAY_RATE = 2000;
     }
     namespace Player {
         const int playerFrontToCenter = 76; // 机器人圆心到嘴的距离
