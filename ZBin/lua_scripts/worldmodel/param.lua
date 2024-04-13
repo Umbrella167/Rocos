@@ -31,14 +31,14 @@ getballMode = 1
 INF = 1e9
 PI = 3.141592653589793238462643383279
 maxPlayer   = 16
-pitchLength = 12000
-pitchWidth  = 9000
+pitchLength = 9000
+pitchWidth  = 6000
 goalWidth = 1000
 goalDepth = 200
 freeKickAvoidBallDist = 500
 playerRadius	= 90
-penaltyWidth    = 3600
-penaltyDepth	= 1800
+penaltyWidth    = 2000
+penaltyDepth	= 1000
 penaltyRadius	= 1000
 penaltySegment	= 500
 playerFrontToCenter = 76
@@ -59,3 +59,8 @@ BLUE=6
 PURPLE=7
 GRAY=9
 BLACK=0
+--~ -------------------------------------------
+--~ used for getdata
+--~ -------------------------------------------
+FIT_PLAYER_POS_X = pitchLength/2 - penaltyDepth
+FIT_PLAYER_POS_Y = pitchWidth/2 - 200

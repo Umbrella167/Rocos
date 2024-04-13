@@ -49,8 +49,8 @@ void CTouch::plan(const CVisionModule* pVision){
         auto pos = ballPos + Utils::Polar2Vector(dist, ballVelDir);
         double t1 = predictedTimeWithRawVel(me, pos);
         double t2 = BallSpeedModel::Instance()->timeForDist(dist);
-        GDebugEngine::Instance()->gui_debug_x(pos,COLOR_GREEN);
-        GDebugEngine::Instance()->gui_debug_msg(pos, fmt::format("t:{:.2f},{:.2f}", t1, t2), COLOR_GREEN);
+        // GDebugEngine::Instance()->gui_debug_x(pos,COLOR_GREEN);
+        // GDebugEngine::Instance()->gui_debug_msg(pos, fmt::format("t:{:.2f},{:.2f}", t1, t2), COLOR_GREEN);
         if(t1 < t2 || t1 < 0.1){
             bestPos = pos;
             break;
