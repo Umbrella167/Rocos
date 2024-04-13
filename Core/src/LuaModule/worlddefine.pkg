@@ -17,16 +17,9 @@ class ObjectPoseT{
 	double VelY() const;
 	void SetValid(bool v);
 	bool Valid() const;
-};
-
-class VisionObjectT{
 	const CGeoPoint& RawPos() const;
 	void SetRawPos(double x, double y);
 	void SetRawPos(const CGeoPoint& pos);
-};
-
-class MobileVisionT : public ObjectPoseT, public VisionObjectT{
-
 };
 
 struct PlayerPoseT : public ObjectPoseT{
@@ -40,12 +33,12 @@ struct PlayerPoseT : public ObjectPoseT{
 };
 
 class PlayerTypeT{
-	void SetType(int t);
-	int Type() const;
+
 };
 
-class PlayerVisionT : public PlayerPoseT, public VisionObjectT, public PlayerTypeT{
-
+class PlayerVisionT : public PlayerPoseT {
+	void SetType(int t);
+	int Type() const;
 };
 
 struct PlayerCapabilityT{
@@ -60,10 +53,12 @@ struct PlayerCapabilityT{
 
 struct balls{
     public:
+
         double vel; // 球速度
         double acc; // 球加速度
         CGeoPoint pos ; // 球位置
         CGeoPoint pos_move_befor; // 球运动之前的位置
+        CGeoPoint first_dribbling_pos; // 第一次带球位置
         double predict_vel_max; // 预测的最大速度
         double avg_vel; // 球平均速度
         double vel_dir; // 球速度方向
@@ -74,8 +69,6 @@ struct balls{
 //我方相关
 struct ours{
     public:
-        ours(){}
-        int player [16]; // 我方机器人数组
         int player_num; // 我方玩家数目
         int goalie_num; // 我方守门员号码
         int dribbling_num; //带球的机器人编号
@@ -88,7 +81,6 @@ struct ours{
 //敌方相关
 struct theirs{
     public:
-        int player [16]; // 敌方机器人数组
         int player_num; // 敌方玩家数目
         int goalie_num ; // 敌方守门员号码
         int dribbling_num ;//带球的机器人编号

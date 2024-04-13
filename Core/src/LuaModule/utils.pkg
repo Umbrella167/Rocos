@@ -5,9 +5,14 @@ namespace Utils{
 	// // // // // Hu-ROCOS-2024 // // // // // 
 
 	
-	GlobalTick UpdataTickMessage(const CVisionModule *pVision,int defend_player_num1,int defend_player_num2); //获取帧信息
+	GlobalTick UpdataTickMessage(const CVisionModule *pVision,int goalie_num ,int defend_player_num1, int defend_player_num2); //获取帧信息
+
+	CGeoPoint GetShowDribblingPos(const CVisionModule *pVision,CGeoPoint player_pos,CGeoPoint target_pos);
+
+	CGeoPoint GetTouchPos(const CVisionModule *pVision, CGeoPoint player_pos, double touchAngle,bool double_flag = false);
 
 	CGeoPoint GetBestInterPos(const CVisionModule *pVision, CGeoPoint playerPos, double playerVel, int flag = 0);
+	CGeoPoint GetBallMaxPos(const CVisionModule *pVision);
 
 	int getInitData(const CVisionModule *pVision, int flag=1);
 
@@ -18,9 +23,13 @@ namespace Utils{
 	CGeoPoint GetAttackPos(const CVisionModule *pVision,int num);
 
 	// Defence
-    CGeoPoint ComputeCrossPENALTY();
-    double ComputeDistance(CGeoPoint hitPoint);
+	int closestPlayerToPlayer(const CVisionModule *pVision, int role, int type);
+	CGeoPoint closestPlayerToPoint(const CVisionModule *pVision, CGeoPoint pos, int type, int role = -1);
+	int closestPlayerNoToPoint(const CVisionModule *pVision, CGeoPoint pos, int type, int role = -1);
 
+	CGeoPoint DEFENDER_ComputeCrossPenalty(const CVisionModule *pVision, CGeoLine line);
+	double DEFENDER_ComputeDistance(CGeoPoint hitPoint);
+	
 	// // // // // END // // // // // 
 	double Normalize(double angle);
 	CVector Polar2Vector(double m,double angle);

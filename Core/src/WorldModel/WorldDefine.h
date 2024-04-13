@@ -8,7 +8,7 @@
 /************************************************************************/
 class ObjectPoseT {
   public:
-    ObjectPoseT() : _valid(false), _pos(CGeoPoint(-9999, -9999)) { }
+    ObjectPoseT() : _valid(false), _pos(CGeoPoint(-9999, -9999)), _rawPos(CGeoPoint(-9999, -9999)) { }
     const CGeoPoint& Pos() const {
         return _pos;
     }
@@ -69,19 +69,7 @@ class ObjectPoseT {
     bool Valid() const {
         return _valid;
     }
-  private:
-    CGeoPoint _pos;
-    CVector _vel;
-    CVector _rawVel;
-    CVector _acc;
-    bool _valid;
-};
-/************************************************************************/
-/*                      VisionObjectT                                   */
-/************************************************************************/
-class VisionObjectT {
-  public:
-    VisionObjectT() : _rawPos(CGeoPoint(-9999, -9999)) { }
+
     const CGeoPoint& RawPos() const {
         return _rawPos;
     }
@@ -107,16 +95,19 @@ class VisionObjectT {
         _rawDir = rawdir;
     }
   private:
+    CGeoPoint _pos;
+    CVector _vel;
+    CVector _rawVel;
+    CVector _acc;
+    bool _valid;
+
     CGeoPoint _rawPos; // 视觉的原始信息，没有经过预测
     CGeoPoint _chipPredict; //挑球预测
     double _rawDir;
 };
-/************************************************************************/
-/*                       MobileVisionT                                  */
-/************************************************************************/
-class MobileVisionT : public ObjectPoseT, public VisionObjectT {
 
-};
+// using ObjectPoseT = ObjectPoseT;
+
 /************************************************************************/
 /*                        机器人姿态数据结构                               */
 /************************************************************************/
@@ -153,6 +144,7 @@ struct balls{
         double acc = 1; // 球加速度
         CGeoPoint pos = CGeoPoint(0,0); // 球位置
         CGeoPoint pos_move_befor = CGeoPoint(0,0); // 球运动之前的位置
+        CGeoPoint first_dribbling_pos = CGeoPoint (0,0); // 第一次带球位置
         double predict_vel_max = 0; // 预测的最大速度
         double avg_vel = 0; // 球平均速度
         double vel_dir = 0; // 球速度方向
@@ -164,10 +156,8 @@ struct balls{
 //我方相关
 struct ours{
     public:
-        ours(){}
-        int player [16] = {}; // 我方机器人数组
         int player_num = 6; // 我方玩家数目
-        int goalie_num = 0; // 我方守门员号码
+        int goalie_num = -1; // 我方守门员号码
         int dribbling_num = -1; //带球的机器人编号
         int to_balldist_min_num = 0; //距离球最近的机器人
         int defend_player_num1 = 0;
@@ -177,8 +167,7 @@ struct ours{
 
 //敌方相关
 struct theirs{
-    public:
-        int player [16]; // 敌方机器人数组
+public:
         int player_num = 6; // 敌方玩家数目
         int goalie_num = -1; // 敌方守门员号码
         int dribbling_num = -1;//带球的机器人编号
@@ -228,11 +217,11 @@ struct GlobalTick{
 };
 
 /************************************************************************/
-/*                      PlayerTypeT                                     */
+/*                       PlayerVisionT                                  */
 /************************************************************************/
-class PlayerTypeT {
+class PlayerVisionT : public PlayerPoseT {
   public:
-    PlayerTypeT(): _type(0) {}
+    PlayerVisionT() : _type(0) {}
     void SetType(int t) {
         _type = t;
     }
@@ -241,12 +230,6 @@ class PlayerTypeT {
     }
   private:
     int _type;
-};
-/************************************************************************/
-/*                       PlayerVisionT                                  */
-/************************************************************************/
-class PlayerVisionT : public PlayerPoseT, public VisionObjectT, public PlayerTypeT {
-
 };
 
 /************************************************************************/

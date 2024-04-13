@@ -35,20 +35,25 @@ namespace Utils
     extern std::string GlobalComputingPos(const CVisionModule *pVision);                           // 计算所有点位
     extern double map(double value, double min_in, double max_in, double min_out, double max_out); // 映射
     extern bool InField(CGeoPoint Point);                                                          // 判断点是否在场地内
-    extern bool InExclusionZone(CGeoPoint Point, double buffer = 150);                             // 判断点是否在禁区内
+    extern bool InExclusionZone(CGeoPoint Point, double buffer = 0);                             // 判断点是否在禁区内
     extern double NumberNormalize(double data, double max_data, double min_data);                  // [0,1] 标准化
     extern bool isValidPass(const CVisionModule *pVision, CGeoPoint start, CGeoPoint end, double buffer = 150);
-    extern GlobalTick UpdataTickMessage(const CVisionModule *pVision, int defend_player_num1, int defend_player_num2); // 获取帧信息
+    extern GlobalTick UpdataTickMessage(const CVisionModule *pVision,int goalie_num ,int defend_player_num1, int defend_player_num2); // 获取帧信息
     extern CGeoPoint GetInterPos(const CVisionModule *pVision, CGeoPoint player_pos, double velocity);                 // 获取最佳截球点
     extern CGeoSegment PredictBallLine(const CVisionModule *pVision);
     extern double PosToPosTime(CGeoPoint start_pos, CGeoPoint end_pos, double velocity);
+
+    extern CGeoPoint GetBallMaxPos(const CVisionModule *pVision);
+
+    extern double ShowDribblingGrade(const CVisionModule *pVision,CGeoPoint run_pos,CGeoPoint player_pos,CGeoPoint target_pos);
+    extern CGeoPoint GetShowDribblingPos(const CVisionModule *pVision,CGeoPoint player_pos,CGeoPoint target_pos);
+
     extern CGeoPoint GetShootPoint(const CVisionModule *pVision, double x, double y);                                          // 获取某坐标而言对方守门员的空位
     extern CGeoPoint GetShootPoint(const CVisionModule *pVision, int num);                                                     // 获取某坐标而言对方守门员的空位 + 持球员朝向
     extern double GetAttackGrade(const CVisionModule *pVision, double x, double y, CGeoPoint player_pos, CGeoPoint shoot_pos); // 计算某坐标点的跑位分
     extern CGeoPoint GetAttackPos(const CVisionModule *pVision, int num);                                                      // 计算已某玩家为圆心，半径，范围圆内 最佳跑位点
-
     extern CGeoPoint GetTouchPassPos(const CVisionModule *pVision, CGeoPoint touch_pos);
-    extern CGeoPoint GetTouchPos(const CVisionModule *pVision, CGeoPoint player_pos, bool double_flag);
+    extern CGeoPoint GetTouchPos(const CVisionModule *pVision, CGeoPoint player_pos, double touchAngle,bool double_flag = false);
     extern double GetTouchGrade(const CVisionModule *pVision, double x, double y, CGeoPoint player_pos, CGeoPoint shoot_pos);
     extern double ConfidenceShoot(const CVisionModule *pVision, int num);
     extern double ConfidenceShoot(const CVisionModule *pVision, CGeoPoint player_pos);
@@ -65,31 +70,29 @@ namespace Utils
     extern double NumberNormalizeGauss(double data, double max_data, double min_data, double peak_pos, std::string model = "DOUBLELINE"); // [0,1] 高斯归一化
     extern double PosSafetyGrade(const CVisionModule *pVision, CGeoPoint start, CGeoPoint end, std::string model = "SHOOT");              // 路径安全性评分
     extern CGeoPoint GetBestInterPos(const CVisionModule *pVision, CGeoPoint playerPos, double playerVel, int flag);
-     extern int getInitData(const CVisionModule *pVision, int flag);
-   /* =============== Defence =============== */
+    extern int getInitData(const CVisionModule *pVision, int flag);
+    /* =============== Defence =============== */
     /* 球场信息 */
     /* 己方半场信息 */
-    const int FIELD_X_MIN = -PARAM::Field::PITCH_LENGTH / 2 + PARAM::Field::PENALTY_AREA_DEPTH + 50;
-    const int FIELD_X_MAX = 0;
-    const int FIELD_Y_MIN = -PARAM::Field::PITCH_WIDTH / 2;
-    const int FIELD_Y_MAX = PARAM::Field::PITCH_WIDTH / 2;
+    const int DEFENDER_FIELD_X_MIN = -PARAM::Field::PITCH_LENGTH / 2 + PARAM::Field::PENALTY_AREA_DEPTH + 50;
+    const int DEFENDER_FIELD_Y_BOR = PARAM::Field::PENALTY_AREA_WIDTH / 2;
 
-    const CGeoLine FIELD_BOR[3] = {
-        {{FIELD_X_MIN, PARAM::Field::PENALTY_AREA_WIDTH / 2}, {FIELD_X_MIN, -PARAM::Field::PENALTY_AREA_WIDTH / 2}},
-        {{PARAM::Field::PITCH_LENGTH / 2, PARAM::Field::PENALTY_AREA_WIDTH / 2}, {FIELD_X_MIN, PARAM::Field::PENALTY_AREA_WIDTH / 2}},
-        {{-PARAM::Field::PITCH_LENGTH / 2, PARAM::Field::PENALTY_AREA_WIDTH / 2}, {FIELD_X_MIN, PARAM::Field::PENALTY_AREA_WIDTH / 2}}};
-    const CGeoLine FIELD_PENALTYBOR({FIELD_X_MIN, PARAM::Field::PENALTY_AREA_WIDTH / 2}, {FIELD_X_MIN, -PARAM::Field::PENALTY_AREA_WIDTH / 2}); // 禁区所在直线
+    const CGeoLine DEFENDER_FIELD_PENALTYBOR({DEFENDER_FIELD_X_MIN, PARAM::Field::PENALTY_AREA_WIDTH / 2}, {DEFENDER_FIELD_X_MIN, -PARAM::Field::PENALTY_AREA_WIDTH / 2}); // 禁区直线
 
     /* 禁区信息 */
 
     /* 球员默认站位信息 */
-    const CGeoPoint DEFAULT_STAND_POS(FIELD_X_MIN, PARAM::Field::PENALTY_AREA_WIDTH / 2);
+    const CGeoPoint DEFAULT_STAND_POS(DEFENDER_FIELD_X_MIN, PARAM::Field::PENALTY_AREA_WIDTH / 2);
     const double DEFAULT_STAND_DIR = 0;
     const double DEFAULT_DISTANCE_MAX = PARAM::Field::PENALTY_AREA_WIDTH; // 两个后卫之间的最大距离
-    const double DEFAULT_DISTANCE_MIN = 100.0;                            // 两个后卫之间的最小距离
+    const double DEFAULT_DISTANCE_MIN = 300.0;                            // 两个后卫之间的最小距离
 
-    extern CGeoPoint ComputeCrossPENALTY();
-    extern double ComputeDistance(CGeoPoint hitPoint);
+    extern int closestPlayerToPlayer(const CVisionModule *pVision, int role, int type);
+    extern CGeoPoint closestPlayerToPoint(const CVisionModule *pVision, CGeoPoint pos, int type, int role = -1);
+    extern int closestPlayerNoToPoint(const CVisionModule *pVision, CGeoPoint pos, int type, int role = -1);
+   
+    extern CGeoPoint DEFENDER_ComputeCrossPenalty(const CVisionModule *pVision, CGeoLine line);
+    extern double DEFENDER_ComputeDistance(CGeoPoint hitPoint);
 
     /* =============== Robocup-SSL-China =============== */
     extern double Normalize(double angle);               ///< 把角度规范化到(-PI,PI]

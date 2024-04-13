@@ -1,190 +1,182 @@
-local p = {
-    CGeoPoint:new_local(-3000,-1000),
-    CGeoPoint:new_local(3000,-1000)
-}
-local TEST_X = false
-local FAIL_DEGREE = 30.0
+local maxPower = task.maxPower
+local powerStep = task.powerStep
 
-local p_dir = (p[2]-p[1]):dir()
-local task_dir = TEST_X and p_dir or p_dir+math.pi/2
+local maxBallVelMod = 0
+local maxBallRawVelMod = 0
+local firstBallVel = 0
+local flag = true
 
-local ROBOT_OFFSET = Utils.Polar2Vector(400,p_dir+math.pi/2)
+local finsh = True
+local file = io.open("./fitdatas/data.csv", "w+")
+io.output(file)
+io.write("playerNumber,power,maxBallVelMod,firstBallVel\n")
 
-local task_max_acc = 2000
-local task_max_vel = 3500
-local task_flag = flag.not_avoid_our_vehicle
-
-local det_max_vel = 0
-local det_rot_err = 0.0
-local trigger_cycle = 0
-
-local result_list = { -- {task_max_acc, task_max_vel, det_max_vel, det_rot_err, time(s)} - {3000,2000,3000,0.0}
-}
-local MAX_TEST_ACC_STEP = 9000
-local MIN_TEST_ACC_STEP = 3000
--- default test acc
-local set_new_task_param = function()
-    local last_acc = task_max_acc
-    local last_vel = task_max_vel
-    local last_det_vel = det_max_vel
-    local last_det_err = det_rot_err
-    local last_success = det_rot_err < FAIL_DEGREE
-    local total_success_cnt = 0.0
-    local total_testing_cnt = 0
-    for i=1,#result_list do
-        local res = result_list[i]
-        total_success_cnt = total_success_cnt + (res[4] < FAIL_DEGREE and 1 or 0)
-        total_testing_cnt = total_testing_cnt + 1
-    end
-    local success_rate = total_success_cnt / total_testing_cnt
-    local step = MAX_TEST_ACC_STEP*success_rate - (1-success_rate)*MAX_TEST_ACC_STEP + (last_success and MIN_TEST_ACC_STEP or -MIN_TEST_ACC_STEP)
-    task_max_acc = math.max(2000,math.min(9999,task_max_acc+step))
-end
-
-local state_reset = function(store)
-    if store then
-        local times = (vision:getCycle() - trigger_cycle)*1.0/(1.0*param.frameRate)
-        local result = {task_max_acc, task_max_vel, det_max_vel, det_rot_err, times}
-        table.insert(result_list,result)
-        set_new_task_param()
-        -- store only the last 10
-        if #result_list > 20 then
-            table.remove(result_list,1)
+local init_params = function()
+    task.task.kickPower = {}
+    task.playerCount = 0
+    for i=0,param.maxPlayer do
+        task.task.kickPower[i] = -1
+        if player.valid(i) then
+            task.task.kickPower[i] = task.minPower
+            task.playerCount = task.playerCount + 1
         end
     end
-    det_max_vel = 0
-    det_rot_err = 0.0
-    trigger_cycle = vision:getCycle()
+    task.playerCount = task.playerCount - 1
 end
-
-
-local time = 0
-local label = 0
-local file = io.open("data.csv", "w+")
-io.output(file)
-io.write("time,playerPosX,playerPosY,playerVelMod,playerVelDir,playerRowVelMod,playerRowVelDir,targetPosX,targetPosY,label\n")
 
 local debug_F = function()
-    ttt = Utils.UpdataTickMessage(vision, 1, 1)
-    time = time + ttt.time.delta_time
-    
-    local sx,sy = 200,-1000
+    local sx, sy = (param.pitchLength/2)-1000, (param.pitchWidth/2)-param.penaltySegment
     local span = 140
+    local sp = CGeoPoint:new_local(sx, sy)
+    local v = CVector:new_local(0, -span)
+    debugEngine:gui_debug_msg(sp+v*(-2),"fitPlayer1: "..tostring(task.fitPlayer1), param.BLUE)
+    debugEngine:gui_debug_msg(sp+v*(-1),"fitPlayer2: "..tostring(task.fitPlayer2), param.BLUE)
+
+    for i=0,param.maxPlayer-1 do
+        debugEngine:gui_debug_msg(sp+v*i,"kickPower: "..tostring(task.kickPower[i]).."  "..tostring(i))
+    end
+
+    -- 打印需要测试的车
+    debugEngine:gui_debug_msg(CGeoPoint(-3000, 2800),"fitPlayerLen: "..tostring(task.fitPlayerLen))
+
+    for i=0, task.fitPlayerLen-1 do
+        debugEngine:gui_debug_msg(CGeoPoint(-3000, 2600-(200*i)),"player: "..tostring(task.fitPlayerList[i]).."  "..tostring(i))
+    end
+    debugEngine:gui_debug_msg(CGeoPoint(-3000, 2600-(200*19)),"minPower:  "..tostring(task.minPower))
+    debugEngine:gui_debug_msg(CGeoPoint(-3000, 2600-(200*20)),"maxPower:  "..tostring(task.maxPower))
+    debugEngine:gui_debug_msg(CGeoPoint(-3000, 2600-(200*21)),"powerStep: "..tostring(task.powerStep))
+
+end
+
+
+
+local updateFitParams = function()
+    local sx,sy = 200, -1000
+    local sp = CGeoPoint:new_local(sx, sy)
+    local span = 140
+    local v = CVector:new_local(0, -span)
+
+    local role = task.fitPlayer1
+    local ballVelMod = ball.velMod()
+    if flag then
+        firstBallVel = ball.velMod()
+        flag = false
+    end
+    -- 暂时拿不了
+    -- local ballRawVelMod = ball.rawVelMod()
+    local fitPower = task.task.kickPower[task.fitPlayer1]
+
+    -- 最大速度
+    maxBallVelMod = math.max(maxBallVelMod, ballVelMod)
+    -- maxBallRawVelMod = math.max(ballRawVelMod, ballRawVelMod)
+
+    debugEngine:gui_debug_msg(sp+v*1, string.format("fitPower:                %6.3f", fitPower), param.BLUE)
+    debugEngine:gui_debug_msg(sp+v*2, string.format("maxBallVelMod:           %6.3f", maxBallVelMod), param.BLUE)
+    debugEngine:gui_debug_msg(sp+v*3, string.format("firstBallVel:            %6.3f", firstBallVel), param.BLUE)
+    -- debugEngine:gui_debug_msg(sp+v*1,string.format("maxBallRawVelMod:        %6.3f", maxBallRawVelMod),param.BLUE)
+end
+
+local saveFitParams = function()
+    local sx,sy = 200,-1000
     local sp = CGeoPoint:new_local(sx,sy)
+    local span = 140
     local v = CVector:new_local(0,-span)
 
-    -- local tTime = os.clock() - time
-    local role = "Leader"
-    -- local playerRawPos = player.rawPos(role)
-    -- local playerRawPosX = player.rawPos(role):posX()  
-    -- local playerRawPosY = player.rawPos(role):posY()  
-
-    local playerPosX = player.posX(role)
-    local playerPosY = player.posY(role)
-    local playerVelMod = player.velMod(role)
-    local playerVelDir = player.vel(role):dir()
-    local playerRowVelMod = player.rawVelMod(role)
-    local playerRowVelDir = player.rawVel(role):dir()
-    local targetPos = player.gRolePos[role]()
-    local targetPosX = targetPos:x()
-    local targetPosY = targetPos:y()
-    local playerToTargetDist = player.pos(role):dist(targetPos)
-    det_max_vel = math.max(det_max_vel,playerVelMod)
-    -- det_rot_err = math.max(det_rot_err,math.abs(rawDir-task_dir)*180/math.pi)
-
-    -- debugEngine:gui_debug_line(p[1],p[2],param.GRAY)
-    -- debugEngine:gui_debug_msg(sp+v*0,string.format("Set     ACC : %4.0f",task_max_acc),param.BLUE)
-    -- debugEngine:gui_debug_msg(sp+v*1,string.format("Set MAX VEL : %4.0f",task_max_vel),param.BLUE)
-    -- debugEngine:gui_debug_msg(sp+v*2,string.format("Det MAX VEL : %4.0f",rawVel),param.BLUE)
-    -- debugEngine:gui_debug_msg(sp+v*3,string.format("Det MAX VEL : %4.0f",det_max_vel),param.GREEN)
-    -- debugEngine:gui_debug_msg(sp+v*4,string.format("Rot MAX ERR°: %4.1f",det_rot_err),det_rot_err < FAIL_DEGREE and param.GREEN or param.RED)
-    debugEngine:gui_debug_msg(sp+v*0,string.format("time:              %6.3f", time),param.BLUE)
-    debugEngine:gui_debug_msg(sp+v*1,string.format("playerPosX:        %6.3f", playerPosX),param.BLUE)
-    debugEngine:gui_debug_msg(sp+v*2,string.format("playerPosY:        %6.3f", playerPosY),param.BLUE)
-    -- debugEngine:gui_debug_msg(sp+v*3,string.format("playerRawPosX:     %6.3f", playerRawPosX),param.BLUE)
-    -- debugEngine:gui_debug_msg(sp+v*4,string.format("playerRawPosY:     %6.3f", playerRawPosY),param.BLUE)
-    debugEngine:gui_debug_msg(sp+v*5,string.format("velMod:            %6.3f", playerVelMod),param.BLUE)
-    debugEngine:gui_debug_msg(sp+v*6,string.format("velDir:            %6.3f", playerVelDir),param.BLUE)
-    debugEngine:gui_debug_msg(sp+v*7,string.format("rowVelMod:         %6.3f", playerRowVelMod),param.BLUE)
-    debugEngine:gui_debug_msg(sp+v*8,string.format("rowVelDir:         %6.3f", playerRowVelDir),param.BLUE)
-    -- debugEngine:gui_debug_msg(sp+v*4,string.format("det_max_vel:    %6.3f", playerToTargetDist),param.GREEN)
-    debugEngine:gui_debug_msg(sp+v*10,string.format("targetPosX:       %6.3f", targetPosX),param.GREEN)
-    debugEngine:gui_debug_msg(sp+v*11,string.format("targetPosY:       %6.3f", targetPosY),param.GREEN)
+    local role = task.fitPlayer1
+    local ballVelMod = ball.velMod()
+    -- 暂时拿不了
+    -- local ballRawVelMod = ball.rawVelMod()
+    local fitPower = task.kickPower[fitPlayer1]
 
 
-    -- io.write(string.format("%f %f %f %f %f %f %f %f %f %f\n", time,  playerPosX, playerPosY, playerRawPosX, playerRawPosY, playerVelMod, playerVelDir, playerRowVelMod, playerRowVelDir, targetPosX, targetPosY))
-    io.write(string.format("%f,%f,%f,%f,%f,%f,%f,%f,%f,%d\n", time,  playerPosX, playerPosY, playerVelMod, playerVelDir, playerRowVelMod, playerRowVelDir, targetPosX, targetPosY, label))
+    debugEngine:gui_debug_msg(sp+v*1, string.format("player:                  %6.3f", task.fitPlayer1), param.BLUE)
+    debugEngine:gui_debug_msg(sp+v*2, string.format("fitPower:                %6.3f", task.kickPower[task.fitPlayer1]), param.BLUE)
+    debugEngine:gui_debug_msg(sp+v*3, string.format("maxBallVelMod:           %6.3f", maxBallVelMod), param.BLUE)
+    debugEngine:gui_debug_msg(sp+v*4, string.format("firstBallVel:            %6.3f", firstBallVel), param.BLUE)
+    -- 存储文件
+    io.write(string.format("%d,%f,%f,%f\n", task.fitPlayer1, task.kickPower[task.fitPlayer1], maxBallVelMod, firstBallVel))
+    io.flush()
 
-    if playerToTargetDist < 10 and playerVelMod < 11 then
-        -- io.write(string.format("split\n"))
-        time = 0
-        label = label + 1
-    end
-    if label == 10 then
-        io.close()
-    end
-
-    -- local rx,ry = 2000,-1000
-    -- local span = 85
-    -- local rp = CGeoPoint:new_local(rx,ry)
-    -- local rv = CVector:new_local(0,-span)
-    -- debugEngine:gui_debug_msg(rp+rv*0,                  " N,  ACC, DetV, RotE, Time",param.ORANGE,0,80)
-    -- for i=1,#result_list do
-    --     local res = result_list[i]
-    --     debugEngine:gui_debug_msg(rp+rv*i,string.format("%2d, %4.0f, %4.0f, %4.1f, %4.1fs",i,res[1],res[3],res[4],res[5]),res[4] < FAIL_DEGREE and param.GREEN or param.RED, 0, 80)
-    -- end
+    task.task.kickPower[task.fitPlayer1] = task.kickPower[task.fitPlayer1] + task.powerStep
+    maxBallVelMod = 0
+    flag = true
 end
 
-local F_task_max_acc = function()
-    return task_max_acc
+toPlayerDir = function(role1, role2)
+    return player.toPlayerDir(role1, role2)
 end
 
-local F_task_max_vel = function()
-    return task_max_vel
-end
 
 gPlayTable.CreatePlay{
 
-firstState = "start",
-["start"] = {
+firstState = "init",
+["init"] = {
     switch = function()
         debug_F()
-        -- if bufcnt(player.toTargetDist("Leader") < 30, 60) then
-        --     state_reset()
-        --     return "run1"
-        -- end
+        init_params()
+        return "run_to_pos"
     end,
-    Leader = task.getInitData("Leader", CGeoPoint:new_local(0, 0), 0),
-    -- a = task.goCmuRush(p[2]+ROBOT_OFFSET,task_dir),
-    a = task.stop(),
-    match = "(L)(a)"
+    Assister = task.stop(),
+    Kicker = task.stop(),
+    Special = task.stop(),
+    Tier = task.stop(),
+    Defender = task.stop(),
+    Goalie = task.stop(),
+    match = "[AKSTDG]"
 },
-["run1"] = {
+["run_to_pos"] = {
     switch = function()
         debug_F()
-        if bufcnt(player.toTargetDist("Leader") < 30, 60) then
-            state_reset(true)
-            return "run2"
+        if bufcnt(true, 30) and player.kickBall(task.fitPlayer1) then
+            return "recording"
         end
     end,
-    Leader = task.goCmuRush(p[1],task_dir,F_task_max_acc,task_flag,nil,nil,F_task_max_vel,true),
-    a = task.goCmuRush(p[1]+ROBOT_OFFSET,task_dir,F_task_max_acc,task_flag,nil,nil,F_task_max_vel,true),
-    match = ""
+    Assister = task.getFitData_runToPos("Assister"),
+    Kicker = task.getFitData_runToPos("Kicker"),
+    Special = task.getFitData_runToPos("Special"),
+    Tier = task.getFitData_runToPos("Tier"),
+    Defender = task.getFitData_runToPos("Defender"),
+    Goalie = task.getFitData_runToPos("Goalie"),
+    match = "{AKSTDG}"
 },
-["run2"] = {
+["recording"] = {
     switch = function()
         debug_F()
-        if bufcnt(player.toTargetDist("Leader") < 30, 60) then
-            state_reset(true)
-            return "run1"
+        updateFitParams()
+
+        if player.kickBall(task.fitPlayer2) or ball.velMod() < 25 then
+            saveFitParams()
+            if task.fitPlayerLen == 1 and task.kickPower[task.fitPlayer1] > maxPower then
+                return "finished"
+            end
+            return "run_to_pos"
         end
     end,
-    Leader = task.goCmuRush(p[2],task_dir,F_task_max_acc,task_flag,nil,nil,F_task_max_vel,true),
-    a = task.goCmuRush(p[2]+ROBOT_OFFSET,task_dir,F_task_max_acc,task_flag,nil,nil,F_task_max_vel,true),
-    match = ""
+
+    Assister = task.getFitData_recording("Assister"),
+    Kicker = task.getFitData_recording("Kicker"),
+    Special = task.getFitData_recording("Special"),
+    Tier = task.getFitData_recording("Tier"),
+    Defender = task.getFitData_recording("Defender"),
+    Goalie = task.getFitData_recording("Goalie"),
+    match = "{AKSTDG}"
 },
-
-
+["finished"] = {
+    switch = function()
+        debug_F()
+        debugEngine:gui_debug_msg(CGeoPoint(0, 0), "数据收集完成")
+        if finsh then
+            io.close()
+        end
+    end,
+    Assister = task.stop(),
+    Kicker = task.stop(),
+    Special = task.stop(),
+    Tier = task.stop(),
+    Defender = task.stop(),
+    Goalie = task.stop(),
+    match = "{AKSTDG}"
+},
 name = "TestBenchTnT",
 applicable ={
 	exp = "a",

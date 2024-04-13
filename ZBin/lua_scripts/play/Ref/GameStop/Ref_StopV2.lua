@@ -28,11 +28,13 @@ firstState = "start",
       return "exit"
     end
   end,
-  Leader   = task.goCmuRush(middlePos,dir.playerToBall),
+  Kicker   = task.goCmuRush(middlePos,dir.playerToBall),
   Assister = task.goCmuRush(leftPos,dir.playerToBall),
   Special  = task.goCmuRush(rightPos,dir.playerToBall),
-  Goalie   = task.goCmuRush(goaliePos),
-  match    = "[ASL]"
+  Tier = task.stop(),
+  Defender = task.stop(),
+  Goalie = task.goalie(),
+  match = "[A][KS]{TDG}"
 },
 
 name = "Ref_StopV2",

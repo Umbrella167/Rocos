@@ -16,6 +16,23 @@ module(..., package.seeall)
 -- widthRatio	= 1.5
 -- stopRatio = 1.1
 
+---------------------------------
+--射击力度
+powerShoot = 3000
+---------------------------------
+--旋转参数
+-- -- 顺时针
+-- rotPos = CGeoPoint(150, -120)
+-- rotVel = -5
+
+-- 逆时针
+rotPos = CGeoPoint(150,120)
+rotVel = 5
+
+
+---------------------------------
+
+
 INF = 1e9
 PI = 3.141592653589793238462643383279
 maxPlayer   = 16
@@ -47,3 +64,8 @@ BLUE=6
 PURPLE=7
 GRAY=9
 BLACK=0
+--~ -------------------------------------------
+--~ used for getdata
+--~ -------------------------------------------
+FIT_PLAYER_POS_X = pitchLength/2 - penaltyDepth
+FIT_PLAYER_POS_Y = pitchWidth/2 - 200

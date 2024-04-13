@@ -10,7 +10,6 @@ module(..., package.seeall)
 -- @auther: Umbrella
 -- @2024/04/07
 -- 
--- 
 -- 获取全局机器人状态、存放到 GlobalMessage.globalPlayerStatus / attackPlayerStatus
 function getGlobalStatus(attack_flag)
 	-- 我方球权的情况下 获取进攻状态
@@ -58,6 +57,13 @@ function getPlayerRunPos()
 			table.insert(GlobalMessage.attackPlayerRunPos, run_pos_table)
 		end
 	end
+
+	local dribbling_run_pos =  Utils.GetAttackPos(vision,GlobalMessage.Tick.our.dribbling_num)
+	run_pos_table = {
+				num = GlobalMessage.Tick.our.dribbling_num,
+				pos = dribbling_run_pos
+			}
+	table.insert(GlobalMessage.attackPlayerRunPos, run_pos_table)
 end
 
 -- 获取主要（抢球、带球）机器人状态存入 attackMainPlayerStatus

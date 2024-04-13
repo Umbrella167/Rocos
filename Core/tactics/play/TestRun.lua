@@ -34,31 +34,17 @@ end
 gPlayTable.CreatePlay{
 
 
-firstState = "run11",
+firstState = "run1",
 ["run1"] = {
 	switch = function()
 		Utils.GlobalComputingPos(vision)
 
 		-- return "run11"
 	end,
-	Assister = task.stop(),
+	Assister = task.getball("Assister",3,inter_flag,CGeoPoint:new_local(0,0)),
 	Kicker = task.stop(),
 	match = "[AK]"
 },
-["run11"] = {
-	switch = function()
-
-		Utils.GlobalComputingPos(vision)
-		if (player.kickBall("Assister")) then --bufcnt(a,b) 当表达式a为true时 连续累积 b帧 返回true
-			return "run1"
-		end
-	end,
-	Assister = task.stop(),--task.shoot(shootGen(0),dir1("Assister"),_,320),
-
-	match = "[A]"
-	-- ()  []  {}
-},
-
 
 
 

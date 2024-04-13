@@ -94,4 +94,4 @@ attackMainPlayerStatus = {
 	-- },
 }
 -- 帧信息
-Tick = Utils.UpdataTickMessage(vision,1,2)
+Tick = Utils.UpdataTickMessage(vision,0,1,2)
