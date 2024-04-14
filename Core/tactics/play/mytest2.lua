@@ -114,38 +114,9 @@ touchPos = CGeoPoint:new_local(0,0)
 canTouchAngle = 40
 -- 传球角度
 pass_pos = CGeoPoint:new_local(4500,-999)
--- getball参数
-playerVel = 4
-getballMode = 1
--- 带球速度
-dribblingVel = 2000
-
--- dribblingPos 带球目标坐标
-dribbling_target_pos = CGeoPoint:new_local(0,0)
-show_dribbling_pos = CGeoPoint:new_local(0,0)
-
-local ShowDribblingPos = function ()
-	return function()
-		return CGeoPoint:new_local(show_dribbling_pos:x(),show_dribbling_pos:y())
-	end
-end
-local dribblingDir = function(role)
-	return function()
-		local playerPos = CGeoPoint(player.posX(role),player.posY(role))
-		return  (playerPos - show_dribbling_pos):dir()
-	end
-end
-
--- 此脚本的全局更新
-local UpdataTickMessage = function (defend_num1,defend_num2)
-	-- 获取 Tick 信息
-	GlobalMessage.Tick = Utils.UpdataTickMessage(vision,our_goalie_num,defend_num1,defend_num2)
-	-- debugEngine:gui_debug_msg(CGeoPoint:new_local(4500,-3000),GlobalMessage.Tick.our.player_num)
-	-- 获取全局状态，进攻状态为传统
-	status.getGlobalStatus(1)  
-	-- 带球机器人初始化
-	dribbling_player_num = -1
-	-- 获取球权
+function UpdataTickMessage(defend_num1,defend_num2)
+	GlobalMessage.Tick = Utils.UpdataTickMessage(vision,0,defend_num1,defend_num2)
+	dribbling_player_num = GlobalMessage.Tick.our.dribbling_num
 	ball_rights = GlobalMessage.Tick.ball.rights
 	if ball_rights == 1 then
 		dribbling_player_num = GlobalMessage.Tick.our.dribbling_num
@@ -318,8 +289,8 @@ firstState = "Init",
 			return "GetGlobalMessage"
 		end
 	end,
-	Assister = task.Shootdot(passPos(),shootKp,error_dir,kick.flat),
-	Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker")),
+	Assister = task.ShootdotV2(passPos(),shootKp,error_dir,kick.flat),
+	Kicker = task.goCmuRush(runPos("Kicker"),closures_dir_ball("Kicker")),
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 	Tier = task.defender_defence("Tier"),
 	Defender = task.defender_defence("Defender"),
