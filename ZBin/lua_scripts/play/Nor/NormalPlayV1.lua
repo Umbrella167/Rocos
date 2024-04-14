@@ -1,4 +1,4 @@
-
+local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
 local debugStatus = function()
     for num,i in pairs(GlobalMessage.attackPlayerRunPos) do
         debugEngine:gui_debug_msg(CGeoPoint:new_local(-4400,num * 200),
@@ -111,7 +111,7 @@ shootKp = 0.09
 -- Touch pos
 touchPos = CGeoPoint:new_local(0,0)
 -- Touch 角度
-canTouchAngle = 40
+canTouchAngle = 60
 -- 传球角度
 pass_pos = CGeoPoint:new_local(4500,-999)
 -- getball参数
@@ -171,9 +171,7 @@ firstState = "Init",
 
 ["Init"] = {
     switch = function()
-        if bufcnt(true,20) then
-            return "GetGlobalMessage"
-        end 
+        return "GetGlobalMessage"
     end,
     Assister = task.stop(),
     Kicker = task.stop(),
@@ -186,7 +184,6 @@ firstState = "Init",
 
 ["GetGlobalMessage"] = {
     switch = function()
-        
         UpdataTickMessage(defend_num1,defend_num2)    -- 更新帧信息
         debugEngine:gui_debug_msg(CGeoPoint:new_local(-4400,200),tostring(GlobalMessage.Tick.our.goalie_num))
         status.debugStatus()
@@ -209,8 +206,8 @@ firstState = "Init",
         debugStatus()
     end,
     Assister = task.getball("Assister",playerVel,playerMod,ballPos()),
-    Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker")),
-    Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
+    Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker"),_,DSS_FLAG),
+    Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special"),_,DSS_FLAG),
 
     -- Assister = task.stop(),
     -- Kicker = task.stop(),
@@ -259,9 +256,9 @@ firstState = "Init",
             return "GetGlobalMessage"
         end
     end,
-    Assister = task.goCmuRush(runPos("Assister"),closures_dir_ball("Assister")),
+    Assister = task.goCmuRush(runPos("Assister"),closures_dir_ball("Assister"),_,DSS_FLAG),
     Kicker = task.touchKick(correctionPos(),_,touchPower,kick.flat),--task.goCmuRush(runPos("Kicker"),closures_dir_ball("Kicker")),
-    Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
+    Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special"),_,DSS_FLAG),
     Tier = task.stop(),
     Defender = task.stop(),
     Goalie = task.goalie(),
@@ -277,8 +274,8 @@ firstState = "Init",
             return "GetGlobalMessage"
         end
     end,
-    Assister = task.goCmuRush(runPos("Assister"),closures_dir_ball("Assister")),
-    Kicker = task.goCmuRush(runPos("Kicker"),closures_dir_ball("Kicker")),
+    Assister = task.goCmuRush(runPos("Assister"),closures_dir_ball("Assister"),_,DSS_FLAG),
+    Kicker = task.goCmuRush(runPos("Kicker"),closures_dir_ball("Kicker"),_,DSS_FLAG),
     Special = task.touchKick(correctionPos(),_,touchPower,kick.flat),--task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
     Tier = task.defender_defence("Tier"),
     Defender = task.defender_defence("Defender"),
@@ -298,27 +295,27 @@ firstState = "Init",
             if getballPlayer == "Kicker" or getballPlayer == "Special" then
                 return getballPlayer .. "getBall" 
             else
-                
                 return "GetGlobalMessage"
             end
             
         end-- [0,1,2]
 
         -- 如果角度不正确 那么传入校正脚本
-        if(task.playerDirToPointDirSub("Assister",shoot_pos) > error_dir and (GlobalMessage.Tick.ball.rights ~= 0 or GlobalMessage.Tick.ball.rights == 1)) then 
+        if(task.playerDirToPointDirSub("Assister",shoot_pos) > error_dir and (GlobalMessage.Tick.ball.rights == 2 or GlobalMessage.Tick.ball.rights == 1)) then 
             correction_pos = pass_pos
             correction_state = "passToPlayer"
             debugEngine:gui_debug_msg(CGeoPoint:new_local(-4500,-3000),correction_state)
             return "Correction"
         end
 
+
         if (bufcnt(true,130)) then
             return "GetGlobalMessage"
         end
     end,
     Assister = task.ShootdotV2(passPos(),shootKp,error_dir,kick.flat),
-    Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker")),
-    Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
+    Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker"),_,DSS_FLAG),
+    Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special"),_,DSS_FLAG),
     Tier = task.defender_defence("Tier"),
     Defender = task.defender_defence("Defender"),
     Goalie = task.goalie(),
@@ -340,9 +337,9 @@ firstState = "Init",
             return "GetGlobalMessage"
         end
     end,
-    Assister = task.goCmuRush(runPos("Assister"),closures_dir_ball("Assister")),
+    Assister = task.goCmuRush(runPos("Assister"),closures_dir_ball("Assister"),_,DSS_FLAG),
     Kicker =   task.getball("Kicker",playerVel,1,ballPos()),
-    Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
+    Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special"),_,DSS_FLAG),
     Tier = task.defender_defence("Tier"),
     Defender = task.defender_defence("Defender"),
     Goalie = task.goalie(),
@@ -363,8 +360,8 @@ firstState = "Init",
             return "GetGlobalMessage"
         end
     end,
-    Assister = task.goCmuRush(runPos("Assister"),closures_dir_ball("Assister")),
-    Kicker = task.goCmuRush(runPos("Kicker"),closures_dir_ball("Kicker")),
+    Assister = task.goCmuRush(runPos("Assister"),closures_dir_ball("Assister"),_,DSS_FLAG),
+    Kicker = task.goCmuRush(runPos("Kicker"),closures_dir_ball("Kicker"),_,DSS_FLAG),
     Special = task.getball("Special",playerVel,1,ballPos()),
     Tier = task.defender_defence("Tier"),
     Defender = task.defender_defence("Defender"),
@@ -383,8 +380,8 @@ firstState = "Init",
     end,
     --dribbling_target_pos
     Assister = task.goCmuRush(ShowDribblingPos(), dribblingDir("Assister"),dribblingVel,flag.dribbling),
-    Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker")),
-    Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
+    Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker"),_,DSS_FLAG),
+    Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special"),_,DSS_FLAG),
     Tier = task.defender_defence("Tier"),
     Defender = task.defender_defence("Defender"),
     Goalie = task.goalie(),
@@ -405,8 +402,8 @@ firstState = "Init",
         -- debugEngine:gui_debug_msg(passPos,dribblingStatus)
     end,
     Assister = task.getball("Assister",playerVel,playerMod,ballPos()),
-    Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker")),
-    Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
+    Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker"),_,DSS_FLAG),
+    Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special"),_,DSS_FLAG),
     Tier = task.defender_defence("Tier"),
     Defender = task.defender_defence("Defender"),
     Goalie = task.goalie(),
@@ -426,8 +423,8 @@ firstState = "Init",
         -- debugEngine:gui_debug_msg(passPos,dribblingStatus)
     end,
     Assister = task.getball("Assister",playerVel,playerMod,ballPos()),
-    Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker")),
-    Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
+    Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker"),_,DSS_FLAG),
+    Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special"),_,DSS_FLAG),
     Tier = task.defender_defence("Tier"),
     Defender = task.defender_defence("Defender"),
     Goalie = task.goalie(),
@@ -446,8 +443,8 @@ firstState = "Init",
         end
     end,
     Assister = task.TurnToPointV2("Assister", correctionPos(),param.rotVel), --param.rotVel
-    Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker")),
-    Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
+    Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker"),_,DSS_FLAG),
+    Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special"),_,DSS_FLAG),
     Tier = task.defender_defence("Tier"),
     Defender = task.defender_defence("Defender"),
     Goalie = task.goalie(),

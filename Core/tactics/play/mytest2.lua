@@ -1,4 +1,3 @@
-
 gPlayTable.CreatePlay{
 
 firstState = "Init",

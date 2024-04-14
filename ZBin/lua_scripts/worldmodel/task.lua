@@ -96,18 +96,18 @@ function power(p, Kp) --根据目标点与球之间的距离求出合适的 击�
 			p1 = p
 		end
 		local res = Kp * (p1 - ball.pos()):mod()
-		if res > 310 then
-			res = 310
-		end
-		if res < 230 then
-			res = 230
-		end
-		-- if res > 7000 then
-		-- 	res = 7000
+		-- if res > 310 then
+		-- 	res = 310
 		-- end
-		-- if res < 3400 then
-		-- 	res = 3400
+		-- if res < 230 then
+		-- 	res = 230
 		-- end
+		if res > 7000 then
+			res = 7000
+		end
+		if res < 3400 then
+			res = 3400
+		end
 		debugEngine:gui_debug_msg(CGeoPoint:new_local(-4300,-2000),"Power" .. res,3)
 		return res
 	end
