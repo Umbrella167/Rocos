@@ -498,13 +498,17 @@ function goalie(role)
 			-- 速度调节器（跑到这个点时需要一个初速度）
 			local endvel = Utils.Polar2Vector(-800,(player.pos(role) - getBallPos):dir())
 			if player.toPointDist(role,getBallPos) > param.playerRadius then
-				endvel = Utils.Polar2Vector(-6000,(player.pos(role) - getBallPos):dir())
+				endvel = Utils.Polar2Vector(-2000,(player.pos(role) - getBallPos):dir())
 			end
 			local mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = 0x00000000, rec = r, vel = endvel }
 			return { mexe, mpos, kick.flat, idir, pre.low, power(p, kp), power(p, kp), 0x00000000 }
 		else
 			-- 准备状态
 			-- 这里是当球没有朝球门飞过来的时候，飞过来还要另加判断
+			local roleToEnemyDist = (enemyPos-rolePos):mod()
+
+			debugEngine:gui_debug_msg(CGeoPoint(-1000, 1000), roleToEnemyDist)
+
 			local goaliePoint = goalPos+Utils.Polar2Vector(goalieRadius, goalToEnemyDir)
 			local idir = player.toPointDir(enemyPos, role)
 			local mexe, mpos = GoCmuRush { pos = goaliePoint, dir = idir, acc = a, flag = 0x00000100, rec = r, vel = v }
