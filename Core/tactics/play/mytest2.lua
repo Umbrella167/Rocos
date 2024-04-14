@@ -2,7 +2,6 @@ gPlayTable.CreatePlay{
 
 firstState = "Init",
 
-
 ["Init"] = {
 	switch = function()
 		-- debugEngine:gui_debug_msg(CGeoPoint(0, 0), enemy.closestBall())
@@ -19,7 +18,6 @@ firstState = "Init",
 	Goalie = task.goalie("Goalie"),
 	match = "[A][KS]{TDG}"
 },
-
 
 name = "mytest2",
 applicable ={

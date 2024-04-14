@@ -473,6 +473,7 @@ function goalie(role)
 			enemyNum = enemy.atBallLine()
 		end
 		local enemyPos = CGeoPoint:new_local(enemy.posX(enemyNum), enemy.posY(enemyNum))
+		local enemyDir = enemy.dir(enemyNum)
 		debugEngine:gui_debug_msg(CGeoPoint(0, 0), enemyNum)
 		debugEngine:gui_debug_x(enemyPos)
 
@@ -481,7 +482,11 @@ function goalie(role)
 		local goalLine = CGeoSegment(CGeoPoint:new_local(-param.pitchLength/2, -9999), CGeoPoint:new_local(-param.pitchLength/2, 9999))
 		local tPos = goalLine:segmentsIntersectPoint(ballLine)
 
+		-- 判断是否踢向球门
 		local isShooting = -penaltyRadius<tPos:y() and tPos:y()<penaltyRadius
+		-- TODO: 需要增加一项判断敌方传球是否有经过禁区
+
+
 
 		-- local isShooting = (goalTopToBallDir-ballDir)*(goalButtonToBallDir-ballDir)<=0 and true or false
 		-- math.pi - math.abs(enemyToBallDir - ballVelDir)
@@ -504,7 +509,7 @@ function goalie(role)
 			return { mexe, mpos, kick.flat, idir, pre.low, power(p, kp), power(p, kp), 0x00000000 }
 		else
 			-- 准备状态
-			-- 这里是当球没有朝球门飞过来的时候，飞过来还要另加判断
+			-- 这里是当球没有朝球门飞过来的时候，需要提前到达的跑位点
 			local roleToEnemyDist = (enemyPos-rolePos):mod()
 
 			debugEngine:gui_debug_msg(CGeoPoint(-1000, 1000), roleToEnemyDist)
