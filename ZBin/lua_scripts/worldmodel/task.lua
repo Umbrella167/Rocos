@@ -25,7 +25,7 @@ module(..., package.seeall)
 -- 解决截球算点抖动问题
 lastMovePoint = CGeoPoint:new_local(param.INF, param.INF)
 function stabilizePoint(p)
-	if lastMovePoint:dist(p) < 100 then
+	if lastMovePoint:dist(p) < 50 then
 		return lastMovePoint
 	end
 	lastMovePoint = p
@@ -52,7 +52,7 @@ function getball(role, playerVel, inter_flag, target_point)
 		if player.infraredCount(role) < 5 then
 			local qflag = inter_flag or 0
 			local playerPos = CGeoPoint:new_local( player.pos(role):x(),player.pos(role):y())
-			local inter_pos = Utils.GetBestInterPos(vision,playerPos,playerVel,qflag)
+			local inter_pos = stabilizePoint(Utils.GetBestInterPos(vision,playerPos,playerVel,qflag))
 			
 			local idir = player.toBallDir(role)
 			local ipos = ball.pos()
@@ -102,11 +102,11 @@ function power(p, Kp) --根据目标点与球之间的距离求出合适的 击�
 		-- if res < 230 then
 		-- 	res = 230
 		-- end
-		if res > 7000 then
-			res = 7000
+		if res > 6000 then
+			res = 6000
 		end
-		if res < 3400 then
-			res = 3400
+		if res < 3000 then
+			res = 3000
 		end
 		debugEngine:gui_debug_msg(CGeoPoint:new_local(-4300,-2000),"Power" .. res,3)
 		return res
@@ -416,7 +416,7 @@ function playerDirToPointDirSub(role, p) -- 检测 某座标点  球  playe 是�
 	end
 
 	local playerDir = player.dir(role) * 57.3 + 180
-	local playerPointDit = (p1 - player.pos(role)):dir() * 57.3 + 180
+	local playerPointDit = (p1 - player.rawPos(role)):dir() * 57.3 + 180
 	local sub = math.abs(playerDir - playerPointDit)
 	debugEngine:gui_debug_msg(CGeoPoint:new_local(-1000, 0), sub)
 	return sub
@@ -496,9 +496,9 @@ function goalie(role)
 				return (ball.pos() - player.pos(runner)):dir()
 			end
 			-- 速度调节器（跑到这个点时需要一个初速度）
-			local endvel = Utils.Polar2Vector(-800,(player.pos(role) - getBallPos):dir())
+			local endvel = Utils.Polar2Vector(-100,(player.pos(role) - getBallPos):dir())
 			if player.toPointDist(role,getBallPos) > param.playerRadius then
-				endvel = Utils.Polar2Vector(-2000,(player.pos(role) - getBallPos):dir())
+				endvel = Utils.Polar2Vector(-800,(player.pos(role) - getBallPos):dir())
 			end
 			local mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = 0x00000000, rec = r, vel = endvel }
 			return { mexe, mpos, kick.flat, idir, pre.low, power(p, kp), power(p, kp), 0x00000000 }

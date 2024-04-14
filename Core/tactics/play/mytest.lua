@@ -88,7 +88,7 @@ end
 -- 校正返回的脚本
 correction_state = "Shoot"
 -- 角度误差常数
-error_dir = 4
+error_dir = 2
 -- 校正坐标初始化
 correction_pos = CGeoPoint:new_local(0,0)
 -- 带球车初始化
@@ -107,7 +107,7 @@ our_goalie_num =0
 defend_num1 = 1
 defend_num2 = 2
 -- 射门Kp
-shootKp = 0.09
+shootKp = 1.5
 -- Touch pos
 touchPos = CGeoPoint:new_local(0,0)
 -- Touch 角度
@@ -326,6 +326,12 @@ firstState = "Init",
 ["KickergetBall"] = {
 	switch = function()
 		-- UpdataTickMessage(defend_num1,defend_num2)
+		local tick = Utils.UpdataTickMessage(vision,our_goalie_num,defend_num1,defend_num2)
+
+		-- 补丁：修复  传球后被敌方拦截傻等的情况
+		if tick.ball.rights == -1 then
+			return "GetGlobalMessage"
+		end
 		correction_pos = Utils.GetShootPoint(vision,player.num("Kicker"))
 		if (player.canTouch("Kicker",correction_pos,canTouchAngle)) then
 			return "KickerTouch"
@@ -437,6 +443,10 @@ firstState = "Init",
 		UpdataTickMessage(defend_num1,defend_num2)
         if(task.playerDirToPointDirSub("Assister",correction_pos) < error_dir and (GlobalMessage.Tick.ball.rights ~= 0 or GlobalMessage.Tick.ball.rights ~= 1)) then 
             return correction_state
+        end
+
+        if (Utils.InExclusionZone(ball.pos()) and not Utils.InField(ball.pos())) then
+        	return "GetGlobalMessage"
         end
         if (bufcnt(true,40)) then
             return "GetGlobalMessage"
