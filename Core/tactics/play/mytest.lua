@@ -159,7 +159,7 @@ local UpdataTickMessage = function (defend_num1,defend_num2)
 		touchPos = Utils.GetTouchPos(vision,CGeoPoint:new_local(player.posX(dribbling_player_num),player.posY(dribbling_player_num)),canTouchAngle)
 	end
 	show_dribbling_pos = Utils.GetShowDribblingPos(vision,CGeoPoint(player.posX("Assister"),player.posY("Assister")),dribbling_target_pos);
-	debugStatus()
+	-- debugStatus()
 end
 
 
@@ -186,7 +186,7 @@ firstState = "Init",
 	switch = function()
 		UpdataTickMessage(defend_num1,defend_num2) 	  -- 更新帧信息
 		debugEngine:gui_debug_msg(CGeoPoint:new_local(-4400,200),tostring(GlobalMessage.Tick.our.goalie_num))
-		status.debugStatus()
+		-- status.debugStatus()
 		-- debugEngine:gui_debug_msg(CGeoPoint:new_local(0,-2000),GlobalMessage.Tick.our.defend_num1)
 		-- debugEngine:gui_debug_msg(CGeoPoint:new_local(0,-2100),GlobalMessage.Tick.our.defend_num2,3)
 		if task.ball_rights == 1 then	-- 我方球权的情况 获取进攻状态
@@ -444,9 +444,9 @@ firstState = "Init",
         if(task.playerDirToPointDirSub("Assister",correction_pos) < error_dir and (GlobalMessage.Tick.ball.rights ~= 0 or GlobalMessage.Tick.ball.rights ~= 1)) then 
             return correction_state
         end
-
-        if (Utils.InExclusionZone(ball.pos()) and not Utils.InField(ball.pos())) then
-        	return "GetGlobalMessage"
+        local ballposlocal = CGeoPoint(ball.posX(),ball.posY())
+        if (Utils.InExclusionZone(ballposlocal) or not Utils.InField(ballposlocal)) then
+        	return "Dribbling"
         end
         if (bufcnt(true,40)) then
             return "GetGlobalMessage"

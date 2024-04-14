@@ -1048,7 +1048,7 @@ namespace Utils
                         max_grade_pos = CGeoPoint(x, y);
                     }
 
-                    GDebugEngine::Instance()->gui_debug_x(pos);
+//                    GDebugEngine::Instance()->gui_debug_x(pos);
                 }
             }
         }
