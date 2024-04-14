@@ -392,7 +392,7 @@ namespace Utils
         double timeWeight = 1.0;
 
         // 遍历每个点，寻找最有可能的截球点
-        for (int dist = 0; dist < maxDist; dist += 100)
+        for (int dist = 0; dist <= maxDist; dist += 100)
         {
             CGeoPoint ballPrePos = ball_pos + Polar2Vector(dist, pVision->ball().Vel().dir());
             double playerToBallDist = playerPos.dist(ballPrePos);
