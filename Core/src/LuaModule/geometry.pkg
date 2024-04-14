@@ -55,6 +55,7 @@ class CGeoSegment:public CGeoLine{
 	bool IsPointOnLineOnSegment(const CGeoPoint& p) const;
 	const CGeoPoint& start() const;
 	const CGeoPoint& end() const;
+	CGeoPoint segmentsIntersectPoint(const CGeoSegment& p) const;
 };
 class CGeoLineLineIntersection{
 	CGeoLineLineIntersection(const CGeoLine& line_1, const CGeoLine& line_2);

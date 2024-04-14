@@ -51,6 +51,8 @@ lengthRatio	= 1.5
 widthRatio	= 1.5
 stopRatio = 1.1
 frameRate = 73
+-- 是否为真实场地
+isReality = false
 -- 对齐的准确度
 alignRate = 0.8
 --~ -------------------------------------------

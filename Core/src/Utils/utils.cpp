@@ -370,10 +370,11 @@ namespace Utils
      * @param playerPos
      * @param playerVel
      * @param flag 不同模式（默认0）,0-最早能拿到球的截球点，1-时间最充裕的截球点, 2- (0,1)方案取中点
+     * @param permissions 球员的权限（默认0）, 0-不允许进禁区和到场外， 1-不可以进场外可以进禁区， 2-场外禁区都可以进
      * @return
      */
 
-    CGeoPoint GetBestInterPos(const CVisionModule *pVision, CGeoPoint playerPos, double playerVel, int flag)
+    CGeoPoint GetBestInterPos(const CVisionModule *pVision, CGeoPoint playerPos, double playerVel, int flag, int permissions)
     {
         CGeoPoint ball_pos = pVision->ball().Pos();
         if(pVision->ball().Valid())
@@ -390,7 +391,6 @@ namespace Utils
 
         double timeWeight = 1.0;
 
-
         // 遍历每个点，寻找最有可能的截球点
         for (int dist = 0; dist < maxDist; dist += 100)
         {
@@ -400,9 +400,12 @@ namespace Utils
             double getBallTime = GetBallToDistTime(pVision, dist) / 1000;
             double tolerance = getBallTime - t;
             // 判断是否在禁区
-            if (InExclusionZone(ballPrePos))
+            if (InExclusionZone(ballPrePos) && permissions==0)
                 continue;
-            if (maxTolerance != -inf && tolerance < 0 || !InField(ballPrePos))
+            // 判断是否在场外
+            if(!InField(ballPrePos) && permissions<2)
+                continue;
+            if (maxTolerance != -inf && tolerance < 0)
                 break;
 
             // 可能截到球的点
@@ -455,12 +458,12 @@ namespace Utils
         }
         else if(InField(maxBallPos) && !InExclusionZone(maxBallPos)){
             // 返回最远的球位置(场内)
-            GDebugEngine::Instance()->gui_debug_line(playerPos, maxBallPos,5,1);
+//            GDebugEngine::Instance()->gui_debug_line(playerPos, maxBallPos,5,1);
             return maxBallPos;
         }
         else{
             // 返回最后一个预测球的位置
-            GDebugEngine::Instance()->gui_debug_line(playerPos, maxAllowedBallPos,5,1);
+//            GDebugEngine::Instance()->gui_debug_line(playerPos, maxAllowedBallPos,5,1);
             return maxAllowedBallPos;
         }
         return CGeoPoint(inf, inf);

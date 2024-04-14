@@ -165,6 +165,18 @@ function closestBall()
     return enemyNum
 end
 
+function closestBallDist()
+	local minDist = param.INF
+	local enemyNum = -1
+	for i=0,param.maxPlayer do
+        if enemy.valid(i) and enemy.toBallDist(i)<minDist then
+        	minDist = enemy.toBallDist(i)
+        	enemyNum = i
+        end
+    end
+    return minDist
+end
+
 function atBallLine()
 	local minDist = param.INF
 	local enemyNum = -1
@@ -175,9 +187,11 @@ function atBallLine()
         if enemy.valid(i) then
         	local enemyPos = CGeoPoint:new_local(enemy.posX(i), enemy.posY(i))
         	local enemyToBallDir = enemy.toBallDir(i)
+        	-- 判断是否对齐
         	local diff = math.abs(math.pi - math.abs(enemyToBallDir - ballVelDir))
         	-- debugEngine:gui_debug_msg(CGeoPoint(-1500, 1000-(160*i)), "diff: "..diff)
-        	if diff < param.alignRate and enemy.toBallDist(i)<minDist and ball.velMod() > 20 then
+        	-- debugEngine:gui_debug_msg(CGeoPoint(1500, 1500), "ballVel: "..ball.velMod())
+        	if diff < param.alignRate and enemy.toBallDist(i)<minDist and ball.velMod() > 1000 then
 	        	minDist = enemy.toBallDist(i)
 	        	enemyNum = i
         	end

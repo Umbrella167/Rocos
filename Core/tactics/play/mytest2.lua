@@ -182,7 +182,7 @@ firstState = "Init",
 	Special = task.stop(),
 	Tier = task.stop(),
 	Defender = task.stop(),
-	Goalie = task.goalie(),
+	Goalie = task.goalie("Goalie"),
 	match = "[A][KS]{TDG}"
 },
 
@@ -219,7 +219,7 @@ firstState = "Init",
 	-- Special = task.stop(),
 	Tier = task.stop(),
 	Defender = task.stop(),
-	Goalie = task.goalie(),
+	Goalie = task.goalie("Goalie"),
 	match = "[A][KS]{TDG}"
 },
 
@@ -244,7 +244,7 @@ firstState = "Init",
 	Special = task.stop(),
 	Tier = task.stop(),
 	Defender = task.stop(),
-	Goalie = task.goalie(),
+	Goalie = task.goalie("Goalie"),
 	match = "{AKSTDG}"
 },
 
@@ -266,7 +266,7 @@ firstState = "Init",
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 	Tier = task.stop(),
 	Defender = task.stop(),
-	Goalie = task.goalie(),
+	Goalie = task.goalie("Goalie"),
 	match = "{ASKTDG}"
 },
 ["SpecialTouch"] = {
@@ -284,7 +284,7 @@ firstState = "Init",
 	Special = task.touchKick(correctionPos(),_,touchPower,kick.flat),--task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 	Tier = task.defender_defence("Tier"),
 	Defender = task.defender_defence("Defender"),
-	Goalie = task.goalie(),
+	Goalie = task.goalie("Goalie"),
 	match = "{ASKTDG}"
 },
 -- 传球 
@@ -323,7 +323,7 @@ firstState = "Init",
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 	Tier = task.defender_defence("Tier"),
 	Defender = task.defender_defence("Defender"),
-	Goalie = task.goalie(),
+	Goalie = task.goalie("Goalie"),
 	match = "{AKSTDG}"
 },
 
@@ -347,7 +347,7 @@ firstState = "Init",
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 	Tier = task.defender_defence("Tier"),
 	Defender = task.defender_defence("Defender"),
-	Goalie = task.goalie(),
+	Goalie = task.goalie("Goalie"),
 	match = "{AKSTDG}"
 },
 ["SpecialgetBall"] = {
@@ -370,7 +370,7 @@ firstState = "Init",
 	Special = task.getball("Special",playerVel,1,ballPos()),
 	Tier = task.defender_defence("Tier"),
 	Defender = task.defender_defence("Defender"),
-	Goalie = task.goalie(),
+	Goalie = task.goalie("Goalie"),
 	match = "{AKSTDG}"
 },
 
@@ -389,7 +389,7 @@ firstState = "Init",
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 	Tier = task.defender_defence("Tier"),
 	Defender = task.defender_defence("Defender"),
-	Goalie = task.goalie(),
+	Goalie = task.goalie("Goalie"),
 	match = "{AKSTDG}"
 },
 
@@ -411,7 +411,7 @@ firstState = "Init",
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 	Tier = task.defender_defence("Tier"),
 	Defender = task.defender_defence("Defender"),
-	Goalie = task.goalie(),
+	Goalie = task.goalie("Goalie"),
 	match = "{AKSTDG}"
 },
 
@@ -432,7 +432,7 @@ firstState = "Init",
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 	Tier = task.defender_defence("Tier"),
 	Defender = task.defender_defence("Defender"),
-	Goalie = task.goalie(),
+	Goalie = task.goalie("Goalie"),
 	match = "{AKSTDG}"
 },
 
@@ -452,7 +452,7 @@ firstState = "Init",
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
 	Tier = task.defender_defence("Tier"),
 	Defender = task.defender_defence("Defender"),
-	Goalie = task.goalie(),
+	Goalie = task.goalie("Goalie"),
 	match = "{AKSTDG}"
 },
 
