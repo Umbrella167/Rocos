@@ -675,45 +675,7 @@ end
 --[[ 盯防 ]]
 function defender_marking(role)
 	return function()
-
-		local mexe, mpos = nil, nil
-		local ipos, idir = "Defender" == role and DEFENDER_INITPOS_DEFENDER or DEFENDER_INITPOS_TIER,
-			player.toBallDir(role)
-
-		local ROLE_DEFENDER = "Defender"
-		local ROLE_TIER = "Tier"
-		local role_major = player.toBallDist(ROLE_DEFENDER) < player.toBallDist(ROLE_TIER) and ROLE_DEFENDER
-			or ROLE_TIER -- defender
-		-- FIXME: 这里容易出一个bug，如果在运动中导致两个后卫距离 ball 的距离差不多，会导致两个后卫被“互相卡住”
-		local role_minor = role_major == ROLE_DEFENDER and ROLE_TIER
-			or ROLE_DEFENDER -- tier
-
-		if player.toBallDist(role) < 500 then
-			local ipos = pos.theirGoal()
-			-- NOTE: 会有更好的解决办法防止卡禁区 1/2
-			local idir = function(runner) return (_c(ipos) - player.pos(runner)):dir() end
-			local mexe, mpos = Touch { pos = ipos, useInter = ifInter }
-			local ipower = function()
-				return power or 127
-			end
-			return { mexe, mpos, mode and kick.flat or kick.chip, idir, pre.low, ipower, cp.full, flag.nothing }
-		else
-			local closestEnemy = -- 最近的敌人位置，但是排除了守门员
-				Utils.closestPlayerToPoint(vision,
-					role_minor == ROLE_DEFENDER and DEFENDER_INITPOS_DEFENDER or DEFENDER_INITPOS_TIER, 2,
-					player.num(role))
-
-
-			if nil ~= closestEnemy then                                                -- 如果检测到有可能有敌人出现，那么需要回防
-				if player.toPointDist(role, closestEnemy) < DEFENDER_SAFEDISTANCE then -- 并且可能产生威胁 NOTE: 可以继续升级算法 1/2
-					ipos = closestEnemy +
-						Utils.Polar2Vector(DEFENDER_SAFEDISTANCE / 4, (ball.pos() - closestEnemy):dir()) -- 盯防一波
-				end
-			end
-			ipos = enemy.pos(role) + Utils.Polar2Vector(300, (ball.pos() - enemy.pos(role)):dir())
-			mexe, mpos = GoCmuRush { pos = ipos, dir = idir }
-		end
-		return { mexe, mpos }
+		
 	end
 end
 
@@ -797,6 +759,28 @@ function defender_defence(role)
 	end
 end
 
+
+
+function Dfenending( role )
+	local ballPos = CGeoPoint(ball.posX(),ball.posY())
+	local idir
+	if d ~= nil then
+		idir = d
+	else
+		idir = dir.shoot()
+	end
+	-- 球在后场
+	if( ballPos:x() < 0) then
+
+
+
+	-- 球在前场
+	else
+
+	end
+	local mexe, mpos = GoCmuRush { pos = p, dir = idir, acc = a, flag = f, rec = r, vel = v, speed = s, force_manual = force_manual }
+	return { mexe, mpos }
+end
 ----------------------------------------- 其他动作 --------------------------------------------
 
 -- p为朝向，如果p传的是pos的话，不需要根据ball.antiY()进行反算
@@ -951,18 +935,6 @@ function getFitData_recording(role)
 		if playerNum == fitPlayer2 then
 			local rolePos = CGeoPoint:new_local(player.posX(role), player.posY(role))
 			local getBallPos = Utils.GetBestInterPos(vision, rolePos, 3, 1)
-			-- if player.infraredCount(role) > 10 then
-			-- 	local ipos = player.pos(fitPlayer1)
-			-- 	local idir = function(runner)
-			-- 		return (_c(ipos) - player.pos(runner)):dir()
-			-- 	end
-			-- 	local mexe, mpos = Touch { pos = ipos, useInter = ifInter }
-			-- 	local ipower = function()
-			-- 		return kickPower[fitPlayer1]
-			-- 	end
-			-- 	return { mexe, mpos, mode and kick.flat or kick.chip, idir, pre.low, ipower, ipower, 0x00000000 }
-			-- end
-			-- if player.toBallDist(role) < player.toBallDist(fitPlayer1) or kickPower[fitPlayer1] > 2000 then
 			if getBallPos:x() < 0 or getBallPos:y() < 0 then
 				-- 踢球
 				local p = player.pos(fitPlayer1)

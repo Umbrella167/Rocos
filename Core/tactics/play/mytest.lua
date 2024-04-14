@@ -100,7 +100,7 @@ shoot_pos = CGeoPoint:new_local(4500,0)
 -- 被传球机器人
 pass_player_num = 0
 -- touch power
-touchPower = 6000
+touchPower = 4000
 -- 守门员号码
 our_goalie_num =0
 -- 后卫号码
