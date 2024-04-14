@@ -184,7 +184,6 @@ firstState = "Init",
 
 ["GetGlobalMessage"] = {
 	switch = function()
-		
 		UpdataTickMessage(defend_num1,defend_num2) 	  -- 更新帧信息
 		debugEngine:gui_debug_msg(CGeoPoint:new_local(-4400,200),tostring(GlobalMessage.Tick.our.goalie_num))
 		status.debugStatus()
