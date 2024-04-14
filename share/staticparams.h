@@ -55,6 +55,7 @@ namespace PARAM {
         const int playerBuffer = 120; // 检测敌人是否在某直线上的缓冲值
         const double playerBallRightsBuffer = 115; // 球权判断缓冲值
         const int playerTouchAngle = 60;
+        const int playerVel = 4;  // bestinterpos 玩家最大速度
     }
     namespace Tick{
         const int TickLength = 5; //保存的帧数

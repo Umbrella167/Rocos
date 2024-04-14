@@ -546,7 +546,8 @@ function goalie(role, flag)
 				local enemyAimLine = CGeoSegment(enemyPos, enemyPos+Utils.Polar2Vector(9999, enemyDir))
 				local tPos = goalLine:segmentsIntersectPoint(enemyAimLine)
 				-- 判断是否朝向球门
-				local isToGoal = -param.penaltySegment<tPos:y() and tPos:y()<param.penaltySegment
+				local isToGoal = -param.penaltySegment-200<tPos:y() and tPos:y()<param.penaltySegment+200
+
 				if isToGoal then
 					local tP = tPos+Utils.Polar2Vector(-goalieRadius, enemyDir)
 					if flag==0 then

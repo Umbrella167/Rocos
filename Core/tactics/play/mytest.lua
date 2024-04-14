@@ -206,12 +206,8 @@ firstState = "Init",
 		debugStatus()
 	end,
 	Assister = task.getball("Assister",playerVel,playerMod,ballPos()),
-	Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker"),_,DSS_FLAG),
-	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special"),_,DSS_FLAG),
-
-	-- Assister = task.stop(),
-	-- Kicker = task.stop(),
-	-- Special = task.stop(),
+	--Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker"),_,DSS_FLAG),
+	--Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special"),_,DSS_FLAG),
 	Tier = task.stop(),
 	Defender = task.stop(),
 	Goalie = task.goalie("Goalie"),
@@ -222,7 +218,7 @@ firstState = "Init",
 ["Shoot"] = {
 	switch = function()
 		UpdataTickMessage(defend_num1,defend_num2)
-		if(player.infraredCount("Assister") < 5) then
+		if(not player.infraredOn("Assister")) then
 			return "defendOtherState"
 		end
 		if(task.playerDirToPointDirSub("Assister",shoot_pos) > error_dir) then 
@@ -240,7 +236,7 @@ firstState = "Init",
 	Tier = task.stop(),
 	Defender = task.stop(),
 	Goalie = task.goalie("Goalie"),
-	match = "{AKSTDG}"
+	match = "(AKS){TDG}"
 },
 
 
@@ -248,7 +244,11 @@ firstState = "Init",
 ["KickerTouch"] = {
 	switch = function()
 		UpdataTickMessage(defend_num1,defend_num2)
-		if(bufcnt(true,150))then 
+		if(bufcnt(true,100))then 
+			return "GetGlobalMessage"
+		end
+
+		if(GlobalMessage.Tick.ball.rights == -1)then 
 			return "GetGlobalMessage"
 		end
 		-- debugEngine:gui_debug_msg(CGeoPoint:new_local(0,-3000),)
@@ -259,15 +259,18 @@ firstState = "Init",
 	Assister = task.goCmuRush(runPos("Assister"),closures_dir_ball("Assister"),_,DSS_FLAG),
 	Kicker = task.touchKick(correctionPos(),_,touchPower,kick.flat),--task.goCmuRush(runPos("Kicker"),closures_dir_ball("Kicker")),
 	Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special"),_,DSS_FLAG),
-	Tier = task.stop(),
-	Defender = task.stop(),
+	Tier = task.defender_defence("Tier"),
+	Defender = task.defender_defence("Defender"),
 	Goalie = task.goalie("Goalie"),
 	match = "{ASKTDG}"
 },
 ["SpecialTouch"] = {
 	switch = function()
 		UpdataTickMessage(defend_num1,defend_num2)
-		if(bufcnt(true,150))then 
+		if(bufcnt(true,100))then 
+			return "GetGlobalMessage"
+		end
+		if(GlobalMessage.Tick.ball.rights == -1)then 
 			return "GetGlobalMessage"
 		end
 		if(player.kickBall("Special"))then 
@@ -289,8 +292,6 @@ firstState = "Init",
 		if(player.kickBall("Assister")) then
 			local getballPlayer = player.name(pass_player_num)
 			debugEngine:gui_debug_msg(CGeoPoint:new_local(-4500,-3000),getballPlayer)
-
-
 			-- 补丁： 修复传球给Goalie 或者 Defender
 			if getballPlayer == "Kicker" or getballPlayer == "Special" then
 				return getballPlayer .. "getBall" 
@@ -399,10 +400,10 @@ firstState = "Init",
 ["defendOtherState"] = {
 	switch = function()
 		UpdataTickMessage(defend_num1,defend_num2)
-		if(player.infraredCount("Assister") > 5) then
+		if(player.infraredOn("Assister")) then
 			return "GetGlobalMessage"
 		end
-		if (bufcnt(true,100)) then
+		if (bufcnt(true,50)) then
 			return "GetGlobalMessage"
 		end
 		-- debugEngine:gui_debug_msg(passPos,dribblingStatus)
@@ -413,17 +414,17 @@ firstState = "Init",
 	Tier = task.defender_defence("Tier"),
 	Defender = task.defender_defence("Defender"),
 	Goalie = task.goalie("Goalie"),
-	match = "{AKSTDG}"
+	match = "(AKS){TDG}"
 },
 
 -- 防守 盯防
 ["defendNormalState"] = {
 	switch = function()
 		UpdataTickMessage(defend_num1,defend_num2)
-		if(player.infraredCount("Assister") > 5) then
+		if(player.infraredOn("Assister")) then
 			return "GetGlobalMessage"
 		end
-		if (bufcnt(true,100)) then
+		if (bufcnt(true,50)) then
 			return "GetGlobalMessage"
 		end
 		-- debugEngine:gui_debug_msg(passPos,dribblingStatus)
@@ -434,7 +435,7 @@ firstState = "Init",
 	Tier = task.defender_defence("Tier"),
 	Defender = task.defender_defence("Defender"),
 	Goalie = task.goalie("Goalie"),
-	match = "{AKSTDG}"
+	match = "(AKS){TDG}"
 },
 
 -- 方向校正
@@ -447,6 +448,9 @@ firstState = "Init",
         local ballposlocal = CGeoPoint(ball.posX(),ball.posY())
         if (Utils.InExclusionZone(ballposlocal) or not Utils.InField(ballposlocal)) then
         	return "Dribbling"
+        end
+        if (GlobalMessage.Tick.ball.rights ~= 1) then
+        	return "GetGlobalMessage"
         end
         if (bufcnt(true,40)) then
             return "GetGlobalMessage"
