@@ -316,7 +316,7 @@ firstState = "Init",
             return "GetGlobalMessage"
         end
     end,
-    Assister = task.Shootdot(passPos(),shootKp,error_dir,kick.flat),
+    Assister = task.ShootdotV2(passPos(),shootKp,error_dir,kick.flat),
     Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker")),
     Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
     Tier = task.defender_defence("Tier"),

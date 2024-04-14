@@ -19,6 +19,7 @@ module(..., package.seeall)
 ---------------------------------
 -- 射击力度
 powerShoot = 300
+powerTouch = 5000
 ---------------------------------
 -- 旋转参数
 rotPos = CGeoPoint(150,120)

@@ -50,7 +50,7 @@ function getball(role, playerVel, inter_flag, target_point)
 			else
 				ipos = inter_pos
 			end
-			local endvel = Utils.Polar2Vector(300,player.toBallDir(role))
+			
 			-- local toballDir = math.abs(player.toBallDir(role))  * 57.3
 			local toballDir = math.abs((ball.rawPos() - player.rawPos(role)):dir() * 57.3)
 			local playerDir = math.abs(player.dir(role)) * 57.3
@@ -63,7 +63,7 @@ function getball(role, playerVel, inter_flag, target_point)
 				iflag = flag.dribbling
 			end
 			ipos = CGeoPoint:new_local(ipos:x(),ipos:y())
-			
+			local endvel = Utils.Polar2Vector(300,player.toBallDir(role))
 			local mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = iflag, rec = r, vel = endvel }
 				return { mexe, mpos }
 		else
@@ -85,18 +85,18 @@ function power(p, Kp) --根据目标点与球之间的距离求出合适的 击�
 			p1 = p
 		end
 		local res = Kp * (p1 - ball.pos()):mod()
-		-- if res > 310 then
-		-- 	res = 310
-		-- end
-		-- if res < 230 then
-		-- 	res = 230
-		-- end
-		if res > 7000 then
-			res = 7000
+		if res > 310 then
+			res = 310
 		end
-		if res < 3400 then
-			res = 3400
+		if res < 230 then
+			res = 230
 		end
+		-- if res > 7000 then
+		-- 	res = 7000
+		-- end
+		-- if res < 3400 then
+		-- 	res = 3400
+		-- end
 		debugEngine:gui_debug_msg(CGeoPoint:new_local(-4300,-2000),"Power" .. res,3)
 		return res
 	end
@@ -342,58 +342,6 @@ function TurnToPointV2(role, p, speed)
 	end
 end
 
--- function TurnToPointV2(role, p, speed)
--- 	--参数说明
--- 	-- role 	 使用这个函数的角色
--- 	-- p	     指向坐标
--- 	-- speed	 旋转速度
--- 	return function()
--- 		local p1 = p
--- 		if type(p) == 'function' then
--- 			p1 = p()
--- 		else
--- 			p1 = p
--- 		end
--- 		if speed == nil then
--- 			speed = param.rotVel
--- 		end
-
--- 		local playerDir = player.dir(role)
--- 		local playerToTargetDir = (p1 - player.pos(role)):dir()
--- 		local ballToTargetDir = (p1 - ball.pos()):dir()
--- 		local subPlayerBallToTargetDir = playerToTargetDir - ballToTargetDir
-
--- 			debugEngine:gui_debug_msg(CGeoPoint:new_local(1000,220),math.abs(playerDir-playerToTargetDir) .. "                     " .. subPlayerBallToTargetDir,3)
--- 		if math.abs(playerDir-playerToTargetDir) > 0.08 then
-
--- 			if subPlayerBallToTargetDir > 0 then
--- 				-- 顺时针旋转
--- 				-- debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "顺时针")
--- 				local ipos = CGeoPoint(param.rotPos:x(), param.rotPos:y() * -1)  --自身相对坐标 旋转
--- 				local ivel = speed * -1
--- 				local mexe, mpos = CircleRun {pos = ipos , vel = ivel}
--- 				return { mexe, mpos }
--- 			else
--- 				-- 逆时针旋转
--- 				-- debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "逆时针")
--- 				local ipos = param.rotPos  --自身相对坐标 旋转
--- 				local ivel = speed
--- 				local mexe, mpos = CircleRun {pos = ipos , vel = ivel}
--- 				return { mexe, mpos }
--- 			end
--- 		else
--- 			local idir = (ball.pos() - player.pos(role)):dir()
--- 			local pp = ball.pos() + Utils.Polar2Vector(50, idir)
--- 			local mexe, mpos = GoCmuRush { pos = pp, dir = idir, acc = 50, flag = 0x00000100 + 0x04000000, rec = 1, vel = v }
--- 			return { mexe, mpos }  
-			
--- 		end
-
--- 		-- NOTE: 这里两个if都不成立时没有写额外的操作，需要自行判断退出
--- 	end
-		
--- end
-
 function ShootdotV2(p, Kp, error_, flag)
 	return function()
 		local p1
@@ -416,33 +364,40 @@ function ShootdotV2(p, Kp, error_, flag)
 		return { mexe, mpos, flag, idir, error__, power(p, Kp), power(p, Kp), 0x00000000 }
 	end
 end
-
-function Shootdot(p, Kp, error_, flag)
-	--将球射向某一个点（会动态规划射门力度）
-	--p 目标点
-	--ifInter参数就填false
-	--Kp 力度系数
-	--error_ 误差
-	--flag:kick.chip or kick.flat By Umbrella 2022 07
-	return function()
+function Shootdot(role,p, Kp, error_, flagShoot) --
+	return function(runner)
 		local p1
 		if type(p) == 'function' then
 			p1 = p()
 		else
 			p1 = p
 		end
-
-		local ipos = p1 or pos.theirGoal()
-		local idir = function(runner)
-			return (ipos - player.pos(runner)):dir()
+		local shootpos = ball.pos() + Utils.Polar2Vector(-50, (p1 - ball.pos()):dir())
+		local idir = function()
+			return (p1 - player.pos(role)):dir()
 		end
 		local error__ = function()
 			return error_ * math.pi / 180.0
 		end
-		local mexe, mpos = Touch { pos = p, useInter = false }
-		return { mexe, mpos, flag, idir, error__, power(p, Kp), power(p, Kp), 0x00000000 }
+		local endvel = Utils.Polar2Vector(300,player.toBallDir(role))
+		-- local toballDir = math.abs(player.toBallDir(role))  * 57.3
+		local toballDir = math.abs((ball.rawPos() - player.rawPos(role)):dir() * 57.3)
+		local playerDir = math.abs(player.dir(role)) * 57.3
+		local Subdir = math.abs(toballDir-playerDir)
+		local iflag = bit:_or(flag.allow_dss, flag.dodge_ball)
+		if Subdir > 5 then 
+			local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
+			iflag =  DSS_FLAG
+			shootpos = ball.pos() + Utils.Polar2Vector(-300, (p1 - ball.pos()):dir())
+
+		else
+			iflag = flag.dribbling
+		end
+		local mexe, mpos = GoCmuRush { pos = shootpos, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
+		return { mexe, mpos, flagShoot, idir, error__, power(p, Kp), power(p, Kp), 0x00000000 }
 	end
 end
+
 
 function playerDirToPointDirSub(role, p) -- 检测 某座标点  球  playe 是否在一条直线上
 	if type(p) == 'function' then

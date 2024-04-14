@@ -1073,9 +1073,9 @@ namespace Utils
                    flag = 0;
                    continue;
                }
-               if(!isValidPass(pVision,player_pos,shootPos) || !isValidPass(pVision,ball_pos,new_local) || new_local.dist(Tick[now].ball.pos) < ballDist || InExclusionZone(new_local) ) continue;
+               if(!isValidPass(pVision,new_local,shootPos) || !isValidPass(pVision,ball_pos,new_local) || new_local.dist(Tick[now].ball.pos) < ballDist || InExclusionZone(new_local) ) continue;
                grade = GetAttackGrade(pVision,new_local.x(),new_local.y(),ball_pos,shootPos);
-//               GDebugEngine::Instance() ->gui_debug_msg(new_local,to_string( grade),1,0,80);
+               GDebugEngine::Instance() ->gui_debug_x(new_local);
                if (max_grade < grade)
                {
                     max_grade = grade;
@@ -1085,7 +1085,7 @@ namespace Utils
            }
        }
         GDebugEngine::Instance()->gui_debug_x(max_pos,3);
-        return CGeoPoint(0,0);
+        return max_pos;
     }
 
     /**
@@ -1124,6 +1124,7 @@ namespace Utils
         CGeoPoint ShootPoint(PARAM::Field::PITCH_LENGTH / 2, max_y);
         return ShootPoint;
     }
+
     CGeoPoint GetShootPoint(const CVisionModule *pVision, int num)
     {
         CGeoPoint player_pos = pVision->ourPlayer(num).Pos();
@@ -1137,7 +1138,7 @@ namespace Utils
         double max_grade = -inf;
         double max_y = -inf;
         double x1 = PARAM::Field::PITCH_LENGTH / 2 + PARAM::Field::GOAL_DEPTH / 2;
-        for (int y1 = -1 * PARAM::Field::GOAL_WIDTH * 0.4; y1 < PARAM::Field::GOAL_WIDTH * 0.4; y1 += 50)
+        for (int y1 = -1 * PARAM::Field::GOAL_WIDTH * 0.35; y1 < PARAM::Field::GOAL_WIDTH * 0.35; y1 += 50)
         {
             if (!isValidPass(pVision, CGeoPoint(x, y), CGeoPoint(PARAM::Field::PITCH_LENGTH / 2, y1), PARAM::Player::playerBuffer))
                 continue;
