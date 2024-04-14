@@ -465,7 +465,7 @@ firstState = "Init",
 	match = "{AKSTDG}"
 },
 
-name = "mytest",
+name = "OurNormalPlay",
 applicable ={
 	exp = "a",
 	a = true

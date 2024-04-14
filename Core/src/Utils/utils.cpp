@@ -306,7 +306,7 @@ namespace Utils
                 max_grade = grade;
                 max_grade_point = CGeoPoint(x,y);
             }
-            GDebugEngine::Instance() ->gui_debug_x(CGeoPoint(x,y));
+//            GDebugEngine::Instance() ->gui_debug_x(CGeoPoint(x,y));
 //            GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(x,y),to_string(grade),1,0,60);
         }
         GDebugEngine::Instance() ->gui_debug_arc(Tick[now].ball.first_dribbling_pos,1000,0,360,3);
@@ -686,11 +686,11 @@ namespace Utils
                 GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision->ourPlayer(i).Pos().x(), pVision->ourPlayer(i).Pos().y() - 160), "Number: " + to_string(Tick[now].task[i].player_num), 4, 0, 80);
                 GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision->ourPlayer(i).Pos().x(), pVision->ourPlayer(i).Pos().y() - 250), "shoot: " + to_string(Tick[now].task[i].confidence_shoot), 8, 0, 80);
                 GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision->ourPlayer(i).Pos().x(), pVision->ourPlayer(i).Pos().y() - 340), "Pass: " + to_string(Tick[now].task[i].confidence_pass), 2, 0, 80);
-                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision->ourPlayer(i).Pos().x(), pVision->ourPlayer(i).Pos().y() - 430), "Dribbling: " + to_string(Tick[now].task[i].confidence_dribbling), 1, 0, 80);
-                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision->ourPlayer(i).Pos().x(), pVision->ourPlayer(i).Pos().y() - 520), "Getball: " + to_string(Tick[now].task[i].confidence_getball), 5, 0, 80);
-                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision->ourPlayer(i).Pos().x(), pVision->ourPlayer(i).Pos().y() - 610), "Defene: " + to_string(Tick[now].task[i].confidence_defend), 6, 0, 80);
-                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision->ourPlayer(i).Pos().x(), pVision->ourPlayer(i).Pos().y() - 700), "Run: " + to_string(Tick[now].task[i].confidence_run), 7, 0, 80);
-                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision->ourPlayer(i).Pos().x(), pVision->ourPlayer(i).Pos().y() - 790), "Status: " + Tick[now].task[i].status, 3, 0, 80);
+//                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision->ourPlayer(i).Pos().x(), pVision->ourPlayer(i).Pos().y() - 430), "Dribbling: " + to_string(Tick[now].task[i].confidence_dribbling), 1, 0, 80);
+//                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision->ourPlayer(i).Pos().x(), pVision->ourPlayer(i).Pos().y() - 520), "Getball: " + to_string(Tick[now].task[i].confidence_getball), 5, 0, 80);
+//                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision->ourPlayer(i).Pos().x(), pVision->ourPlayer(i).Pos().y() - 610), "Defene: " + to_string(Tick[now].task[i].confidence_defend), 6, 0, 80);
+//                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision->ourPlayer(i).Pos().x(), pVision->ourPlayer(i).Pos().y() - 700), "Run: " + to_string(Tick[now].task[i].confidence_run), 7, 0, 80);
+                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision->ourPlayer(i).Pos().x(), pVision->ourPlayer(i).Pos().y() - 430), "Status: " + Tick[now].task[i].status, 3, 0, 80);
             }
         }
         return global_status;
@@ -917,7 +917,7 @@ namespace Utils
     {
         int LENGTH = (PARAM::Field::PITCH_LENGTH / 2) - 400;
         int WIDTH = (PARAM::Field::PITCH_WIDTH / 2) - 350;
-        int step = 500; // 230
+        int step = PARAM::Field::PITCH_LENGTH / 2 * 0.085; // 230
         double grade = 0;
         double max_grade = -inf;
         CGeoPoint max_grade_point = CGeoPoint(0, 0);
@@ -971,8 +971,8 @@ namespace Utils
     CGeoPoint GetAttackPos(const CVisionModule *pVision, int num)
     {
         // 圆的半径
-        int radius = 1800;
-        int step = 350;
+        int radius = 2000;
+        int step = 450;
         // 射门评分
         double shoot_grade;
         // 射门方向评分
