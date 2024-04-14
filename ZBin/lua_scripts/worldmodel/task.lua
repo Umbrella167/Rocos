@@ -445,9 +445,25 @@ end
 ------------------------------------ 跑位相关的skill ---------------------------------------
 --~ p为要走的点,d默认为射门朝向
 
+
 function goalie()
-	local mexe, mpos = Goalie()
-	return { mexe, mpos }
+	return function()
+		-- 找到需要盯防的人 --enemyNum
+		local closestBallEnemyNum = enemy.closestBall()
+		local enemyNum = closestBallEnemyNum
+		local ballDir = ball.velDir()
+		if enemy.toBallDist(closestBallEnemyNum) > 100 and enemy.atBallLine() ~= -1 then
+			enemyNum = enemy.atBallLine()
+		end
+		
+		local enemyPos = CGeoPoint:new_local(enemy.posX(enemyNum), enemy.posY(enemyNum)) 
+
+		debugEngine:gui_debug_msg(CGeoPoint(0, 0), enemyNum)
+		debugEngine:gui_debug_x(enemyPos)
+
+		local mexe, mpos = Goalie()
+		return { mexe, mpos }
+	end
 end
 
 function touch()
