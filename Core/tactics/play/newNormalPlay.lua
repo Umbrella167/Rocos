@@ -246,7 +246,7 @@ firstState = "Init",
         UpdataTickMessage(our_goalie_num,defend_num1,defend_num2)    -- 更新帧信息
         local State = getState()
         getState()
-        -- return State
+        return State
     end,
     Assister = gSubPlay.roleTask("ShootPoint", "Assister"),
     Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker"),_,DSS_FLAG),

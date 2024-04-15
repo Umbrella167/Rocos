@@ -21,6 +21,8 @@ module(..., package.seeall)
 powerShoot = 300
 powerTouch = 300
 shootPos = CGeoPoint(0,0)
+shootError = 3
+shootKp = 1.2
 ---------------------------------
 -- 旋转参数
 rotPos = CGeoPoint(150,120)
