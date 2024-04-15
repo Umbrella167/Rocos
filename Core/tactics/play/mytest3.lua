@@ -16,11 +16,12 @@ firstState = "Init",
 	-- Tier = task.stop(),
 	-- Defender = task.stop(),
 	Goalie = task.goalie("Goalie"),
-	match = "[A][KS]{TDG}"
+	match = "[G]"
 },
 ["run1"] = {
 	switch = function()
-		-- debugEngine:gui_debug_msg(CGeoPoint(0, 0), enemy.closestBall())
+		debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "testSubPlay")
+		debugEngine:gui_debug_msg(CGeoPoint(0, 0), enemy.closestBall())
 		-- debugEngine:gui_debug_msg(CGeoPoint(1000, 1300), enemy.atBallLine())
 		-- if bufcnt(true,20) then
 		-- return "run1"
@@ -31,8 +32,8 @@ firstState = "Init",
 	-- Special = task.stop(),
 	-- Tier = task.defender("Tier"),
 	-- Defender = task.defender("Defender"),
-	Goalie = task.goalie("Goalie"),
-	-- Goalie = task.goCmuRush(runPos, 0, nil, DSS_FLAG),
+	-- Goalie = task.goalie("Goalie"),
+	Goalie = task.goCmuRush(runPos, 0, nil, DSS_FLAG),
 	match = "[A][KS]{TDG}"
 },
 

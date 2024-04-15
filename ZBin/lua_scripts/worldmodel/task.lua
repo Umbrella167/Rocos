@@ -443,6 +443,8 @@ end
 -- flag 防守模式选择, 0在球射向球门时选择防守线(x=-param.pitchLength/2-param.playerRadius)上的点, 1在球射向球门使用bestinterpos的点
 function goalie(role, flag)
 	return function()
+		debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "testSubPlay")
+
 		if flag==nil then
 			flag = 1
 		end

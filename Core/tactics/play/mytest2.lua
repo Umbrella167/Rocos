@@ -21,6 +21,7 @@ return {
             if bufcnt(true,10) then 
                 if not subScript then
                     gSubPlay.new("testDefender", "mytest3")
+                    gSubPlay.new("kickTask", "TestPassAndKick")
                 end
                 return "run"
             end
@@ -37,7 +38,7 @@ return {
             --     print("printFileTable: ", key, value)
             -- end
         end,
-        -- b = gSubPlay.roleTask("kickTask", "Assister"),
+        b = gSubPlay.roleTask("kickTask", "Assister"),
         c = gSubPlay.roleTask("testDefender", "Goalie"),
         a = task.goCmuRush(runPos, 0, nil, DSS_FLAG),
         match = "(abc)"
