@@ -15,7 +15,7 @@
 
 ---[[
 gRefConfig = {
-    GameHalt = "GameHaltV1.lua",
+    GameHalt = "GameHaltV1",
     GameStop = "GameStopV1",
     OurTimeout = "",
     TheirIndirectKick = "",

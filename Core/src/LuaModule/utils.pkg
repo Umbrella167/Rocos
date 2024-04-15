@@ -26,7 +26,7 @@ namespace Utils{
 	//CGeoPoint GetInterPos(const CVisionModule *pVision, CGeoPoint player_pos,double velocity);
 	std::string GlobalComputingPos(const CVisionModule *pVision);
 	CGeoPoint GetAttackPos(const CVisionModule *pVision,int num);
-
+	bool isValidPass(const CVisionModule *pVision, CGeoPoint start, CGeoPoint end, double buffer);
 	// Defence
 	int closestPlayerToPlayer(const CVisionModule *pVision, int role, int type);
 	CGeoPoint closestPlayerToPoint(const CVisionModule *pVision, CGeoPoint pos, int type, int role = -1);

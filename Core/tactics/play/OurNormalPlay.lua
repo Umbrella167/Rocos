@@ -83,8 +83,6 @@ local function runPos(role,touch_pos_flag)
         return CGeoPoint:new_local(0,0)
     end
 end
-
-
 -- 校正返回的脚本
 correction_state = "Shoot"
 -- 角度误差常数
@@ -158,6 +156,9 @@ local UpdataTickMessage = function (defend_num1,defend_num2)
         status.getPlayerRunPos()    -- 获取跑位点
         touchPos = Utils.GetTouchPos(vision,CGeoPoint:new_local(player.posX(dribbling_player_num),player.posY(dribbling_player_num)),canTouchAngle)
     end
+    debugEngine:gui_debug_msg(CGeoPoint(0,3000),"ballVel:" .. ball.velMod())
+    debugEngine:gui_debug_msg(CGeoPoint(0,2400),"InfraredCount:" .. player.infraredCount("Assister"))
+    debugEngine:gui_debug_msg(CGeoPoint(0,2200),"Kick:" .. tostring(player.kickBall("Assister")))
     show_dribbling_pos = Utils.GetShowDribblingPos(vision,CGeoPoint(player.posX("Assister"),player.posY("Assister")),dribbling_target_pos);
     -- debugStatus()
 end
@@ -218,15 +219,15 @@ firstState = "Init",
 ["Shoot"] = {
     switch = function()
         UpdataTickMessage(defend_num1,defend_num2)
-        if(not player.infraredOn("Assister")) then
-            return "defendOtherState"
-        end
         if(task.playerDirToPointDirSub("Assister",shoot_pos) > error_dir and player.infraredCount("Assister") > 5) then 
             correction_pos = shoot_pos
             correction_state = "Shoot"
             return "Correction"
         end
         if(player.kickBall("Assister"))then 
+            return "GetGlobalMessage"
+        end
+        if(bufcnt(true,50))then 
             return "GetGlobalMessage"
         end
     end,
@@ -420,6 +421,7 @@ firstState = "Init",
 ["defendNormalState"] = {
     switch = function()
         UpdataTickMessage(defend_num1,defend_num2)
+
         if(player.infraredCount("Assister") > 5) then
             return "GetGlobalMessage"
         end
@@ -464,7 +466,7 @@ firstState = "Init",
     match = "{AKSTDG}"
 },
 
-name = "NormalPlayV1",
+name = "OurNormalPlay",
 applicable ={
     exp = "a",
     a = true

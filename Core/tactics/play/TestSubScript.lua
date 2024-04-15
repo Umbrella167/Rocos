@@ -19,7 +19,6 @@ return {
         subScript = true
         PLAY_NAME = name
     end,
-
     firstState = "init",
     ["init"] = {
         switch = function()

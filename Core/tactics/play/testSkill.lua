@@ -9,7 +9,7 @@ balldir = function ()
 end
 shoot_pos = CGeoPoint:new_local(4500,0)
 error_dir = 8
-KP = 0.01
+KP = 0.00000002
 defendPOs = function(role)
 	return function()
 		local posdefend = enemy.pos(role) + Utils.Polar2Vector(300,(ball.pos() - enemy.pos(role)):dir())
@@ -28,15 +28,15 @@ gPlayTable.CreatePlay{
 firstState = "ready1",
 ["ready1"] = {
 	switch = function()
-		Utils.UpdataTickMessage(vision,2,4,1)
+		Utils.UpdataTickMessage(vision,2,3,1)
 		Utils.GetAttackPos(vision,2 ,CGeoPoint(0,0),CGeoPoint(1000,2000),CGeoPoint(4000,-1900),350);
 		debugEngine:gui_debug_msg(CGeoPoint:new_local(0,0),player.toBallDist("Assister"))
 		if(player.infraredCount("Assister") > 5) then
-			-- return "shoot"
+			return "shoot"
 		end
 	end,
 	 -- = task.TurnRun("Assister"),
-	Assister = task.stop,--task.getball("Assister",4,1,CGeoPoint:new_local(0,0)),
+	Assister = task.getball("Assister",4,1,CGeoPoint:new_local(0,0)),
 	-- match = "[AKS]{TDG}"
 	match = "[A]"
 },
