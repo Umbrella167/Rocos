@@ -83,7 +83,8 @@ function getball(role, playerVel, inter_flag, target_point)
 				iflag = flag.dribbling
 			end
 			ipos = CGeoPoint:new_local(ipos:x(),ipos:y())
-			local endvel = Utils.Polar2Vector(300,player.toBallDir(role))
+			ipos = stabilizePoint(ipos)
+			local endvel = Utils.Polar2Vector(300,(ipos - player.pos(role)):dir())
 			local mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = iflag, rec = r, vel = endvel }
 				return { mexe, mpos }
 		else
@@ -105,19 +106,19 @@ function power(p, Kp) --根据目标点与球之间的距离求出合适的 击�
 			p1 = p
 		end
 		local res = Kp * (p1 - ball.pos()):mod()
-		if res > 310 then
-			res = 310
-		end
-		if res < 230 then
-			res = 230
-		end
-		-- if res > 6000 then
-		-- 	res = 6000
+		-- if res > 310 then
+		-- 	res = 310
 		-- end
-		-- if res < 3000 then
-		-- 	res = 3000
+		-- if res < 230 then
+		-- 	res = 230
 		-- end
-		debugEngine:gui_debug_msg(CGeoPoint:new_local(-4300,-2000),"Power" .. res,3)
+		if res > 6000 then
+			res = 6000
+		end
+		if res < 3500 then
+			res = 3500
+		end
+		debugEngine:gui_debug_msg(CGeoPoint:new_local(0,3200),"Power" .. res,3)
 		return res
 	end
 end
@@ -427,7 +428,7 @@ function playerDirToPointDirSub(role, p) -- 检测 某座标点  球  playe 是�
 	local playerDir = player.dir(role) * 57.3 + 180
 	local playerPointDit = (p1 - player.rawPos(role)):dir() * 57.3 + 180
 	local sub = math.abs(playerDir - playerPointDit)
-	debugEngine:gui_debug_msg(CGeoPoint:new_local(-1000, 0), sub)
+	debugEngine:gui_debug_msg(CGeoPoint:new_local(0, 2800),  "AngleError".. sub)
 	return sub
 end
 

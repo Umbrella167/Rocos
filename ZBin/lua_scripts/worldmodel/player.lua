@@ -272,7 +272,6 @@ end
 function infraredOn(role)
 	return world:IsInfraredOn(num(role))
 end
-
 function infraredCount(role)
 	return world:InfraredOnCount(num(role))
 end

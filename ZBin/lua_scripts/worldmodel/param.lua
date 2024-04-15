@@ -26,7 +26,8 @@ rotPos = CGeoPoint(150,120)
 rotVel = 5
 ---------------------------------
 -- getball参数
-playerVel = 3.5
+playerVel = 1 	
+-- [0[激进模式], 1[保守模式]]
 getballMode = 1
 ---------------------------------
 -- 固定匹配
@@ -34,18 +35,21 @@ defend_num1 = 1
 defend_num2 = 2
 our_goalie_num = 0
 ---------------------------------
-
+-- lua 两点间有无敌人阈值
+enemy_buffer = 150
+---------------------------------
 INF = 1e9
 PI = 3.141592653589793238462643383279
 maxPlayer   = 16
-pitchLength = 12000
-pitchWidth  = 9000
-goalWidth = 1000
-goalDepth = 200
+
+pitchLength = CGetSettings("field/width","Int")
+pitchWidth  = CGetSettings("field/height","Int")
+goalWidth = CGetSettings("field/goalWidth","Int")
+goalDepth = CGetSettings("field/goalDepth","Int")
 freeKickAvoidBallDist = 500
 playerRadius	= 90
-penaltyWidth    = 3600
-penaltyDepth	= 1800
+penaltyWidth    = CGetSettings("field/penaltyLength","Int")
+penaltyDepth	= CGetSettings("field/penaltyWidth","Int")
 penaltyRadius	= 1000
 penaltySegment	= 500
 playerFrontToCenter = 76

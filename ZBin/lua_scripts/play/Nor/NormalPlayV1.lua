@@ -247,7 +247,6 @@ firstState = "Init",
         if(bufcnt(true,100))then 
             return "GetGlobalMessage"
         end
-
         if(GlobalMessage.Tick.ball.rights == -1)then 
             return "GetGlobalMessage"
         end
