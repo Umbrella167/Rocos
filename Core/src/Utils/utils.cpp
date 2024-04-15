@@ -1404,11 +1404,39 @@ namespace Utils
         }
     }
 
+    /**
+     * 判断是否在场地内
+     * @brief InField
+     * @param Point
+     * @return
+     */
     bool InField(CGeoPoint Point)
     {
         double x = Point.x();
         double y = Point.y();
         if ((x > (-1 * PARAM::Field::PITCH_LENGTH / 2) && x < (PARAM::Field::PITCH_LENGTH / 2)) &&
+            (y > -1 * PARAM::Field::PITCH_WIDTH / 2 && y < PARAM::Field::PITCH_WIDTH / 2))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    /**
+     * 判断球是否在我方半场
+     * @brief InOurField
+     * @param Point
+     * @param buffer
+     * @return
+     */
+    bool InOurField(CGeoPoint Point)
+    {
+        double x = Point.x();
+        double y = Point.y();
+        if ((x > (-1 * PARAM::Field::PITCH_LENGTH / 2) && x < 0) &&
             (y > -1 * PARAM::Field::PITCH_WIDTH / 2 && y < PARAM::Field::PITCH_WIDTH / 2))
         {
             return true;

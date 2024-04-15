@@ -16,7 +16,9 @@ namespace Utils{
 	CGeoPoint GetBallMaxPos(const CVisionModule *pVision);
 	bool InExclusionZone(CGeoPoint Point, double buffer = 0);
 	bool InField(CGeoPoint Point);
+	bool InOurField(CGeoPoint Point);
 	
+
 	int getInitData(const CVisionModule *pVision, int flag=1);
 
 	CGeoPoint GetShootPoint(const CVisionModule *pVision, int num);
