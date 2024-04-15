@@ -29,20 +29,6 @@ namespace Utils
     // 没写完 START
 
     /**
-     * 用于稳定输出点
-     * @brief stabilizePoint
-     * @param p
-     * @return
-     */
-    CGeoPoint stabilizePoint(CGeoPoint p){
-        if(lastMovePoint.dist(p) < 1000){
-            return lastMovePoint;
-        }
-        lastMovePoint = p;
-        return p;
-    }
-
-    /**
      * 计算全局位置
      * @param  {CVisionModule*} pVision : 视觉模块
      * @param  {CGeoPoint} p            : 位置

@@ -1,47 +1,53 @@
+local start_pos = CGeoPoint(0,0)
+local dist = 1000
+local rotateSpeed = 1 -- rad/s
 
+local runPos = function()
+    local angle = rotateSpeed * vision:getCycle() / param.frameRate
+    return start_pos + Utils.Polar2Vector(dist, angle)
+end
+local subScript = false
+local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
+
+local PLAY_NAME = ""
 return {
 
-firstState = "Init",
+    __init__ = function(name, args)
+        print("in __init__ func : ",name, args)
+    end,
+    firstState = "init",
+    ["init"] = {
+        switch = function()
+            if bufcnt(true,10) then 
+                if not subScript then
+                    gSubPlay.new("testDefender", "mytest3")
+                end
+                return "run"
+            end
+        end,
+        Assister = task.stop(),
+        Leader = task.stop(),
+        Goalie = task.stop(),
+        match = "[LAG]"
+    },
+    ["run"] = {
+        switch = function()
+            -- print("markdebug : ",gSubPlayFiles)
+            -- for key, value in pairs(gSubPlayFiles) do
+            --     print("printFileTable: ", key, value)
+            -- end
+        end,
+        -- b = gSubPlay.roleTask("kickTask", "Assister"),
+        c = gSubPlay.roleTask("testDefender", "Goalie"),
+        a = task.goCmuRush(runPos, 0, nil, DSS_FLAG),
+        match = "(abc)"
+    },
 
-["Init"] = {
-	switch = function()
-		-- debugEngine:gui_debug_msg(CGeoPoint(0, 0), enemy.closestBall())
-		-- debugEngine:gui_debug_msg(CGeoPoint(1000, 1300), enemy.atBallLine())
-		-- if bufcnt(true,20) then
-		return "run1"
-		-- end 
-	end,
-	-- Assister = task.stop(),
-	-- Kicker = task.stop(),
-	-- Special = task.stop(),
-	Tier = task.stop(),
-	Defender = task.stop(),
-	Goalie = task.goalie("Goalie"),
-	match = "[A][KS]{TDG}"
-},
-["run1"] = {
-	switch = function()
-		-- debugEngine:gui_debug_msg(CGeoPoint(0, 0), enemy.closestBall())
-		-- debugEngine:gui_debug_msg(CGeoPoint(1000, 1300), enemy.atBallLine())
-		-- if bufcnt(true,20) then
-		-- return "run1"
-		-- end 
-	end,
-	-- Assister = task.stop(),
-	-- Kicker = task.stop(),
-	-- Special = task.stop(),
-	Tier = task.defender("Tier"),
-	Defender = task.defender("Defender"),
-	-- Goalie = task.goalie("Goalie"),
-	Goalie = task.goCmuRush(runPos, 0, nil, DSS_FLAG),
-	match = "[A][KS]{TDG}"
-},
-
-name = "mytest2",
-applicable ={
-	exp = "a",
-	a = true
-},
-attribute = "attack",
-timeout = 99999
+    name = "mytest2",
+    applicable = {
+        exp = "a",
+        a = true
+    },
+    attribute = "attack",
+    timeout = 99999
 }
