@@ -21,50 +21,40 @@ firstState = "ready1",
 
 ["ready1"] = {
 	switch = function()
+		print("in ready1!!!!!!!!!!!!!")
+		debugEngine:gui_debug_msg(CGeoPoint(-5000,3000),player.infraredCount("Assister"))
 		if(player.infraredCount("Assister") > 5) then
 			return "shoot"
 		end
 	end,
 	Assister = task.getball("Assister",param.playerVel,param.getballMode,CGeoPoint:new_local(0,0)),
-	-- match = "[AKS]{TDG}"
 	match = "[A]"
 },
 
 ["shoot"] = {
 	switch = function()
-		if(not bufcnt(player.infraredOn("Assister"),1)) then
-			return "ready1"
-		end
+		-- if(not bufcnt(player.infraredOn("Assister"),1)) then
+		-- 	return "ready1"
+		-- end
+		print("in shoot!!!!!!!!!!!!!")
 		if(task.playerDirToPointDirSub("Assister",shoot_pos) < 4) then 
 			return "shoot1"
 		end
 	end,
 	Assister = task.TurnToPointV2("Assister", shoot_pos,param.rotVel),
-	match = "[A]"
+	match = "{A}"
 },
 
 ["shoot1"] = {
 	switch = function()
-if(not bufcnt(player.infraredOn("Assister"),1)) then
+		if(not bufcnt(player.infraredOn("Assister"),1)) then
 			return "ready1"
 		end
 	end,
 	Assister = task.ShootdotV2(shoot_pos,10,8,kick.flat),
-	match = "[A]"
+	match = "{A}"
 },
-["dribbling"] = {
-	switch = function()
-		Utils.UpdataTickMessage(vision,1,2)
-		run_pos = Utils.GetShowDribblingPos(vision,CGeoPoint:new_local(player.pos("Assister"):x(),player.pos("Assister"):y()),CGeoPoint(0,0))
 
-		if(bufcnt(true,35)) then 
-			return "ready"
-		end
-	end,
-	Assister = task.goCmuRush(runPos(),balldir(),800,flag.dribbling),
-
-	match = "[AKS]{TDG}"
-},
 
 
 name = "shootPoint",

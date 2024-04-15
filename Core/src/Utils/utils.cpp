@@ -964,7 +964,7 @@ namespace Utils
 
         //        GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(-2500,2000),to_string(shootdir) + "   " + to_string(passdir) + "   " + to_string(dir));
         GDebugEngine::Instance()->gui_debug_x(max_grade_point, 3);
-        GDebugEngine::Instance()->gui_debug_x(max_shoot_point, 3);
+//        GDebugEngine::Instance()->gui_debug_x(max_shoot_point, 3);
         return max_grade_point;
     }
 

@@ -28,15 +28,15 @@ gPlayTable.CreatePlay{
 firstState = "ready1",
 ["ready1"] = {
 	switch = function()
-		Utils.UpdataTickMessage(vision,2,3,1)
-		Utils.GetAttackPos(vision,2 ,CGeoPoint(0,0),CGeoPoint(1000,2000),CGeoPoint(4000,-1900),350);
-		debugEngine:gui_debug_msg(CGeoPoint:new_local(0,0),player.toBallDist("Assister"))
-		if(player.infraredCount("Assister") > 5) then
-			return "shoot"
-		end
+		-- Utils.UpdataTickMessage(vision,2,3,1)
+		-- Utils.GetAttackPos(vision,2 ,CGeoPoint(0,0),CGeoPoint(1000,2000),CGeoPoint(4000,-1900),350);
+		debugEngine:gui_debug_msg(CGeoPoint:new_local(0,0),task.dirSub(player.dir("Assister"),ball.velDir()))
+		-- if(player.infraredCount("Assister") > 5) then
+		-- 	return "shoot"
+		-- end
 	end,
 	 -- = task.TurnRun("Assister"),
-	Assister = task.getball("Assister",4,1,CGeoPoint:new_local(0,0)),
+	Assister = task.stop,--task.getball("Assister",4,1,CGeoPoint:new_local(0,0)),
 	-- match = "[AKS]{TDG}"
 	match = "[A]"
 },

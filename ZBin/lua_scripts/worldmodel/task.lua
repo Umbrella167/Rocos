@@ -6,22 +6,6 @@ module(..., package.seeall)
 
 --- ///  /// --- /// /// --- /// /// --- /// /// --- /// /// ---
 
--- dribbling_player_num = 1
--- ballRights = -1
--- shoot_pos = CGeoPoint:new_local(0,0)
--- function UpdataTickMessage(defend_num1,defend_num2)
--- 	GlobalMessage.Tick = Utils.UpdataTickMessage(vision,defend_num1,defend_num2)
--- 	dribbling_player_num = GlobalMessage.Tick.our.dribbling_num
--- 	ball_rights = GlobalMessage.Tick.ball.rights
--- 	if ball_rights == 1 then
--- 		shoot_pos = GlobalMessage.Tick.task[dribbling_player_num].shoot_pos
--- 		shoot_pos = CGeoPoint(shoot_pos:x(),shoot_pos:y())
--- 	end
--- end
--- function getShootPos()
--- 	return shoot_pos
--- end
-
 -- 解决截球算点抖动问题
 lastMovePoint = CGeoPoint:new_local(param.INF, param.INF)
 function stabilizePoint(p)
@@ -41,6 +25,16 @@ function endVelController(role, p)
 	return endvel
 end
 
+-- function angleSub(angle1,angle2,dir)
+-- 	-- angle1 :dir1
+-- 	-- angle2 :dir2
+-- 	-- dir    :[0,1]  0：同向计算 1：反向计算 
+-- 	local dir_ = dir:0
+-- 	local dir1 = math.abs(dir1) * 57.3
+-- 	local dir2 = math.abs(dir2) * 57.3
+-- 	local dirsub = math.abs(180 - dir2 - dir1)
+-- 	return dirsub
+-- end
 
 function TurnRun(pos,vel)
 	local ipos = pos or  CGeoPoint:new_local(0,80)  --自身相对坐标 旋转
@@ -97,6 +91,56 @@ function getball(role, playerVel, inter_flag, target_point)
 	end
 end
 
+
+
+function getballV2(role, playerVel, inter_flag, target_point)
+	return function()
+		local p1
+		if type(target_point) == 'function' then
+			p1 = target_point()
+		else
+			p1 = target_point
+		end
+		if player.infraredCount(role) < 5 then
+			local qflag = inter_flag or 0
+			local playerPos = CGeoPoint:new_local( player.pos(role):x(),player.pos(role):y())
+			local inter_pos = stabilizePoint(Utils.GetBestInterPos(vision,playerPos,playerVel,qflag))
+			
+			local idir = player.toBallDir(role)
+			local ipos = ball.pos()
+			if inter_pos:x()  ==  param.INF or inter_pos:y()  == param.INF then
+				ipos = ball.pos()
+			else
+				ipos = inter_pos
+			end
+			
+			-- local toballDir = math.abs(player.toBallDir(role))  * 57.3
+			local toballDir = math.abs((ball.rawPos() - player.rawPos(role)):dir() * 57.3)
+			local playerDir = math.abs(player.dir(role)) * 57.3
+			local Subdir = math.abs(toballDir-playerDir)
+			local iflag = bit:_or(flag.allow_dss, flag.dodge_ball)
+			if Subdir > 20 then 
+				  --自身相对坐标 旋转
+				
+				local mexe, mpos = CircleRun {pos = CGeoPoint:new_local(0,80) , vel = 5}
+				return { mexe, mpos }
+			else
+				iflag = flag.dribbling
+			end
+			ipos = CGeoPoint:new_local(ipos:x(),ipos:y())
+			ipos = stabilizePoint(ipos)
+			local endvel = Utils.Polar2Vector(300,(ipos - player.pos(role)):dir())
+			local mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = iflag, rec = r, vel = endvel }
+				return { mexe, mpos }
+		else
+			local idir = (p1 - player.pos(role)):dir()
+			local pp = player.pos(role) + Utils.Polar2Vector(0 + 10, idir)
+			local iflag = flag.dribbling
+			local mexe, mpos = GoCmuRush { pos = pp, dir = idir, acc = 50, flag = iflag, rec = 1, vel = v }
+			return { mexe, mpos }
+		end
+	end
+end
 function power(p, Kp) --根据目标点与球之间的距离求出合适的 击球力度 kp系数需要调节   By Umbrella 2022 06
 	return function()
 		local p1
@@ -169,76 +213,6 @@ function GetBallV2(role, p, dist1, speed1) -------dist开始减速的距离   sp
 	end
 end
 
-function Getballv4(role, p)
-	--参数说明
-	--role   使用这个函数的角色
-	--p	     等待位置
-	return function()
-		local p1 = p
-		if type(p) == 'function' then
-			p1 = p()
-		else
-			p1 = p
-		end
-		if ball.velMod() > 1000 then
-			local ball_line = CGeoLine:new_local(ball.pos(), ball.velDir())
-			local target_pos = ball_line:projection(player.pos(role))
-			local mexe, mpos = GoCmuRush { pos = target_pos, dir = (ball.pos() - player.pos(role)):dir(), acc = a, flag = 0x00000100, rec = r, vel = v }
-			return { mexe, mpos }
-			-- elseif ball.velMod() > 2000 and ball.velMod() < 2000  and (ball.pos() - player.pos(role)):mod() > 150 then
-			-- 	local mexe, mpos = GoCmuRush{pos = ball.pos() + Utils.Polar2Vector(100,(player.pos(role) - ball.pos()):dir()), dir = (ball.pos() - player.pos(role)):dir(), acc = a, flag = 0x00000100,rec = r,vel = v}
-			-- 	return {mexe, mpos}
-		else
-			local mexe, mpos = GoCmuRush { pos = p1, dir = (ball.pos() - player.pos(role)):dir(), acc = 1300, flag = 0x00000100, rec = r, vel = v }
-			return { mexe, mpos }
-		end
-	end
-end
-
-
-function GetBallV5(role, p, target)
---参数说明
---role  	  使用这个函数的角色
---p      	  拿到球后跑去目标点
---target      朝向的点
-    return function()
-        local minDist = 9999999
-        local ballspeed = 800
-
-        if type(p) == 'function' then
-            p = p()
-        end
-        if type(target) == 'function' then
-            target = target()
-        end
-        if(player.infraredCount(role) < 20) then 
-        	-- 拿球
-            local idir = (ball.pos() - player.pos(role)):dir()
-            local pp = ball.pos() + Utils.Polar2Vector(10,idir)
-            if ball.velMod() > ballspeed and minDist > 180 then
-                pp = ball.pos() + Utils.Polar2Vector(350,idir)
-            end
-            local mexe, mpos = GoCmuRush{pos = pp, dir = idir, acc = a, flag = 0x00000100,rec = r,vel = v}
-            return {mexe, mpos}
-        else
-
-        	if player.toPointDist(role, p) > 10 then
-        	 	-- 拿到球后跑点
-	            local idir = (ball.pos() - player.pos(role)):dir()
-	            local pp = p
-	            local mexe, mpos = GoCmuRush{pos = pp, dir = idir, acc = a, flag = 0x00000100,rec = r,vel = v}
-            	return {mexe, mpos}
-        	else
-        		-- 到点后指向
-        		local idir = (target - player.pos(role)):dir()
-	            local pp = p
-	            local mexe, mpos = GoCmuRush{pos = pp, dir = idir, acc = a, flag = 0x00000100,rec = r,vel = v}
-	            return {mexe, mpos}
-        	end
-
-        end
-    end
-end
 
 function TurnToPoint(role, p, speed)
 	--参数说明
