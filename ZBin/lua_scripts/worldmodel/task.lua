@@ -6,6 +6,8 @@ module(..., package.seeall)
 
 --- ///  /// --- /// /// --- /// /// --- /// /// --- /// /// ---
 
+
+
 -- 解决截球算点抖动问题
 lastMovePoint = CGeoPoint:new_local(param.INF, param.INF)
 function stabilizePoint(p)
@@ -287,7 +289,7 @@ function TurnToPointV2(role, p, speed)
 	-- role 	 使用这个函数的角色
 	-- p	     指向坐标
 	-- speed	 旋转速度
-	return function()
+
 		local p1 = p
 		if type(p) == 'function' then
 			p1 = p()
@@ -332,7 +334,6 @@ function TurnToPointV2(role, p, speed)
 		end
 
 		-- NOTE: 这里两个if都不成立时没有写额外的操作，需要自行判断退出
-	end
 end
 
 function ShootdotV2(p, Kp, error_, flag)
@@ -402,7 +403,7 @@ function playerDirToPointDirSub(role, p) -- 检测 某座标点  球  playe 是�
 	local playerDir = player.dir(role) * 57.3 + 180
 	local playerPointDit = (p1 - player.rawPos(role)):dir() * 57.3 + 180
 	local sub = math.abs(playerDir - playerPointDit)
-	debugEngine:gui_debug_msg(CGeoPoint:new_local(0, 2800),  "AngleError".. sub)
+	debugEngine:gui_debug_msg(CGeoPoint:new_local(0, -4000),  "AngleError".. sub)
 	return sub
 end
 

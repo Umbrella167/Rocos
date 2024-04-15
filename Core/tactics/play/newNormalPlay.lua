@@ -69,7 +69,7 @@ dribbling_player_num = 1
 -- 球权初始化
 ballRights = -1
 -- 射门坐标初始化
-shoot_pos = CGeoPoint:new_local(4500,0)
+local shoot_pos = CGeoPoint:new_local(4500,0)
 -- touch power
 touchPower = 4000
 -- 守门员号码
@@ -151,6 +151,8 @@ local UpdataTickMessage = function (our_goalie_num,defend_num1,defend_num2)
         dribbling_target_pos = shoot_pos
         dribblingStatus = status.getPlayerStatus(dribbling_player_num)  -- 获取带球机器人状态
         shoot_pos = dribblingStatus == "Shoot" and shoot_pos or pass_pos
+        param.shootPos = shoot_pos
+        debugEngine:gui_debug_msg(CGeoPoint(-1000,1200),param.shootPos:x() ..  "    " ..  param.shootPos:y())
         status.getPlayerRunPos()    -- 获取跑位点
         touchPos = Utils.GetTouchPos(vision,CGeoPoint:new_local(player.posX(dribbling_player_num),player.posY(dribbling_player_num)),canTouchAngle)
     end
@@ -198,19 +200,16 @@ return {
 
     __init__ = function(name, args)
         print("in __init__ func : ",name, args)
-        start_pos = args.pos or CGeoPoint(0,0)
-        dist = args.dist or 1000
-        subScript = true
-        PLAY_NAME = name
+
     end,
 firstState = "Init",
 ["Init"] = {
     switch = function()
         if bufcnt(true,30) then 
             if not subScript then
-                gSubPlay.new("ShootPoint", "shootPoint")
+                gSubPlay.new("ShootPoint", "shootPoint",{pos = function() return shoot_pos end})
             end
-                return "GetGlobalMessage"
+            return "GetGlobalMessage"
         end
     end,
     Assister = task.stop(),
@@ -243,6 +242,7 @@ firstState = "Init",
 -- 射球
 ["ShootPoint"] = {
     switch = function()
+
         UpdataTickMessage(our_goalie_num,defend_num1,defend_num2)    -- 更新帧信息
         local State = getState()
         getState()

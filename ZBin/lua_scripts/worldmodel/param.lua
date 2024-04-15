@@ -20,10 +20,11 @@ module(..., package.seeall)
 -- 射击力度
 powerShoot = 300
 powerTouch = 300
+shootPos = CGeoPoint(0,0)
 ---------------------------------
 -- 旋转参数
 rotPos = CGeoPoint(150,120)
-rotVel = 5
+rotVel = 3.8
 ---------------------------------
 -- getball参数
 playerVel = 1 	
