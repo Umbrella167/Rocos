@@ -15,7 +15,7 @@ firstState = "ready1",
 	switch = function()
 	end,
 
-	Assister = task.TurnRun(CGeoPoint(0,0),100),
+	Assister = task.TurnRun( CGeoPoint(150,120),5),
 	match = "[A]"
 },
 

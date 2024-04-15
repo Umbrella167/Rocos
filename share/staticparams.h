@@ -46,14 +46,14 @@ namespace PARAM {
         const double GOAL_WIDTH = 1000;
         const double GOAL_DEPTH = 200;
         const double RATIO = 1.5;
-//        const double V_DECAY_RATE = 600;
-        const double V_DECAY_RATE = 2000;
+        const double V_DECAY_RATE = 600;
+//        const double V_DECAY_RATE = 2000;
     }
     namespace Player {
         const int playerFrontToCenter = 76; // 机器人圆心到嘴的距离
         const int playerRadiusr = 90; // 机器人半径
         const int playerBuffer = 120; // 检测敌人是否在某直线上的缓冲值
-        const double playerBallRightsBuffer = 115; // 球权判断缓冲值
+        const double playerBallRightsBuffer = 100; // 球权判断缓冲值
         const int playerTouchAngle = 60;
         const int playerVel = 4;  // bestinterpos 玩家最大速度
     }

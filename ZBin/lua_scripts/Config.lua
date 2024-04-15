@@ -18,8 +18,8 @@ gStateFileNameString = string.format(os.date("%Y%m%d%H%M"))
 gTestPlay = CGetSettings("ZAlert/" .. team .. "_TestScriptName", "String")
 
 gRoleFixNum = {
-        ["Goalie"]   = { 0 },
-        ["Defender"] = { 1 },
+        ["Goalie"]   = { 5 },
+        ["Defender"] = { 11 },
         ["Tier"]     = { 2 },
 }
 

@@ -88,7 +88,7 @@ end
 -- 校正返回的脚本
 correction_state = "Shoot"
 -- 角度误差常数
-error_dir = 2
+error_dir = 3
 -- 校正坐标初始化
 correction_pos = CGeoPoint:new_local(0,0)
 -- 带球车初始化
@@ -100,14 +100,14 @@ shoot_pos = CGeoPoint:new_local(4500,0)
 -- 被传球机器人
 pass_player_num = 0
 -- touch power
-touchPower = 4000
+touchPower = 300
 -- 守门员号码
-our_goalie_num =0
+our_goalie_num =5
 -- 后卫号码
-defend_num1 = 1
+defend_num1 = 11
 defend_num2 = 2
 -- 射门Kp
-shootKp = 1.5
+shootKp = 0.12
 -- Touch pos
 touchPos = CGeoPoint:new_local(0,0)
 -- Touch 角度
@@ -118,7 +118,7 @@ pass_pos = CGeoPoint:new_local(4500,-999)
 playerVel = 4
 getballMode = 1
 -- 带球速度
-dribblingVel = 2000
+dribblingVel = 800
 
 -- dribblingPos 带球目标坐标
 dribbling_target_pos = CGeoPoint:new_local(0,0)
@@ -363,7 +363,7 @@ firstState = "Init",
 		if(player.toBallDist("Special") < 100) then 
 			return "GetGlobalMessage"
 		end
-		if (bufcnt(true,100)) then
+		if (bufcnt(true,130)) then
 			return "GetGlobalMessage"
 		end
 	end,
@@ -442,16 +442,14 @@ firstState = "Init",
 ["Correction"] = {
 	switch = function()
 		UpdataTickMessage(defend_num1,defend_num2)
-        if(task.playerDirToPointDirSub("Assister",correction_pos) < error_dir and (GlobalMessage.Tick.ball.rights ~= 0 or GlobalMessage.Tick.ball.rights ~= 1)) then 
+        if(task.playerDirToPointDirSub("Assister",correction_pos) < error_dir and (GlobalMessage.Tick.ball.rights ~= 0)) then 
             return correction_state
         end
         local ballposlocal = CGeoPoint(ball.posX(),ball.posY())
         if (Utils.InExclusionZone(ballposlocal) or not Utils.InField(ballposlocal)) then
         	return "Dribbling"
         end
-        if (GlobalMessage.Tick.ball.rights ~= 1) then
-        	return "GetGlobalMessage"
-        end
+
         if (bufcnt(true,40)) then
             return "GetGlobalMessage"
         end

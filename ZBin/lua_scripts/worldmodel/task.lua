@@ -105,18 +105,18 @@ function power(p, Kp) --根据目标点与球之间的距离求出合适的 击�
 			p1 = p
 		end
 		local res = Kp * (p1 - ball.pos()):mod()
-		-- if res > 310 then
-		-- 	res = 310
-		-- end
-		-- if res < 230 then
-		-- 	res = 230
-		-- end
-		if res > 6000 then
-			res = 6000
+		if res > 310 then
+			res = 310
 		end
-		if res < 3000 then
-			res = 3000
+		if res < 230 then
+			res = 230
 		end
+		-- if res > 6000 then
+		-- 	res = 6000
+		-- end
+		-- if res < 3000 then
+		-- 	res = 3000
+		-- end
 		debugEngine:gui_debug_msg(CGeoPoint:new_local(-4300,-2000),"Power" .. res,3)
 		return res
 	end
@@ -470,7 +470,7 @@ function goalie(role, flag)
 		if flag==nil then
 			flag = 1
 		end
-		local goalRadius = param.penaltyRadius/2
+		local goalRadius = param.penaltyRadius
 		-- 禁区半径
 		local penaltyRadius = param.penaltyWidth/2
 		local goalPos = CGeoPoint:new_local(-param.pitchLength/2, 0) 

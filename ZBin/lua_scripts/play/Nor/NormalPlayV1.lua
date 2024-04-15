@@ -206,10 +206,10 @@ firstState = "Init",
         debugStatus()
     end,
     Assister = task.getball("Assister",playerVel,playerMod,ballPos()),
-    --Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker"),_,DSS_FLAG),
-    --Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special"),_,DSS_FLAG),
-    Tier = task.stop(),
-    Defender = task.stop(),
+    Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker"),_,DSS_FLAG),
+    Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special"),_,DSS_FLAG),
+    -- Tier = task.stop(),
+    -- Defender = task.stop(),
     Goalie = task.goalie("Goalie"),
     match = "[A][KS]{TDG}"
 },
@@ -221,7 +221,7 @@ firstState = "Init",
         if(not player.infraredOn("Assister")) then
             return "defendOtherState"
         end
-        if(task.playerDirToPointDirSub("Assister",shoot_pos) > error_dir) then 
+        if(task.playerDirToPointDirSub("Assister",shoot_pos) > error_dir and player.infraredCount("Assister") > 5) then 
             correction_pos = shoot_pos
             correction_state = "Shoot"
             return "Correction"
@@ -236,7 +236,7 @@ firstState = "Init",
     Tier = task.stop(),
     Defender = task.stop(),
     Goalie = task.goalie("Goalie"),
-    match = "(AKS){TDG}"
+    match = "{AKSTDG}"
 },
 
 
@@ -302,7 +302,7 @@ firstState = "Init",
         end-- [0,1,2]
 
         -- 如果角度不正确 那么传入校正脚本
-        if(task.playerDirToPointDirSub("Assister",shoot_pos) > error_dir and (GlobalMessage.Tick.ball.rights == 2 or GlobalMessage.Tick.ball.rights == 1)) then 
+        if(player.infraredCount("Assister") > 5 and task.playerDirToPointDirSub("Assister",shoot_pos) > error_dir and (GlobalMessage.Tick.ball.rights == 2 or GlobalMessage.Tick.ball.rights == 1)) then 
             correction_pos = pass_pos
             correction_state = "passToPlayer"
             debugEngine:gui_debug_msg(CGeoPoint:new_local(-4500,-3000),correction_state)
@@ -400,7 +400,7 @@ firstState = "Init",
 ["defendOtherState"] = {
     switch = function()
         UpdataTickMessage(defend_num1,defend_num2)
-        if(player.infraredOn("Assister")) then
+        if(player.infraredCount("Assister") > 5) then
             return "GetGlobalMessage"
         end
         if (bufcnt(true,50)) then
@@ -421,7 +421,7 @@ firstState = "Init",
 ["defendNormalState"] = {
     switch = function()
         UpdataTickMessage(defend_num1,defend_num2)
-        if(player.infraredOn("Assister")) then
+        if(player.infraredCount("Assister") > 5) then
             return "GetGlobalMessage"
         end
         if (bufcnt(true,50)) then
@@ -442,16 +442,16 @@ firstState = "Init",
 ["Correction"] = {
     switch = function()
         UpdataTickMessage(defend_num1,defend_num2)
-        if(task.playerDirToPointDirSub("Assister",correction_pos) < error_dir and (GlobalMessage.Tick.ball.rights ~= 0 or GlobalMessage.Tick.ball.rights ~= 1)) then 
+
+        -- 问题： 会与上一个脚本（射门、传球）反复跳
+        if(task.playerDirToPointDirSub("Assister",correction_pos) < error_dir and GlobalMessage.Tick.ball.rights == 1) then 
             return correction_state
         end
         local ballposlocal = CGeoPoint(ball.posX(),ball.posY())
         if (Utils.InExclusionZone(ballposlocal) or not Utils.InField(ballposlocal)) then
             return "Dribbling"
         end
-        if (GlobalMessage.Tick.ball.rights ~= 1) then
-            return "GetGlobalMessage"
-        end
+
         if (bufcnt(true,40)) then
             return "GetGlobalMessage"
         end
