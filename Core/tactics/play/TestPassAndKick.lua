@@ -21,7 +21,7 @@ firstState = "init",
             return "shoot"
         end
 	end,
-	Leader = task.touchKick(waitPos,false,2500,mode),
+	Leader = task.touchKick(waitPos, false, 2500, mode),
     Assister = task.goCmuRush(waitPos2),
 	match = "{LA}"
 },
