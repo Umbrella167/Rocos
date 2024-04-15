@@ -21,6 +21,13 @@ local shootPosFun = function()
 		return param.shootPos
 	end
 end
+local debugMesg = function ()
+		debugEngine:gui_debug_msg(CGeoPoint(-1000,1000),shootPosFun():x() .. "   "  .. shootPosFun():y(),3)
+		debugEngine:gui_debug_line(player.pos("Assister"),player.pos("Assister") + Utils.Polar2Vector(9999,player.dir("Assister") + param.shootError / 57.3))
+		debugEngine:gui_debug_line(player.pos("Assister"),player.pos("Assister") + Utils.Polar2Vector(9999,player.dir("Assister") - param.shootError / 57.3))
+end
+
+local shoot_kp = param.shootKP
 
 return {
 
@@ -34,8 +41,9 @@ firstState = "ready1",
 
 ["ready1"] = {
 	switch = function()
-		debugEngine:gui_debug_msg(CGeoPoint(-1000,1000),shootPosFun():x() .. "   "  .. shootPosFun():y(),3)
+		debugMesg()
 		shoot_pos = shootPosFun()
+
 		if(player.infraredCount("Assister") > 5) then
 			return "shoot"
 		end
@@ -49,23 +57,28 @@ firstState = "ready1",
 		-- if(not bufcnt(player.infraredOn("Assister"),1)) then
 		-- 	return "ready1"
 		-- end
-		debugEngine:gui_debug_msg(CGeoPoint(-1000,1000),shootPosFun():x() .. "   "  .. shootPosFun():y(),3)
-		if(task.playerDirToPointDirSub("Assister",shootPosFun()) < 8) then 
+		debugMesg()
+		if shootPosFun():x() == param.pitchLength / 2 then
+			shoot_kp = 10000
+		else
+			shoot_kp = param.shootKP
+		end
+		if(task.playerDirToPointDirSub("Assister",shootPosFun()) < param.shootError) then 
 			return "shoot1"
 		end
 	end,
-	Assister = task.TurnToPointV2("Assister", function() return param.shootPos end,param.rotVel),
+	Assister = function() return task.TurnToPointV2("Assister", function() return param.shootPos end,param.rotVel) end,
 	match = "{A}"
 },
 
 ["shoot1"] = {
 	switch = function()
-		debugEngine:gui_debug_msg(CGeoPoint(-1000,1000),shootPosFun():x() .. "   "  .. shootPosFun():y(),3)
+		debugMesg()	
 		if(not bufcnt(player.infraredOn("Assister"),1)) then
 			return "ready1"
 		end
 	end,
-	Assister = task.ShootdotV2(function() return param.shootPos end, 10, 8, kick.flat),
+	Assister = task.ShootdotV2(function() return param.shootPos end, shoot_kp, param.shootError, kick.flat),
 	match = "{A}"
 },
 

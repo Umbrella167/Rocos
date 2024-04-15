@@ -161,8 +161,8 @@ function power(p, Kp) --根据目标点与球之间的距离求出合适的 击�
 		if res > 6000 then
 			res = 6000
 		end
-		if res < 3500 then
-			res = 3500
+		if res < 2500 then
+			res = 2500
 		end
 		debugEngine:gui_debug_msg(CGeoPoint:new_local(0,3200),"Power" .. res,3)
 		return res
