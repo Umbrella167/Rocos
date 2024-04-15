@@ -639,3 +639,26 @@ function stayPos4ballplace(role)
 	end
 	return compute
 end
+
+function atBallLine()
+	local minDist = param.INF
+	local playerNum = -1
+
+	local ballPos = ball.rawPos()
+	local ballVelDir = ball.velDir()
+	for i=0, param.maxPlayer-1 do
+        if player.valid(i) then
+        	local playerPos = CGeoPoint:new_local(player.posX(i), player.posY(i))
+        	local playerToBallDir = player.toBallDir(i)
+        	-- 判断是否对齐
+        	local diff = math.abs(math.pi - math.abs(playerToBallDir - ballVelDir))
+        	-- debugEngine:gui_debug_msg(CGeoPoint(-1500, 1000-(160*i)), "diff: "..diff)
+        	-- debugEngine:gui_debug_msg(CGeoPoint(1500, 1500), "ballVel: "..ball.velMod())
+        	if diff < param.alignRate and player.toBallDist(i)<minDist and ball.velMod() > 1000 then
+	        	minDist = player.toBallDist(i)
+	        	playerNum = i
+        	end
+        end
+    end
+    return playerNum
+end

@@ -49,15 +49,18 @@ goalWidth = CGetSettings("field/goalWidth","Int")
 goalDepth = CGetSettings("field/goalDepth","Int")
 freeKickAvoidBallDist = 500
 playerRadius	= 90
+
 penaltyWidth    = CGetSettings("field/penaltyLength","Int")
 penaltyDepth	= CGetSettings("field/penaltyWidth","Int")
 penaltyRadius	= 1000
 penaltySegment	= 500
+
 playerFrontToCenter = 76
 lengthRatio	= 1.5
 widthRatio	= 1.5
 stopRatio = 1.1
 frameRate = 73
+
 -- 是否为真实场地
 isReality = false
 -- 对齐的准确度

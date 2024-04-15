@@ -44,7 +44,9 @@ namespace Utils
     extern CGeoSegment PredictBallLine(const CVisionModule *pVision);
     extern double PosToPosTime(CGeoPoint start_pos, CGeoPoint end_pos, double velocity);
 
+    /* =============== 小工具 =============== */
     extern CGeoPoint GetBallMaxPos(const CVisionModule *pVision);
+    extern CGeoPoint stabilizePoint(CGeoPoint p);
 
     extern double ShowDribblingGrade(const CVisionModule *pVision,CGeoPoint run_pos,CGeoPoint player_pos,CGeoPoint target_pos);
     extern CGeoPoint GetShowDribblingPos(const CVisionModule *pVision,CGeoPoint player_pos,CGeoPoint target_pos);
