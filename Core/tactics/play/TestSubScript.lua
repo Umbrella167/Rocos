@@ -25,14 +25,16 @@ return {
         switch = function()
             if bufcnt(true,30) then 
                 if not subScript then
-                    gSubPlay.new("kickTask", "TestPassAndKick")
+                    -- gSubPlay.new("kickTask", "TestPassAndKick")
+                    gSubPlay.new("testTask", "mytest2")
                 end
                 return "run"
             end
         end,
         Assister = task.stop(),
         Leader = task.stop(),
-        match = "[LA]"
+        Goalie = task.stop(),
+        match = "[LAG]"
     },
     ["run"] = {
         switch = function()
@@ -41,9 +43,9 @@ return {
             --     print("printFileTable: ", key, value)
             -- end
         end,
-        b = gSubPlay.roleTask("kickTask", "Assister"),
-        c = gSubPlay.roleTask("kickTask", "Leader"),
-        a = task.goCmuRush(runPos, 0, nil, DSS_FLAG),
+        -- b = gSubPlay.roleTask("kickTask", "Assister"),
+        c = gSubPlay.roleTask("testTask", "Goalie"),
+        -- a = task.goCmuRush(runPos, 0, nil, DSS_FLAG),
         match = "(abc)"
     },
 

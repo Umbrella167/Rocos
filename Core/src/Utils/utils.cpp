@@ -370,7 +370,7 @@ namespace Utils
      * @param playerPos
      * @param playerVel
      * @param flag 不同模式（默认0）,0-最早能拿到球的截球点，1-时间最充裕的截球点, 2- (0,1)方案取中点
-     * @param permissions 球员的权限（默认0）, 0-不允许进禁区和到场外， 1-不可以进场外可以进禁区， 2-场外禁区都可以进
+     * @param permissions 球员的权限（默认0）, 0-不允许进禁区和场外， 1-不可以到场外可以到禁区， 2-场外禁区都可以进
      * @return
      */
 

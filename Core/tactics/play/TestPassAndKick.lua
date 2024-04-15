@@ -16,7 +16,7 @@ firstState = "init",
 },
 ["pass"] = {
 	switch = function()
-        Utils.GlobalComputingPos(vision,player.pos("Assister"))
+        -- Utils.GlobalComputingPos(vision,player.pos("Assister"))
         if player.kickBall("Leader") then
             return "shoot"
         end

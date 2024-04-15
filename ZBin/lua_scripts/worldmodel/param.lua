@@ -45,13 +45,14 @@ freeKickAvoidBallDist = 500
 playerRadius	= 90
 penaltyWidth    = 2000
 penaltyDepth	= 1000
-penaltyRadius	= 1000
-penaltySegment	= 500
+penaltyRadius	= 1000 
+penaltySegment	= 500  --球门半径
 playerFrontToCenter = 76
 lengthRatio	= 1.5
 widthRatio	= 1.5
 stopRatio = 1.1
 frameRate = 73
+
 -- 是否为真实场地
 isReality = false
 -- 对齐的准确度
