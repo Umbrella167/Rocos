@@ -31,13 +31,13 @@ local shootKPFun = function()
 	end
 end
 local debugMesg = function ()
-	
 	if(task.playerDirToPointDirSub("Assister",resShootPos) < param.shootError) then 
 		debugEngine:gui_debug_line(player.pos("Assister"),player.pos("Assister") + Utils.Polar2Vector(9999,player.dir("Assister")),1)
 	else
 		debugEngine:gui_debug_line(player.pos("Assister"),player.pos("Assister") + Utils.Polar2Vector(9999,player.dir("Assister")),4)
-		
 	end
+		debugEngine:gui_debug_x(resShootPos,6)
+
 end
 return {
 
@@ -76,11 +76,12 @@ firstState = "ready1",
 		end
 		local Vy = player.rotVel("Assister")
 		local ToTargetDist = player.toPointDist("Assister",param.shootPos)
-		resShootPos = task.compensateAngle(Vy,param.shootPos,ToTargetDist * 0.07)
+		resShootPos = task.compensateAngle("Assister",Vy,param.shootPos,ToTargetDist * 0.07)
 		debugEngine:gui_debug_msg(CGeoPoint(0,-3000),shoot_kp)
 		if(task.playerDirToPointDirSub("Assister",resShootPos) < param.shootError) then 
 			return "shoot1"
 		end
+
 	end,
 	Assister = function() return task.TurnToPointV2("Assister", function() return resShootPos end,param.rotVel) end,
 	match = "{A}"

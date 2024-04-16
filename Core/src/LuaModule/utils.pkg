@@ -19,7 +19,7 @@ namespace Utils{
 	bool InExclusionZone(CGeoPoint Point, double buffer = 0,std::string dir = "all");
 	bool InField(CGeoPoint Point);
 	bool InOurField(CGeoPoint Point);
-
+	double angleDiff(double angle1, double angle2);
 	int getInitData(const CVisionModule *pVision, int flag=1);
 	CGeoPoint PosGetShootPoint(const CVisionModule *pVision, double x, double y);   
 	CGeoPoint GetShootPoint(const CVisionModule *pVision, int num);

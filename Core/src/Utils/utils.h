@@ -46,7 +46,7 @@ namespace Utils
 
     /* =============== 小工具 =============== */
     extern CGeoPoint GetBallMaxPos(const CVisionModule *pVision);
-
+    extern double angleDiff(double angle1, double angle2);// 返回两个dir的差
     extern double ShowDribblingGrade(const CVisionModule *pVision,CGeoPoint run_pos,CGeoPoint player_pos,CGeoPoint target_pos);
     extern CGeoPoint GetShowDribblingPos(const CVisionModule *pVision,CGeoPoint player_pos,CGeoPoint target_pos);
     extern int GetPointToMinDistEnemyNum(const CVisionModule *pVision,CGeoPoint player_pos); // 获取距离某坐标最进的敌人位置

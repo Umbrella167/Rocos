@@ -21,7 +21,7 @@ module(..., package.seeall)
 powerShoot = 300
 powerTouch = 300
 shootPos = CGeoPoint(0,0)
-shootError = 5--1.8
+shootError = 6.5--1.8
 shootKp = 0.8
 ---------------------------------
 -- 旋转参数
@@ -30,8 +30,8 @@ rotVel = 3.8
 ---------------------------------
 -- getball参数
 playerVel = 1 	
--- [0[激进模式], 1[保守模式]]
-getballMode = 1
+-- [0[激进模式], 1[保守模式], 2[middle]]
+getballMode = 2
 ---------------------------------
 -- 固定匹配
 defend_num1 = 1
@@ -39,9 +39,8 @@ defend_num2 = 2
 our_goalie_num = 0
 ---------------------------------
 -- lua 两点间有无敌人阈值
-enemy_buffer = 150
+enemy_buffer = 100
 ---------------------------------
-
 
 ---------------------------------
 
