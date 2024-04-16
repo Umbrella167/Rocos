@@ -22,7 +22,7 @@ powerShoot = 300
 powerTouch = 300
 shootPos = CGeoPoint(0,0)
 shootError = 5--1.8
-shootKp = 1.6
+shootKp = 0.8
 ---------------------------------
 -- 旋转参数
 rotPos = CGeoPoint(150,120)

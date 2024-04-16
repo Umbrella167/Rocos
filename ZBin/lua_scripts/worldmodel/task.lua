@@ -172,7 +172,8 @@ function power(p, Kp) --根据目标点与球之间的距离求出合适的 击�
 		else
 			p1 = p
 		end
-		local res = Kp * (p1 - ball.pos()):mod()
+		local dist = (p1 - ball.pos()):mod()
+		local res = Kp * dist
 		-- if res > 310 then
 		-- 	res = 310
 		-- end
@@ -182,10 +183,10 @@ function power(p, Kp) --根据目标点与球之间的距离求出合适的 击�
 		if res > 6000 then
 			res = 6000
 		end
-		if res < 2500 then
-			res = 2500
+		if res < 3500 then
+			res = 3500
 		end
-		debugEngine:gui_debug_msg(CGeoPoint:new_local(0,3200),"Power" .. res,3)
+		debugEngine:gui_debug_msg(CGeoPoint:new_local(0,3200),"Power" .. res .. "    toTargetDist: " .. dist,3)
 		return res
 	end
 end

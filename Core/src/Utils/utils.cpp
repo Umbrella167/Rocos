@@ -799,7 +799,7 @@ namespace Utils
         double their_min_dist = inf;
         double their_min_num = 0;
         // 获取射门点
-        CGeoPoint shoot_pos = GetShootPoint(pVision, player_pos.x(), player_pos.y());
+        CGeoPoint shoot_pos = PosGetShootPoint(pVision, player_pos.x(), player_pos.y());
         grade_shoot = Tick[now].globalData.confidence_shoot;
         // 如果算不到射门点直接返回 0
         if (shoot_pos.y() == -inf || player_pos.x() > 4000)
@@ -885,7 +885,7 @@ namespace Utils
         pass_safty_grade = PosSafetyGrade(pVision, player_pos, CGeoPoint(x, y));
         pass_grade = 0.5 * pass_dir_grade + 0.5 * pass_dist_grade;
 
-        grade = 0.2 * pass_grade + 0.5 * shoot_grade + 0.3 * pass_safty_grade;
+        grade = 0.2 * pass_grade + 0.15 * pass_safty_grade + 0.15 * shoot_dir_grade + 0.5 * shoot_dist_grade;;
         return grade;
     }
     double GetTouchGrade(const CVisionModule *pVision, double x, double y, CGeoPoint player_pos, CGeoPoint shoot_pos)
@@ -932,7 +932,7 @@ namespace Utils
             {
                 double touch_dir_grade = 0;
                 CGeoPoint now_pos = CGeoPoint(x, y);
-                CGeoPoint shoot_pos = GetShootPoint(pVision, x, y);
+                CGeoPoint shoot_pos = PosGetShootPoint(pVision, x, y);
 
                 if (shoot_pos.y() == -inf || InExclusionZone(now_pos) || !isValidPass(pVision, now_pos, player_pos))
                     continue;
@@ -1006,7 +1006,7 @@ namespace Utils
             {
 
                 CGeoPoint pos(x, y);
-                CGeoPoint shoot_pos = GetShootPoint(pVision, x, y);
+                CGeoPoint shoot_pos = PosGetShootPoint(pVision, x, y);
                 // 如果 无有效射门点 或 点位在禁区 或 传球路径被挡住 或 射门路径被挡住  跳过该点
                 if (!InField(pos) || shoot_pos.y() == -inf || InExclusionZone(pos) || (!isValidPass(pVision, dribbling_player_pos, CGeoPoint(x, y), PARAM::Player::playerBuffer)) || !isValidPass(pVision, pos, shoot_pos, PARAM::Player::playerBuffer))
                     continue;
@@ -1103,7 +1103,7 @@ namespace Utils
      * @param  {std::string} model      : FORMULA：仅根据守门员位置进行计算，TRAVERSE：遍历整个可射门点（默认：TRAVERSE）
      * @return {CGeoPoint}              : (x,y)关于最佳射门点的评分
      */
-    CGeoPoint GetShootPoint(const CVisionModule *pVision, double x, double y)
+    CGeoPoint PosGetShootPoint(const CVisionModule *pVision, double x, double y)
     {
         double pos_to_pos_dist_grade = 0;
         double pos_to_pos_dir_grade = 0;
