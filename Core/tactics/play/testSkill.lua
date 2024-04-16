@@ -1,24 +1,25 @@
 
-ballpos = function ()
+local ballpos = function ()
 	return CGeoPoint:new_local(ball.posX(),ball.posY())
 end
-balldir = function ()
+local balldir = function ()
 	return function()
 		return player.toBallDir("Assister")
 	end
 end
-shoot_pos = CGeoPoint:new_local(4500,0)
-error_dir = 8
-KP = 0.00000002
-defendPOs = function(role)
+local shoot_pos = CGeoPoint:new_local(4500,0)
+local error_dir = 8
+local KP = 0.00000002
+local defendPos = function(role)
 	return function()
 		local posdefend = enemy.pos(role) + Utils.Polar2Vector(300,(ball.pos() - enemy.pos(role)):dir())
 		return CGeoPoint:new_local( posdefend:x(),posdefend:y() )
 	end
 end
-run_pos = CGeoPoint:new_local(0,0)
+local run_pos = CGeoPoint:new_local(0,0)
+local resPos = CGeoPoint(4500,0)
 
-runPos = function()
+local runPos = function()
 	return function()
 		return CGeoPoint:new_local(run_pos:x(),run_pos:y())
 	end
@@ -26,48 +27,37 @@ end
 gPlayTable.CreatePlay{
 
 firstState = "ready1",
+
 ["ready1"] = {
 	switch = function()
-		-- Utils.UpdataTickMessage(vision,2,3,1)
-		-- Utils.GetAttackPos(vision,2 ,CGeoPoint(0,0),CGeoPoint(1000,2000),CGeoPoint(4000,-1900),350);
-		debugEngine:gui_debug_msg(CGeoPoint:new_local(0,0),task.dirSub(player.dir("Assister"),ball.velDir()))
+
 		-- if(player.infraredCount("Assister") > 5) then
 		-- 	return "shoot"
 		-- end
 	end,
-	 -- = task.TurnRun("Assister"),
-	Assister = task.stop,--task.getball("Assister",4,1,CGeoPoint:new_local(0,0)),
-	-- match = "[AKS]{TDG}"
+	Assister = task.getball("Assister",param.playerVel,param.getballMode,CGeoPoint:new_local(0,0)),
 	match = "[A]"
 },
 
 
--- ["shoot"] = {
--- 	switch = function()
--- 		if(not bufcnt(player.infraredOn("Assister"),1)) then
--- 			return "ready1"
--- 		end
--- 		if(task.playerDirToPointDirSub("Assister",CGeoPoint:new_local(0,0)) < 4) then 
--- 			return "shoot32"
--- 		end
--- 	end,
--- 	 -- = task.TurnRun("Assister"),
--- 	Assister = task.TurnToPoint("Assister", CGeoPoint:new_local(0,0),800),
--- 	-- match = "[AKS]{TDG}"
--- 	match = "[A]"
--- },
 
 ["shoot"] = {
 	switch = function()
 		if(not bufcnt(player.infraredOn("Assister"),1)) then
 			return "ready1"
 		end
-		if(task.playerDirToPointDirSub("Assister",shoot_pos) < 4) then 
+		local Vy = player.rotVel("Assister")
+		local ToTargetDist = player.toPointDist("Assister",shoot_pos)
+		resPos = task.compensateAngle(Vy,shoot_pos,ToTargetDist * 0.07)
+		
+		if(task.playerDirToPointDirSub("Assister",resPos) < 4) then 
 			return "shoot1"
 		end
+
+		
 	end,
 	 -- = task.TurnRun("Assister"),
-	Assister = task.TurnToPointV2("Assister", shoot_pos,param.rotVel),
+	Assister = function() return (task.TurnToPointV2("Assister",function() return resPos end ,param.rotVel)) end,
 	-- match = "[AKS]{TDG}"
 	match = "[A]"
 },
@@ -80,7 +70,7 @@ if(not bufcnt(player.infraredOn("Assister"),1)) then
 		end
 	end,
 	 -- = task.TurnRun("Assister"),
-	Assister = task.ShootdotV2(shoot_pos,10,8,kick.flat),
+	Assister = task.ShootdotV2(function() return resPos end,10,8,kick.flat),
 	-- match = "[AKS]{TDG}"
 	match = "[A]"
 },

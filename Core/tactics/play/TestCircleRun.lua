@@ -8,14 +8,22 @@ balldir = function ()
 	end
 end
 
+
+local rotNewPos = function()
+
+
+end 
+
+
 gPlayTable.CreatePlay{
 
 firstState = "ready1",
 ["ready1"] = {
 	switch = function()
+		debugEngine:gui_debug_msg(CGeoPoint:new_local(0,0),player.rotVel("Assister"))
 	end,
 
-	Assister = task.TurnRun( CGeoPoint(120,120),3),
+	Assister = task.TurnRun(CGeoPoint(150,120),-3.8),
 	match = "[A]"
 },
 

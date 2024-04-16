@@ -21,8 +21,8 @@ module(..., package.seeall)
 powerShoot = 300
 powerTouch = 300
 shootPos = CGeoPoint(0,0)
-shootError = 3
-shootKp = 1.2
+shootError = 5--1.8
+shootKp = 1.6
 ---------------------------------
 -- 旋转参数
 rotPos = CGeoPoint(150,120)
@@ -41,6 +41,11 @@ our_goalie_num = 0
 -- lua 两点间有无敌人阈值
 enemy_buffer = 150
 ---------------------------------
+
+
+---------------------------------
+
+
 INF = 1e9
 PI = 3.141592653589793238462643383279
 maxPlayer   = 16

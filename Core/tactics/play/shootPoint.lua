@@ -22,12 +22,18 @@ local shootPosFun = function()
 	end
 end
 local debugMesg = function ()
-		debugEngine:gui_debug_msg(CGeoPoint(-1000,1000),shootPosFun():x() .. "   "  .. shootPosFun():y(),3)
-		debugEngine:gui_debug_line(player.pos("Assister"),player.pos("Assister") + Utils.Polar2Vector(9999,player.dir("Assister") + param.shootError / 57.3))
-		debugEngine:gui_debug_line(player.pos("Assister"),player.pos("Assister") + Utils.Polar2Vector(9999,player.dir("Assister") - param.shootError / 57.3))
+		-- debugEngine:gui_debug_msg(CGeoPoint(-1000,1000),shootPosFun():x() .. "   "  .. shootPosFun():y(),3)
+		debugEngine:gui_debug_line(player.pos("Assister"),player.pos("Assister") + Utils.Polar2Vector(9999,player.dir("Assister")),4)
+		-- debugEngine:gui_debug_line(player.pos("Assister"),player.pos("Assister") + Utils.Polar2Vector(9999,player.dir("Assister") - param.shootError / 57.3))
 end
 
-local shoot_kp = param.shootKP
+local shoot_kp = param.shootKp
+local resShootPos = CGeoPoint(4500,0)
+local shootKPFun = function()
+	return function()
+		return shoot_kp
+	end
+end
 
 return {
 
@@ -57,17 +63,22 @@ firstState = "ready1",
 		-- if(not bufcnt(player.infraredOn("Assister"),1)) then
 		-- 	return "ready1"
 		-- end
+		debugEngine:gui_debug_msg(CGeoPoint:new_local(0,0),player.rotVel("Assister"))
 		debugMesg()
 		if shootPosFun():x() == param.pitchLength / 2 then
 			shoot_kp = 10000
 		else
-			shoot_kp = param.shootKP
+			shoot_kp = param.shootKp
 		end
-		if(task.playerDirToPointDirSub("Assister",shootPosFun()) < param.shootError) then 
+		local Vy = player.rotVel("Assister")
+		local ToTargetDist = player.toPointDist("Assister",param.shootPos)
+		resShootPos = task.compensateAngle(Vy,param.shootPos,ToTargetDist * 0.07)
+		debugEngine:gui_debug_msg(CGeoPoint(0,-3000),shoot_kp)
+		if(task.playerDirToPointDirSub("Assister",resShootPos) < param.shootError) then 
 			return "shoot1"
 		end
 	end,
-	Assister = function() return task.TurnToPointV2("Assister", function() return param.shootPos end,param.rotVel) end,
+	Assister = function() return task.TurnToPointV2("Assister", function() return resShootPos end,param.rotVel) end,
 	match = "{A}"
 },
 
@@ -78,7 +89,7 @@ firstState = "ready1",
 			return "ready1"
 		end
 	end,
-	Assister = task.ShootdotV2(function() return param.shootPos end, shoot_kp, param.shootError, kick.flat),
+	Assister = task.ShootdotV2(function() return resShootPos end, shootKPFun() , param.shootError, kick.flat),
 	match = "{A}"
 },
 

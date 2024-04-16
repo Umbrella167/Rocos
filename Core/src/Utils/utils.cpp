@@ -142,8 +142,10 @@ namespace Utils
         else
             Tick[now].ball.rights = 0;
         // 顶牛 或 抢球对抗
-        if (our_min_dist < PARAM::Player::playerBallRightsBuffer && their_min_dist < PARAM::Player::playerBallRightsBuffer + 20)
+        printf("our %f,their %f",our_min_dist,their_min_dist);
+        if (Tick[now].ball.rights == 1 && their_min_dist < PARAM::Player::playerBallRightsBuffer + 20)
         {
+            
             Tick[now].ball.rights = 2;
         }
 

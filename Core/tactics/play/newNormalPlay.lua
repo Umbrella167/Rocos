@@ -1,10 +1,5 @@
 local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
 
-local closures_point = function(point)
-    return function()
-        return CGeoPoint:new_local(point:x(),point:y())
-    end
-end
 
 local playerPos = function(role) 
     return function()
@@ -30,21 +25,6 @@ local ballPos = function()
     end
 end
 
-local shootPos = function()
-    return function()
-        return shoot_pos
-    end
-end
-local passPos = function()
-    return function()
-        return CGeoPoint:new_local(player.posX(pass_player_num),player.posY(pass_player_num))
-    end
-end
-local function correctionPos()
-    return function()
-        return CGeoPoint:new_local(correction_pos:x(),correction_pos:y())
-    end
-end
 local function runPos(role,touch_pos_flag)
     return function()
         local touch_pos_flag = touch_pos_flag or false
@@ -62,27 +42,19 @@ local function runPos(role,touch_pos_flag)
         return CGeoPoint:new_local(0,0)
     end
 end
--- 角度误差常数
-error_dir = 2
+
 -- 带球车初始化
 dribbling_player_num = 1
 -- 球权初始化
 ballRights = -1
 -- 射门坐标初始化
 local shoot_pos = CGeoPoint:new_local(4500,0)
--- touch power
-touchPower = 4000
+
 -- 守门员号码
-our_goalie_num = param.our_goalie_num
+local our_goalie_num = param.our_goalie_num
 -- 后卫号码
 local defend_num1 = param.defend_num1
 local defend_num2 = param.defend_num2
--- 射门Kp
-local shootKp = 1.5
--- Touch pos
-local touchPos = CGeoPoint:new_local(0,0)
--- Touch 角度
-local canTouchAngle = 60
 -- 传球角度
 local pass_pos = CGeoPoint:new_local(4500,-999)
 -- getball参数
@@ -90,7 +62,7 @@ local playerVel = param.playerVel
 local getballMode = param.getballMode
 
 -- 带球速度
-dribblingVel = 2000
+dribblingVel = 2500
 -- dribblingPos 带球目标坐标
 dribbling_target_pos = CGeoPoint:new_local(0,0)
 show_dribbling_pos = CGeoPoint:new_local(0,0)
@@ -114,7 +86,7 @@ local dribblingDir = function(role)
 end
 local debugStatus = function()
     for num,i in pairs(GlobalMessage.attackPlayerRunPos) do
-        debugEngine:gui_debug_msg(CGeoPoint:new_local(-4400,num * 200),
+        debugEngine:gui_debug_msg(CGeoPoint:new_local(-5700,num * 200),
             tostring(GlobalMessage.attackPlayerRunPos[num].num)     ..
             " "                                                     ..
             "("                                                     .. 
@@ -125,7 +97,7 @@ local debugStatus = function()
         ,6)
     end
     for num,i in pairs(GlobalMessage.attackPlayerStatus) do 
-        debugEngine:gui_debug_msg(CGeoPoint:new_local(-4400,num * -200), 
+        debugEngine:gui_debug_msg(CGeoPoint:new_local(-5700,num * -200), 
         tostring(i.num)         ..
         "  "                    .. 
         tostring(i.status),3)
@@ -152,7 +124,6 @@ local UpdataTickMessage = function (our_goalie_num,defend_num1,defend_num2)
         dribblingStatus = status.getPlayerStatus(dribbling_player_num)  -- 获取带球机器人状态
         shoot_pos = dribblingStatus == "Shoot" and shoot_pos or pass_pos
         param.shootPos = shoot_pos
-        debugEngine:gui_debug_msg(CGeoPoint(-1000,1200),param.shootPos:x() ..  "    " ..  param.shootPos:y())
         status.getPlayerRunPos()    -- 获取跑位点
         touchPos = Utils.GetTouchPos(vision,CGeoPoint:new_local(player.posX(dribbling_player_num),player.posY(dribbling_player_num)),canTouchAngle)
     end
@@ -161,6 +132,7 @@ local UpdataTickMessage = function (our_goalie_num,defend_num1,defend_num2)
     debugEngine:gui_debug_msg(CGeoPoint(0,2600),"Kick:" .. tostring(player.kickBall("Assister")))
     debugEngine:gui_debug_msg(CGeoPoint(0,2400),"DribblingPlayerNum:" .. dribbling_player_num .. "   DribblingStatus:" .. tostring(dribblingStatus))
     debugEngine:gui_debug_msg(CGeoPoint(0,2200),"ballRights:" .. ball_rights)
+    debugEngine:gui_debug_msg(CGeoPoint(0,1800),"targetPos:" .. tostring(param.shootPos:x()) ..  "    " ..  tostring(param.shootPos:y()))
     show_dribbling_pos = Utils.GetShowDribblingPos(vision,CGeoPoint(player.posX("Assister"),player.posY("Assister")),dribbling_target_pos);
     debugStatus()
 end
@@ -185,13 +157,28 @@ local getState = function ()
             resultState =  "defendNormalState"
         -- 如果是顶牛状态 [一带球、二跑位]
         elseif ball_rights == 2 then
-            resultState =  "Getball"
+            resultState =  "dribbling"
         -- 如果是球在滚动过程、或在传球过程 [一接球、二跑位]
         else
             resultState =  "Getball"
         end
         debugEngine:gui_debug_msg(CGeoPoint(0,2000),"NextState:" .. resultState,3)
         return resultState
+end
+local AssisterNumLast = 0
+local AssisterNum = 0
+local matchChangeCount = 0
+local firstAssisterNum = 0
+local getBallRoleMatch = function(resState)
+    AssisterNum = player.num("Assister")
+    if AssisterNum ~= AssisterNumLast then 
+        matchChangeCount = matchChangeCount + 1
+    end
+    if matchChangeCount > 3 then
+        matchChangeCount = 0
+        return resState
+    end
+    AssisterNumLast = AssisterNum
 end
 
 local subScript = false
@@ -242,7 +229,6 @@ firstState = "Init",
 -- 射球
 ["ShootPoint"] = {
     switch = function()
-
         UpdataTickMessage(our_goalie_num,defend_num1,defend_num2)    -- 更新帧信息
         local State = getState()
         getState()
@@ -264,7 +250,21 @@ firstState = "Init",
         UpdataTickMessage(our_goalie_num,defend_num1,defend_num2)    -- 更新帧信息
         local State = getState()
         getState()
-        return State
+        -- if(State ~= "Getball") then
+        --     return State
+        -- end
+        -- if (player.canTouch("Kicker",shoot_pos,canTouchAngle) and ball.velMod() > 800) then
+        --     return "Touch"
+        -- end
+
+        if State ~= "Getball" then
+            return State
+        else
+            State = getBallRoleMatch("GetballStatic")
+            if State == "GetballStatic" then
+                return State
+            end
+        end
     end,
     Assister = task.getball("Assister",playerVel,getballMode,ballPos()),
     Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker"),_,DSS_FLAG),
@@ -272,11 +272,65 @@ firstState = "Init",
     Tier = task.stop(),
     Defender = task.stop(),
     Goalie = task.goalie("Goalie"),
-    match = "(AKS){TDG}"
+    match = "[AK]{STDG}"
+},
+
+-- 接球
+["GetballStatic"] = {
+    switch = function()
+        UpdataTickMessage(our_goalie_num,defend_num1,defend_num2)    -- 更新帧信息
+        local State = getState()
+        getState()
+        -- if(State ~= "Getball") then
+        --     return State
+        -- end
+
+
+        -- 接球的时候检测是否可以touch
+
+        -- if (player.canTouch("Kicker",shoot_pos,canTouchAngle)) then
+        --     return "Touch"
+        -- end
+
+
+        if State ~= "Getball" then
+            return State
+        end
+
+    end,
+    Assister = task.getball("Assister",playerVel,getballMode,ballPos()),
+    Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker"),_,DSS_FLAG),
+    Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special"),_,DSS_FLAG),
+    Tier = task.stop(),
+    Defender = task.stop(),
+    Goalie = task.goalie("Goalie"),
+    match = "{AKSTDG}"
 },
 
 
-
+-- touch
+["Touch"] = {
+    switch = function()
+        UpdataTickMessage(our_goalie_num,defend_num1,defend_num2)
+        if(bufcnt(true,100))then 
+            return "GetGlobalMessage"
+        end
+        if(GlobalMessage.Tick.ball.rights == -1)then 
+            return "GetGlobalMessage"
+        end
+        -- debugEngine:gui_debug_msg(CGeoPoint:new_local(0,-3000),)
+        if(player.kickBall("Kicker"))then 
+            return "GetGlobalMessage"
+        end
+    end,
+    Assister = task.goCmuRush(runPos("Assister"),closures_dir_ball("Assister"),_,DSS_FLAG),
+    Kicker = task.touchKick(function() return shoot_pos end,_,touchPower,kick.flat),--task.goCmuRush(runPos("Kicker"),closures_dir_ball("Kicker")),
+    Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special"),_,DSS_FLAG),
+    Tier = task.defender_defence("Tier"),
+    Defender = task.defender_defence("Defender"),
+    Goalie = task.goalie("Goalie"),
+    match = "{ASKTDG}"
+},
 -- 带球
 ["dribbling"] = {
     switch = function()
