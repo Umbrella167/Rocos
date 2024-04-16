@@ -52,6 +52,7 @@ maxPlayer   = 16
 -- player params
 playerRadius	= 90
 defenderBuf = playerRadius*3
+goalieBuf = playerRadius
 
 
 ---------------------------------
