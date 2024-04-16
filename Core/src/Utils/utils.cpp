@@ -312,7 +312,7 @@ namespace Utils
 //            GDebugEngine::Instance() ->gui_debug_x(CGeoPoint(x,y));
 //            GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(x,y),to_string(grade),1,0,60);
         }
-        GDebugEngine::Instance() ->gui_debug_arc(Tick[now].ball.first_dribbling_pos,1000,0,360,3);
+        GDebugEngine::Instance() ->gui_debug_arc(Tick[now].ball.first_dribbling_pos,1000,0,360,8);
         GDebugEngine::Instance() ->gui_debug_x(max_grade_point,3);
         return max_grade_point;
 
@@ -1391,22 +1391,49 @@ namespace Utils
      * @param  {double} y :
      * @return {bool}     :
      */
-    bool InExclusionZone(CGeoPoint Point, double buffer)
+    bool InExclusionZone(CGeoPoint Point, double buffer,string dir)
     {
         double x = Point.x();
         double y = Point.y();
-        if (((x < (-1 * PARAM::Field::PITCH_LENGTH / 2) + PARAM::Field::PENALTY_AREA_DEPTH + buffer) ||
-             (x > (PARAM::Field::PITCH_LENGTH / 2) - PARAM::Field::PENALTY_AREA_DEPTH - buffer)) &&
-            (y > -1 * PARAM::Field::PENALTY_AREA_WIDTH / 2 - buffer && y < PARAM::Field::PENALTY_AREA_WIDTH / 2 + buffer))
+        if (dir == "our")
         {
-            return true;
+
+            if ((x < (-1 * PARAM::Field::PITCH_LENGTH / 2) + PARAM::Field::PENALTY_AREA_DEPTH + buffer) &&
+                (y > -1 * PARAM::Field::PENALTY_AREA_WIDTH / 2 - buffer && y < PARAM::Field::PENALTY_AREA_WIDTH / 2 + buffer))
+                return true;
+            else
+                return false;
+
+
+
+
+
+        }
+        else if(dir == "their")
+        {
+            if ((x > (PARAM::Field::PITCH_LENGTH / 2) - PARAM::Field::PENALTY_AREA_DEPTH - buffer)&&
+               (y > -1 * PARAM::Field::PENALTY_AREA_WIDTH / 2 - buffer && y < PARAM::Field::PENALTY_AREA_WIDTH / 2 + buffer))
+                return true;
+            else
+                return false;
+
         }
         else
         {
-            return false;
+            if (((x < (-1 * PARAM::Field::PITCH_LENGTH / 2) + PARAM::Field::PENALTY_AREA_DEPTH + buffer) ||
+                 (x > (PARAM::Field::PITCH_LENGTH / 2) - PARAM::Field::PENALTY_AREA_DEPTH - buffer))     &&
+                 (y > -1 * PARAM::Field::PENALTY_AREA_WIDTH / 2 - buffer && y < PARAM::Field::PENALTY_AREA_WIDTH / 2 + buffer))
+                return true;
+            else
+                return false;
+
         }
     }
 
+    int GetPointToMinDistEnemyNum(const CVisionModule *pVision,CGeoPoint player_pos)
+    {
+
+    }
     /**
      * 判断是否在场地内
      * @brief InField

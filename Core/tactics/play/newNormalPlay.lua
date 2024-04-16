@@ -106,7 +106,7 @@ local UpdataTickMessage = function (our_goalie_num,defend_num1,defend_num2)
 
 
     runCount = runCount + 1
-    if runCount > 30 then
+    if runCount > 60 then
         local KickerShootPos = Utils.PosGetShootPoint(vision, player.posX("Kicker"),player.posY("Kicker"))
         local SpecialShootPos = Utils.PosGetShootPoint(vision,player.posX("Special"),player.posY("Special"))
 
@@ -179,7 +179,7 @@ local getBallRoleMatch = function(resState)
     if NowAssisterNum ~= AssisterNumLast then 
         matchChangeCount = matchChangeCount + 1
     end
-    if matchChangeCount > 3 and firstAssisterNum ~=  NowAssisterNum then
+    if matchChangeCount > 1 and firstAssisterNum ~=  NowAssisterNum then
         matchChangeCount = 0
         return resState
     end

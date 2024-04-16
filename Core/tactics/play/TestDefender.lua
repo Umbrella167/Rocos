@@ -16,7 +16,6 @@ DEFENDER_INITPOS_TIER = CGeoPoint:new_local(PENALTY_X, -param.penaltyDepth * 0.9
 --[[ =============== DEFENDER_DEBUG_MODE ================ ]]
 DEFENDER_DEBUG_MODE = true
 -- DEFENDER_DEBUG_MODE = false
-
 if DEFENDER_DEBUG_MODE then
     -- 调试窗口位置
     DEFENDER_DEBUG_POSITION_X = 0
@@ -42,8 +41,8 @@ gPlayTable.CreatePlay {
         switch = function()
         end,
         Assister = task.getball("Assister",3.5,1,CGeoPoint:new_local(0,0)),
-        Defender = task.defender_defence("Defender"),
-        Tier = task.defender_defence("Tier"),
+        -- Defender = task.defender_defence("Defender"),
+        -- Tier = task.defender_defence("Tier"), 
         Goalie = task.goalie(),
          match = "[A]{DTG}"
     },

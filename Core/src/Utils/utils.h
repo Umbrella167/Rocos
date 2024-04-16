@@ -35,7 +35,7 @@ namespace Utils
     extern std::string GlobalComputingPos(const CVisionModule *pVision);                           // 计算所有点位
     extern double map(double value, double min_in, double max_in, double min_out, double max_out); // 映射
     extern bool InField(CGeoPoint Point);                                                          // 判断点是否在场地内
-    extern bool InExclusionZone(CGeoPoint Point, double buffer = 0);                             // 判断点是否在禁区内
+    extern bool InExclusionZone(CGeoPoint Point, double buffer = 0,std::string dir = "all");                             // 判断点是否在禁区内
     extern bool InOurField(CGeoPoint Point);
     extern double NumberNormalize(double data, double max_data, double min_data);                  // [0,1] 标准化
     extern bool isValidPass(const CVisionModule *pVision, CGeoPoint start, CGeoPoint end, double buffer = 150);
@@ -49,7 +49,7 @@ namespace Utils
 
     extern double ShowDribblingGrade(const CVisionModule *pVision,CGeoPoint run_pos,CGeoPoint player_pos,CGeoPoint target_pos);
     extern CGeoPoint GetShowDribblingPos(const CVisionModule *pVision,CGeoPoint player_pos,CGeoPoint target_pos);
-
+    extern int GetPointToMinDistEnemyNum(const CVisionModule *pVision,CGeoPoint player_pos); // 获取距离某坐标最进的敌人位置
     extern CGeoPoint PosGetShootPoint(const CVisionModule *pVision, double x, double y);                                          // 获取某坐标而言对方守门员的空位
     extern CGeoPoint GetShootPoint(const CVisionModule *pVision, int num);                                                     // 获取某坐标而言对方守门员的空位 + 持球员朝向
     extern double GetAttackGrade(const CVisionModule *pVision, double x, double y, CGeoPoint player_pos, CGeoPoint shoot_pos); // 计算某坐标点的跑位分

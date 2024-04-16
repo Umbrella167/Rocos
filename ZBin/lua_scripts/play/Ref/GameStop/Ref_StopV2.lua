@@ -31,9 +31,9 @@ firstState = "start",
   Kicker   = task.goCmuRush(middlePos,dir.playerToBall),
   Assister = task.goCmuRush(leftPos,dir.playerToBall),
   Special  = task.goCmuRush(rightPos,dir.playerToBall),
-  Tier = task.defender_defence("Tier"),
-  Defender = task.defender_defence("Defender"),
-  Goalie = task.goalie(),
+  -- Tier = task.defender_defence("Tier"),
+  -- Defender = task.defender_defence("Defender"),
+  -- Goalie = task.goalie(),
   match = "[A][KS]{TDG}"
 },
 

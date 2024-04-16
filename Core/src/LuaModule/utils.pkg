@@ -16,7 +16,7 @@ namespace Utils{
 	
 	// 小工具
 	CGeoPoint GetBallMaxPos(const CVisionModule *pVision);
-	bool InExclusionZone(CGeoPoint Point, double buffer = 0);
+	bool InExclusionZone(CGeoPoint Point, double buffer = 0,std::string dir = "all");
 	bool InField(CGeoPoint Point);
 	bool InOurField(CGeoPoint Point);
 

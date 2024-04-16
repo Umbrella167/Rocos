@@ -75,7 +75,8 @@ penaltySegment	= 500
 ourTopRightPenaltyPos = CGeoPoint:new_local(-pitchLength/2+penaltyDepth, penaltyRadius)
 ourTopPenaltyPos = CGeoPoint:new_local(-pitchLength/2, penaltyRadius)
 ourButtomPenaltyPos = CGeoPoint:new_local(-pitchLength/2, -penaltyRadius)
-defenderRadius = ourGoalPos:dist(ourTopRightPenaltyPos) + param.defenderBuf
+defenderRadius = ourGoalPos:dist(ourTopRightPenaltyPos) + defenderBuf
+defenderAimX = -pitchLength/4
 
 playerFrontToCenter = 76
 lengthRatio	= 1.5

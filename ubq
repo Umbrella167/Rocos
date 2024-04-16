@@ -1,0 +1,2490 @@
+[33mcommit 33fc804ff2a05ebe2c4d2131b2a6fdabb2f0d096[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/fix_touch[m[33m, [m[1;32mfix_touch[m[33m)[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Tue Apr 16 13:01:29 2024 +0800
+
+    Over newNormalPlay
+
+[33mcommit fa295e494fc43158f6c47e4d07eff383f9e42d91[m
+Merge: 6d92886 c174faa
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Tue Apr 16 10:16:39 2024 +0800
+
+    Merge branch 'main' of github.com:Umbrella167/Rocos into main
+
+[33mcommit 6d92886f3fcdf08f1944d466bd2dedfb39e86c9b[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Tue Apr 16 10:15:52 2024 +0800
+
+    new normal
+
+[33mcommit c174faa6bd72f4ac3989c726d9a73ce8bf10a16b[m
+Author: turingzero <tnteqaq@gmail.com>
+Date:   Tue Apr 16 10:09:24 2024 +0800
+
+    coding the defender
+
+[33mcommit 1319c8a300a8e67fcd352b405718010bacd24503[m
+Author: turingzero <tnteqaq@gmail.com>
+Date:   Tue Apr 16 02:34:02 2024 +0800
+
+    stage
+
+[33mcommit 45a5f87491f4e0f5fc55431b363471c38db6d081[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Mon Apr 15 21:44:19 2024 +0800
+
+    tt
+
+[33mcommit bcb7c882785b64ed611eeafe9fe01d7cb2a04381[m
+Merge: 09f0e0d a8a98aa
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Mon Apr 15 21:11:57 2024 +0800
+
+    Merge branch 'main' of https://github.com/Umbrella167/Rocos
+
+[33mcommit 09f0e0db6c219cf4e7672c66bfd8674c34203636[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Mon Apr 15 21:11:50 2024 +0800
+
+    tt
+
+[33mcommit a8a98aa4dec39c5954eea4bffcd1d2945dc658ab[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Mon Apr 15 21:11:26 2024 +0800
+
+    shootPoint
+
+[33mcommit 4337732ec30dcee5b092e343a1a1c77d95b144be[m
+Merge: 88ff416 7264139
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Mon Apr 15 20:40:34 2024 +0800
+
+    Merge branch 'main' of github.com:Umbrella167/Rocos into main
+
+[33mcommit 88ff416246f0eb79b0cdbf9e2ab64840b4423c47[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Mon Apr 15 20:40:15 2024 +0800
+
+    sub attack
+
+[33mcommit 72641394a9e050c5625712e5044354dc63338d9c[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Mon Apr 15 20:06:43 2024 +0800
+
+    c的稳定点写到一      半
+
+[33mcommit ee992977dff3d30299f3df3e1a36532ba3a2a1a3[m
+Merge: ac297fe da7be9a
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Mon Apr 15 19:30:05 2024 +0800
+
+    Merge branch 'dev' of https://github.com/Robocup-ssl-China/rocos into main
+
+[33mcommit ac297fe01e481e31c5d2177843fe4354d6f0dcaa[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Mon Apr 15 19:29:52 2024 +0800
+
+    stage
+
+[33mcommit da7be9a34e769f804e08d8343af14f7665fae552[m[33m ([m[1;31mgithub/dev[m[33m)[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Apr 15 19:26:50 2024 +0800
+
+    [Core] fix subPlay task function closure error
+
+[33mcommit 1009308f4aff9386812886bb7b0e6d2b6923afd3[m
+Merge: e3befed 06edee0
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Mon Apr 15 18:15:19 2024 +0800
+
+    Merge branch 'dev' of https://github.com/Robocup-ssl-China/rocos into main
+
+[33mcommit 06edee05d5aefd4ebd04c737f6fca2f5ed8df1f3[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Apr 15 18:14:17 2024 +0800
+
+    [Core] fix bug of subplay getRoleNum error
+
+[33mcommit 122745a8e35d5560746ed009a8b88a04f8c732f1[m
+Merge: d266c3a 1571e08
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Apr 15 18:00:30 2024 +0800
+
+    Merge branch 'dev' of github.com:Robocup-ssl-China/rocos into dev
+
+[33mcommit 4cbd581942fc362d47d82e93059bdad8ed6a0020[m
+Merge: 6181724 e3befed
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Mon Apr 15 17:58:35 2024 +0800
+
+    merged
+
+[33mcommit 61817240f0f9590f1f3311c32bf607f7bb93e537[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Mon Apr 15 17:57:16 2024 +0800
+
+    暂存
+
+[33mcommit e3befed5588cea0c86a70bc871f0def00fa5ac5c[m
+Merge: 4bd621e ab3232f
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Mon Apr 15 17:55:24 2024 +0800
+
+    Merge branch 'dev' of https://github.com/Robocup-ssl-China/rocos into main
+
+[33mcommit 4bd621e50fbc9e6e4515089c8c3c9723c759f61d[m
+Merge: e2c6297 93eaa98
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Mon Apr 15 17:54:03 2024 +0800
+
+    merge github dev and newNormalPlat
+
+[33mcommit 1571e08f6582e9454216ac1cbe9fb8a9391658a2[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Apr 15 15:30:30 2024 +0800
+
+    [Core] add Debug/DeviceCmd for sent cmd display
+
+[33mcommit e2c6297970356c7374c15b6931fe5295773a9817[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Mon Apr 15 12:24:08 2024 +0800
+
+    stage
+
+[33mcommit 93eaa98e057e5c04738fe3664f2528c9e8c293a6[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Apr 15 12:23:21 2024 +0800
+
+    [Core] add gui_debug_x size
+
+[33mcommit ab3232f57c1cc4ad3c401f98c4ebcb8b088a4016[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Mon Apr 15 10:46:43 2024 +0800
+
+    新增一些工具型函数
+
+[33mcommit 227b75a2c16bdc873b77e781572842facd42e266[m
+Merge: 668fcad efb19c2
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Sun Apr 14 23:36:47 2024 +0800
+
+    Merge branch 'main' of github.com:Umbrella167/Rocos into main
+
+[33mcommit 668fcad544a100eaa63466615e2562e68119f634[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Sun Apr 14 23:36:34 2024 +0800
+
+    删除了一些无用脚本
+
+[33mcommit efb19c2c3ab1b0230285e39fce282c8bfaebc29f[m
+Merge: 35a7e2d 678f626
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Sun Apr 14 23:34:14 2024 +0800
+
+    Merge branch 'main' of https://github.com/Umbrella167/Rocos
+
+[33mcommit 35a7e2d252dc73253118f23974549763b6f0b33e[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Sun Apr 14 22:50:23 2024 +0800
+
+    修改了一点点goalie
+
+[33mcommit 678f62696cac0d05bdb17ee2e33b6d53b446e9be[m
+Merge: 94c2ca7 472f366
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Sun Apr 14 22:09:14 2024 +0800
+
+    Merge branch 'main' of github.com:Umbrella167/Rocos into main
+
+[33mcommit 94c2ca7f52a78deb9c624ae5631883a99b87c386[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Sun Apr 14 22:08:14 2024 +0800
+
+    修复状态转换
+
+[33mcommit 472f36669c50c16694c5d2b0cac795bd9d62e36e[m
+Merge: 9a9ea2a d25a3d7
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Sun Apr 14 21:58:27 2024 +0800
+
+    Merge branch 'main' of https://github.com/Umbrella167/Rocos
+
+[33mcommit 9a9ea2a852436f84d2f4e8c4f951e9633c6128a2[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Sun Apr 14 21:57:57 2024 +0800
+
+    差不多把goalie改好了
+
+[33mcommit d25a3d7c271620219860e949dced7527bcfa88ef[m
+Merge: 1a1a7c1 8a2cab1
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Sun Apr 14 19:14:46 2024 +0800
+
+    Merge branch 'main' of github.com:Umbrella167/Rocos into main
+
+[33mcommit 1a1a7c1d34d781ef659be31caf24dd8560670ce5[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Sun Apr 14 19:14:39 2024 +0800
+
+    stage
+
+[33mcommit 8a2cab185e02e9940e8f9f60c857bf88b2cf5d3e[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Sun Apr 14 19:12:01 2024 +0800
+
+    守门员新增了朝向判断
+
+[33mcommit 2a2cebcb601f68cbf68b71f0e701bdfafd588106[m
+Merge: f7a9cc3 d933516
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Sun Apr 14 18:05:00 2024 +0800
+
+    Merge branch 'main' of https://github.com/Umbrella167/Rocos
+
+[33mcommit d933516f40e8260c3a97e7b16ff8e3394801abe5[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Sun Apr 14 18:04:40 2024 +0800
+
+    111
+
+[33mcommit f7a9cc3b584a2357abe524eb1c8ccc739af0c75a[m
+Merge: 46a452c e4ba687
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Sun Apr 14 17:50:47 2024 +0800
+
+    Merge branch 'main' of https://github.com/Umbrella167/Rocos
+
+[33mcommit 46a452c4d57518d743da86e2ed609c439a9ade01[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Sun Apr 14 17:50:40 2024 +0800
+
+    tt
+
+[33mcommit e4ba6871776acacb8a2c8e3c9c210c072c83ed61[m
+Merge: 136953d 37589b6
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Sun Apr 14 17:39:18 2024 +0800
+
+    上一个是stage现在才是合并官方
+
+[33mcommit 136953d1b8cb5f519481b1dc6ae8be5c8d4f9b8d[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Sun Apr 14 17:37:35 2024 +0800
+
+    pull git
+
+[33mcommit ef6ee87797f40cc05a2f9d95ca29f5bf5e8f8107[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Sun Apr 14 17:05:44 2024 +0800
+
+    [Core] add nocalibration kick to task params
+
+[33mcommit d03de8fec943a4553a21a40b5e98ed3a7ae590d1[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Sun Apr 14 16:19:39 2024 +0800
+
+    [Core] add direct_kick_no_calibration in command
+
+[33mcommit a745c4d542fea2a318aab95cdd332d412f3495c9[m
+Merge: 2d0fe34 87e7907
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Sun Apr 14 16:04:41 2024 +0800
+
+    merged
+
+[33mcommit 2d0fe344f98b7af16bd022c38e79d3f81e2e6f0a[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Sun Apr 14 16:03:36 2024 +0800
+
+    22
+
+[33mcommit 87e790739e107733684d9b9ecf7102e0efc11a8a[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Sun Apr 14 15:14:44 2024 +0800
+
+    merge
+
+[33mcommit fd61e8928bd7854c8929498766fdaa7c0f132bd2[m
+Merge: fe28077 ad9da60
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Sun Apr 14 15:13:59 2024 +0800
+
+    Merge branch 'main' of https://github.com/Umbrella167/Rocos
+
+[33mcommit fe280779ecb6cae25d6a07a3fad92213ee7ff5b8[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Sun Apr 14 15:13:11 2024 +0800
+
+    新增了稳定点函数
+
+[33mcommit 37589b6daa8579cb8cdc548d65fa634fd30fb768[m[33m ([m[1;31mgithub/main[m[33m)[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Sun Apr 14 15:12:29 2024 +0800
+
+    [Core] fix ISSUE[https://github.com/Robocup-ssl-China/rocos/issues/7#issue-2242014255]
+
+[33mcommit 39eadcf7204b0eaaa6497948bcb095b4fbd23c48[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Sun Apr 14 15:05:39 2024 +0800
+
+    update .gitignore
+
+[33mcommit ad9da60fd8d78d8d43c4eecb819f89133e1fa305[m
+Merge: 0fd004a ae0bfb7
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Sun Apr 14 13:20:29 2024 +0800
+
+    Merge branch 'main' of github.com:Umbrella167/Rocos into main
+
+[33mcommit 0fd004a82bc240ce06ccfb33a5a61baecf3a00b0[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Sun Apr 14 13:17:21 2024 +0800
+
+    normalplay v:0.1
+
+[33mcommit ae0bfb76d957e489dd68e22184eaacc14e02e7b7[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Sun Apr 14 01:31:08 2024 +0800
+
+    goalie写了一半
+
+[33mcommit c5cc867d56a0c3f5844d7b18292ad8949f236fcf[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Sat Apr 13 21:08:53 2024 +0800
+
+    强推解决（为了yyh问题）
+
+[33mcommit f86788da6d24b08015692cabcc4f8d7dde946516[m
+Merge: 4ef4987 a190e6c
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Sat Apr 13 13:56:01 2024 +0800
+
+    Merge branch 'TnT2' into main
+
+[33mcommit a190e6c3396fe3d27d31939aea326073953566d7[m[33m ([m[1;31morigin/TnT2[m[33m, [m[1;32mTnT2[m[33m)[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Sat Apr 13 13:51:21 2024 +0800
+
+    更稳定的收集数据
+
+[33mcommit 8e2ecce79351a38977cd076664a7d7db2b10d0e7[m
+Merge: bc5a5a1 20435d5
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Sat Apr 13 12:08:07 2024 +0800
+
+    Merge branch 'TnT2' of github.com:Umbrella167/Rocos into TnT2
+
+[33mcommit 4ef49874d7ead34d4395dfc3cda60c496d10060e[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Sat Apr 13 12:06:19 2024 +0800
+
+    22
+
+[33mcommit a045cd67462bda4c12663e2c32e580e2a261b8ba[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Sat Apr 13 10:35:22 2024 +0800
+
+    暂存
+
+[33mcommit 20435d5af6f946961b203e6c2dec9f87332445c9[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Sat Apr 13 02:59:45 2024 +0800
+
+    正在收集数据(修改了一点点)
+
+[33mcommit 51668b71f93997067835fd37ebe8fd3571b51573[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Sat Apr 13 02:50:43 2024 +0800
+
+    正在收集数据
+
+[33mcommit 77643d8df09fbd2fd71f0639b990658d8841e633[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Sat Apr 13 00:03:15 2024 +0800
+
+    新增了收集拟合数据脚本
+
+[33mcommit 1b809ce365fbec1d5cb6b076e42130d2fd7fd1f0[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Fri Apr 12 23:08:46 2024 +0800
+
+    stage
+
+[33mcommit f204974ac9332c75e4ceb776c54e1156629ef738[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Fri Apr 12 20:28:08 2024 +0800
+
+    [ALL] merge 4 pitch params into ini
+
+[33mcommit f4984d2a3218f30cd2ee322ef8706455efdbd538[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Fri Apr 12 19:04:31 2024 +0800
+
+    修复了TurnToPointV2
+
+[33mcommit 1f4874a47a9ba19d3a8e965c4afd01aea1b8493e[m
+Merge: 80e957c 595ce2b
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Fri Apr 12 18:54:34 2024 +0800
+
+    Merge branch 'main' of https://github.com/Umbrella167/Rocos
+
+[33mcommit 595ce2ba551391c7f2ce7c8cc9cbdc6748b51664[m
+Merge: c1d5592 b681e9c
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Fri Apr 12 18:52:53 2024 +0800
+
+    Merge branch 'dev' of https://github.com/Robocup-ssl-China/rocos into main
+
+[33mcommit 80e957cc7a2a05bcc93e78c707a32f48ebd54383[m
+Merge: 8a86d03 c1d5592
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Fri Apr 12 18:52:21 2024 +0800
+
+    tt
+
+[33mcommit b681e9c8f50546739df318594b58ca0e8db82806[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Fri Apr 12 18:50:21 2024 +0800
+
+    [Core] fix bug of CircleRun
+
+[33mcommit 8a86d03c2882bf2563d99b061d46982338872909[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Fri Apr 12 18:04:33 2024 +0800
+
+    tt
+
+[33mcommit c1d5592b26bb3791866762877a79127c86d9f956[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Fri Apr 12 18:03:14 2024 +0800
+
+    new turnrun
+
+[33mcommit 453c07c001fcaa8898ff2c51b813a2dc9e10f12b[m
+Merge: 5a24964 eb8b22f
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Fri Apr 12 17:50:52 2024 +0800
+
+    Merge branch 'dev' of https://github.com/Robocup-ssl-China/rocos into main
+
+[33mcommit eb8b22f0a62538b4e422e5f6a59a5c209382ba44[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Fri Apr 12 17:47:56 2024 +0800
+
+    [Core] update CircleRun
+
+[33mcommit 5a24964cb6cf97a051a52e31a4f49908c2a64959[m
+Merge: b9acbf0 3dce8e4
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Fri Apr 12 17:37:34 2024 +0800
+
+    Merge branch 'main' of github.com:Umbrella167/Rocos into main
+
+[33mcommit b9acbf0e20ca5949fa730004a6db1eec9f641b6f[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Fri Apr 12 17:36:36 2024 +0800
+
+    22
+
+[33mcommit 979af2fb2b0be68bb06312a8e8ec7f152b819169[m
+Merge: 43cbd6b 3dce8e4
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Fri Apr 12 17:33:33 2024 +0800
+
+    Merge branch 'main' of https://github.com/Umbrella167/Rocos
+
+[33mcommit 43cbd6b931d0d5e0e8b097d67df2f0c7b3eff9dd[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Fri Apr 12 17:33:27 2024 +0800
+
+    tt
+
+[33mcommit 3dce8e42c2e75573dacc7ad051fbc10bd1afb80b[m
+Merge: fca7698 dc77bd8
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Fri Apr 12 17:32:20 2024 +0800
+
+    Merge branch 'main' of https://github.com/Umbrella167/Rocos
+
+[33mcommit fca769870f7c5b4fa9aad3d6415f103a606a374e[m
+Merge: c660269 f58e535
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Fri Apr 12 17:32:07 2024 +0800
+
+    Merge commit 'f58e535ef782ba3ddbfd5712fa5812f166d7f28d'
+
+[33mcommit dc77bd8a2036237fb446bc8cacdcc26b4e2ca040[m
+Merge: 5fe1993 c660269
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Fri Apr 12 17:31:57 2024 +0800
+
+    Merge branch 'main' of github.com:Umbrella167/Rocos into main
+
+[33mcommit 5fe19933c1b5047610c4fc13387d5ee8c6698188[m
+Merge: 06e3801 bac2ea9
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Fri Apr 12 17:30:51 2024 +0800
+
+    Merge branch 'dev' of https://github.com/Robocup-ssl-China/rocos into main
+
+[33mcommit c66026956358062385b7bbcadac7475cd7c0bc93[m
+Merge: 24749b3 06e3801
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Fri Apr 12 17:29:19 2024 +0800
+
+    Merge branch 'main' of https://github.com/Umbrella167/Rocos
+
+[33mcommit 24749b3417486012265ce6f7344d75d4274fb209[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Fri Apr 12 17:28:59 2024 +0800
+
+    getFitData_runToPos
+
+[33mcommit 06e3801b96e42f8a80324353c65e0e9fe1b06c80[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Fri Apr 12 17:28:14 2024 +0800
+
+    turn
+
+[33mcommit bac2ea9f8f5803640d91891fc2ba82d8541bd037[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Fri Apr 12 16:39:21 2024 +0800
+
+    [Core] clear worlddefine & add rawpos
+
+[33mcommit f58e535ef782ba3ddbfd5712fa5812f166d7f28d[m
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Fri Apr 12 16:38:05 2024 +0800
+
+    Defender: v0.5-a2
+
+[33mcommit 0c23492cfbde0fe1c5cba0c61be68f39ef66cf5f[m
+Merge: c218ce9 bdd40ce
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Fri Apr 12 16:32:08 2024 +0800
+
+    merged
+
+[33mcommit c218ce9149747eb5875221e8685eb4e6a0276a03[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Fri Apr 12 16:30:43 2024 +0800
+
+    tt
+
+[33mcommit bdd40ce9ad2ff7e089b8895bf299b3fa11906184[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Fri Apr 12 16:28:31 2024 +0800
+
+    增加了turntopointV2
+
+[33mcommit 21ac7b0fccc9c25683a865baef2b0d91bdecfc65[m
+Merge: 380993e 1e063c2
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Fri Apr 12 15:58:01 2024 +0800
+
+    merged
+
+[33mcommit 380993ea913037459968aa930edea33c0d3d10ea[m
+Merge: beabe59 83fcdca
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Fri Apr 12 15:56:10 2024 +0800
+
+    获取拟合数据的缺少踢球,其他的基本上都写好了
+
+[33mcommit c200f645797a3cc356e332c7b87f5863204ad77d[m
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Fri Apr 12 14:55:42 2024 +0800
+
+    Defender: v0.5-a1 - stage
+
+[33mcommit 51d4bbb7ac3b879bec0e1237c2e3410ded8dc133[m
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Fri Apr 12 14:11:53 2024 +0800
+
+    Denfeder: v0.4-fix1
+
+[33mcommit 1e063c23e9add603cebe7517343a52e437e566cc[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Fri Apr 12 14:11:09 2024 +0800
+
+    turnRun
+
+[33mcommit 0b40c6326a24eb42ea665b24850339c72cf348ca[m
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Fri Apr 12 13:59:59 2024 +0800
+
+    Defender: v0.4
+
+[33mcommit beabe59e8f6196fe65548af58d15be35eefe2437[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Fri Apr 12 10:37:15 2024 +0800
+
+    tt
+
+[33mcommit 83fcdcae963e6243a4a12e5374bf2e3ea17776da[m
+Merge: 433b360 6c0134d
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Fri Apr 12 10:36:26 2024 +0800
+
+    Merge branch 'main' of github.com:Umbrella167/Rocos into main
+
+[33mcommit 433b360b3a9cef0cdcc8dffd70ff04d631dd83f9[m[33m ([m[1;32mdev[m[33m)[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Fri Apr 12 10:31:16 2024 +0800
+
+    fix player number
+
+[33mcommit 2ced947ad10a4dc773b965992ed00e402a3132a1[m
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Fri Apr 12 10:20:35 2024 +0800
+
+    Defender: v0.4-a1.1
+
+[33mcommit 6c0134d65113363a2aad0182568b58c9eb56bbe5[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Fri Apr 12 02:45:14 2024 +0800
+
+    拼接了fit
+
+[33mcommit 9f8e7174853ed283507e270f9cc58e85af240a80[m
+Merge: 00dc22b 2eb4c9d
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Thu Apr 11 23:57:43 2024 +0800
+
+    Merge branch 'dev' of https://github.com/Robocup-ssl-China/rocos into dev
+
+[33mcommit 00dc22bbdd60b39655cd5e4c03e5f36d0e0004e5[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Thu Apr 11 23:49:32 2024 +0800
+
+    save
+
+[33mcommit 2eb4c9def6318c1600102783861300f54063bf84[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Thu Apr 11 23:27:50 2024 +0800
+
+    [Skill] add CircleRun
+
+[33mcommit f177893e9672226fd6435d387af67a8930f63b71[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Thu Apr 11 23:15:39 2024 +0800
+
+    turn and shoot
+
+[33mcommit c5f62cd03596baf5275e8f7ddb383dcce3c3cde6[m
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Thu Apr 11 22:55:03 2024 +0800
+
+    Defender: v4.0-a1
+
+[33mcommit 1d1a92ce55ed2df9c1eedd44860afe4100451a31[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Thu Apr 11 22:41:46 2024 +0800
+
+    dribbling show and slove bug
+
+[33mcommit d4fc72f8857f361ca7e3479f84f914eee9990e3e[m
+Merge: fb008ae d5ba39b
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Thu Apr 11 22:38:23 2024 +0800
+
+    Merge branch 'main' of github.com:Umbrella167/Rocos into main
+
+[33mcommit bc5a5a1b695a9ee111a34944891da25666cfada9[m
+Merge: b78ffb7 d5ba39b
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Thu Apr 11 22:14:40 2024 +0800
+
+    Merge branch 'TnT2' of github.com:Umbrella167/Rocos into TnT2
+
+[33mcommit fb008ae5704aecb00abfb971b2a5a3cbca3c5aa5[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Thu Apr 11 22:14:09 2024 +0800
+
+    场地刚跑完
+
+[33mcommit d5ba39b6e58846cef911402ccb4acce7f4d0baf7[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Thu Apr 11 21:15:28 2024 +0800
+
+    添加了转向的skill，但是可能有bug，详见函数内部NOTE
+
+[33mcommit 0e2697eb1ecfa3255d275355aaed8672c4ee7e4d[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Thu Apr 11 21:14:34 2024 +0800
+
+    添加了转向的skill，但是可能有bug，详见函数内部NOTE
+
+[33mcommit d5c0c49dc962b21d4499effc1c5621894409a101[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Thu Apr 11 19:51:19 2024 +0800
+
+    [Core] add MoveTime test
+
+[33mcommit bff142e8ed2d6c711b3cae61cf6e08baa4040f6a[m
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Thu Apr 11 16:32:51 2024 +0800
+
+    Defender: v0.3
+
+[33mcommit 1e20193f2ec822be138db6dd7613914e59d838e6[m
+Merge: 2790947 2dd2e6e
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Thu Apr 11 13:42:21 2024 +0800
+
+    merge
+
+[33mcommit 279094716c9fe45b4a9cb101b55cdba67f3d8634[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Thu Apr 11 13:38:32 2024 +0800
+
+    更新了截球点预测函数
+
+[33mcommit 1e6e6efa1ccc8fc435b8ffc155fde25100f7f6bb[m
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Thu Apr 11 13:34:17 2024 +0800
+
+    Defender: v0.2
+
+[33mcommit b78ffb7ff88dc1603d0cb90bcf8dd9676e9b31fe[m
+Merge: 4fdf2d8 70d8fee
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Thu Apr 11 11:46:25 2024 +0800
+
+    Merge branch 'TnT2' of github.com:Umbrella167/Rocos into TnT2
+
+[33mcommit 7fe97135b75a5dd580ffca6011403df076cbaff4[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Thu Apr 11 11:42:13 2024 +0800
+
+    22
+
+[33mcommit 70d8fee5b0e13bc3baea4a2144dcc8ed88174930[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Thu Apr 11 11:40:33 2024 +0800
+
+    更新收集数据函数
+
+[33mcommit 2e2e1df8f238b444e54041b261a3917da664fe37[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Thu Apr 11 09:41:44 2024 +0800
+
+    22
+
+[33mcommit 8ec1d12d4d7ce7670508029c01ba22e08281d6d9[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Wed Apr 10 22:32:00 2024 +0800
+
+    [Client & Core] cameramatrix autoupdate & update touch
+
+[33mcommit 4fdf2d8256ecf9b51938aeca3204e9c5ac9a6c6e[m
+Merge: 1d1f515 1abd8dc
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Wed Apr 10 21:38:14 2024 +0800
+
+    Merge branch 'TnT2' of github.com:Umbrella167/Rocos into TnT2
+
+[33mcommit 1abd8dc733474901141ef21cab37dba241dea7be[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Wed Apr 10 21:21:17 2024 +0800
+
+    22
+
+[33mcommit 2dd2e6e8bb936b5062124dc4873408638b97331e[m
+Merge: ab38e4e 1d1f515
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Wed Apr 10 21:16:30 2024 +0800
+
+    Merge branches 'main' and 'main' of https://github.com/Umbrella167/Rocos
+
+[33mcommit ab38e4e1d36f4e3f2c4be32aa1da8a60be950166[m
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Wed Apr 10 21:07:28 2024 +0800
+
+    Defender: play v0.1
+
+[33mcommit 1d1f515e1baa9460656e955ff0369d44886aaddd[m
+Merge: a39b0e0 796f85a
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Wed Apr 10 21:01:55 2024 +0800
+
+    Merge branch 'main' of github.com:Umbrella167/Rocos into main
+
+[33mcommit a39b0e0de7902148a2656a61ed798cf69b057b06[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Wed Apr 10 21:01:18 2024 +0800
+
+    11
+
+[33mcommit 796f85aebb5ac7c1e39dac7ffeeebdc350596922[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Wed Apr 10 20:59:59 2024 +0800
+
+    修正
+
+[33mcommit 8d78bd49f5a6b17336aa0832d985142040885af4[m
+Merge: 5d92abf 3b63099
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Wed Apr 10 20:50:19 2024 +0800
+
+    mergedd
+
+[33mcommit 5d92abff6ade7f7773876e46cd2b260aaede713a[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Wed Apr 10 20:47:23 2024 +0800
+
+    采集了玩家运动信息
+
+[33mcommit 3b6309954a4fd10b4a9b60cad5875b39afda445a[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Wed Apr 10 20:45:32 2024 +0800
+
+    解决冲突 new touchkick
+
+[33mcommit b5e003470ff3229dd9d75dd74a035c1d2792a9f0[m
+Merge: 23996b2 4d43c23
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Wed Apr 10 20:28:24 2024 +0800
+
+    Merge branch 'dev' into main
+
+[33mcommit 23996b229da63afcbc2b1c71c02efb2510bfd2ad[m
+Merge: 51dfb9b de9bb6a
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Wed Apr 10 20:21:59 2024 +0800
+
+    Merge branch 'main' of github.com:Umbrella167/Rocos into main
+
+[33mcommit 51dfb9b3bbe8084b762af49856a698307a42651b[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Wed Apr 10 20:21:39 2024 +0800
+
+    normalstart a half
+
+[33mcommit 4d43c23de6e5c735b9b498869fb21b949627d4e8[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Wed Apr 10 20:14:31 2024 +0800
+
+    [Controller] add timestamp for recv data
+
+[33mcommit bf0243cc4c219d720340b98af8bcd136434f7eac[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Wed Apr 10 20:07:37 2024 +0800
+
+    [Core] update touch
+
+[33mcommit 1e730cadd8ea2c3b5c02b2903c36ec4411b1baca[m
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Wed Apr 10 16:51:32 2024 +0800
+
+    Defender: fix
+
+[33mcommit de9bb6a6cddd6b35451ebedc9f6adcb6462af670[m
+Merge: cf3bc14 2781e24
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Wed Apr 10 16:13:35 2024 +0800
+
+    merge main
+
+[33mcommit 2781e2457ab4b08df19b9d5866f824cde5c37170[m
+Merge: 463c51f e9620cd
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Wed Apr 10 16:01:20 2024 +0800
+
+    Merge branch 'main' of github.com:Umbrella167/Rocos into main
+
+[33mcommit 463c51f3cfd7a6ea67ae0be7c91754aa946c24d3[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Wed Apr 10 16:00:14 2024 +0800
+
+    1
+
+[33mcommit d08f954abc7ab9cd49e014eb3330d5bfac428c1e[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Wed Apr 10 15:56:47 2024 +0800
+
+    [Core] tidy ballspeedmodel
+
+[33mcommit e9620cdb4a704fc83ef6b0202f680ba0c3d9cf93[m
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Wed Apr 10 15:35:47 2024 +0800
+
+    Defence: init
+
+[33mcommit 64e154bd343fc7b852ab4ef7c360426458486eee[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Wed Apr 10 14:07:58 2024 +0800
+
+    getball task
+
+[33mcommit cf3bc14dbfdba4a078687958aafa1b9a7d73ea08[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Wed Apr 10 13:37:42 2024 +0800
+
+    t
+
+[33mcommit 7aadcaf0e947ace5109225ad14903b9cd18d6cbf[m
+Merge: 0624eb7 1c42f21
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Wed Apr 10 13:36:03 2024 +0800
+
+    Merge branch 'main' of github.com:Umbrella167/Rocos into main
+
+[33mcommit 0624eb7d132bb9af9dcea00bc06f07a8649b3891[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Wed Apr 10 13:34:56 2024 +0800
+
+    lua to bast get inter pos
+
+[33mcommit 1c42f21f81c17f3c52b9bd5bca59775026b0d8de[m
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Wed Apr 10 13:26:22 2024 +0800
+
+    Fix Defender, test to go.
+
+[33mcommit 9112064a419465f9d1dca0ba72c4b3dfbd4b7765[m
+Merge: 6200adb 5c2e0a1
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Wed Apr 10 13:08:57 2024 +0800
+
+    Merge branch 'main' of github.com:Umbrella167/Rocos into main
+
+[33mcommit 6200adb68264a6b468c2c12def63cf8eee619b5e[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Wed Apr 10 13:06:22 2024 +0800
+
+    1
+
+[33mcommit 8c87a49081251cb8b2f27f7638ed87ba5665f431[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Wed Apr 10 12:52:26 2024 +0800
+
+    正在采集玩家数据
+
+[33mcommit 5c2e0a1d1bdeb904445f52953a281d58f24f9538[m
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Wed Apr 10 12:44:20 2024 +0800
+
+    Format: utils & Update: TestDefense
+
+[33mcommit 90e08afb16f5c9c785822c33fbe72f1e87a94371[m
+Merge: 932058d f1d20a5
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Wed Apr 10 12:00:18 2024 +0800
+
+    Merge branch 'main' of https://github.com/Umbrella167/Rocos
+
+[33mcommit f1d20a5288a93fb5a2274774a8a8cc41908d0ba7[m
+Author: SaltA <super800800@icloud.com>
+Date:   Wed Apr 10 12:00:15 2024 +0800
+
+    Delete .github directory
+
+[33mcommit 932058d306cbe81f467795d7b02f52fda3e2436c[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Wed Apr 10 12:00:12 2024 +0800
+
+    优化寻找最佳截球点的函数
+
+[33mcommit ecf57bb25d92cb1e9f2b04245949c7fc9e0cfb0c[m
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Wed Apr 10 11:59:06 2024 +0800
+
+    The workflow is not needed.
+
+[33mcommit 6ee1c53d1bb3db3ff5422a5456c85611da8b235c[m
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Wed Apr 10 11:54:52 2024 +0800
+
+    The workflow is not needed.
+
+[33mcommit 1f7a0a6bdb38706311d117df1d1f24075205617a[m
+Merge: 40f2118 ea06804
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Wed Apr 10 00:30:11 2024 +0800
+
+    Merge branch 'main' of github.com:Umbrella167/Rocos into main
+
+[33mcommit 40f2118e97cd7c92c46596bcc9555a4886a8e4ec[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Wed Apr 10 00:27:27 2024 +0800
+
+    cc
+
+[33mcommit ea06804f5c6ce268c04dfdf93ee30d12126db268[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Wed Apr 10 00:24:42 2024 +0800
+
+    增加了截球点预测函数
+
+[33mcommit 066e7dc9631296446ace351f59fa618fcc288491[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Tue Apr 9 21:29:28 2024 +0800
+
+    [Core] link real number with subPlay Role
+
+[33mcommit adac095628f63f112af3dde611fbdd24569a72e7[m
+Merge: d02fd33 200a90a
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Tue Apr 9 19:59:27 2024 +0800
+
+    Merge branch 'umbrella' into main
+
+[33mcommit 200a90a8ef7901ea5d2f6f57ee18731046fa3543[m[33m ([m[1;31morigin/umbrella[m[33m, [m[1;32mumbrella[m[33m)[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Tue Apr 9 19:57:20 2024 +0800
+
+    normal test
+
+[33mcommit d02fd33b3992b5f049eb4502fbe68ecd4d90a0c0[m
+Merge: 70fdd98 07d653a
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Tue Apr 9 19:49:37 2024 +0800
+
+    Merge remote-tracking branch 'origin/TnT2' into HEAD
+
+[33mcommit 70fdd986016c8406bde2b9683b8af179def175fe[m
+Merge: a9af2c4 d151446
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Tue Apr 9 19:45:42 2024 +0800
+
+    Merge commit 'd1514464' into HEAD
+
+[33mcommit a9af2c4db431169db4f654a1730e00d315052482[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Tue Apr 9 19:37:18 2024 +0800
+
+    upup
+
+[33mcommit 07d653a95c0897950cd99d31fa0f79b0d9bb44e9[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Tue Apr 9 18:50:13 2024 +0800
+
+    暂存
+
+[33mcommit b89d06d7001d1da9961d9a1223902b56329022a0[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Tue Apr 9 18:47:49 2024 +0800
+
+    1
+
+[33mcommit 75b2ee97661fb271b9429251f1e7c4cba8dea011[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Tue Apr 9 18:47:11 2024 +0800
+
+    t
+
+[33mcommit c440a0e8e543a2cc3142fdb4da8451144612b015[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Tue Apr 9 18:32:21 2024 +0800
+
+    subscript
+
+[33mcommit e913d32d4887437d2ffd7ac91de8cdd6968540d3[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Tue Apr 9 18:30:49 2024 +0800
+
+    合并用
+
+[33mcommit aafe9c644e56a1d0dd28ac60122a9ed1a9e17844[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Tue Apr 9 18:19:32 2024 +0800
+
+    添加了球预测函数
+
+[33mcommit 340d35ad2b3d8c80e28531ab08c3c485034f8022[m
+Merge: 6d35d28 c1ee379
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Tue Apr 9 17:44:44 2024 +0800
+
+    Merge branch 'dev' into umbrella
+
+[33mcommit 6d35d28cad381a738fbf9093c3075a6a670e354f[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Tue Apr 9 17:39:02 2024 +0800
+
+    11
+
+[33mcommit c1ee379348ed74bddb4e741addf1faec1966651b[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Tue Apr 9 16:56:02 2024 +0800
+
+    [Core] add new lua version bufcnt & add subplay fw
+
+[33mcommit d1514464d53c5a3d25448d1db04e3d7b90925541[m
+Author: 907577659 <super800800@icloud.com>
+Date:   Tue Apr 9 13:46:28 2024 +0800
+
+    Create Skill/Defender & fomaet utils.cpp
+
+[33mcommit b6b629c4f6f46bf7a7e39c847f959fcc09dc95fc[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Tue Apr 9 13:16:09 2024 +0800
+
+    status up and touch
+
+[33mcommit 6d298c7e4e7314cc4a5589073b5eecdea618155a[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Apr 8 16:33:46 2024 +0800
+
+    fix bug of missing header
+
+[33mcommit 5d23ba31103484548b24e6b9b5614de84ffad067[m
+Merge: 7b680af 3a84907
+Author: 907577659 <super800800@icloud.com>
+Date:   Mon Apr 8 14:52:22 2024 +0800
+
+    Merge remote-tracking branch 'origin/umbrella'
+
+[33mcommit 7b680af584b0755e73abc8f87227c52971f84324[m
+Merge: eb723a4 b22339f
+Author: 907577659 <super800800@icloud.com>
+Date:   Mon Apr 8 14:09:20 2024 +0800
+
+    Merge branch 'SaltA'
+
+[33mcommit eb723a453ff3dd764724e5f99646959b352cb96b[m
+Merge: ef70594 3fb7ec0
+Author: 907577659 <super800800@icloud.com>
+Date:   Mon Apr 8 14:03:39 2024 +0800
+
+    Merge commit '3fb7ec0f988e76f019ab4a1a535f48ca4725ddcb'
+
+[33mcommit ef70594ddd25ef99711ca96e1f13c7870a910d5b[m
+Merge: a30535d ef21eaf
+Author: 907577659 <super800800@icloud.com>
+Date:   Mon Apr 8 13:59:29 2024 +0800
+
+    Merge branch 'umbrella'
+
+[33mcommit 3a84907207b660429a6f2803e0d71a4ae755f615[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Mon Apr 8 13:44:14 2024 +0800
+
+    up
+
+[33mcommit b22339f71b126c9c0de49a408991a0cb7d743dc0[m
+Author: 907577659 <super800800@icloud.com>
+Date:   Mon Apr 8 10:17:18 2024 +0800
+
+    Stage
+
+[33mcommit 3fb7ec0f988e76f019ab4a1a535f48ca4725ddcb[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Sun Apr 7 22:24:46 2024 +0800
+
+    解决但没整理,准备自己重写
+
+[33mcommit e2824241b1cc0d40cd275772990ee6f60e62db57[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Sun Apr 7 21:27:09 2024 +0800
+
+    暂存
+
+[33mcommit 2a2dbe206f7eaad96ec22f5a6f5fd28c575f6da6[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Sun Apr 7 01:10:45 2024 +0800
+
+    fit能跑但有一堆bug,代码也没整理
+
+[33mcommit 9777b14ede45e61d8d1a62c60c3393ad4e5743e2[m
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Sat Apr 6 14:14:49 2024 +0800
+
+    Add DefenderTryToCatchBall()
+
+[33mcommit 76c9e38b812b23c2520cd8eeeb37750beb2b7f17[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Wed Mar 20 20:50:55 2024 +0800
+
+    修改下utils下面的工程
+
+[33mcommit 021ee092c17db3fdbe61a2fd45ecf4d241f7e476[m
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Sat Apr 6 14:14:49 2024 +0800
+
+    Add DefenderTryToCatchBall()
+
+[33mcommit ef21eaf157768352bcadf1a48413047488835193[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Sat Apr 6 01:39:12 2024 +0800
+
+    bug -  无法传tick到lua
+
+[33mcommit a30535d52ecd30cac6c90438ad37bbca5ff1c364[m
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Thu Apr 4 22:57:49 2024 +0800
+
+    stage
+
+[33mcommit 57d9a3c39e86b4e41078c000ed4da8c4c8e0db6b[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Thu Apr 4 01:11:08 2024 +0800
+
+    status -lua 在lua 中新建了一个globalMessage 存放全局变量，task处理角色状态
+
+[33mcommit fcb1c8dcdb9bd2f414293f30a8d83876ed95eeac[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Mon Apr 1 17:48:35 2024 +0800
+
+    GLobalComputingPos 中把AttackPos分为上半部分和下半部分
+
+[33mcommit 1dfb05bcfb9a70a08b085355fb0ceee6909da14d[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Sun Mar 31 15:30:50 2024 +0800
+
+    修正了一下预测代码
+
+[33mcommit f6e6938da6db50446ede49531045102f98270771[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Sun Mar 31 00:09:45 2024 +0800
+
+    修正了合并时出现的代码问题
+
+[33mcommit 6a3790353263c399dd7eb24d2ed0f4b38e255bb9[m
+Merge: 1267af8 e7cc4dc
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Sat Mar 30 18:20:26 2024 +0800
+
+    Merge remote-tracking branch 'origin/umbrella'
+
+[33mcommit 1267af8001c67e99211a37917685b1f54b855234[m
+Merge: 06b00a6 4a86cab
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Sat Mar 30 18:16:39 2024 +0800
+
+    Merge branch 'TnT'
+
+[33mcommit 4a86cab7efe5298846b3901b29dd0ef9b716903e[m
+Merge: d580e1c 546d960
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Sat Mar 30 18:12:18 2024 +0800
+
+    Merge remote-tracking branch 'origin/SaltA' into TnT
+
+[33mcommit d580e1cb5561f377031371f9edd9986771eb1900[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Sat Mar 30 17:47:54 2024 +0800
+
+    新增了预测函数
+
+[33mcommit e7cc4dc0d8d12c9fdbbd226cb615d61a3325232b[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Sat Mar 30 01:23:44 2024 +0800
+
+    更新了状态计算
+
+[33mcommit 0e4aa1effd8080f040cbe86f80e704b3bce1a3ee[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Wed Mar 27 20:12:16 2024 +0800
+
+    存储了拟合函数,并能用标签搜索
+
+[33mcommit 42f1d7fd8dd43dbce98f79a80d4f65882d2df77f[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Tue Mar 26 16:18:31 2024 +0800
+
+    添加了训练数据收集
+
+[33mcommit 3a34dc8dc14ee904397e26747f9e270c6888a7cf[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Tue Mar 26 00:14:45 2024 +0800
+
+    PosSafetyGrade更改
+
+[33mcommit 0f8927eae0083bfeb35f2e5e581bd41014e43657[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Mon Mar 25 19:27:45 2024 +0800
+
+    暫存2
+
+[33mcommit 546d9603bf5a8959c201a9925e9ea87bd3aba9e8[m
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Sun Mar 24 11:16:55 2024 +0800
+
+    Create TestDefense
+
+[33mcommit db621eb00ab22e27f96a56ca8f3b2a55fb977b16[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Sun Mar 24 06:55:48 2024 +0800
+
+    稍微保存下
+
+[33mcommit 14e9b4c702dd4186396ecf7205c1eb3274d9e0d7[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Sat Mar 23 20:39:14 2024 +0800
+
+    更新了預測
+
+[33mcommit 2dd4cf09f8bd84325c83fca2f3c80af26ebf73c1[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Sat Mar 23 13:09:59 2024 +0800
+
+    完成算点
+
+[33mcommit 7c8fb96e9368d2b7a0a0b6d901d5f6d5021e4a78[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Sat Mar 23 03:38:33 2024 +0800
+
+    修好了fit
+
+[33mcommit d22b1676b54f656e5f370ac8e7271d9fd1d526b7[m
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Fri Mar 22 13:58:35 2024 +0800
+
+    Add leastsquartsfit.pkg
+
+[33mcommit 06b00a6e336044e50aababbdeb3d3935db43bc84[m
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Thu Mar 21 22:11:04 2024 +0800
+
+    240321
+
+[33mcommit b00ca6f77df1a3026c26331cdb81dbf3f4b7308f[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Wed Mar 20 20:50:55 2024 +0800
+
+    修改下utils下面的工程
+
+[33mcommit 7fdf06d293aefd4ee2a46296a4d2a549a0f6428f[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Wed Mar 20 19:26:37 2024 +0800
+
+    attack pos
+
+[33mcommit d6fab65188a7c7b69f9ae3beba298caa1ef866fe[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Mon Mar 18 00:35:10 2024 +0800
+
+    完成了ShootPoint的计算和粗略的SAFETY函数
+
+[33mcommit 8670e757e3a2d16945d32d93440e3368f5b93a84[m
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Sat Mar 16 16:54:52 2024 +0800
+
+    Add gitignore
+
+[33mcommit d58f94a4dcd3355b9df801932b6458b2fe4eb2d5[m
+Merge: a9cc218 afc5996
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Wed Mar 13 09:25:33 2024 +0800
+
+    Merge commit 'afc5996106209b4125a442489f2af4972fc00fcb'
+
+[33mcommit a9cc218ab7b93a7c052596c0854a7e36ddc40c66[m
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Wed Mar 13 09:21:48 2024 +0800
+
+    merged 240313
+
+[33mcommit fdb1f36891e23764ec4cafdf1b4af206d2c1d66c[m
+Merge: ed02165 00a715b
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Wed Mar 13 09:21:43 2024 +0800
+
+    Merge branch 'main' of github.com:Umbrella167/Rocos
+
+[33mcommit afc5996106209b4125a442489f2af4972fc00fcb[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Tue Mar 12 13:43:53 2024 +0800
+
+    写了函数注释
+
+[33mcommit f25f3ae985c5cc0727eeb522a7b620c704b04f87[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Tue Mar 12 13:26:00 2024 +0800
+
+    写了函数注释
+
+[33mcommit 00a715b48d3496a2454bb7d28ffc783222a5f0a6[m
+Author: TnTeQAQ <103574636+TnTeQAQ@users.noreply.github.com>
+Date:   Tue Mar 12 02:04:15 2024 +0800
+
+    提交说明
+
+[33mcommit 32ec2e66ce8c171651edc49ac0f70bf961509357[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Tue Mar 12 00:30:14 2024 +0800
+
+    重写了一遍Tick
+
+[33mcommit 2d3ddf1216b47427c3d1080e18d7c76edc903e2f[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Tue Mar 12 00:14:55 2024 +0800
+
+    重写了一遍Tick
+
+[33mcommit ed0216535aca6bd8af9af98baa4eadfb23dc19df[m
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Mon Mar 11 17:49:52 2024 +0800
+
+    初步调整了注释，很多TODO需要你们康康，然后删了conflict测试文件和CodeFramewok.md
+
+[33mcommit 5abca1f3ea8713b15bfccccc44acfa03cb36d791[m
+Author: SaltApocalypse <super800800@icloud.com>
+Date:   Mon Mar 11 17:47:35 2024 +0800
+
+    初步调整了注释，很多TODO需要你们康康，然后删了conflict测试文件和CodeFramewok.md
+
+[33mcommit 51aa9f4f78d92ff453dad937a45bd620079de122[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Mar 11 15:52:42 2024 +0800
+
+    [security] add ossf analysis
+
+[33mcommit 092108d2cf69c0d8a4d5fa5d85abe4239a87061d[m
+Author: Mark_ <mark_zjunlict@zju.edu.cn>
+Date:   Mon Mar 11 15:47:20 2024 +0800
+
+    Create scorecard.yml
+
+[33mcommit bd5af5f3c5ede4e0d0cd1d61a024548592ad9267[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Mar 11 15:18:18 2024 +0800
+
+    merge
+
+[33mcommit a022378764f0871bfe28c8a7a22d5a6a9b1a4f71[m
+Merge: 80f8514 417e663
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Mar 11 15:17:57 2024 +0800
+
+    Merge branch 'main' of github.com:Robocup-ssl-China/rocos
+
+[33mcommit 80f8514b876b3c424163eb6c270bf2390c307974[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Mar 11 15:17:47 2024 +0800
+
+    update codeql.yml
+
+[33mcommit 417e6635b17da4d6c7b80c1d88f26f78c99c9602[m
+Author: Mark_ <mark_zjunlict@zju.edu.cn>
+Date:   Mon Mar 11 15:16:46 2024 +0800
+
+    Create codeql.yml
+
+[33mcommit 97fd48d7ff4b572805c7985103d8c073ca51169e[m
+Author: Mark_ <mark_zjunlict@zju.edu.cn>
+Date:   Mon Mar 11 15:16:27 2024 +0800
+
+    Delete .github/workflows/codeql.yml
+
+[33mcommit 5be567088f14db8e5e917965e3938470427d1ed2[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Mar 11 14:25:02 2024 +0800
+
+    embed build workflow into codeql
+
+[33mcommit d266c3ad6fb66ab43bbb252d7940f6abfb0c7740[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Mar 11 13:52:53 2024 +0800
+
+    [Core] update lua version in cmakelists for autobuild
+
+[33mcommit db94011e557788e1bd078652ee4913636cd80f4b[m
+Merge: 90c2350 67c7df2
+Author: 907577659 <super800800@icloud.com>
+Date:   Mon Mar 11 13:11:02 2024 +0800
+
+    Merge branch 'main' of github.com:Umbrella167/Rocos
+
+[33mcommit 90c235032e53015bf02d6f48beebd66530e76bf0[m
+Author: 907577659 <super800800@icloud.com>
+Date:   Mon Mar 11 13:10:55 2024 +0800
+
+    Formatting & commenting
+
+[33mcommit 67c7df28df0273ba08a5ba4c63cc0a409c7aef74[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Mon Mar 11 11:25:35 2024 +0800
+
+    rm_testmerge
+
+[33mcommit 0145e85fd2d20f5d40b02b6ebc4473c8c8bff988[m
+Merge: 9f18fe3 15ff600
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Mon Mar 11 11:25:10 2024 +0800
+
+    merge_TnT
+
+[33mcommit 15ff6006a8cb11323c6dba3c27ca078b69137408[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Mon Mar 11 11:21:59 2024 +0800
+
+    testmerge_TnT
+
+[33mcommit 9f18fe358ae6b54a603a1fe2413ed5666fb3b8cb[m
+Merge: ab7644d 81afb05
+Author: 907577659 <super800800@icloud.com>
+Date:   Mon Mar 11 10:48:04 2024 +0800
+
+    Merge branch 'main' of github.com:Umbrella167/Rocos
+
+[33mcommit 81afb05316536008a2377bfddf6fefd1463a4ec3[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Mon Mar 11 10:45:47 2024 +0800
+
+    testmerge1
+
+[33mcommit ab7644d68b101e89fb3a5fcb21b461ed48deaba9[m
+Author: 907577659 <super800800@icloud.com>
+Date:   Mon Mar 11 10:45:31 2024 +0800
+
+    测试merge - SaltA
+
+[33mcommit e47d0ccc65ed827ad35d029e01dbe37760f755ca[m
+Author: TnTeQAQ <tnteqaq@gmail.com>
+Date:   Mon Mar 11 10:27:37 2024 +0800
+
+    testmerge_TnT
+
+[33mcommit c04e2a219a14784e79286a3ea277c1be00b125cc[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Mon Mar 11 10:26:55 2024 +0800
+
+    testmerge
+
+[33mcommit 57802cd8cf5cd4ce67d40cc82751bf30f139bfe1[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Sun Mar 10 16:18:56 2024 +0800
+
+    new
+
+[33mcommit 55b10eec84c4dc930710e3d3e4d9cd9f5ac0fb1f[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Sun Mar 10 15:10:54 2024 +0800
+
+    new
+
+[33mcommit 4a5746dfbe14f824b67f4b81a5c2f45be7472de6[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Fri Mar 1 23:57:47 2024 +0800
+
+    GetInterPos and Lua Test
+
+[33mcommit 9764a799fab22ab6d4a7c0f3992cc8409afb8e66[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Fri Mar 1 17:07:50 2024 +0800
+
+    GetInterPos
+
+[33mcommit 8ee250e02df4e27db4fa5ff8ae33d9e7b06c5939[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Thu Feb 29 16:30:36 2024 +0800
+
+    [all] use scan_tool for Core & Client
+
+[33mcommit 89cc389ab9da9a7fc97e06b4e94e9493613dccd5[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Wed Feb 28 19:12:28 2024 +0800
+
+    Update README.md
+
+[33mcommit df6620c2370e2b23b8ce1371b74814285c206c2d[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Wed Feb 28 19:09:41 2024 +0800
+
+    [ALL] add ISSUE_TEMPLATE & auto build actions
+
+[33mcommit 0a9809c628643004925b5285aa9b1603440a7baa[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Tue Feb 27 17:08:28 2024 +0800
+
+    0.01
+
+[33mcommit 8153752a57e48debc5ffc1bbfb1a6b87b4a9038b[m
+Author: Umbrella167 <1670187757@qq.com>
+Date:   Tue Feb 27 17:01:17 2024 +0800
+
+    0.01
+
+[33mcommit 8ce552e808fef48d331aed61ef1d7d8be4b789f1[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Feb 26 19:10:51 2024 +0800
+
+    [doc] new
+
+[33mcommit 60f8984e5afa33bec8644d3850c3e052a8121a9d[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Feb 26 18:54:51 2024 +0800
+
+    [doc] add 1_5_0
+
+[33mcommit de66b8bb7f3fc5eba69777f44bf3f5e3c9831aa5[m[33m ([m[1;33mtag: v0.0.3-alpha[m[33m)[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Feb 26 13:50:56 2024 +0800
+
+    v0.0.3
+
+[33mcommit a3789c65c93c61de888ef34b3b2a9e65c86f747c[m
+Merge: 241f4df b03c731
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Feb 26 13:44:42 2024 +0800
+
+    Merge branch 'main' of github.com:Robocup-ssl-China/rocos
+
+[33mcommit 241f4df31af0bc17400f63bc516d8b971b494c4e[m
+Merge: f6a1230 d4cac3a
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Feb 26 13:44:14 2024 +0800
+
+    Merge branch 'dev'
+
+[33mcommit d4cac3a346fa94b3574453e51bd3ef8d91a7b2af[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Feb 26 13:37:31 2024 +0800
+
+    [doc] add 1_3_3
+
+[33mcommit da4f937f524b302bc297db80a116bdfce37244be[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Sun Feb 25 20:51:08 2024 +0800
+
+    [Core] add refconfig-'PlayConfig.lua' for tactic package
+
+[33mcommit 6f9170d3818add1daf40830e7fe76c68a1306943[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Fri Feb 23 15:02:00 2024 +0800
+
+    [all] change protobuf gen from cmake to make, add deps
+
+[33mcommit 14e70287c480079b6687fabb37ded1cc7908aa75[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Thu Feb 22 22:13:28 2024 +0800
+
+    [doc] change name
+
+[33mcommit 76e79e3cb8ea8c7ddf32609901ce65804d530128[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Thu Feb 22 22:12:28 2024 +0800
+
+    [Core] add gui_debug_msg_fix && add pkg deps in cmakelists.txt
+
+[33mcommit 18fd8918f42ea11450518adad91d699266ded878[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Wed Feb 21 17:24:40 2024 +0800
+
+    [doc] init basic_doc
+
+[33mcommit 56bdc624712b0f9693a361d20c898a39acc7f142[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Wed Feb 21 13:18:54 2024 +0800
+
+    [doc] finish 1_2
+
+[33mcommit c76777c8a27293c741b0a2e1e70f021c3942398d[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Tue Feb 20 23:33:00 2024 +0800
+
+    [Core] move lua:skill to tactic pack
+
+[33mcommit d6436e7ee69c1d1d7260a31cce61421138870bd5[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Tue Feb 20 23:30:32 2024 +0800
+
+    [Core] fix bug of stop.lua
+
+[33mcommit e9834b92845d1eb82a55719cd40cd48279c191b2[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Tue Feb 20 22:07:40 2024 +0800
+
+    [doc] add 1_2_simple_play
+
+[33mcommit f571a9e1900c2d2495dcb90775a09da501f3bfa3[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Tue Feb 20 21:59:40 2024 +0800
+
+    [Core] add testmode settings to Client
+
+[33mcommit 2f7a912a7d94de19422e398030a525e3405a3d0b[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Feb 19 15:27:52 2024 +0800
+
+    [doc] add comments
+
+[33mcommit 2890ee7836cd2c458068dff359803d461baeecbf[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Feb 19 12:31:47 2024 +0800
+
+    [doc] add rocos_basic_0_prepare
+
+[33mcommit a4ad273bba69f51d62a6105318ba32d5b70b120a[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Sun Feb 18 20:31:32 2024 +0800
+
+    [doc] update
+
+[33mcommit 5a1f9f4e068b5a312a24a7238e95e750bcb6ca13[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Sun Feb 18 20:11:33 2024 +0800
+
+    [doc] tidy
+
+[33mcommit d0981b05e385e44e9158ecfd7e9fe3d4ec399225[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Sun Feb 18 20:03:56 2024 +0800
+
+    [doc] update
+
+[33mcommit e574f889ac3738f5e8db8dce3ebe839003fedd42[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Sun Feb 18 19:46:46 2024 +0800
+
+    [doc] update
+
+[33mcommit 2130b3a14b79b0fc298d826d93c2c2be89ec583e[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Sun Feb 18 19:41:17 2024 +0800
+
+    [doc] organize directory structure
+
+[33mcommit 1e108c17e9496b99524007112a236810fe6d51fb[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Sun Feb 18 19:10:02 2024 +0800
+
+    [lua] reset Config.lua Orz[mark]
+
+[33mcommit 96c215a15c86c9faa71517fb1a85f8c7a1e5cfab[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Sun Feb 18 17:44:53 2024 +0800
+
+    [doc] add 0_1
+
+[33mcommit b03c731bd34a44f02f72ac0b53c2dffaeff275d3[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Sun Feb 18 16:09:38 2024 +0800
+
+    Update README.md
+
+[33mcommit fdfa20f870205accd7104009cb1fba8bf1e399cf[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Sun Feb 18 15:04:21 2024 +0800
+
+    [doc] update
+
+[33mcommit 12756ff53bc1f80f4d11b7d4ccd520e9fdede4af[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Sat Feb 17 20:58:52 2024 +0800
+
+    [doc] update 0_0
+
+[33mcommit 089b7230e9bd7e90fecd0af2734cb2f5de607460[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Sat Feb 17 20:55:16 2024 +0800
+
+    [doc] add 0_0
+
+[33mcommit 48e1323b726ae55bb6fc529511dce822ad54d5fe[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Sat Feb 17 20:05:51 2024 +0800
+
+    [doc] fix compile failed bug
+
+[33mcommit 64356dfa259d2b50ff8e2902cdce9fe9f35cae6c[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Sat Feb 17 19:17:37 2024 +0800
+
+    [doc] update
+
+[33mcommit bf072bac7d2d0116b38173502512fdd29d962f2a[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Sat Feb 17 19:01:16 2024 +0800
+
+    [doc] add 1_1
+
+[33mcommit 9fbf8e44539a1ab3a2f2d6c0b2b585eb64ee6857[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Sat Feb 17 01:02:30 2024 +0800
+
+    [doc] update 1_0
+
+[33mcommit 48b83588fedca17791a5591f2b8eb731c4c5a5db[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Sat Feb 17 00:54:41 2024 +0800
+
+    [Core] support tactic packages for lua skills
+
+[33mcommit 2063ad736c08eb9074dc7a6387c111a76ba20dbc[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Fri Feb 16 21:16:10 2024 +0800
+
+    [Core] create tactic pack
+
+[33mcommit d276713716670076c5bc8c236f4bfb2869c443a1[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Fri Feb 16 19:56:01 2024 +0800
+
+    [Core] delete old skill factory
+
+[33mcommit b96250da0311f836f8e4e81f2f00a3c28b472104[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Fri Feb 16 17:03:46 2024 +0800
+
+    [Core] fix bug of reset task
+
+[33mcommit 8a28bd23c1b177020218dcd9c686472c17f0cb66[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Fri Feb 16 00:03:37 2024 +0800
+
+    [Core] new version of createSkill
+
+[33mcommit a6f343efc1bfca26c78feac40b07d702e8f12aa9[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Thu Feb 15 18:17:22 2024 +0800
+
+    [doc] modify tolua++
+
+[33mcommit b3fc36cb32894c4e65771ca46913f29aff9a6d7e[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Thu Feb 15 18:13:03 2024 +0800
+
+    add tolua++
+
+[33mcommit 9456cf7301ac57f198f31be2e3e8055708e59ae5[m
+Author: sybilshen <bingjie_s@163.com>
+Date:   Thu Feb 15 00:24:34 2024 +0800
+
+    add 2_1
+
+[33mcommit 5352cf0b758d1c7e345dcb43b90867bca23dabf7[m
+Author: sybilshen <bingjie_s@163.com>
+Date:   Wed Feb 14 22:00:47 2024 +0800
+
+    add doc/1_0
+
+[33mcommit 880e46c0410bd15c0ae99449bda074857d139b36[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Thu Feb 1 21:15:33 2024 +0800
+
+    add requirements
+
+[33mcommit 8b3f0cecdf0f8c9e1e7a3ef2d1a8ec670a612f91[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Thu Feb 1 21:09:21 2024 +0800
+
+    add doc
+
+[33mcommit f6a1230e85f61aadf68e1bd19d1ed0c91dea93b4[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Thu Feb 1 12:03:33 2024 +0800
+
+    update wiki url
+
+[33mcommit 6ab7cbc7f6d01b2cbbd9b4459cafde4a94088223[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Thu Feb 1 11:58:18 2024 +0800
+
+    add readthedocs.yaml
+
+[33mcommit de7b2edf1c813f36bf2d96bee00c690a2067f204[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Jan 29 20:07:48 2024 +0800
+
+    add makefile for doc
+
+[33mcommit 268b9f742b8e86966eb7a8b29dbe0084c5ad5f65[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Jan 29 17:43:13 2024 +0800
+
+    add doc
+
+[33mcommit 1cb7e037d0e5244154a32cd9f949efd5dfa0c115[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Fri Jan 26 23:36:55 2024 +0800
+
+    change all lua_skill api to new skillapi:run
+
+[33mcommit fe7d15aff5179460df14eb4e8431ede207fcd6de[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Fri Jan 26 21:45:01 2024 +0800
+
+    skillapi lua_test works
+
+[33mcommit f72f1dfae1b5572a51ca4d38f2c0e2ad2ebd9ff3[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Fri Jan 26 15:09:13 2024 +0800
+
+    skillapi works & merge singleton header to one file
+
+[33mcommit 9cee0c98018a2a77f86fe5331748fe07dddb2da2[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Jan 22 16:32:53 2024 +0800
+
+    change skill Factory pattern
+
+[33mcommit 47ba529b37e75f19ed2f29be1a32d68158a7605c[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Jan 22 14:49:52 2024 +0800
+
+    add registry for skill
+
+[33mcommit 109bf0ce24a90da1d094d25f840a1f4035d86274[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Jan 22 13:36:57 2024 +0800
+
+    delete unused files
+
+[33mcommit f87fb8974607c06238c3e0523fd9ccc76c509ede[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Jan 22 13:23:26 2024 +0800
+
+    delete unused types
+
+[33mcommit 3884793d1068eca5ba9aaffcd69fcb32f4706221[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Jan 22 13:16:20 2024 +0800
+
+    delete unused class
+
+[33mcommit 115fe587de441f2530c4243cb316f7f3ac49e6f5[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Thu Jan 18 16:24:55 2024 +0800
+
+    debug TestPassAndKick
+
+[33mcommit ac76655c47f5f4daf76c9c25b3a31e86b92bc97c[m
+Merge: b14cf82 9132b37
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Tue Jan 16 22:15:51 2024 +0800
+
+    Merge branch 'main' of github.com:Robocup-ssl-China/rocos
+
+[33mcommit b14cf82fe9892ba25235a664c9a181bab991aacd[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Tue Jan 16 22:15:36 2024 +0800
+
+    change param for dealrobot
+
+[33mcommit 9132b3783bb2466b9248be073076c15a13e5091b[m
+Merge: 960c573 9f0ce0f
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Tue Jan 16 10:41:25 2024 +0800
+
+    Merge branch 'main' of github.com:Turing-zero/rocos-private
+
+[33mcommit 9f0ce0fbdfd646541e724b44dfca3b6c75aa8316[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Tue Jan 16 10:37:58 2024 +0800
+
+    add TestPassAndKick test
+
+[33mcommit 960c5732b6cb0d852146d5385a96dd21ddbf43df[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Jan 15 21:37:12 2024 +0800
+
+    update logo
+
+[33mcommit d2b315ac7d06671853c4f250a57d40fd214d05e8[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Jan 15 17:08:10 2024 +0800
+
+    update v0.0.2
+
+[33mcommit 745bd2c8e3366ef3723279ebb617902f31427e6e[m[33m ([m[1;33mtag: v0.0.2[m[33m)[m
+Merge: 2ed145e 9c5cfcf
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Fri Jan 12 16:34:34 2024 +0800
+
+    Merge branch 'main' of github.com:Robocup-ssl-China/rocos
+
+[33mcommit 2ed145eb0764a3c8d917fc5b8d8e380a452a351f[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Fri Jan 12 16:34:18 2024 +0800
+
+    update CHANGELOG
+
+[33mcommit 9c5cfcf88d9abed423e176952baea47990d86ca0[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Sat Jan 6 15:42:23 2024 +0800
+
+    update runmultipos api
+
+[33mcommit 9af12dace0acba41bcf96d3211260888381b6c18[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Sat Jan 6 15:40:39 2024 +0800
+
+    support recv id
+
+[33mcommit 9ebb14b55258c4628b605b335ebf22a882376769[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Sat Jan 6 13:50:14 2024 +0800
+
+    fix sim openspeed not dribble
+
+[33mcommit 7b1be212fb69b4befdcee06a1942a3ab22d978e9[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Thu Jan 4 15:25:39 2024 +0800
+
+    fix for recv pack seperated
+
+[33mcommit b9cfbace5034e6c880cec54eb9b698e93fa4b6b8[m
+Merge: d9d8425 a9721f4
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Wed Jan 3 14:56:57 2024 +0800
+
+    Merge branch 'main' of github.com:Robocup-ssl-China/rocos
+
+[33mcommit d9d8425c91c3bf058ba54f410a0701dc415b4231[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Wed Jan 3 14:56:47 2024 +0800
+
+    add vel regulation param
+
+[33mcommit a9721f4af55fc6583fa16a8e513bc6eba28201c0[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Tue Jan 2 22:56:08 2024 +0800
+
+    add readData in Controller
+
+[33mcommit f8ab26f65d93d8e5458b59772d2fc4084615c5bc[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Tue Jan 2 15:33:24 2024 +0800
+
+    update readme
+
+[33mcommit 24e0f84b79cec54afdb6db9a1f1a15ffa052fb5c[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Tue Jan 2 15:29:15 2024 +0800
+
+    update readme
+
+[33mcommit 0ed82cff14ad394059406f5b65d8f3abbfe8a228[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Tue Jan 2 15:10:58 2024 +0800
+
+    add ubuntu compile cmd & re robotsensor & rename benchmark scripts
+
+[33mcommit 518d28bb359b266f6de6be41867e5957b19fe5e8[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Jan 1 22:30:23 2024 +0800
+
+    change param for TestAcc
+
+[33mcommit 93fea5164588cf8d1d43e0fc128cf11b99968a8a[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Jan 1 22:25:15 2024 +0800
+
+    fix bug for rotVel
+
+[33mcommit 460276b40456a0cfbd78f1c84644397158581039[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Jan 1 21:45:33 2024 +0800
+
+    add time to testacc benchmark
+
+[33mcommit 883cc4a7ca69dcba0a3183eb15aa43de7bfb71dd[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Jan 1 20:39:14 2024 +0800
+
+    fix bug
+
+[33mcommit d4fe3b18e1d1f68f9bcd70f45219a0af6d6fb994[m
+Merge: 04e4d0f 58f82de
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Jan 1 20:29:44 2024 +0800
+
+    Merge branch 'main' of github.com:Robocup-ssl-China/rocos
+
+[33mcommit 04e4d0f4b838abc1801a250fdbcb032b22fe71f1[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Jan 1 20:28:11 2024 +0800
+
+    remove output of COntroller
+
+[33mcommit 58f82de336dd1b53fc4df24680882b2c627d697b[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Jan 1 19:46:04 2024 +0800
+
+    add ACC Benchmark Test script & goCmuRush extent api & change debug msg font
+
+[33mcommit 85af311add4ab9ee78f4ff94cbab6972005ffc40[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Jan 1 15:46:31 2024 +0800
+
+    2024 new style
+
+[33mcommit 92ccf0f4cb2bf6d33dc2b8e44a8e869ac43cc8b7[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Wed Dec 27 23:49:40 2023 +0800
+
+    change Controller Layout
+
+[33mcommit fdd11c4a3885932a5ec627db3bc254c8e65b06ea[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Wed Dec 27 22:51:45 2023 +0800
+
+    openspeed closure & crazy dribblepower bug
+
+[33mcommit d63d4dc991b08da55019a6115d013b191c3d74b5[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Dec 25 19:43:41 2023 +0800
+
+    add Controller to root cmake
+
+[33mcommit b6e941abe960f756342c76518963ff58001e6ad3[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Tue Jun 20 02:52:06 2023 +0800
+
+    add multi protocol
+
+[33mcommit 01c98b24ceb5dc8a8445bf0c50c167a57e45ffe9[m
+Author: mark <mark_zjunlict@zju.edu.cn>
+Date:   Sat May 13 01:44:08 2023 +0800
+
+    fix bug for ZJTC
+
+[33mcommit dbe41c48fa26b8ba988ef9c96a9769cf62969791[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Fri May 12 20:25:51 2023 +0800
+
+    fix bugs
+
+[33mcommit b5a92215bea92de471379701de0d42aaa1c32c55[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Fri May 12 18:16:42 2023 +0800
+
+    add ZBin/lua_scripts/play/Autoref/ZJRoboCon2023TC.lua
+
+[33mcommit c0a5a5b781b6d80dbce068b857e56c04b8a08690[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Sun Mar 26 22:21:56 2023 +0800
+
+    [support]新发射机&S01
+
+[33mcommit 253e45120d2160998c26b4ba552f5ccee80386ee[m
+Author: chenzhike110 <3180103610@zju.edu.cn>
+Date:   Thu Nov 24 23:05:38 2022 +0800
+
+    remove simmodule udp bind
+
+[33mcommit 0e0011ffa8a353c981be303441ea0fb1a2949602[m
+Merge: da61a42 edbac74
+Author: chenzhike110 <3180103610@zju.edu.cn>
+Date:   Thu Nov 24 16:11:12 2022 +0800
+
+    Merge branch 'master' of github.com:Robocup-ssl-China/rocos
+
+[33mcommit da61a4269ccd5dfce9dd6f06d3255192d0ff42f3[m
+Author: chenzhike110 <3180103610@zju.edu.cn>
+Date:   Thu Nov 24 16:10:33 2022 +0800
+
+    fix yellow status receive
+
+[33mcommit edbac74a78649efd891195605774a2a09a590edc[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Wed Nov 23 06:09:17 2022 +0800
+
+    add remote debugger & unify debug protocol
+
+[33mcommit 607f77e8714fc8e31c491d03bcf4f91af7638799[m
+Merge: 638d02e b6cec1b
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Wed Nov 23 04:38:17 2022 +0800
+
+    Merge branch 'master' of github.com:Robocup-ssl-China/rocos
+
+[33mcommit 638d02e33fb4e62e6f8bc6b884cf46d7ec7f75b4[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Wed Nov 23 04:38:07 2022 +0800
+
+    useless changes
+
+[33mcommit b6cec1b2adde8d9ce4476f7c4d83aaa21ebb223d[m
+Author: chenzhike110 <3180103610@zju.edu.cn>
+Date:   Wed Nov 23 01:43:58 2022 +0800
+
+    move file
+
+[33mcommit 8d1af99bb6437c98e208a8db6470df4bab5ba08d[m
+Author: ZhiKe Chen <53006764+chenzhike110@users.noreply.github.com>
+Date:   Wed Nov 23 01:35:41 2022 +0800
+
+    Add files via upload
+    
+    add network interface
+
+[33mcommit dfb2be2f59ba4f454d4845bd52970cefc56754ff[m
+Author: chenzhike110 <3180103610@zju.edu.cn>
+Date:   Tue Nov 22 16:41:50 2022 +0800
+
+    update infrared and remote instruction
+
+[33mcommit 71db0531543dec8815f1918f61772ff250cf1481[m
+Author: ubuntu <ubuntu@localhost.localdomain>
+Date:   Mon Nov 21 23:14:32 2022 +0800
+
+    add remote simulation
+
+[33mcommit c20a78971e08c838c31578171f95ed9a5386133d[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Tue Oct 25 16:22:51 2022 +0800
+
+    Update README.md
+
+[33mcommit f972c2036abd3425139eee749ca5e114f0cd8ffc[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Tue Oct 25 16:22:11 2022 +0800
+
+    Update README.md
+
+[33mcommit 8be8c417c87732ce43f549e551e730e62d2e71f7[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Tue Oct 25 16:21:35 2022 +0800
+
+    Update README.md
+
+[33mcommit a7ef79d263342af75cb7d62a3f57a15a4e16bd0b[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Tue Oct 25 12:24:26 2022 +0800
+
+    clean trash files
+
+[33mcommit e7670ca472acc251ad5f8f8770f5c7f00d5b4550[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Tue Oct 25 11:34:49 2022 +0800
+
+    merge two projects into one cmakelists
+
+[33mcommit 8d9cac21c48a1e5fd418c7d8e7437e24379ff184[m[33m ([m[1;33mtag: v0.0.1[m[33m)[m
+Merge: 05bafc8 34b7873
+Author: chenzhike110 <3180103610@zju.edu.cn>
+Date:   Thu Jul 14 15:41:30 2022 +0800
+
+    Merge branch 'master' of github.com:Robocup-ssl-China/rocos
+
+[33mcommit 05bafc84640c6b046161b707c3b2da7d0fcee5d0[m
+Author: chenzhike110 <3180103610@zju.edu.cn>
+Date:   Thu Jul 14 15:37:31 2022 +0800
+
+    add ballspeed monitor
+
+[33mcommit 34b78739cb7c0e2d44a83c8a7a99f3dbbacb01ab[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Jul 11 20:54:55 2022 +0800
+
+    修正自动放球的脚本跳转[->不根据next command跳转]
+
+[33mcommit 8c77d3169307b0b5fb40ae64733abd7fd1e1f3e8[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Jul 11 12:45:33 2022 +0800
+
+    fix autokick
+
+[33mcommit 676b06db9fdd5376b43f84a9fcd256b0a90c8117[m
+Author: Mark <mark_zjunlict@zju.edu.cn>
+Date:   Mon Jul 11 12:42:10 2022 +0800
+
+    fix autokick
+
+[33mcommit a6ca1311a4842cd38549a9e0cfabc1439b9792cf[m
+Author: chenzhike110 <3180103610@zju.edu.cn>
+Date:   Sat Apr 23 15:15:51 2022 +0800
+
+    【修改说明】修改 goalie 局势判断错误导致kickoff时出击清球的问题
+
+[33mcommit 16d01deb143e32383331cf95cd1fe65bf661b7b3[m
+Author: zjnlict-host <zjunlict.ssl@gmail.com>
+Date:   Mon Mar 22 09:32:43 2021 +0800
+
+    fix bugs
+
+[33mcommit 094747a6ff54be73fc946dac55112b3bde2daafd[m
+Author: zjnlict-host <123@zju.edu.cn>
+Date:   Wed Dec 2 15:44:29 2020 +0800
+
+    [fix bug] visionmodule.cpp:protobuf outofrange index
+
+[33mcommit cf70271a48e7dd6e98848363ae8379ac89a4a580[m
+Author: mark <hzypp@sina.cn>
+Date:   Sat Nov 7 04:06:43 2020 +0800
+
+    real robot can receive infrared and kick status now
+
+[33mcommit 5cd4ecee3595f6510770119c95782f02424547c3[m
+Author: mark <hzypp@sina.cn>
+Date:   Tue Nov 3 22:16:14 2020 +0800
+
+    fix ballplacement pos
+
+[33mcommit 6f60850064354e6704368999e090dd885ad38b57[m
+Author: mark <hzypp@sina.cn>
+Date:   Sat Oct 31 21:22:35 2020 +0800
+
+    change default robot id to 0
+
+[33mcommit 80a1b89c8d5e81cc28f10441359ed698300819f6[m
+Author: mark <hzypp@sina.cn>
+Date:   Sat Oct 31 21:20:52 2020 +0800
+
+    Crazy fix RobotNum
+
+[33mcommit 663b0286917d4fb12b6cf328ec936bc0f978b10c[m
+Author: mark <hzypp@sina.cn>
+Date:   Sat Oct 31 17:34:34 2020 +0800
+
+    add delay for multi package send
+
+[33mcommit 8b3f491f5775819944ac8ae4cd8bab125076f595[m
+Author: mark <hzypp@sina.cn>
+Date:   Fri Sep 25 04:04:32 2020 +0800
+
+    connect to real
+
+[33mcommit 4b92a2ec2e9520134f03aef12296c608c7812caf[m
+Author: mark <hzypp@sina.cn>
+Date:   Thu Sep 24 01:12:08 2020 +0800
+
+    missing crc
+
+[33mcommit 50db2efdc3e5d066d338bc5126412b2bf9701ace[m
+Author: mark <hzypp@sina.cn>
+Date:   Thu Sep 24 00:50:02 2020 +0800
+
+    add gamepad for crazynan
+
+[33mcommit 53954cb437a2b6aafbb65e75fd4541e9b010a39a[m
+Author: mark <hzypp@sina.cn>
+Date:   Thu Sep 24 00:05:19 2020 +0800
+
+    add CrazyNaN
+
+[33mcommit 0db53e080b3a695562676169876ff96b4aa74437[m
+Author: Mark <hzypp1995@gmail.com>
+Date:   Wed Aug 12 14:35:27 2020 +0800
+
+    Update README.md
+
+[33mcommit 9b16a7931e3e950cb73a8a8df40bf4aae059833e[m
+Author: mark <hzypp@sina.cn>
+Date:   Fri Jul 17 14:45:12 2020 +0800
+
+    7.17
+
+[33mcommit 9280f53334297748c414f6382798d28c505afe67[m
+Author: mark <hzypp@sina.cn>
+Date:   Sun Jun 14 02:58:46 2020 +0800
+
+    add python ignore
+
+[33mcommit 21cf23674e9fb60b7ec36161025870aeba3402f5[m
+Author: mark <hzypp@sina.cn>
+Date:   Sat Jun 13 02:27:18 2020 +0800
+
+    add dribble
+
+[33mcommit 632c9c88e09113cbdd50a122f07889f0b76ff0ab[m
+Author: mark <hzypp@sina.cn>
+Date:   Thu Jun 4 14:26:53 2020 +0800
+
+    6.4 commit
+
+[33mcommit c921c2c600a744ce5c43d0ef6237dd6c3a91ed43[m
+Author: mark <hzypp@sina.cn>
+Date:   Wed Jun 3 17:22:24 2020 +0800
+
+    update actionmodule_nan
+
+[33mcommit 653bda313ce880a454b1de9b957bfb81ce710acb[m
+Author: mark <hzypp@sina.cn>
+Date:   Mon Apr 13 18:16:42 2020 +0800
+
+    fix winmain bug
+
+[33mcommit e7e8cb8385f4efd0cdc2382132e94698c1e76fc0[m
+Merge: a83d17d 28a0817
+Author: mark <hzypp@sina.cn>
+Date:   Sat Apr 11 21:31:56 2020 +0800
+
+    Merge branch 'master' of github.com:Robocup-ssl-China/ChinaOpenSSL
+
+[33mcommit a83d17d599a40829ba3b7bced18d81e0e7b79669[m
+Author: mark <hzypp@sina.cn>
+Date:   Sat Apr 11 21:31:37 2020 +0800
+
+    add LICENSE
+
+[33mcommit 28a0817819fe5561eb7600f80d3f7111cdbe84da[m
+Author: IamWangYunKai <615349118@163.com>
+Date:   Thu Apr 2 20:32:58 2020 +0800
+
+    add install
+
+[33mcommit 90a1db55ca177f1a043b6b2ebea7f45b9d4e3372[m
+Author: IamWangYunKai <615349118@163.com>
+Date:   Thu Apr 2 19:57:20 2020 +0800
+
+    client build for windows
+
+[33mcommit be308e96f34c5f40f6c7e70781e5378fe5bdb2cb[m[33m ([m[1;33mtag: 3rdparty-1.0[m[33m)[m
+Author: guodashun <guodashun@163.com>
+Date:   Fri Mar 27 20:28:01 2020 +0800
+
+    fix win build bug
+
+[33mcommit 6dc6f0db3a33ed8570edfad495a18005ad1f22a0[m
+Author: mark <hzypp@sina.cn>
+Date:   Thu Mar 12 22:47:11 2020 +0800
+
+    add demo for dribble and kick
+
+[33mcommit 49ad3d3cc5615a1dd08eaa85327e6b7f91696a70[m
+Author: mark <hzypp@sina.cn>
+Date:   Sun Dec 29 02:08:43 2019 +0800
+
+    [issue]
+
+[33mcommit 06aa4f3f82b9bda1b5344d67e1276f977a81ad21[m
+Merge: 523c764 fe6977e
+Author: mark <hzypp@sina.cn>
+Date:   Sat Dec 28 20:46:26 2019 +0800
+
+    Merge branch 'master' of github.com:Robocup-ssl-China/ChinaOpenSSL
+
+[33mcommit 523c764ceeb33ad98c072c4ca1e14b1e20911c1f[m
+Author: mark <hzypp@sina.cn>
+Date:   Sat Dec 28 20:46:07 2019 +0800
+
+    add wiki link
+
+[33mcommit fe6977e0a134ce30eb8940726ed00f90fa4313d7[m
+Author: guodashun <guodashun@163.com>
+Date:   Thu Dec 26 17:24:31 2019 +0800
+
+    fix bug
+
+[33mcommit 8be2433f403f70e5d803ef046bb4c8334ee9179e[m
+Author: mark <hzypp@sina.cn>
+Date:   Thu Dec 26 17:03:54 2019 +0800
+
+    add contribution list
+
+[33mcommit 4c48276d7e638d86f15a467ae56c7a4559cc8eff[m
+Author: mark <hzypp@sina.cn>
+Date:   Thu Dec 26 16:49:41 2019 +0800
+
+    fxbg
+
+[33mcommit 9550c394b355d20de36cedfbab8dcc0bda44ba29[m
+Author: mark <hzypp@sina.cn>
+Date:   Thu Dec 26 04:51:51 2019 +0800
+
+    update issue.md
+
+[33mcommit 8035049853a3748ea7a23d4755cae25700333b76[m
+Author: mark <hzypp@sina.cn>
+Date:   Thu Dec 26 04:47:47 2019 +0800
+
+    add md
+
+[33mcommit 69f4c447b6d28aa3ac1356fa9797bd7c05030343[m
+Author: mark <hzypp@sina.cn>
+Date:   Thu Dec 26 04:34:56 2019 +0800
+
+    add Client
+
+[33mcommit 1520e2280202bbe2b6b757b5b9c634cfa8687bdd[m
+Author: mark <hzypp@sina.cn>
+Date:   Thu Dec 26 04:31:36 2019 +0800
+
+    first commit

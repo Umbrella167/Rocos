@@ -140,6 +140,20 @@ function bestToBallDir()
 	return (ball.pos() - pos(best())):dir()
 end
 
+function toPointDist(role, p)
+	local pos
+	if type(p) == "function" then
+		pos = p()
+	else
+		pos = p
+	end
+	return enemy.pos(role):dist(pos)
+end
+
+function toOurGoalDist(role)
+	return pos(role):dist(CGeoPoint:new_local(-param.pitchLength / 2.0, 0))
+end
+
 function nearest()
 	local nearDist = 99999
 	local nearNum = 0
@@ -153,6 +167,31 @@ function nearest()
 	return pos(nearNum), dir(nearNum)
 end
 
+function closestEnemy(en)
+	local minDist = param.INF
+	local enemyNum = -1
+	for i=0, param.maxPlayer-1 do
+		if i == en then
+        elseif enemy.valid(i) and enemy.toPointDist(i, enemy.pos(en))<minDist then
+        	minDist = enemy.toPointDist(i, enemy.pos(en))
+        	enemyNum = i
+        end
+    end
+    return enemyNum
+end
+
+function closestPoint(p)
+	local minDist = param.INF
+	local enemyNum = -1
+	for i=0,param.maxPlayer do
+        if enemy.valid(i) and enemy.toPointDist(i, p)<minDist then
+        	minDist = enemy.toPointDist(i, p)
+        	enemyNum = i
+        end
+    end
+    return enemyNum
+end
+
 function closestBall()
 	local minDist = param.INF
 	local enemyNum = -1
@@ -164,6 +203,20 @@ function closestBall()
     end
     return enemyNum
 end
+
+function closestGoal()
+	local minDist = param.INF
+	local enemyNum = -1
+	for i=0,param.maxPlayer do
+        if enemy.valid(i) and enemy.toOurGoalDist(i)<minDist then
+        	minDist = enemy.toOurGoalDist(i)
+        	enemyNum = i
+        end
+    end
+    return enemyNum
+end
+
+
 
 function closestBallDist()
 	local minDist = param.INF

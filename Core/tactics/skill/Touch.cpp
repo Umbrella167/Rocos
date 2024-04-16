@@ -45,7 +45,7 @@ void CTouch::plan(const CVisionModule* pVision){
 
     // stupid version of getballPos
     CGeoPoint bestPos = BallSpeedModel::instance()->poseForTime(1.0).Pos();
-    for(double dist = 0; dist < 3000; dist += 100){
+    for(double dist = 0; dist < 3000; dist += 20){
         auto pos = ballPos + Utils::Polar2Vector(dist, ballVelDir);
         double t1 = predictedTimeWithRawVel(me, pos);
         double t2 = BallSpeedModel::Instance()->timeForDist(dist);
@@ -66,7 +66,7 @@ void CTouch::plan(const CVisionModule* pVision){
     const double ballVel_ball2Target_ad = ballVelMod > 300 ? angleDiff(ballVelDir, (target - ballPos).dir()) : 180;
     const bool angleCanTouch = std::abs(ballVel_ball2Target_ad) > 100 / 180.0 * PARAM::Math::PI;
 
-    const CVector targetRunVel = canWaitForBall ? CVector(0, 0) : Utils::Polar2Vector(200, ballVelDir);
+    // const CVector targetRunVel = canWaitForBall ? CVector(0, 0) : Utils::Polar2Vector(200, ballVelDir);
     const CGeoPoint targetMousePos = canWaitForBall ? projectionMousePos : predictPos;
     const double targetRunDir = (useInter || !angleCanTouch) ? Utils::Normalize(ballVelDir + PARAM::Math::PI) : (target - targetMousePos).dir();
     //const CGeoPoint targetRunPos = targetMousePos + Utils::Polar2Vector(PARAM::Vehicle::V2::PLAYER_CENTER_TO_BALL_CENTER, targetRunDir + PARAM::Math::PI);
@@ -84,7 +84,7 @@ void CTouch::plan(const CVisionModule* pVision){
 
     const auto diff4avoid_ball = std::abs(angleDiff(me2target.dir(), (targetMousePos - ballPos).dir()));
     const auto needAvoidDynamic = !BALL_STATIC && me2TargetSeg.IsPointOnLineOnSegment(ballPos) && diff4avoid_ball < 90 / 180.0 * PARAM::Math::PI;
-    const auto avoidDistDynamic = needAvoidDynamic ? 3*clip(90-diff4avoid_ball *180.0 / PARAM::Math::PI,0.0,90.0) : 0;
+    const auto avoidDistDynamic = needAvoidDynamic ? 0.5*clip(90-diff4avoid_ball *180.0 / PARAM::Math::PI,0.0,90.0)+20 : 0;
 
     double avoid_dist = 0;
 
@@ -102,15 +102,14 @@ void CTouch::plan(const CVisionModule* pVision){
     TaskT newTask(task());
     newTask.player.pos = targetRunPos;
     newTask.player.angle = targetRunDir;
-    newTask.player.vel = targetRunVel;
+    // newTask.player.vel = targetRunVel;
     newTask.player.flag = taskFlag;
-    newTask.ball.avoid_dist = 300;
+    newTask.ball.avoid_dist = avoid_dist;
     setSubTask("SmartGoto", newTask);
 
     if(DEBUG_SWITCH){
         auto endPos = ballPos + Utils::Polar2Vector(ballVelMod,ballVelDir);
         GDebugEngine::Instance()->gui_debug_line(ballPos,endPos,4);
-        GDebugEngine::Instance()->gui_debug_msg(targetRunPos, fmt::format("TVel:{:.0f},me2SegT:{:3.1f},b2SegT:{:3.1f}", targetRunVel.mod(), me2segTime, ball2segTime));
         GDebugEngine::Instance()->gui_debug_msg(targetRunPos+CVector(0,120), fmt::format("modeDif:{:.1f}", ballVel_ball2Target_ad / PARAM::Math::PI * 180.0));
     }
 

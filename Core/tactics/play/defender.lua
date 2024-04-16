@@ -5,25 +5,63 @@ return {
     firstState = "defend_norm",
     ["defend_norm"] = {
         switch = function()
-            -- print("markdebug : ",gSubPlayFiles)
-            -- for key, value in pairs(gSubPlayFiles) do
-            --     print("printFileTable: ", key, value)
+            local ballToCloestEnemyDist = ball.rawPos():dist(enemy.pos(enemy.closestBall()))
+            for i=0, param.maxPlayer-1 do
+                if enemy.valid(i) then
+                    debugEngine:gui_debug_msg(CGeoPoint(-1000, 1000+(i*150)), i.."   "..enemy.toOurGoalDist(i).."    "..param.defenderRadius*5/3)
+                    if enemy.toOurGoalDist(i) < param.defenderRadius*5/3 then
+                        return "defend_front"
+                    end
+                end
+            end
+
+            -- debugEngine:gui_debug_msg(CGeoPoint(2000, 2000), ballToCloestEnemyDist)
+
+            -- if ball.rawPos():x() > 0 and task.isBallPassingToOurArea() and ball.velMod() > 3000 and ballToCloestEnemyDist > 300 then
+            --     return "defend_catchBall"
             -- end
+
+            -- debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), task.defenderCount, param.WHITE)
+            -- for i=0, task.defenderCount-1 do
+            --     local rolePos = CGeoPoint:new_local(player.rawPos(task.defenderNums[i]):x(), player.rawPos(task.defenderNums[i]):y())
+            --     local getBallPos = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1)
+            --     debugEngine:gui_debug_msg(getBallPos, player.name(task.defenderNums[i]), param.WHITE)
+            --     debugEngine:gui_debug_msg(CGeoPoint(1000, 1000+(150*i)), task.defenderNums[i], param.WHITE)
+            -- end
+
         end,
-        Tier = task.defend("Tier", 0),
-        Defender = task.defend("Defender", 1),
+        Tier = function() return task.defend_norm("Tier", 0) end,
+        Defender = function() return task.defend_norm("Defender", 1) end,
         Goalie = task.goalie("Goalie"),
         match = "(GTD)"
     },
-    ["defend1"] = {
+    -- ["defend_catchBall"] = {
+    --     switch = function()
+    --         if bufcnt(true, 40) then
+    --             return "defend_norm"
+    --         end
+    --         -- print("markdebug : ",gSubPlayFiles)
+    --         -- for key, value in pairs(gSubPlayFiles) do
+    --         --     print("printFileTable: ", key, value)
+    --         -- end
+    --     end,
+    --     Tier = function() return task.defend_catchBall("Tier") end,
+    --     Defender = function() return task.defend_catchBall("Defender") end,
+    --     Goalie = task.goalie("Goalie"),
+    --     match = "(GTD)"
+    -- },
+    ["defend_front"] = {
         switch = function()
+            if enemy.toOurGoalDist(enemy.closestGoal()) > param.defenderRadius*5/3 then
+                return "defend_norm"
+            end
             -- print("markdebug : ",gSubPlayFiles)
             -- for key, value in pairs(gSubPlayFiles) do
             --     print("printFileTable: ", key, value)
             -- end
         end,
-        Tier = task.stop(),
-        Defender = task.stop(),
+        Tier = function() return task.defend_front("Tier") end,
+        Defender = function() return task.defend_front("Defender") end,
         Goalie = task.goalie("Goalie"),
         match = "(GTD)"
     },

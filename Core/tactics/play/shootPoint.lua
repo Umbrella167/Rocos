@@ -21,11 +21,7 @@ local shootPosFun = function()
 		return param.shootPos
 	end
 end
-local debugMesg = function ()
-		-- debugEngine:gui_debug_msg(CGeoPoint(-1000,1000),shootPosFun():x() .. "   "  .. shootPosFun():y(),3)
-		debugEngine:gui_debug_line(player.pos("Assister"),player.pos("Assister") + Utils.Polar2Vector(9999,player.dir("Assister")),4)
-		-- debugEngine:gui_debug_line(player.pos("Assister"),player.pos("Assister") + Utils.Polar2Vector(9999,player.dir("Assister") - param.shootError / 57.3))
-end
+
 
 local shoot_kp = param.shootKp
 local resShootPos = CGeoPoint(4500,0)
@@ -34,7 +30,15 @@ local shootKPFun = function()
 		return shoot_kp
 	end
 end
-
+local debugMesg = function ()
+	
+	if(task.playerDirToPointDirSub("Assister",resShootPos) < param.shootError) then 
+		debugEngine:gui_debug_line(player.pos("Assister"),player.pos("Assister") + Utils.Polar2Vector(9999,player.dir("Assister")),1)
+	else
+		debugEngine:gui_debug_line(player.pos("Assister"),player.pos("Assister") + Utils.Polar2Vector(9999,player.dir("Assister")),4)
+		
+	end
+end
 return {
 
 firstState = "ready1",
