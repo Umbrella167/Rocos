@@ -106,7 +106,7 @@ local UpdataTickMessage = function (our_goalie_num,defend_num1,defend_num2)
 
 
     runCount = runCount + 1
-    if runCount > 60 then
+    if runCount > 30 then
         local KickerShootPos = Utils.PosGetShootPoint(vision, player.posX("Kicker"),player.posY("Kicker"))
         local SpecialShootPos = Utils.PosGetShootPoint(vision,player.posX("Special"),player.posY("Special"))
 
@@ -184,6 +184,7 @@ local getBallRoleMatch = function(resState)
         return resState
     end
     AssisterNumLast = NowAssisterNum
+    debugEngine:gui_debug_msg(CGeoPoint(0,1500),"NowAssisterNum:"..NowAssisterNum.."  AssisterNumLast:"..AssisterNumLast.."  firstAssisterNum:".. firstAssisterNum)
 end
 ------------------------------------------------------------------------------------------------------------------------------------------------
 local subScript = false
@@ -236,6 +237,10 @@ firstState = "Init",
         UpdataTickMessage(our_goalie_num,defend_num1,defend_num2)    -- 更新帧信息
         local State = getState()
         getState()
+
+        if (Utils.InExclusionZone(CGeoPoint( ball.posX(),ball.posY()),50)) then
+            return "dribbling"
+        end
         return State
     end,
     Assister = gSubPlay.roleTask("ShootPoint", "Assister"),
@@ -278,6 +283,11 @@ firstState = "Init",
         UpdataTickMessage(our_goalie_num,defend_num1,defend_num2)    -- 更新帧信息
         local State = getState()
         getState()
+        AssisterNumLast = 0
+        NowAssisterNum = 0
+        matchChangeCount = 0
+        firstAssisterNum = 0
+        Assisterkey = 0
         if State ~= "Getball" then
             return State
         end
