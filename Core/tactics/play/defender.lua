@@ -13,7 +13,7 @@ return {
         Tier = task.defend("Tier", 0),
         Defender = task.defend("Defender", 1),
         Goalie = task.goalie("Goalie"),
-        match = "(ALG)"
+        match = "(GTD)"
     },
     ["defend1"] = {
         switch = function()
@@ -25,7 +25,7 @@ return {
         Tier = task.stop(),
         Defender = task.stop(),
         Goalie = task.goalie("Goalie"),
-        match = "(ALG)"
+        match = "(GTD)"
     },
 
     name = "defender",

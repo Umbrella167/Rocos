@@ -29,7 +29,7 @@ return {
         Tier = task.stop(),
         Defender = task.stop(),
         Goalie = task.stop(),
-        match = "[TDG]"
+        match = "[GTD]"
     },
     ["run"] = {
         switch = function()
@@ -41,7 +41,7 @@ return {
         Tier = gSubPlay.roleTask("testDefender", "Tier"),
         Defender = gSubPlay.roleTask("testDefender", "Defender"),
         Goalie = gSubPlay.roleTask("testDefender", "Goalie"),
-        match = "(TDG)"
+        match = "(GTD)"
     },
 
     name = "mytest2",
