@@ -835,6 +835,26 @@ function defend_front(role)
 		local tTable = defend_norm(role, 2)
 		return tTable
 	end
+end
+
+function defend_kick(role)
+	getDefenderCount()
+	
+	local rolePos = CGeoPoint:new_local(player.rawPos(role):x(), player.rawPos(role):y())
+	local defenderPoint = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1)
+	local targetPos = ball.rawPos() --改了可能会出bug
+
+	if isClosestPointDefender(role, defenderPoint) then
+		local kp = 1
+		local idir = function(runner)
+			return (targetPos - player.pos(runner)):dir()
+		end
+		local mexe, mpos = GoCmuRush { pos = defenderPoint, dir = idir, acc = a, flag = 0x00000000, rec = r, vel = endVelController(role, defenderPoint) }
+		return { mexe, mpos, kick.chip, idir, pre.low, power(targetPos, kp), power(targetPos, kp), 0x00000000 }
+	else
+		local tTable = defend_norm(role, 2)
+		return tTable
+	end
 
 end
 
