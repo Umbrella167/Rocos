@@ -85,6 +85,7 @@ local runCount = 0
 local UpdataTickMessage = function (our_goalie_num,defend_num1,defend_num2)
     -- 获取 Tick 信息
     GlobalMessage.Tick = Utils.UpdataTickMessage(vision,our_goalie_num,defend_num1,defend_num2)
+    -- debugEngine:gui_debug_msg(CGeoPoint(0,-2000),our_goalie_num .. "  " .. defend_num1  ..  "  "  .. defend_num2)
     -- debugEngine:gui_debug_msg(CGeoPoint:new_local(4500,-3000),GlobalMessage.Tick.our.player_num)
     -- 获取全局状态，进攻状态为传统
     status.getGlobalStatus(1)  
@@ -92,10 +93,39 @@ local UpdataTickMessage = function (our_goalie_num,defend_num1,defend_num2)
     dribbling_player_num = -1
     -- 获取球权
     ball_rights = GlobalMessage.Tick.ball.rights
-    if ball_rights == 1 then
+
+
+    runCount = runCount + 1
+    if runCount > 30 then
+        local KickerShootPos = Utils.PosGetShootPoint(vision, player.posX("Kicker"),player.posY("Kicker"))
+        local SpecialShootPos = Utils.PosGetShootPoint(vision,player.posX("Special"),player.posY("Special"))
+
+        if ball.posX() > -1000 then
+            -- KickerRUNPos = Utils.GetAttackPos(vision, player.num("Kicker"),KickerShootPos,CGeoPoint(1200,-2400),CGeoPoint(4200,0),300);
+            -- SpecialRUNPos = Utils.GetAttackPos(vision, player.num("Special"),SpecialShootPos,CGeoPoint(1200,2400),CGeoPoint(4200,0),300);
+            KickerRUNPos = Utils.GetAttackPos(vision, player.num("Kicker"),KickerShootPos,CGeoPoint(3500,1300),CGeoPoint(4400,-1300),120);
+            SpecialRUNPos = Utils.GetAttackPos(vision, player.num("Special"),SpecialShootPos,CGeoPoint(1000,2100),CGeoPoint(2800,-1800),400);
+        else
+            KickerRUNPos = Utils.GetAttackPos(vision, player.num("Kicker"),KickerShootPos,CGeoPoint(-500,2400),CGeoPoint(2200,0),300);
+            SpecialRUNPos = Utils.GetAttackPos(vision, player.num("Special"),SpecialShootPos,CGeoPoint(-1900,0),CGeoPoint(1000,-2800),300);
+        end
+        runCount = 0
+
+    end
+    if ball_rights == 1 and dribbling_player_num ~= our_goalie_num and dribbling_player_num ~= defend_num1 and  dribbling_player_num ~= defend_num2 then
         dribbling_player_num = GlobalMessage.Tick.our.dribbling_num
         pass_player_num = GlobalMessage.Tick.task[dribbling_player_num].max_confidence_pass_num
-        pass_pos = CGeoPoint:new_local(player.posX(pass_player_num),player.posY(pass_player_num))
+        -- pass_pos = GlobalMessage.Tick.task[dribbling_player_num].max_confidence_pass_num
+
+        if (player.num("Kicker") == pass_player_num) then
+            pass_pos = KickerRUNPos
+        elseif (player.num("Special") == pass_player_num) then
+            pass_pos = SpecialRUNPos
+        end
+
+        -- pass_pos = CGeoPoint:new_local(player.posX(pass_player_num),player.posY(pass_player_num))
+
+
         shoot_pos = GlobalMessage.Tick.task[dribbling_player_num].shoot_pos
         shoot_pos = CGeoPoint:new_local(shoot_pos:x(),shoot_pos:y())
         dribbling_target_pos = shoot_pos
@@ -105,26 +135,7 @@ local UpdataTickMessage = function (our_goalie_num,defend_num1,defend_num2)
     end
 
 
-    runCount = runCount + 1
-    if runCount > 30 then
-        local KickerShootPos = Utils.PosGetShootPoint(vision, player.posX("Kicker"),player.posY("Kicker"))
-        local SpecialShootPos = Utils.PosGetShootPoint(vision,player.posX("Special"),player.posY("Special"))
 
-        if ball.posX() > -1000 then
-            KickerRUNPos = Utils.GetAttackPos(vision, player.num("Kicker"),KickerShootPos,CGeoPoint(1200,-2400),CGeoPoint(4200,0),300);
-            SpecialRUNPos = Utils.GetAttackPos(vision, player.num("Special"),SpecialShootPos,CGeoPoint(1200,2400),CGeoPoint(4200,0),300);
-        else
-            KickerRUNPos = Utils.GetAttackPos(vision, player.num("Kicker"),KickerShootPos,CGeoPoint(-500,2400),CGeoPoint(2200,0),300);
-            SpecialRUNPos = Utils.GetAttackPos(vision, player.num("Special"),SpecialShootPos,CGeoPoint(-1900,0),CGeoPoint(1000,-2800),300);
-        end
-        -- if(canShoot(ball.pos(),player.pos("Kicker")) and canShoot(ball.pos(),KickerShootPos)) then
-        --     KickerRUNPos = player.pos("Kicker")
-        -- end
-        -- if(canShoot(ball.pos(),player.pos("Special"))  and canShoot(ball.pos(),SpecialShootPos) ) then
-        --     SpecialRUNPos = player.pos("Special")
-        -- end
-        runCount = 0
-    end
     debugEngine:gui_debug_msg(CGeoPoint(0,3000),"ballVel:" .. ball.velMod())
     debugEngine:gui_debug_msg(CGeoPoint(0,2800),"InfraredCount:" .. player.infraredCount("Assister"))
     debugEngine:gui_debug_msg(CGeoPoint(0,2600),"Kick:" .. tostring(player.kickBall("Assister")))
@@ -132,14 +143,14 @@ local UpdataTickMessage = function (our_goalie_num,defend_num1,defend_num2)
     debugEngine:gui_debug_msg(CGeoPoint(0,2200),"ballRights:" .. ball_rights)
     debugEngine:gui_debug_msg(CGeoPoint(0,1800),"targetPos:" .. tostring(param.shootPos:x()) ..  "    " ..  tostring(param.shootPos:y()))
     show_dribbling_pos = Utils.GetShowDribblingPos(vision,CGeoPoint(player.posX("Assister"),player.posY("Assister")),dribbling_target_pos);
-    debugStatus()
+    -- debugStatus()
 end
 local getState = function ()
         local resultState = "GetGlobalMessage"
         if task.ball_rights == 1 then   -- 我方球权的情况 获取进攻状态
             -- 防止为定义状态转跳
             if dribblingStatus == "NOTHING"  or dribblingStatus == "Run" or  dribblingStatus == "Getball" then
-                UpdataTickMessage(defend_num1,defend_num2)
+                UpdataTickMessage(our_goalie_num,defend_num1,defend_num2)
             else
                 -- 如果状态是射门或者传球、 那么就返回ShootPoint
                 if (dribblingStatus == "passToPlayer" or dribblingStatus == "Shoot") then
@@ -201,6 +212,7 @@ firstState = "Init",
         if bufcnt(true,30) then 
             if not subScript then
                 gSubPlay.new("ShootPoint", "shootPoint",{pos = function() return shoot_pos end})
+                gSubPlay.new("Defender", "defender")
             end
             return "GetGlobalMessage"
         end
@@ -225,8 +237,8 @@ firstState = "Init",
     Assister = task.getball("Assister",playerVel,getballMode,ballPos()),
     Kicker = task.goCmuRush(function() return KickerRUNPos end,closures_dir_ball("Kicker"),_,DSS_FLAG),
     Special = task.goCmuRush(function() return SpecialRUNPos end ,closures_dir_ball("Special"),_,DSS_FLAG),
-    Tier = task.stop(),
-    Defender = task.stop(),
+    Tier = gSubPlay.roleTask("Defender", "Tier"),
+    Defender = gSubPlay.roleTask("Defender", "Defender"),
     Goalie = task.goalie("Goalie"),
     match = "{AKSTDG}"
 },
@@ -246,8 +258,8 @@ firstState = "Init",
     Assister = gSubPlay.roleTask("ShootPoint", "Assister"),
     Kicker = task.goCmuRush(function() return KickerRUNPos end,closures_dir_ball("Kicker"),_,DSS_FLAG),
     Special = task.goCmuRush(function() return SpecialRUNPos end,closures_dir_ball("Special"),_,DSS_FLAG),
-    Tier = task.stop(),
-    Defender = task.stop(),
+    Tier = gSubPlay.roleTask("Defender", "Tier"),
+    Defender = gSubPlay.roleTask("Defender", "Defender"),
     Goalie = task.goalie("Goalie"),
     match = "[A][KS]{TDG}"
 },
@@ -271,8 +283,8 @@ firstState = "Init",
     Assister = task.getball("Assister",playerVel,getballMode,ballPos()),
     Kicker = task.goCmuRush(function() return KickerRUNPos end,closures_dir_ball("Kicker"),_,DSS_FLAG),
     Special = task.goCmuRush(function() return SpecialRUNPos end,closures_dir_ball("Special"),_,DSS_FLAG),
-    Tier = task.stop(),
-    Defender = task.stop(),
+    Tier = gSubPlay.roleTask("Defender", "Tier"),
+    Defender = gSubPlay.roleTask("Defender", "Defender"),
     Goalie = task.goalie("Goalie"),
     match = "[AKS]{TDG}"
 },
@@ -296,8 +308,8 @@ firstState = "Init",
     Assister = task.getball("Assister",playerVel,getballMode,ballPos()),
     Kicker = task.goCmuRush(function() return KickerRUNPos end,closures_dir_ball("Kicker"),_,DSS_FLAG),
     Special = task.goCmuRush(function() return SpecialRUNPos end,closures_dir_ball("Special"),_,DSS_FLAG),
-    Tier = task.stop(),
-    Defender = task.stop(),
+    Tier = gSubPlay.roleTask("Defender", "Tier"),
+    Defender = gSubPlay.roleTask("Defender", "Defender"),
     Goalie = task.goalie("Goalie"),
     match = "{AKSTDG}"
 },

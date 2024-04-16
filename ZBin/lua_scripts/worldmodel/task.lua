@@ -5,8 +5,10 @@ module(..., package.seeall)
 --			               HU-ROCOS-2024   	                 ---
 
 --- ///  /// --- /// /// --- /// /// --- /// /// --- /// /// ---
-
-function compensateAngle(robotRotVel,Pos,Kp)
+function angleDiff(angle1,  angle2)
+    return math.atan2(math.sin(angle2 - angle1), math.cos(angle2 - angle1));
+end
+function compensateAngle(role,robotRotVel,Pos,Kp)
 
 	local iPos
 	if type(Pos) == "function" then
@@ -14,7 +16,7 @@ function compensateAngle(robotRotVel,Pos,Kp)
 	else
 		iPos = Pos
 	end
-	local new_pos = CGeoPoint:new_local(iPos:x(),iPos:y() + robotRotVel * Kp)
+	local new_pos = iPos + Utils.Polar2Vector(robotRotVel * Kp, (iPos - player.pos(role)):dir() + math.pi / 2)
 	return new_pos
 end
 
@@ -122,7 +124,7 @@ function getball(role, playerVel, inter_flag, target_point)
 		end
 		if player.infraredCount(role) < 5 then
 			local qflag = inter_flag or 0
-			local playerPos = CGeoPoint:new_local( player.pos(role):x(),player.pos(role):y())
+			local playerPos = CGeoPoint:new_local(player.pos(role):x(),player.pos(role):y())
 			local inter_pos = stabilizePoint(Utils.GetBestInterPos(vision,playerPos,playerVel,qflag))
 			local idir = player.toBallDir(role)
 			local ipos = ball.pos()
@@ -144,7 +146,14 @@ function getball(role, playerVel, inter_flag, target_point)
 			end
 			ipos = CGeoPoint:new_local(ipos:x(),ipos:y())
 			ipos = stabilizePoint(ipos)
-			local endvel = Utils.Polar2Vector(300,(ipos - player.pos(role)):dir())
+
+			local ballLine = CGeoSegment(ball.pos(),ball.pos() + Utils.Polar2Vector(param.INF,ball.velDir()))
+			local playerPrj = ballLine:projection(player.rawPos(role))
+			local canRush = ballLine:IsPointOnLineOnSegment(playerPrj)
+			local endvel = Utils.Polar2Vector(ball.velMod() * 1.8,(ipos - player.pos(role)):dir())
+			if canRush then
+				endvel = Utils.Polar2Vector(300,(ipos - player.pos(role)):dir())
+			end
 			local mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = iflag, rec = r, vel = endvel }
 			return { mexe, mpos }
 		else
@@ -236,8 +245,8 @@ function power(p, Kp) --根据目标点与球之间的距离求出合适的 击�
 		if res > 6000 then
 			res = 6000
 		end
-		if res < 4000 then
-			res = 4000
+		if res < 3500 then
+			res = 3500
 		end
 		debugEngine:gui_debug_msg(CGeoPoint:new_local(0,3200),"Power" .. res .. "    toTargetDist: " .. dist,3)
 		return res
@@ -383,12 +392,16 @@ function TurnToPointV2(role, p, speed)
 		-- local subPlayerBallToTargetDir = playerToTargetDir - ballToTargetDir
 			local toballDir = (p1 - player.rawPos(role)):dir() * 57.3
 			local playerDir = player.dir(role) * 57.3
+
+			local turnDir = angleDiff((p1 - player.rawPos(role)):dir(), player.dir(role))
 			local subPlayerBallToTargetDir = toballDir - playerDir 
 			-- local Subdir = math.abs(toballDir-playerDir)
 			debugEngine:gui_debug_msg(CGeoPoint:new_local(1000,380),toballDir .. "                     " .. playerDir,4)
 			debugEngine:gui_debug_msg(CGeoPoint:new_local(1000,220),math.abs(toballDir-playerDir) .. "                     " .. subPlayerBallToTargetDir,3)
+		
+
 		if math.abs(toballDir-playerDir) > 4 then
-			if subPlayerBallToTargetDir < 0 then
+			if turnDir > 0 then
 				-- 顺时针旋转
 				-- debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "顺时针")
 				local ipos = CGeoPoint(param.rotPos:x(), param.rotPos:y() * -1)  --自身相对坐标 旋转

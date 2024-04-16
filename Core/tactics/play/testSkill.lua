@@ -30,12 +30,12 @@ firstState = "ready1",
 
 ["ready1"] = {
 	switch = function()
-
+		debugEngine:gui_debug_msg(CGeoPoint(0,0),task.angleDiff((ball.pos() - player.pos("Assister")):dir(),(player.pos("Assister") - CGeoPoint(0,0)):dir()))
 		-- if(player.infraredCount("Assister") > 5) then
 		-- 	return "shoot"
 		-- end
 	end,
-	Assister = task.getball("Assister",param.playerVel,param.getballMode,CGeoPoint:new_local(0,0)),
+	Assister = task.stop(),--task.getball("Assister",param.playerVel,param.getballMode,CGeoPoint:new_local(0,0)),
 	match = "[A]"
 },
 
