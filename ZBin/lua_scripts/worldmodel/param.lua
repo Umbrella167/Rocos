@@ -49,18 +49,33 @@ enemy_buffer = 150
 INF = 1e9
 PI = 3.141592653589793238462643383279
 maxPlayer   = 16
+---------------------------------
+-- player params
+playerRadius	= 90
+defenderBuf = playerRadius*3
 
+
+---------------------------------
+-- feild params
 pitchLength = CGetSettings("field/width","Int")
 pitchWidth  = CGetSettings("field/height","Int")
 goalWidth = CGetSettings("field/goalWidth","Int")
 goalDepth = CGetSettings("field/goalDepth","Int")
+ourGoalPos = CGeoPoint:new_local(-pitchLength/2, 0)
+ourTopGoalPos = CGeoPoint:new_local(-pitchLength/2, goalWidth/2)
+ourButtomGoalPos = CGeoPoint:new_local(-pitchLength/2, -goalWidth/2)
 freeKickAvoidBallDist = 500
-playerRadius	= 90
+ballDiameter = 42
 
 penaltyWidth    = CGetSettings("field/penaltyLength","Int")
 penaltyDepth	= CGetSettings("field/penaltyWidth","Int")
-penaltyRadius	= 1000
+-- penaltyRadius	= 1000  --?????????Is penaltyRadius ==  penaltyWidth/2 ???????????????
+penaltyRadius = penaltyWidth/2
 penaltySegment	= 500
+ourTopRightPenaltyPos = CGeoPoint:new_local(-pitchLength/2+penaltyDepth, penaltyRadius)
+ourTopPenaltyPos = CGeoPoint:new_local(-pitchLength/2, penaltyRadius)
+ourButtomPenaltyPos = CGeoPoint:new_local(-pitchLength/2, -penaltyRadius)
+defenderRadius = ourGoalPos:dist(ourTopRightPenaltyPos) + param.defenderBuf
 
 playerFrontToCenter = 76
 lengthRatio	= 1.5
@@ -68,6 +83,9 @@ widthRatio	= 1.5
 stopRatio = 1.1
 frameRate = 73
 
+
+
+--------------------------
 -- 是否为真实场地
 isReality = false
 -- 对齐的准确度

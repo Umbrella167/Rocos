@@ -475,13 +475,13 @@ end
 -- flag 防守模式选择, 0在球射向球门时选择防守线(x=-param.pitchLength/2-param.playerRadius)上的点, 1在球射向球门使用bestinterpos的点
 function goalie(role, flag)
 	return function()
+		debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "testSubPlay")
+
 		if flag==nil then
 			flag = 1
 		end
 		local goalRadius = param.penaltyRadius
 		-- 禁区半径
-		local penaltyRadius = param.penaltyWidth/2
-		local goalPos = CGeoPoint:new_local(-param.pitchLength/2, 0) 
 		local rolePos = CGeoPoint:new_local(player.posX(role), player.posY(role))
 		local goalieRadius = goalRadius-100
 		local closestBallEnemyNum = enemy.closestBall()
@@ -498,13 +498,13 @@ function goalie(role, flag)
 		local enemyDirLine = CGeoSegment(enemyPos, enemyPos+Utils.Polar2Vector(9999, enemyDir))
 		debugEngine:gui_debug_msg(CGeoPoint(0, 0), enemyNum)
 		debugEngine:gui_debug_x(enemyPos)
-		local goalToEnemyDir = (enemyPos - goalPos):dir()
-		local goalToEnemyLine = CGeoSegment(goalPos, enemyPos)
+		local goalToEnemyDir = (enemyPos - param.ourGoalPos):dir()
+		local goalToEnemyLine = CGeoSegment(param.ourGoalPos, enemyPos)
 		local goalLine = CGeoSegment(CGeoPoint:new_local(-param.pitchLength/2, -9999), CGeoPoint:new_local(-param.pitchLength/2, 9999))
 		local goalieMoveLine = CGeoSegment(CGeoPoint:new_local(-param.pitchLength/2+param.playerRadius*2, -9999), CGeoPoint:new_local(-param.pitchLength/2+param.playerRadius*2, 9999))
 		local tPos = goalLine:segmentsIntersectPoint(ballLine)
 		-- 判断是否踢向球门
-		local isShooting = -penaltyRadius-100<tPos:y() and tPos:y()<penaltyRadius+100
+		local isShooting = -param.penaltyRadius-100<tPos:y() and tPos:y()<param.penaltyRadius+100
 		local getBallPos = stabilizePoint(Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1))
 		if flag == 0 then
 			getBallPos = goalieMoveLine:segmentsIntersectPoint(ballLine)
@@ -542,12 +542,12 @@ function goalie(role, flag)
 			-- 准备状态
 			-- 这里是当球没有朝球门飞过来的时候，需要提前到达的跑位点
 			local roleToEnemyDist = (enemyPos-rolePos):mod()
-			local goaliePoint = goalPos+Utils.Polar2Vector(goalieRadius, goalToEnemyDir)
-			-- local goaliePoint = goalPos+Utils.Polar2Vector(goalieRadius, goalToEnemyDir)
+			local goaliePoint = param.ourGoalPos+Utils.Polar2Vector(goalieRadius, goalToEnemyDir)
+			-- local goaliePoint = param.ourGoalPos+Utils.Polar2Vector(goalieRadius, goalToEnemyDir)
 			if flag==0 then
 				goaliePoint = goalieMoveLine:segmentsIntersectPoint(goalToEnemyLine)
 			elseif flag==1 then
-				goaliePoint = goalPos+Utils.Polar2Vector(goalieRadius, goalToEnemyDir)
+				goaliePoint = param.ourGoalPos+Utils.Polar2Vector(goalieRadius, goalToEnemyDir)
 			end
 			if roleToEnemyDist<2500 then
 				-- 近处需要考虑敌人朝向的问题
@@ -713,163 +713,228 @@ function getManMarkEnemy()
 	return enemyNum
 end
 
-goalPos = CGeoPoint:new_local(-param.pitchLength/2, 0)
-topGoalPos = CGeoPoint:new_local(-param.pitchLength/2, param.goalWidth/2)
-buttomGoalPos = CGeoPoint:new_local(-param.pitchLength/2, -param.goalWidth/2)
-topPenaltyPos = CGeoPoint:new_local(-param.pitchLength/2, param.penaltyRadius)
-buttomPenaltyPos = CGeoPoint:new_local(-param.pitchLength/2, -param.penaltyRadius)
-penaltyRadius = param.penaltyWidth/2
-defender_playerLen = 0
-
--- 获取需要去挡人的车
-function isActiveDefender(role)
-	defender_playerLen = 0
-	local minRoleToEnemyDist = param.INF
-	local roleNum = -1
-	local enemyNum = getManMarkEnemy()
-	local enemyPos = enemy.pos(enemyNum)
-
+-- those params are all static, but i'm lazy to move them 
+defenderCount = 0
+function getDefenderCount()
+	defenderCount = 0
 	for i=0, param.maxPlayer-1 do
-		local playerName = player.name(i)
 		if player.valid(i) and (playerName == "Tier" or playerName == "Defender") then
-			defender_playerLen = defender_playerLen + 1
-			-- 选取离敌人最近的车为activeDefender
-			-- debugEngine:gui_debug_msg(CGeoPoint(-2000, 1000+(150*i)), playerName.."  "..tostring(player.toPointDist(playerName, enemyPos)))
-			if player.toPointDist(playerName, enemyPos) < minRoleToEnemyDist then
-				minRoleToEnemyDist = player.toPointDist(playerName, enemyPos)
-				roleNum = i
-			end
-        end
+			defenderCount = defenderCount + 1
+		end
 	end
-	return player.num(role)==roleNum and true or false
+	return defenderCount
 end
 
--- 获取离某点最近的defender
-function isCloestDefender(role, p)
-	defender_playerLen = 0
-	local minRoleToEnemyDist = param.INF
-	local roleNum = -1
+-- defender_norm script 
+-- mode: 0 upper area, 1 down area, 2 middle
+-- flag: 0 aim the ball, 1 aim the enemy
+function defend(role, mode, flag)
+	return function()
+		if defenderCount == 1 then
+			mode = 2
+		end
+		if flag == nil then
+			flag = 0
+		end
+		local enemyNum = getManMarkEnemy()
+		local enemyPos = CGeoPoint:new_local(enemy.posX(enemyNum), enemy.posY(enemyNum))
+		local goalieToEnemyDir = (enemy.pos(enemyNum) - player.rawPos("Goalie")):dir()
+		local rolePos = CGeoPoint:new_local(player.rawPos(role):x(), player.rawPos(role):y())
+		local ballPos = CGeoPoint:new_local(ball.rawPos():x(), ball.rawPos():y())
 
-	for i=0, param.maxPlayer-1 do
-		local playerName = player.name(i)
-		if player.valid(i) and (playerName == "Tier" or playerName == "Defender") then
-			-- 选取离敌人最近的车为activeDefender
-			-- debugEngine:gui_debug_msg(CGeoPoint(-2000, 1000+(150*i)), playerName.."  "..tostring(player.toPointDist(playerName, enemyPos)))
-			if player.toPointDist(playerName, p) < minRoleToEnemyDist then
-				minRoleToEnemyDist = player.toPointDist(playerName, p)
-				roleNum = i
-			end
-        end
+		local basePos = param.ourGoalPos
+		local targetPos = ballPos
+		if mode == 0 then
+			basePos = param.ourTopGoalPos
+		elseif mode == 1 then
+			basePos = param.ourButtomGoalPos
+		elseif mode == 2 then
+			basePos = param.ourGoalPos
+		end
+
+		if flag == 0 then
+			targetPos = ballPos
+		elseif flag == 1 then
+			targetPos = enemyPos
+		end
+
+		local baseDir = (targetPos - basePos):dir()
+		-- use the math formula to calc the run pos
+		local distX = basePos:x() - param.ourGoalPos:x()
+		local distY = basePos:y() - param.ourGoalPos:y()
+		local dist = math.sqrt(distX*distX + distY*distY)
+		local angle = math.atan2(distY, distX)
+		local dist = dist * math.cos(baseDir - angle) - param.defenderRadius
+		
+
+		debugEngine:gui_debug_line(basePos, basePos+Utils.Polar2Vector(-dist, baseDir), param.BLUE)
+		-- debugEngine:gui_debug_line(enemy.pos(enemyNum), param.ourTopGoalPos)
+		-- debugEngine:gui_debug_line(enemy.pos(enemyNum), param.ourButtomGoalPos)
+		-- debugEngine:gui_debug_line(enemy.pos(enemyNum), enemy.pos(enemyNum)+Utils.Polar2Vector(999, goalieToEnemyDir))
+		-- debugEngine:gui_debug_line(enemy.pos(enemyNum), enemy.pos(enemyNum)+Utils.Polar2Vector(999, goalieToEnemyDir))
+		-- debugEngine:gui_debug_line(basePos, basePos+Utils.Polar2Vector(param.defenderRadius, baseDir))
+		-- debugEngine:gui_debug_line(basePos, basePos+Utils.Polar2Vector(9999, basePosToRoleDir))
+		debugEngine:gui_debug_msg(CGeoPoint(2000, 2000+(150*mode)), role.."  mode:"..mode)
+		debugEngine:gui_debug_msg(player.rawPos(role), role)
+		debugEngine:gui_debug_arc(param.ourGoalPos, param.defenderRadius, 0, 360)
+		
+		local defenderPoint = basePos+Utils.Polar2Vector(-dist, baseDir)
+
+		debugEngine:gui_debug_msg(defenderPoint, role, param.WHITE)
+
+		local idir = player.toPointDir(enemyPos, role)
+		local mexe, mpos = GoCmuRush { pos = defenderPoint, dir = idir, acc = a, flag = 0x00000100, rec = r, vel = endVelController(role, defenderPoint) }
+		return { mexe, mpos }
+
 	end
-
-	return player.num(role)==roleNum and true or false
 end
+
+
+-- this code is not use now, but I will get code from here, so don't delete it
+
+-- -- 获取需要去挡人的车
+-- function isActiveDefender(role)
+-- 	defender_playerLen = 0
+-- 	local minRoleToEnemyDist = param.INF
+-- 	local roleNum = -1
+-- 	local enemyNum = getManMarkEnemy()
+-- 	local enemyPos = enemy.pos(enemyNum)
+
+-- 	for i=0, param.maxPlayer-1 do
+-- 		local playerName = player.name(i)
+-- 		if player.valid(i) and (playerName == "Tier" or playerName == "Defender") then
+-- 			defender_playerLen = defender_playerLen + 1
+-- 			-- 选取离敌人最近的车为activeDefender
+-- 			-- debugEngine:gui_debug_msg(CGeoPoint(-2000, 1000+(150*i)), playerName.."  "..tostring(player.toPointDist(playerName, enemyPos)))
+-- 			if player.toPointDist(playerName, enemyPos) < minRoleToEnemyDist then
+-- 				minRoleToEnemyDist = player.toPointDist(playerName, enemyPos)
+-- 				roleNum = i
+-- 			end
+--         end
+-- 	end
+-- 	return player.num(role)==roleNum and true or false
+-- end
+
+-- -- 获取离某点最近的defender
+-- function isCloestDefender(role, p)
+-- 	defender_playerLen = 0
+-- 	local minRoleToEnemyDist = param.INF
+-- 	local roleNum = -1
+-- 	for i=0, param.maxPlayer-1 do
+-- 		local playerName = player.name(i)
+-- 		if player.valid(i) and (playerName == "Tier" or playerName == "Defender") then
+-- 			-- 选取离敌人最近的车为activeDefender
+-- 			-- debugEngine:gui_debug_msg(CGeoPoint(-2000, 1000+(150*i)), playerName.."  "..tostring(player.toPointDist(playerName, enemyPos)))
+-- 			if player.toPointDist(playerName, p) < minRoleToEnemyDist then
+-- 				minRoleToEnemyDist = player.toPointDist(playerName, p)
+-- 				roleNum = i
+-- 			end
+--         end
+-- 	end
+-- 	return player.num(role)==roleNum and true or false
+-- end
 
 -- 后卫skill
-function defender(role)
-	return function()
+-- function defender(role)
+-- 	return function()
 		
-		local ballPos = CGeoPoint:new_local(ball.rawPos():x(), ball.rawPos():y())
-		local ballVelDir = ball.velDir()
-		local ballLine = CGeoSegment(ballPos, ballPos+Utils.Polar2Vector(param.INF, ballVelDir))
+-- 		local ballPos = CGeoPoint:new_local(ball.rawPos():x(), ball.rawPos():y())
+-- 		local ballVelDir = ball.velDir()
+-- 		local ballLine = CGeoSegment(ballPos, ballPos+Utils.Polar2Vector(param.INF, ballVelDir))
 
 
-		local enemyNum = getManMarkEnemy()
-		local enemyPos = enemy.pos(enemyNum)
-		local enemyToGoalDir = (enemy.pos(enemyNum) - goalPos):dir()
-		local playerToEnemyDir = function(runner)
-			return (enemyPos - player.pos(runner)):dir()
-		end
+-- 		local enemyNum = getManMarkEnemy()
+-- 		local enemyPos = enemy.pos(enemyNum)
+-- 		local enemyToGoalDir = (enemy.pos(enemyNum) - param.ourGoalPos):dir()
+-- 		local playerToEnemyDir = function(runner)
+-- 			return (enemyPos - player.pos(runner)):dir()
+-- 		end
 
-		local rolePos = CGeoPoint:new_local(player.rawPos(role):x(), player.rawPos(role):y())
-		local getBallPos = stabilizePoint(Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 0))
-		local isGetBallDefender = isCloestDefender(role, getBallPos)
+-- 		local rolePos = CGeoPoint:new_local(player.rawPos(role):x(), player.rawPos(role):y())
+-- 		local getBallPos = stabilizePoint(Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 0))
+-- 		local isGetBallDefender = isCloestDefender(role, getBallPos)
 		
-		debugEngine:gui_debug_msg(getBallPos, role, isGetBallDefender and param.CYAN or param.RED)
+-- 		debugEngine:gui_debug_msg(getBallPos, role, isGetBallDefender and param.CYAN or param.RED)
 
-		local isActiveDefender = isActiveDefender(role)
+-- 		local isActiveDefender = isActiveDefender(role)
 
-		-- local defender_AimLine = CGeoSegment(CGeoPoint:new_local(-param.pitchLength/2, -param.INF), CGeoPoint:new_local(-param.pitchLength/2, param.INF))
-		local defender_readyLine = CGeoSegment(CGeoPoint:new_local(-param.pitchLength/4, -param.INF), CGeoPoint:new_local(-param.pitchLength/4, param.INF))
-		local defender_defendLine = CGeoSegment(CGeoPoint:new_local(-param.pitchLength/3, -param.INF), CGeoPoint:new_local(-param.pitchLength/3, param.INF))
-		if isActiveDefender then
-			debugEngine:gui_debug_x(player.pos(role), param.YELLOW)
-		end
-
-
-		local tPos = defender_readyLine:segmentsIntersectPoint(ballLine)
-			-- -- 判断是否踢向我方
-		local isShooting = -penaltyRadius-100<tPos:y() and tPos:y()<penaltyRadius+100
-		debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), tostring(isShooting))
-
-		if Utils.InOurField(ballPos) then
-			-- 当球在我方半场的时候去做相应的防守
-			debugEngine:gui_debug_msg(player.pos(role), role, isActiveDefender and param.YELLOW or param.RED )
-
-			-- local tPos = defender_readyLine:segmentsIntersectPoint(ballLine)
-			-- -- -- 判断是否踢向我方
-			-- local isShooting = -penaltyRadius-100<tPos:y() and tPos:y()<penaltyRadius+100
-
-			local enemyToGoalLine = CGeoSegment(goalPos, enemyPos)
-			local defenderPoint = defender_defendLine:segmentsIntersectPoint(enemyToGoalLine)
-			-- if defender_playerLen>=2 then
-			-- 	if isActiveDefender then
-			-- 		local enemyToTopPenaltyLine = CGeoSegment(topPenaltyPos, enemyPos)
-			-- 		defenderPoint = defender_defendLine:segmentsIntersectPoint(enemyToTopPenaltyLine)
-			-- 	else
-			-- 		local enemyToButtomPenaltyLine = CGeoSegment(buttomPenaltyPos, enemyPos)
-			-- 		defenderPoint = defender_defendLine:segmentsIntersectPoint(enemyToButtomPenaltyLine)
-			-- 	end
-			-- end
-
-			if isActiveDefender then
-				defenderPoint = enemyPos + Utils.Polar2Vector(param.playerRadius*2, enemyToGoalDir)
-
-			else
-
-			end
+-- 		-- local defender_AimLine = CGeoSegment(CGeoPoint:new_local(-param.pitchLength/2, -param.INF), CGeoPoint:new_local(-param.pitchLength/2, param.INF))
+-- 		local defender_readyLine = CGeoSegment(CGeoPoint:new_local(-param.pitchLength/4, -param.INF), CGeoPoint:new_local(-param.pitchLength/4, param.INF))
+-- 		local defender_defendLine = CGeoSegment(CGeoPoint:new_local(-param.pitchLength/3, -param.INF), CGeoPoint:new_local(-param.pitchLength/3, param.INF))
+-- 		if isActiveDefender then
+-- 			debugEngine:gui_debug_x(player.pos(role), param.YELLOW)
+-- 		end
 
 
-			if isShooting and isGetBallDefender then
-				defenderPoint = getBallPos
-			end
+-- 		local tPos = defender_readyLine:segmentsIntersectPoint(ballLine)
+-- 			-- -- 判断是否踢向我方
+-- 		local isShooting = -param.penaltyRadius-100<tPos:y() and tPos:y()<param.penaltyRadius+100
+-- 		debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), tostring(isShooting))
+
+-- 		if Utils.InOurField(ballPos) then
+-- 			-- 当球在我方半场的时候去做相应的防守
+-- 			debugEngine:gui_debug_msg(player.pos(role), role, isActiveDefender and param.YELLOW or param.RED )
+
+-- 			-- local tPos = defender_readyLine:segmentsIntersectPoint(ballLine)
+-- 			-- -- -- 判断是否踢向我方
+-- 			-- local isShooting = -param.penaltyRadius-100<tPos:y() and tPos:y()<param.penaltyRadius+100
+
+-- 			local enemyToGoalLine = CGeoSegment(param.ourGoalPos, enemyPos)
+-- 			local defenderPoint = defender_defendLine:segmentsIntersectPoint(enemyToGoalLine)
+-- 			-- if defender_playerLen>=2 then
+-- 			-- 	if isActiveDefender then
+-- 			-- 		local enemyToTopPenaltyLine = CGeoSegment(topPenaltyPos, enemyPos)
+-- 			-- 		defenderPoint = defender_defendLine:segmentsIntersectPoint(enemyToTopPenaltyLine)
+-- 			-- 	else
+-- 			-- 		local enemyToButtomPenaltyLine = CGeoSegment(buttomPenaltyPos, enemyPos)
+-- 			-- 		defenderPoint = defender_defendLine:segmentsIntersectPoint(enemyToButtomPenaltyLine)
+-- 			-- 	end
+-- 			-- end
+
+-- 			if isActiveDefender then
+-- 				defenderPoint = enemyPos + Utils.Polar2Vector(param.playerRadius*2, enemyToGoalDir)
+
+-- 			else
+
+-- 			end
+
+-- 			if isShooting and isGetBallDefender then
+-- 				defenderPoint = getBallPos
+-- 			end
 
 
-			local idir = player.toPointDir(enemyPos, role)
-			local mexe, mpos = GoCmuRush { pos = defenderPoint, dir = idir, acc = a, flag = 0x00000100, rec = r, vel = endVelController(role, defenderPoint) }
-			return { mexe, mpos }
-		else
-			-- 当球在敌方半场时
-			local enemyToGoalLine = CGeoSegment(goalPos, enemyPos)
-			local defenderPoint = defender_readyLine:segmentsIntersectPoint(enemyToGoalLine)
+-- 			local idir = player.toPointDir(enemyPos, role)
+-- 			local mexe, mpos = GoCmuRush { pos = defenderPoint, dir = idir, acc = a, flag = 0x00000100, rec = r, vel = endVelController(role, defenderPoint) }
+-- 			return { mexe, mpos }
+-- 		else
+-- 			-- 当球在敌方半场时
+-- 			local enemyToGoalLine = CGeoSegment(param.ourGoalPos, enemyPos)
+-- 			local defenderPoint = defender_readyLine:segmentsIntersectPoint(enemyToGoalLine)
 
-			if defender_playerLen>=2 then
-				if role == "Tier" then
-					local enemyToTopPenaltyLine = CGeoSegment(topPenaltyPos, enemyPos)
-					defenderPoint = defender_readyLine:segmentsIntersectPoint(enemyToTopPenaltyLine)
-				else
-					local enemyToButtomPenaltyLine = CGeoSegment(buttomPenaltyPos, enemyPos)
-					defenderPoint = defender_readyLine:segmentsIntersectPoint(enemyToButtomPenaltyLine)
-				end
-			end
+-- 			if defender_playerLen>=2 then
+-- 				if role == "Tier" then
+-- 					local enemyToTopPenaltyLine = CGeoSegment(topPenaltyPos, enemyPos)
+-- 					defenderPoint = defender_readyLine:segmentsIntersectPoint(enemyToTopPenaltyLine)
+-- 				else
+-- 					local enemyToButtomPenaltyLine = CGeoSegment(buttomPenaltyPos, enemyPos)
+-- 					defenderPoint = defender_readyLine:segmentsIntersectPoint(enemyToButtomPenaltyLine)
+-- 				end
+-- 			end
 			
+-- 			if isShooting and isGetBallDefender then
+-- 				defenderPoint = getBallPos
+-- 			end
 
-
-
-			if isShooting and isGetBallDefender then
-				defenderPoint = getBallPos
-			end
-
-			debugEngine:gui_debug_msg(defenderPoint, role, isActiveDefender and param.YELLOW or param.RED )
-			-- debugEngine:gui_debug_x(defenderPoint, param.WHITE)
-			-- debugEngine:gui_debug_line(enemyPos, topPenaltyPos)
-			-- debugEngine:gui_debug_line(enemyPos, buttomPenaltyPos)
-			local idir = player.toPointDir(enemyPos, role)
-			local mexe, mpos = GoCmuRush { pos = defenderPoint, dir = idir, acc = a, flag = 0x00000100, rec = r, vel = endVelController(role, defenderPoint) }
-			return { mexe, mpos }
-		end
-	end
-end
+-- 			debugEngine:gui_debug_msg(defenderPoint, role, isActiveDefender and param.YELLOW or param.RED )
+-- 			-- debugEngine:gui_debug_x(defenderPoint, param.WHITE)
+-- 			-- debugEngine:gui_debug_line(enemyPos, topPenaltyPos)
+-- 			-- debugEngine:gui_debug_line(enemyPos, buttomPenaltyPos)
+-- 			local idir = player.toPointDir(enemyPos, role)
+-- 			local mexe, mpos = GoCmuRush { pos = defenderPoint, dir = idir, acc = a, flag = 0x00000100, rec = r, vel = endVelController(role, defenderPoint) }
+-- 			return { mexe, mpos }
+-- 		end
+-- 	end
+-- end
 
 
 -- 守门员skill
@@ -891,13 +956,13 @@ function goalie(role, flag)
 		local enemyPos = CGeoPoint:new_local(enemy.posX(enemyNum), enemy.posY(enemyNum))
 		local enemyDirLine = CGeoSegment(enemyPos, enemyPos+Utils.Polar2Vector(param.INF, enemyDir))
 		
-		local goalToEnemyDir = (enemyPos - goalPos):dir()
-		local goalToEnemyLine = CGeoSegment(goalPos, enemyPos)
+		local goalToEnemyDir = (enemyPos - param.ourGoalPos):dir()
+		local goalToEnemyLine = CGeoSegment(param.ourGoalPos, enemyPos)
 		local goalLine = CGeoSegment(CGeoPoint:new_local(-param.pitchLength/2, -param.INF), CGeoPoint:new_local(-param.pitchLength/2, param.INF))
 		local goalieMoveLine = CGeoSegment(CGeoPoint:new_local(-param.pitchLength/2+param.playerRadius*2, -param.INF), CGeoPoint:new_local(-param.pitchLength/2+param.playerRadius*2, param.INF))
 		local tPos = goalLine:segmentsIntersectPoint(ballLine)
 		-- 判断是否踢向球门
-		local isShooting = -penaltyRadius-100<tPos:y() and tPos:y()<penaltyRadius+100
+		local isShooting = -param.penaltyRadius-100<tPos:y() and tPos:y()<param.penaltyRadius+100
 		local getBallPos = stabilizePoint(Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1))
 		if flag == 0 then
 			getBallPos = goalieMoveLine:segmentsIntersectPoint(ballLine)
@@ -935,12 +1000,12 @@ function goalie(role, flag)
 			-- 准备状态
 			-- 这里是当球没有朝球门飞过来的时候，需要提前到达的跑位点
 			local roleToEnemyDist = (enemyPos-rolePos):mod()
-			local goaliePoint = goalPos+Utils.Polar2Vector(goalieRadius, goalToEnemyDir)
-			-- local goaliePoint = goalPos+Utils.Polar2Vector(goalieRadius, goalToEnemyDir)
+			local goaliePoint = param.ourGoalPos+Utils.Polar2Vector(goalieRadius, goalToEnemyDir)
+			-- local goaliePoint = param.ourGoalPos+Utils.Polar2Vector(goalieRadius, goalToEnemyDir)
 			if flag==0 then
 				goaliePoint = goalieMoveLine:segmentsIntersectPoint(goalToEnemyLine)
 			elseif flag==1 then
-				goaliePoint = goalPos+Utils.Polar2Vector(goalieRadius, goalToEnemyDir)
+				goaliePoint = param.ourGoalPos+Utils.Polar2Vector(goalieRadius, goalToEnemyDir)
 			end
 			if roleToEnemyDist<2500 then
 				-- 近处需要考虑敌人朝向的问题
