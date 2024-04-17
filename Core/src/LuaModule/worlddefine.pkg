@@ -91,7 +91,7 @@ struct theirs{
 //任务列表
 struct tasks{
     public:
-        int player_num ; // 当前机器人编号
+        int player_num; // 当前机器人编号
         double confidence_pass; // 传球置信度
         double confidence_shoot; // 射门置信度
         double confidence_dribbling; // 带球置信度
@@ -100,7 +100,8 @@ struct tasks{
         double confidence_getball; // 抢球、接球置信度
         double max_confidence; // 最大的置信度
         int max_confidence_pass_num; // 被传球概率最大的机器人号码
-        CGeoPoint shoot_pos; //射门点
+        int infrared_count;
+        CGeoPoint shoot_pos; // 射门点
         std::string status; // -1异常 0传球 1射门 2带球 3跑位 4防守 5抢球、接球
 };
 

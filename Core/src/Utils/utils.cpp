@@ -83,7 +83,7 @@ namespace Utils
         {
             if (pVision->ourPlayer(i).Valid())
             {
-                num_count+=1;
+
 
                 // 我方距离球最近的车号
                 double to_ball_dist = pVision->ourPlayer(i).Pos().dist(Tick[now].ball.pos);
@@ -109,6 +109,15 @@ namespace Utils
         }
         Tick[now].our.player_num = num_count;
         Tick[now].their.player_num = num_count_their;
+
+
+        if(our_min_dist < PARAM::Player::playerBallRightsBuffer +15 &&
+           abs(angleDiff(pVision ->ourPlayer(Tick[now].our.to_balldist_min_num).RawDir(),
+           (pVision->ball().Pos() - pVision ->ourPlayer(Tick[now].our.to_balldist_min_num).Pos()).dir()) * PARAM::Math::PI) < 1.28)
+            Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_count += 1;
+        else
+            Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_count = 0;
+
         /// 球权判断
         // 球权一定是我方的情况
         if (RobotSensor.IsInfraredOn(Tick[now].our.to_balldist_min_num) || (our_min_dist < PARAM::Player::playerBallRightsBuffer && their_min_dist > PARAM::Player::playerBallRightsBuffer))
@@ -404,7 +413,7 @@ namespace Utils
             double getBallTime = GetBallToDistTime(pVision, dist) / 1000;
             double tolerance = getBallTime - t;
             // 判断是否在禁区
-            if (InExclusionZone(ballPrePos) && permissions==0)
+            if (InExclusionZone(ballPrePos,200) && permissions==0)
                 continue;
             // 判断是否在场外
             if(!InField(ballPrePos) && permissions<2)
@@ -454,8 +463,8 @@ namespace Utils
                 break;
             case 2:
                 // 返回0,1方案的中点
-//                GDebugEngine::Instance()->gui_debug_line(posMid, maxTolerancePos,5,1);
                 CGeoPoint posMid = CGeoPoint((minGetBallPos.x() + maxTolerancePos.x())/2, (minGetBallPos.y() + maxTolerancePos.y())/2);
+//                GDebugEngine::Instance()->gui_debug_line(posMid, maxTolerancePos,5,1);
                 return posMid;
                 break;
             }
@@ -599,7 +608,7 @@ namespace Utils
                     Tick[now].task[num].confidence_run = 1;
                     Tick[now].task[num].status = "Run";
                     // 保存最大的被传球自信度给带球机器人
-                    if (max_confidence_pass < Tick[now].task[num].confidence_pass)
+                    if (max_confidence_pass < Tick[now].task[num].confidence_pass && num != Tick[now].our.defend_player_num1 && num != Tick[now].our.defend_player_num2 && num != Tick[now].our.goalie_num)
                     {
                         max_confidence_pass = Tick[now].task[num].confidence_pass;
                         Tick[now].task[Tick[now].our.dribbling_num].confidence_pass = Tick[now].task[num].confidence_pass;

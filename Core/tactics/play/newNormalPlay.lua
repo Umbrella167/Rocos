@@ -37,7 +37,7 @@ local pass_pos = CGeoPoint:new_local(4500,-999)
 local playerVel = param.playerVel
 local getballMode = param.getballMode
 -- 带球速度
-local dribblingVel = 2500
+local dribblingVel = 500
 -- dribblingPos 带球目标坐标
 local dribbling_target_pos = CGeoPoint:new_local(0,0)
 local show_dribbling_pos = CGeoPoint:new_local(0,0)
@@ -125,7 +125,7 @@ local UpdataTickMessage = function (our_goalie_num,defend_num1,defend_num2)
 
         --  解决传球时算点跳动太远的问题
         --  PassErrorRate 如果要传球的角色距离 目标点太远，那么选择 （X1 + X2) / PassErrorRate 
-        local PassErrorRate = 6
+        local PassErrorRate =3
         if (player.num("Kicker") == pass_player_num) then
             if (player.pos("Kicker") - KickerRUNPos):mod() > 1500 then
                  pass_pos =CGeoPoint((KickerRUNPos:x() + player.posX("Kicker")) / PassErrorRate,(KickerRUNPos:y() + player.posY("Kicker")) / PassErrorRate)
@@ -150,13 +150,13 @@ local UpdataTickMessage = function (our_goalie_num,defend_num1,defend_num2)
     end
 
 
-
     debugEngine:gui_debug_msg(CGeoPoint(0,3000),"ballVel:" .. ball.velMod())
-    debugEngine:gui_debug_msg(CGeoPoint(0,2800),"InfraredCount:" .. player.infraredCount("Assister"))
-    debugEngine:gui_debug_msg(CGeoPoint(0,2600),"Kick:" .. tostring(player.kickBall("Assister")))
-    debugEngine:gui_debug_msg(CGeoPoint(0,2400),"DribblingPlayerNum:" .. dribbling_player_num .. "   DribblingStatus:" .. tostring(dribblingStatus))
-    debugEngine:gui_debug_msg(CGeoPoint(0,2200),"ballRights:" .. ball_rights)
-    debugEngine:gui_debug_msg(CGeoPoint(0,1800),"targetPos:" .. tostring(param.shootPos:x()) ..  "    " ..  tostring(param.shootPos:y()))
+    debugEngine:gui_debug_msg(CGeoPoint(0,2800),"infraredCount:" .. player.infraredCount("Assister"))
+    debugEngine:gui_debug_msg(CGeoPoint(0,2600),"myinfraredCount:" .. player.myinfraredCount("Assister"))
+    debugEngine:gui_debug_msg(CGeoPoint(0,2400),"Kick:" .. tostring(player.kickBall("Assister")))
+    debugEngine:gui_debug_msg(CGeoPoint(0,2200),"DribblingPlayerNum:" .. dribbling_player_num .. "   DribblingStatus:" .. tostring(dribblingStatus))
+    debugEngine:gui_debug_msg(CGeoPoint(0,2000),"ballRights:" .. ball_rights)
+    debugEngine:gui_debug_msg(CGeoPoint(0,1600),"targetPos:" .. tostring(param.shootPos:x()) ..  "    " ..  tostring(param.shootPos:y()))
     show_dribbling_pos = Utils.GetShowDribblingPos(vision,CGeoPoint(player.posX("Assister"),player.posY("Assister")),dribbling_target_pos);
     -- debugStatus()
 end
@@ -186,7 +186,7 @@ local getState = function ()
         else
             resultState =  "Getball"
         end
-        debugEngine:gui_debug_msg(CGeoPoint(0,2000),"NextState:" .. resultState,3)
+        debugEngine:gui_debug_msg(CGeoPoint(0,1800),"NextState:" .. resultState,3)
         return resultState
 end
 

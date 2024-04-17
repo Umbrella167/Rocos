@@ -51,10 +51,11 @@ firstState = "ready1",
 
 ["ready1"] = {
 	switch = function()
+		GlobalMessage.Tick = Utils.UpdataTickMessage(vision,our_goalie_num,defend_num1,defend_num2)
 		debugMesg()
 		shoot_pos = shootPosFun()
 
-		if(player.infraredCount("Assister") > 5) then
+		if(player.myinfraredCount("Assister") > 5) then
 			return "shoot"
 		end
 	end,
@@ -64,6 +65,7 @@ firstState = "ready1",
 
 ["shoot"] = {
 	switch = function()
+		GlobalMessage.Tick = Utils.UpdataTickMessage(vision,our_goalie_num,defend_num1,defend_num2)
 		-- if(not bufcnt(player.infraredOn("Assister"),1)) then
 		-- 	return "ready1"
 		-- end
@@ -74,9 +76,13 @@ firstState = "ready1",
 		else
 			shoot_kp = param.shootKp
 		end
+
+		if(bufcnt(player.myinfraredCount("Assister") < 1,9)) then
+			return "ready1"
+		end
 		local Vy = player.rotVel("Assister")
 		local ToTargetDist = player.toPointDist("Assister",param.shootPos)
-		resShootPos = task.compensateAngle("Assister",Vy,param.shootPos,ToTargetDist * 0.07)
+		resShootPos = task.compensateAngle("Assister",Vy,param.shootPos,ToTargetDist * param.rotCompensate)
 		debugEngine:gui_debug_msg(CGeoPoint(0,-3000),shoot_kp)
 		if(task.playerDirToPointDirSub("Assister",resShootPos) < param.shootError) then 
 			return "shoot1"
@@ -89,8 +95,9 @@ firstState = "ready1",
 
 ["shoot1"] = {
 	switch = function()
+		GlobalMessage.Tick = Utils.UpdataTickMessage(vision,our_goalie_num,defend_num1,defend_num2)
 		debugMesg()	
-		if(not bufcnt(player.infraredOn("Assister"),1)) then
+		if(bufcnt(player.myinfraredCount("Assister") < 1,1)) then
 			return "ready1"
 		end
 	end,

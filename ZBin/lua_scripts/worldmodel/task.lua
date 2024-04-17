@@ -39,17 +39,6 @@ function endVelController(role, p)
 	return endvel
 end
 
--- function angleSub(angle1,angle2,dir)
--- 	-- angle1 :dir1
--- 	-- angle2 :dir2
--- 	-- dir    :[0,1]  0：同向计算 1：反向计算 
--- 	local dir_ = dir:0
--- 	local dir1 = math.abs(dir1) * 57.3
--- 	local dir2 = math.abs(dir2) * 57.3
--- 	local dirsub = math.abs(180 - dir2 - dir1)
--- 	return dirsub
--- end
-
 function TurnRun(pos,vel)
 	local ipos = pos or  CGeoPoint:new_local(0,80)  --自身相对坐标 旋转
 	local ivel = vel -- 旋转速度 -+ 改变方向
@@ -68,7 +57,8 @@ function getball(role, playerVel, inter_flag, target_point, permissions)
 		if permissions == nil then
 			permissions = 0
 		end
-		if player.infraredCount(role) < 5 then
+
+		if player.myinfraredCount(role) < 5 then
 			local qflag = inter_flag or 0
 			local playerPos = CGeoPoint:new_local(player.pos(role):x(),player.pos(role):y())
 			local inter_pos = stabilizePoint(Utils.GetBestInterPos(vision,playerPos,playerVel,qflag,permissions))
@@ -92,13 +82,13 @@ function getball(role, playerVel, inter_flag, target_point, permissions)
 			end
 			ipos = CGeoPoint:new_local(ipos:x(),ipos:y())
 			ipos = stabilizePoint(ipos)
-
+			ipos = ipos + Utils.Polar2Vector(-70,player.toBallDir(role))
 			local ballLine = CGeoSegment(ball.pos(),ball.pos() + Utils.Polar2Vector(param.INF,ball.velDir()))
 			local playerPrj = ballLine:projection(player.rawPos(role))
 			local canRush = ballLine:IsPointOnLineOnSegment(playerPrj)
-			local endvel = Utils.Polar2Vector(ball.velMod() * 1.8,(ipos - player.pos(role)):dir())
+			local endvel = Utils.Polar2Vector(0,(ipos - player.pos(role)):dir())
 			if canRush then
-				endvel = Utils.Polar2Vector(300,(ipos - player.pos(role)):dir())
+				endvel = Utils.Polar2Vector(0,(ipos - player.pos(role)):dir())
 			end
 			local mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = iflag, rec = r, vel = endvel }
 			return { mexe, mpos }
@@ -111,9 +101,63 @@ function getball(role, playerVel, inter_flag, target_point, permissions)
 		end
 	end
 end
+-- function getball(role, playerVel, inter_flag, target_point)
+-- 	return function()
+
+-- 		local p1
+-- 		if type(target_point) == 'function' then
+-- 			p1 = target_point()
+-- 		else
+-- 			p1 = target_point
+-- 		end
+-- 		if player.myinfraredCount(role) < 10 then
+-- 			local qflag = inter_flag or 0
+-- 			local playerPos = CGeoPoint:new_local(player.pos(role):x(),player.pos(role):y())
+-- 			local inter_pos = Utils.GetBestInterPos(vision,playerPos,playerVel,qflag)
+-- 			local ipos = ball.pos()
+-- 			if inter_pos:x()  ==  param.INF or inter_pos:y()  == param.INF then
+-- 				ipos = ball.pos()
+-- 			else
+-- 				ipos = inter_pos
+-- 			end
+-- 			-- local toballDir = math.abs(player.toBallDir(role))  * 57.3
+-- 			local toballDir = math.abs((ball.rawPos() - player.rawPos(role)):dir() * 57.3)
+-- 			local playerDir = math.abs(player.dir(role)) * 57.3
+-- 			local Subdir = math.abs(toballDir-playerDir)
+-- 			local iflag = bit:_or(flag.allow_dss, flag.dodge_ball)
+-- 			if Subdir > 20 then 
+-- 				local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
+-- 				iflag =  DSS_FLAG
+-- 			else
+-- 				iflag = bit:_or(flag.allow_dss,flag.dribbling) 
+-- 			end
+-- 			iflag = flag.dribbling
+-- 			ipos = CGeoPoint:new_local(ipos:x(),ipos:y())
+-- 			ipos = stabilizePoint(ipos)
+-- 			--local idir = (ball.pos() - ipos):dir()
+-- 			local idir = player.toBallDir(role)
+-- 			local ballLine = CGeoSegment(ball.pos(),ball.pos() + Utils.Polar2Vector(param.INF,ball.velDir()))
+-- 			local playerPrj = ballLine:projection(player.rawPos(role))
+-- 			local canRush = ballLine:IsPointOnLineOnSegment(playerPrj)
+-- 			-- local endvel = Utils.Polar2Vector(ball.velMod() * 1.8,(ipos - player.pos(role)):dir())
+-- 			local endvel = Utils.Polar2Vector(0,(ipos - player.pos(role)):dir())
+-- 			if canRush then
+-- 				endvel = Utils.Polar2Vector(0,(ipos - player.pos(role)):dir())
+-- 			end
+-- 			local mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
+-- 			return { mexe, mpos }
+-- 		else
+-- 			local idir = (p1 - player.pos(role)):dir()
+-- 			local pp = player.pos(role) + Utils.Polar2Vector(0, idir)
+-- 			local iflag = flag.dribbling
+-- 			local mexe, mpos = GoCmuRush{ pos = pp, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
+-- 			return { mexe, mpos }
+-- 		end
+-- 	end
+-- end
 
 
-function getballV2(role, playerVel, inter_flag, target_point)
+function getballV2(role, playerVel, inter_flag, target_point, permissions)
 	return function()
 		local p1
 		if type(target_point) == 'function' then
@@ -121,10 +165,14 @@ function getballV2(role, playerVel, inter_flag, target_point)
 		else
 			p1 = target_point
 		end
-		if player.infraredCount(role) < 5 then
+		if permissions == nil then
+			permissions = 0
+		end
+
+		if player.myinfraredCount(role) < 5 then
 			local qflag = inter_flag or 0
 			local playerPos = CGeoPoint:new_local( player.pos(role):x(),player.pos(role):y())
-			local inter_pos = stabilizePoint(Utils.GetBestInterPos(vision,playerPos,playerVel,qflag))
+			local inter_pos = stabilizePoint(Utils.GetBestInterPos(vision,playerPos,playerVel,qflag,permissions))
 			
 			local idir = player.toBallDir(role)
 			local ipos = ball.pos()
@@ -187,8 +235,8 @@ function power(p, Kp) --根据目标点与球之间的距离求出合适的 击�
 			if res > 310 then
 				res = 310
 			end
-			if res < 230 then
-				res = 230
+			if res < 200 then
+				res = 200
 			end
 		else
 			if res > 6000 then
@@ -223,7 +271,7 @@ function GetBallV2(role, p, dist1, speed1) -------dist开始减速的距离   sp
 		else
 			p1 = p
 		end
-		if (player.infraredCount(role) < 20) then
+		if (player.myinfraredCount(role) < 20) then
 			if ((player.pos(role) - ball.pos()):mod() < dist) then
 				local idir = (ball.pos() - player.pos(role)):dir()
 				local pp = ball.pos() + Utils.Polar2Vector(0, idir)
@@ -436,38 +484,43 @@ function Shootdot(role,p, Kp, error_, flagShoot) --
 end
 
 
-function getBallAndShootToPoint(role, target)
-	if type(target) == "function" then
-		target = target()
-	end
+-- function getBallAndShootToPoint(role, target)
+-- 	if type(target) == "function" then
+-- 		target = target()
+-- 	end
 
-	local roleDir = player.dir(role)
-	local ballToTargetDir = (target - ball.rawPos()):dir()
+-- 	local roleDir = player.dir(role)
+-- 	local ballToTargetDir = (target - ball.rawPos()):dir()
 
-	debugEngine:gui_debug_msg(CGeoPoint(1000, 1000),math.abs(roleDir - ballToTargetDir))
+-- 	debugEngine:gui_debug_msg(CGeoPoint(1000, 1000),player.myinfraredCount(role))
 
-	if math.abs(roleDir - ballToTargetDir) < 0.1 then
-		-- 球滚到禁区内停止
-		local kp = 1
-		local rolePos = CGeoPoint:new_local(player.rawPos(role):x(), player.rawPos(role):y())
-		local idir = function(runner)
-			return (target - player.pos(runner)):dir()
-		end
-		local mexe, mpos = GoCmuRush { pos = rolePos, dir = idir, acc = a, flag = 0x00000000, rec = r, vel = endVelController(role, rolePos) }
-		-- return { mexe, mpos, kick.chip, idir, pre.low, power(targetPos, kp), power(targetPos, kp), 0x00000000 }
-		return { mexe, mpos, kick.flat, idir, pre.low, power(target, kp), power(target, kp), 0x00000000 }
-	end
-	-- local ikick = chip and kick.chip or kick.flat
-	-- local ipower = power and power or 8000
-	-- local idir = d and d or dir.shoot()
-	-- local iflag = 0x00000000
-	-- local mexe, mpos = GoCmuRush { pos = p, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
-	-- return { mexe, mpos, ikick, idir, pre.low, kp.specified(8000), cp.full, iflag }
+-- 	if(playerDirToPointDirSub(role,target) < param.shootError) then 
+-- 		local kp = 1
+-- 		local rolePos = CGeoPoint:new_local(player.rawPos(role):x(), player.rawPos(role):y())
+-- 		local idir = function(runner)
+-- 			return (target - player.pos(runner)):dir()
+-- 		end
+-- 		local mexe, mpos = GoCmuRush { pos = rolePos, dir = idir, acc = a, flag = 0x00000000, rec = r, vel = endVelController(role, rolePos) }
+-- 		-- return { mexe, mpos, kick.chip, idir, pre.low, power(targetPos, kp), power(targetPos, kp), 0x00000000 }
+-- 		return { mexe, mpos, kick.flat, idir, pre.low, power(target, kp), power(target, kp), 0x00000000 }
+-- 	else
+
+-- 	end
+
+-- 	if math.abs(roleDir - ballToTargetDir) < 0.1 and player.myinfraredCount(role) > 10 then
+		
+-- 	end
+-- 	-- local ikick = chip and kick.chip or kick.flat
+-- 	-- local ipower = power and power or 8000
+-- 	-- local idir = d and d or dir.shoot()
+-- 	-- local iflag = 0x00000000
+-- 	-- local mexe, mpos = GoCmuRush { pos = p, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
+-- 	-- return { mexe, mpos, ikick, idir, pre.low, kp.specified(8000), cp.full, iflag }
 
 
-	local tTable = getball(role, param.playerVel, 1, target, 1)()
-	return tTable
-end
+-- 	local tTable = getball(role, param.playerVel, 1, target, 1)()
+-- 	return tTable
+-- end
 
 
 function playerDirToPointDirSub(role, p) -- 检测 某座标点  球  playe 是否在一条直线上
@@ -762,13 +815,18 @@ function defend_kick(role)
 	local defenderPoint = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 2)
 	local targetPos = ball.rawPos() --改了可能会出bug
 	if isClosestPointDefender(role, defenderPoint) then
-		local kp = 1
+		local Kp = 1
 		local idir = function(runner)
 			return (targetPos - player.pos(runner)):dir()
 		end
+		debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), player.dir(role))
 		local mexe, mpos = GoCmuRush { pos = defenderPoint, dir = idir, acc = a, flag = 0x00000000, rec = r, vel = endVelController(role, defenderPoint) }
-		-- return { mexe, mpos, kick.chip, idir, pre.low, power(targetPos, kp), power(targetPos, kp), 0x00000000 }
-		return { mexe, mpos, kick.flat, idir, pre.low, power(targetPos, kp), power(targetPos, kp), 0x00000000 }
+		-- debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), math.abs(player.dir(role)))
+		
+		if math.abs(player.dir(role)) > math.pi/2 then
+			return { mexe, mpos, param.defenderShootMode, idir, pre.low, kp.specified(0), kp.specified(0), 0x00000000 }
+		end
+		return { mexe, mpos, param.defenderShootMode, idir, pre.low, power(targetPos, Kp), power(targetPos, Kp), 0x00000000 }
 	else
 		local tTable = defend_norm(role, 2)
 		return tTable
@@ -777,11 +835,12 @@ function defend_kick(role)
 end
 
 -- 守门员skill
--- flag 防守模式选择, 0在球射向球门时选择防守线(x=-param.pitchLength/2-param.playerRadius)上的点, 1在球射向球门使用bestinterpos的点
-function goalie(role, flag)
+-- 当球进禁区时要踢到的目标点
+-- mode 防守模式选择, 0在球射向球门时选择防守线(x=-param.pitchLength/2-param.playerRadius)上的点, 1在球射向球门使用bestinterpos的点
+function goalie(role, target, mode)
 	return function()
-		if flag==nil then
-			flag = 1
+		if mode==nil then
+			mode = 1
 		end
 		local goalRadius = param.penaltyRadius/2
 		local rolePos = CGeoPoint:new_local(player.rawPos(role):x(), player.rawPos(role):y())
@@ -814,27 +873,40 @@ function goalie(role, flag)
 		end
 		-- debugEngine:gui_debug_x(getBallPos, param.WHITE)
 
-		-- 守门员需要踢向哪个点
-		local targetPos = ball.rawPos() --改了可能会出bug
 		-- if (isShooting or ball.velMod() < 1000) and Utils.InExclusionZone(getBallPos) then
 		if isShooting and Utils.InExclusionZone(getBallPos, param.goalieBuf, "our") then
 			-- 当敌方射门的时候或球滚到禁区内停止时
 			local kp = 1
 			local goaliePoint = CGeoPoint:new_local(getBallPos:x(), getBallPos:y())
 			local idir = function(runner)
-				return (targetPos - player.pos(runner)):dir()
+				return (ballPos - player.pos(runner)):dir()
 			end
 			local mexe, mpos = GoCmuRush { pos = goaliePoint, dir = idir, acc = a, flag = 0x00000000, rec = r, vel = endVelController(role, goaliePoint) }
-			-- return { mexe, mpos, kick.chip, idir, pre.low, power(targetPos, kp), power(targetPos, kp), 0x00000000 }
-			return { mexe, mpos, kick.flat, idir, pre.low, power(targetPos, kp), power(targetPos, kp), 0x00000000 }
+			-- return { mexe, mpos, kick.chip, idir, pre.low, power(ballPos, kp), power(ballPos, kp), 0x00000000 }
+			return { mexe, mpos, kick.flat, idir, pre.low, power(ballPos, kp), power(ballPos, kp), 0x00000000 }
 		elseif ball.velMod() < 1000 and Utils.InExclusionZone(getBallPos, param.goalieBuf, "our") then
 			-- 球滚到禁区内停止
 			local kp = 1
-			local goaliePoint = CGeoPoint:new_local(getBallPos:x(), getBallPos:y())
+			-- 守门员需要踢向哪个点
+			local targetPos = CGeoPoint(0, 0)
+
 			local idir = function(runner)
 				return (targetPos - player.pos(runner)):dir()
 			end
-			local mexe, mpos = GoCmuRush { pos = goaliePoint, dir = idir, acc = a, flag = 0x00000000, rec = r, vel = endVelController(role, goaliePoint) }
+
+			local roleToBallTargetDir = math.abs((ballPos - rolePos):dir())
+			local ballToTargetDir = math.abs((targetPos - ballPos):dir())	
+			local goaliePoint = CGeoPoint:new_local(getBallPos:x(), getBallPos:y()) + Utils.Polar2Vector(-param.playerRadius, ballToTargetDir)
+			local Subdir = math.abs(ballToTargetDir-roleToBallTargetDir)
+			local iflag = bit:_or(flag.allow_dss, flag.dodge_ball)
+			if Subdir > 0.14 then 
+				local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
+				iflag =  DSS_FLAG
+			else
+				iflag = bit:_or(flag.allow_dss,flag.dribbling) 
+			end
+
+			local mexe, mpos = GoCmuRush { pos = goaliePoint, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
 			-- return { mexe, mpos, kick.chip, idir, pre.low, power(targetPos, kp), power(targetPos, kp), 0x00000000 }
 			return { mexe, mpos, kick.flat, idir, pre.low, power(targetPos, kp), power(targetPos, kp), 0x00000000 }
 		else
@@ -848,7 +920,7 @@ function goalie(role, flag)
 			elseif flag==1 then
 				goaliePoint = param.ourGoalPos+Utils.Polar2Vector(goalieRadius, goalToEnemyDir)
 			end
-			if roleToEnemyDist<2500 then
+			if roleToEnemyDist<param.goalieAimDirRadius then
 				-- 近处需要考虑敌人朝向的问题
 				local enemyAimLine = CGeoSegment(enemyPos, enemyPos+Utils.Polar2Vector(param.INF, enemyDir))
 				local tPos = goalLine:segmentsIntersectPoint(enemyAimLine)
@@ -863,7 +935,8 @@ function goalie(role, flag)
 						tP = tPos+Utils.Polar2Vector(-goalieRadius, enemyDir)
 					end
 					-- goaliePoint = tP
-					goaliePoint = CGeoPoint:new_local((tP:x()+goaliePoint:x())/2, (tP:y()+goaliePoint:y())/2)
+					-- goaliePoint = CGeoPoint:new_local((tP:x()+goaliePoint:x())/2, (tP:y()+goaliePoint:y())/2)
+					goaliePoint = tP
 				end
 			debugEngine:gui_debug_x(goaliePoint, param.WHITE)
 			end
@@ -1064,7 +1137,7 @@ function getFitData_runToPos(role)
 	    	-- 踢球车的准备点
 	    	local p1 = CGeoPoint:new_local(flag*param.FIT_PLAYER_POS_X, flag*param.FIT_PLAYER_POS_Y)
 
-    		if player.infraredCount(role) < 10 and flag == 1 then
+    		if player.myinfraredCount(role) < 10 and flag == 1 then
     			-- 踢球人如果没有拿到球，就去拿球
 	    		local idir = player.toPointDir(p0, role)
 				local mexe, mpos = GoCmuRush { pos = p0, dir = idir, acc = a, flag = 0x00000100, rec = r, vel = v }

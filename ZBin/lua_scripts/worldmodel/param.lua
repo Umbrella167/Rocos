@@ -40,7 +40,6 @@ ourTopRightPenaltyPos = CGeoPoint:new_local(-pitchLength/2+penaltyDepth, penalty
 ourTopPenaltyPos = CGeoPoint:new_local(-pitchLength/2, penaltyRadius)
 ourButtomPenaltyPos = CGeoPoint:new_local(-pitchLength/2, -penaltyRadius)
 
-
 playerFrontToCenter = 76
 lengthRatio	= 1.5
 widthRatio	= 1.5
@@ -50,16 +49,18 @@ frameRate = 73
 -- 射击力度
 powerShoot = 300
 powerTouch = 300
-shootPos = CGeoPoint(0,0)
-shootError = 6.5--1.8
-shootKp = 0.8
+shootPos = CGeoPoint(6000,0)	
+shootError = 10--1.8
+shootKp = 0.01
 ---------------------------------
 -- 旋转参数
-rotPos = CGeoPoint(150,120)
+-- rotPos = CGeoPoint(150,120)
+rotPos = CGeoPoint(80,80)
 rotVel = 3.8
+rotCompensate = 0.005   --旋转补偿
 ---------------------------------
 -- getball参数
-playerVel = 1 	
+playerVel = 2.5 	
 -- [0[激进模式], 1[保守模式], 2[middle]]
 getballMode = 2
 
@@ -74,8 +75,6 @@ enemy_buffer = 100
 ---------------------------------
 -- player params
 playerRadius	= 90
-defenderBuf = playerRadius*3
-goalieBuf = 43
 ---------------------------------
 -- defend marking
 
@@ -86,11 +85,19 @@ markingPosRate1 = 1/6
 markingPosRate2 = 1/10
 
 -- defender
+defenderBuf = playerRadius*3
 defenderRadius = ourGoalPos:dist(ourTopRightPenaltyPos) + defenderBuf
 defenderAimX = -pitchLength/4
 
+-- goalie
 
-goalieShootMode = flag.flat
+
+goalieShootMode = function() return 2 end 	-- 1 flat  2 chip
+defenderShootMode = function() return 2 end 	-- 1 flat  2 chip
+-- goalieAimDirRadius = 9999
+goalieBuf = 43
+goalieAimDirRadius = pitchLength/4
+
 
 
 
