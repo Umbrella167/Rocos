@@ -74,9 +74,13 @@ firstState = "ready1",
 		else
 			shoot_kp = param.shootKp
 		end
+
+		if(bufcnt( not player.infraredOn("Assister"),9)) then
+			return "ready1"
+		end
 		local Vy = player.rotVel("Assister")
 		local ToTargetDist = player.toPointDist("Assister",param.shootPos)
-		resShootPos = task.compensateAngle("Assister",Vy,param.shootPos,ToTargetDist * 0.07)
+		resShootPos = task.compensateAngle("Assister",Vy,param.shootPos,ToTargetDist * param.rotCompensate)
 		debugEngine:gui_debug_msg(CGeoPoint(0,-3000),shoot_kp)
 		if(task.playerDirToPointDirSub("Assister",resShootPos) < param.shootError) then 
 			return "shoot1"

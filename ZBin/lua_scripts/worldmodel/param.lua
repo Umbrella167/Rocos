@@ -50,13 +50,14 @@ frameRate = 73
 -- 射击力度
 powerShoot = 300
 powerTouch = 300
-shootPos = CGeoPoint(0,0)
-shootError = 6.5--1.8
+shootPos = CGeoPoint(0,0)	
+shootError = 10--1.8
 shootKp = 0.8
 ---------------------------------
 -- 旋转参数
 rotPos = CGeoPoint(150,120)
 rotVel = 3.8
+rotCompensate = 0.005   --旋转补偿
 ---------------------------------
 -- getball参数
 playerVel = 1 	
@@ -65,17 +66,15 @@ getballMode = 2
 
 ---------------------------------
 -- 固定匹配
-defend_num1 = 1
-defend_num2 = 2
-our_goalie_num = 0
+defend_num1 = 3
+defend_num2 = 10
+our_goalie_num = 13
 ---------------------------------
 -- lua 两点间有无敌人阈值
 enemy_buffer = 100
 ---------------------------------
 -- player params
 playerRadius	= 90
-defenderBuf = playerRadius*3
-goalieBuf = 43
 ---------------------------------
 -- defend marking
 
@@ -86,12 +85,15 @@ markingPosRate1 = 1/6
 markingPosRate2 = 1/10
 
 -- defender
+defenderBuf = playerRadius*3
 defenderRadius = ourGoalPos:dist(ourTopRightPenaltyPos) + defenderBuf
 defenderAimX = -pitchLength/4
 
+-- goalie
 
-
-
+-- goalieAimDirRadius = 9999
+goalieBuf = 43
+goalieAimDirRadius = pitchLength/4
 
 
 
@@ -100,7 +102,7 @@ defenderAimX = -pitchLength/4
 
 --------------------------
 -- 是否为真实场地
-isReality = false
+isReality = true
 -- 对齐的准确度
 alignRate = 0.8
 --~ -------------------------------------------

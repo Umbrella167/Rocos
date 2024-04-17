@@ -47,8 +47,8 @@ namespace PARAM {
         const double FREE_KICK_AVOID_BALL_DIST = 500;     // 开任意球的时候,对方必须离球这么远
     //  const double FIELD_WALL_DIST = 20;               // 场地护栏到边界的距离
         const double RATIO = 1.5;
-//        const double V_DECAY_RATE = 600;
-        const double V_DECAY_RATE = 2000;
+        const double V_DECAY_RATE = 600;
+//        const double V_DECAY_RATE = 2000;
     }
     namespace Player {
         const int playerFrontToCenter = 76; // 机器人圆心到嘴的距离

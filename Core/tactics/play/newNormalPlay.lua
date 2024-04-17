@@ -125,7 +125,7 @@ local UpdataTickMessage = function (our_goalie_num,defend_num1,defend_num2)
 
         --  解决传球时算点跳动太远的问题
         --  PassErrorRate 如果要传球的角色距离 目标点太远，那么选择 （X1 + X2) / PassErrorRate 
-        local PassErrorRate = 6
+        local PassErrorRate =3
         if (player.num("Kicker") == pass_player_num) then
             if (player.pos("Kicker") - KickerRUNPos):mod() > 1500 then
                  pass_pos =CGeoPoint((KickerRUNPos:x() + player.posX("Kicker")) / PassErrorRate,(KickerRUNPos:y() + player.posY("Kicker")) / PassErrorRate)
@@ -148,8 +148,6 @@ local UpdataTickMessage = function (our_goalie_num,defend_num1,defend_num2)
         shoot_pos = dribblingStatus == "Shoot" and shoot_pos or pass_pos
         param.shootPos = shoot_pos
     end
-
-
 
     debugEngine:gui_debug_msg(CGeoPoint(0,3000),"ballVel:" .. ball.velMod())
     debugEngine:gui_debug_msg(CGeoPoint(0,2800),"InfraredCount:" .. player.infraredCount("Assister"))

@@ -187,6 +187,7 @@ struct tasks{
         double confidence_getball = 0; // 抢球、接球置信度
         double max_confidence = 0; // 最大的置信度
         int max_confidence_pass_num = 0; // 被传球概率最大的机器人号码
+        int infrared_count = 0;
         CGeoPoint shoot_pos = CGeoPoint(0,0); // 射门点
         std::string status = "NOTING"; // -1异常 0传球 1射门 2带球 3跑位 4防守 5抢球、接球
 };
