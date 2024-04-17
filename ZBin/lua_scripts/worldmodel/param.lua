@@ -66,9 +66,9 @@ getballMode = 2
 
 ---------------------------------
 -- 固定匹配
-defend_num1 = 0
-defend_num2 = 1
-our_goalie_num = 2
+defend_num1 = 1
+defend_num2 = 2
+our_goalie_num = 0
 ---------------------------------
 -- lua 两点间有无敌人阈值
 enemy_buffer = 100
@@ -91,6 +91,9 @@ defenderAimX = -pitchLength/4
 
 -- goalie
 
+
+goalieShootMode = function() return 2 end 	-- 1 flat  2 chip
+defenderShootMode = function() return 2 end 	-- 1 flat  2 chip
 -- goalieAimDirRadius = 9999
 goalieBuf = 43
 goalieAimDirRadius = pitchLength/4

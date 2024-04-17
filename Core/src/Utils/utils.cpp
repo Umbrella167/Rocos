@@ -443,7 +443,7 @@ namespace Utils
 //            GDebugEngine::Instance()->gui_debug_msg(ballPrePos, to_string(getBallTime),3,0,90);
 //            GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(ballPrePos.x() + 1000,ballPrePos.y()), to_string(t),4,0,90);
 //            GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(ballPrePos.x() + 2000,ballPrePos.y()), to_string(tolerance),1,0,90);
-            GDebugEngine::Instance()->gui_debug_x(ballPrePos);
+//            GDebugEngine::Instance()->gui_debug_x(ballPrePos);
         }
 
         // 返回结果

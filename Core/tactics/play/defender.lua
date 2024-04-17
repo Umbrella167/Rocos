@@ -5,6 +5,7 @@ return {
     firstState = "defend_norm",
     ["defend_norm"] = {
         switch = function()
+
             local ballToCloestEnemyDist = ball.rawPos():dist(enemy.pos(enemy.closestBall()))
             for i=0, param.maxPlayer-1 do
                 if enemy.valid(i) then
@@ -14,11 +15,14 @@ return {
                     end
                 end
             end
-            for i=0, task.defenderCount-1 do
-                local rolePos = CGeoPoint:new_local(player.rawPos(task.defenderNums[i]):x(), player.rawPos(task.defenderNums[i]):y())
-                local getBallPos = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 2)
-                if player.toPointDist(task.defenderNums[i], getBallPos) < 1000 then
-                    return "defend_kick"
+            
+            if player.toBallDist(player.closestBall()) > param.playerRadius * 6 then
+                for i=0, task.defenderCount-1 do
+                    local rolePos = CGeoPoint:new_local(player.rawPos(task.defenderNums[i]):x(), player.rawPos(task.defenderNums[i]):y())
+                    local getBallPos = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 2)
+                    if player.toPointDist(task.defenderNums[i], getBallPos) < 1000 then
+                        return "defend_kick"
+                    end
                 end
             end
         end,

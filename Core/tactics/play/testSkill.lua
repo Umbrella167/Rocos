@@ -24,22 +24,28 @@ local runPos = function()
 		return CGeoPoint:new_local(run_pos:x(),run_pos:y())
 	end
 end
+
 gPlayTable.CreatePlay{
 
 firstState = "ready1",
 
 ["ready1"] = {
 	switch = function()
+		debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), player.dir("Goalie"))
+
 		GlobalMessage.Tick = Utils.UpdataTickMessage(vision,0,1,2)
-		debugEngine:gui_debug_msg(CGeoPoint(0,0),GlobalMessage.Tick.task[GlobalMessage.Tick.our.dribbling_num].infrared_count )
+		-- debugEngine:gui_debug_msg(CGeoPoint(0,0),task.angleDiff((ball.pos() - player.pos("Assister")):dir(),(player.pos("Assister") - CGeoPoint(0,0)):dir()))
 		-- if(player.infraredCount("Assister") > 5) then
 		-- 	return "shoot"
 		-- end
 		
 	end,
-	Kicker = task.stop,--task.getball("Assister",param.playerVel,param.getballMode,CGeoPoint:new_local(0,0)), 
+	Goalie = task.stop(), 
+	-- Assister = function() return task.getBallAndShootToPoint("Assister", CGeoPoint:new_local(0,0)) end, 
+	-- Assister = task.getballV2("Assister", param.playerVel, 1, CGeoPoint(0, 0), 0),
+	-- Kicker = task.getball("Assister",param.playerVel,param.getballMode,CGeoPoint:new_local(0,0)), 
 	-- Kicker = function() return task.defender_marking("Kicker",CGeoPoint(0,0)) end,
-	match = "[K]"
+	match = "[G]"
 },
 
 
