@@ -31,7 +31,7 @@ return {
         switch = function()
             if bufcnt(true, 20) then
             end
-            if player.toBallDist(player.closestBall()) > param.playerRadius * 4 then
+            if player.toBallDist(player.closestBall()) > param.playerRadius * 6 then
                 for i=0, task.defenderCount-1 do
                     local rolePos = CGeoPoint:new_local(player.rawPos(task.defenderNums[i]):x(), player.rawPos(task.defenderNums[i]):y())
                     local getBallPos = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 2)

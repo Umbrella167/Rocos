@@ -96,10 +96,14 @@ local UpdataTickMessage = function (our_goalie_num,defend_num1,defend_num2)
 
 
     runCount = runCount + 1
+
+    -- 每30帧算一次点
     if runCount > 30 then
         local KickerShootPos = Utils.PosGetShootPoint(vision, player.posX("Kicker"),player.posY("Kicker"))
         local SpecialShootPos = Utils.PosGetShootPoint(vision,player.posX("Special"),player.posY("Special"))
 
+
+        -- 分档算点 
         if ball.posX() > -1000 then
             -- KickerRUNPos = Utils.GetAttackPos(vision, player.num("Kicker"),KickerShootPos,CGeoPoint(1200,-2400),CGeoPoint(4200,0),300);
             -- SpecialRUNPos = Utils.GetAttackPos(vision, player.num("Special"),SpecialShootPos,CGeoPoint(1200,2400),CGeoPoint(4200,0),300);
@@ -112,26 +116,29 @@ local UpdataTickMessage = function (our_goalie_num,defend_num1,defend_num2)
         runCount = 0
 
     end
+
+    -- 处理球权是我方的情况
     if ball_rights == 1 and dribbling_player_num ~= our_goalie_num and dribbling_player_num ~= defend_num1 and  dribbling_player_num ~= defend_num2 then
         dribbling_player_num = GlobalMessage.Tick.our.dribbling_num
         pass_player_num = GlobalMessage.Tick.task[dribbling_player_num].max_confidence_pass_num
         -- pass_pos = GlobalMessage.Tick.task[dribbling_player_num].max_confidence_pass_num
 
+        --  解决传球时算点跳动太远的问题
+        --  PassErrorRate 如果要传球的角色距离 目标点太远，那么选择 （X1 + X2) / PassErrorRate 
+        local PassErrorRate = 6
         if (player.num("Kicker") == pass_player_num) then
             if (player.pos("Kicker") - KickerRUNPos):mod() > 1500 then
-                 pass_pos =CGeoPoint((KickerRUNPos:x() + player.posX("Kicker")) / 2,(KickerRUNPos:y() + player.posY("Kicker")) / 2)
+                 pass_pos =CGeoPoint((KickerRUNPos:x() + player.posX("Kicker")) / PassErrorRate,(KickerRUNPos:y() + player.posY("Kicker")) / PassErrorRate)
             else
                 pass_pos = KickerRUNPos
             end
         elseif (player.num("Special") == pass_player_num) then
             if (player.pos("Special") - SpecialRUNPos):mod() > 1500 then
-                 pass_pos =CGeoPoint((SpecialRUNPos:x() + player.posX("Special")) / 2,(SpecialRUNPos:y() + player.posY("Special")) / 2)
+                 pass_pos =CGeoPoint((SpecialRUNPos:x() + player.posX("Special")) / PassErrorRate,(SpecialRUNPos:y() + player.posY("Special")) / PassErrorRate)
             else
                 pass_pos = SpecialRUNPos
             end
         end
-
-        -- pass_pos = CGeoPoint:new_local(player.posX(pass_player_num),player.posY(pass_player_num))
 
 
         shoot_pos = GlobalMessage.Tick.task[dribbling_player_num].shoot_pos

@@ -590,7 +590,8 @@ namespace Utils
                     }
                     // 获取非带球机器人的被传球概率
                     Tick[now].task[num].confidence_shoot = ConfidenceShoot(pVision, pVision->ourPlayer(i).Pos());
-                    Tick[now].task[num].confidence_shoot = Tick[now].task[num].confidence_shoot - 0.3 * (1 - NumberNormalize(pVision->ourPlayer(num).Pos().x(), 1200, 0));
+//                    Tick[now].task[num].confidence_shoot = Tick[now].task[num].confidence_shoot - 0.3 * (1 - NumberNormalize(pVision->ourPlayer(num).Pos().x(), 1200, 0));
+                    Tick[now].task[num].confidence_shoot = Tick[now].task[num].confidence_shoot;
                     Tick[now].task[num].confidence_pass = ConfidencePass(pVision, Tick[now].our.dribbling_num, i, Tick[now].task[num].confidence_shoot);
                     // 如果友方位置太靠后，酌情扣分
 //                    if (pVision->ourPlayer(num).Pos().x() < 1000)
@@ -808,7 +809,7 @@ namespace Utils
         CGeoPoint shoot_pos = PosGetShootPoint(pVision, player_pos.x(), player_pos.y());
         grade_shoot = Tick[now].globalData.confidence_shoot;
         // 如果算不到射门点直接返回 0
-        if (shoot_pos.y() == -inf || player_pos.x() > 4000)
+        if (shoot_pos.y() == -inf )
             return 0;
         CGeoSegment ball_line(player_pos, shoot_pos);
         int count = 0;
@@ -854,7 +855,7 @@ namespace Utils
         safty_grade = enemy_to_ball_time - ball_to_interpos_time;
         safty_grade = NumberNormalize(safty_grade, 0.15, 0);
         grade = 0.75 * grade_shoot + 0.25 * safty_grade;
-        grade = grade - 0.5 * (1 - NumberNormalize(player_pos.x(), 2200, 500));
+//        grade = grade - 0.5 * (1 - NumberNormalize(player_pos.x(), 2200, 500));
         //        GDebugEngine::Instance() -> gui_debug_msg(CGeoPoint(-3000,2000),to_string(grade_shoot) + "    " + to_string(safty_grade) + "    " + to_string(grade),3);
         //        GDebugEngine::Instance() -> gui_debug_x(shoot_pos,3);
         return grade;
