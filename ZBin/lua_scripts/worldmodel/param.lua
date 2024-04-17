@@ -66,9 +66,9 @@ getballMode = 2
 
 ---------------------------------
 -- 固定匹配
-defend_num1 = 3
-defend_num2 = 10
-our_goalie_num = 13
+defend_num1 = 0
+defend_num2 = 1
+our_goalie_num = 2
 ---------------------------------
 -- lua 两点间有无敌人阈值
 enemy_buffer = 100
@@ -102,7 +102,7 @@ goalieAimDirRadius = pitchLength/4
 
 --------------------------
 -- 是否为真实场地
-isReality = true
+isReality = false
 -- 对齐的准确度
 alignRate = 0.8
 --~ -------------------------------------------

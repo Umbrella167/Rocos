@@ -92,7 +92,7 @@ function getball(role, playerVel, inter_flag, target_point)
 			local idir = (p1 - player.pos(role)):dir()
 			local pp = player.pos(role) + Utils.Polar2Vector(0 + 10, idir)
 			local iflag = flag.dribbling
-			local mexe, mpos = GoCmuRush { pos = pp, dir = idir, acc = 50, flag = iflag, rec = 1, vel = v }
+			local mexe, mpos = GoCmuRush { pos = pp, dir = idir, acc = a, flag = iflag, rec = 1, vel = v }
 			return { mexe, mpos }
 		end
 	end

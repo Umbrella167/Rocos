@@ -125,15 +125,20 @@ local UpdataTickMessage = function (our_goalie_num,defend_num1,defend_num2)
 
         --  解决传球时算点跳动太远的问题
         --  PassErrorRate 如果要传球的角色距离 目标点太远，那么选择 （X1 + X2) / PassErrorRate 
-        local PassErrorRate =3
+        local PassErrorRate = 5
         if (player.num("Kicker") == pass_player_num) then
-            if (player.pos("Kicker") - KickerRUNPos):mod() > 1500 then
+            local ballLine = CGeoSegment(ball.rawPos(),KickerRUNPos)
+            local fixPassFardist = (player.rawPos("Kicker") - ballLine:projection(player.rawPos("Kicker"))):dir()
+
+            if fixPassFardist > 800 then
                  pass_pos =CGeoPoint((KickerRUNPos:x() + player.posX("Kicker")) / PassErrorRate,(KickerRUNPos:y() + player.posY("Kicker")) / PassErrorRate)
             else
                 pass_pos = KickerRUNPos
             end
         elseif (player.num("Special") == pass_player_num) then
-            if (player.pos("Special") - SpecialRUNPos):mod() > 1500 then
+            local ballLine = CGeoSegment(ball.rawPos(),KickerRUNPos)
+            local fixPassFardist = (player.rawPos("Special") - ballLine:projection(player.rawPos("Special"))):mod()
+            if fixPassFardist > 800 then
                  pass_pos =CGeoPoint((SpecialRUNPos:x() + player.posX("Special")) / PassErrorRate,(SpecialRUNPos:y() + player.posY("Special")) / PassErrorRate)
             else
                 pass_pos = SpecialRUNPos
