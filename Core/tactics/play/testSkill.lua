@@ -30,16 +30,18 @@ firstState = "ready1",
 
 ["ready1"] = {
 	switch = function()
-		GlobalMessage.Tick = Utils.UpdataTickMessage(vision,0,1,2)
-		debugEngine:gui_debug_msg(CGeoPoint(0,0),task.angleDiff((ball.pos() - player.pos("Assister")):dir(),(player.pos("Assister") - CGeoPoint(0,0)):dir()))
+		-- GlobalMessage.Tick = Utils.UpdataTickMessage(vision,0,1,2)
+		-- debugEngine:gui_debug_msg(CGeoPoint(0,0),task.angleDiff((ball.pos() - player.pos("Assister")):dir(),(player.pos("Assister") - CGeoPoint(0,0)):dir()))
 		-- if(player.infraredCount("Assister") > 5) then
 		-- 	return "shoot"
 		-- end
 		
 	end,
-	Kicker = task.getball("Assister",param.playerVel,param.getballMode,CGeoPoint:new_local(0,0)), 
+	-- Goalie = function() return task.getBallAndShootToPoint("Goalie", CGeoPoint:new_local(0,0)) end, 
+	Assister = function() return task.getBallAndShootToPoint("Assister", CGeoPoint:new_local(0,0)) end, 
+	-- Kicker = task.getball("Assister",param.playerVel,param.getballMode,CGeoPoint:new_local(0,0)), 
 	-- Kicker = function() return task.defender_marking("Kicker",CGeoPoint(0,0)) end,
-	match = "[K]"
+	match = "[A]"
 },
 
 

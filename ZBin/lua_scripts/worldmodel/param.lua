@@ -90,9 +90,7 @@ defenderRadius = ourGoalPos:dist(ourTopRightPenaltyPos) + defenderBuf
 defenderAimX = -pitchLength/4
 
 
-
-
-
+goalieShootMode = flag.flat
 
 
 
