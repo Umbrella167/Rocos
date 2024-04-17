@@ -111,9 +111,9 @@ namespace Utils
         Tick[now].their.player_num = num_count_their;
 
 
-        if(our_min_dist < PARAM::Player::playerBallRightsBuffer &&
-           angleDiff(pVision ->ourPlayer(Tick[now].our.to_balldist_min_num).RawDir(),
-           (pVision->ball().Pos() - pVision ->ourPlayer(Tick[now].our.to_balldist_min_num).Pos()).dir()) * PARAM::Math::PI < 1.08)
+        if(our_min_dist < PARAM::Player::playerBallRightsBuffer +15 &&
+           abs(angleDiff(pVision ->ourPlayer(Tick[now].our.to_balldist_min_num).RawDir(),
+           (pVision->ball().Pos() - pVision ->ourPlayer(Tick[now].our.to_balldist_min_num).Pos()).dir()) * PARAM::Math::PI) < 1.28)
             Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_count += 1;
         else
             Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_count = 0;
@@ -413,7 +413,7 @@ namespace Utils
             double getBallTime = GetBallToDistTime(pVision, dist) / 1000;
             double tolerance = getBallTime - t;
             // 判断是否在禁区
-            if (InExclusionZone(ballPrePos) && permissions==0)
+            if (InExclusionZone(ballPrePos,200) && permissions==0)
                 continue;
             // 判断是否在场外
             if(!InField(ballPrePos) && permissions<2)

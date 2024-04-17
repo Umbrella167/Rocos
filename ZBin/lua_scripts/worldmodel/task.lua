@@ -54,7 +54,7 @@ function getball(role, playerVel, inter_flag, target_point)
 		else
 			p1 = target_point
 		end
-		if player.infraredCount(role) < 5 then
+		if player.myinfraredCount(role) < 5 then
 			local qflag = inter_flag or 0
 			local playerPos = CGeoPoint:new_local(player.pos(role):x(),player.pos(role):y())
 			local inter_pos = stabilizePoint(Utils.GetBestInterPos(vision,playerPos,playerVel,qflag))
@@ -78,13 +78,13 @@ function getball(role, playerVel, inter_flag, target_point)
 			end
 			ipos = CGeoPoint:new_local(ipos:x(),ipos:y())
 			ipos = stabilizePoint(ipos)
-
+			ipos = ipos + Utils.Polar2Vector(-70,player.toBallDir(role))
 			local ballLine = CGeoSegment(ball.pos(),ball.pos() + Utils.Polar2Vector(param.INF,ball.velDir()))
 			local playerPrj = ballLine:projection(player.rawPos(role))
 			local canRush = ballLine:IsPointOnLineOnSegment(playerPrj)
-			local endvel = Utils.Polar2Vector(ball.velMod() / 6,(ipos - player.pos(role)):dir())
+			local endvel = Utils.Polar2Vector(0,(ipos - player.pos(role)):dir())
 			if canRush then
-				endvel = Utils.Polar2Vector(300,(ipos - player.pos(role)):dir())
+				endvel = Utils.Polar2Vector(0,(ipos - player.pos(role)):dir())
 			end
 			local mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = iflag, rec = r, vel = endvel }
 			return { mexe, mpos }
@@ -106,7 +106,7 @@ end
 -- 		else
 -- 			p1 = target_point
 -- 		end
--- 		if player.infraredCount(role) < 10 then
+-- 		if player.myinfraredCount(role) < 10 then
 -- 			local qflag = inter_flag or 0
 -- 			local playerPos = CGeoPoint:new_local(player.pos(role):x(),player.pos(role):y())
 -- 			local inter_pos = Utils.GetBestInterPos(vision,playerPos,playerVel,qflag)
@@ -161,7 +161,7 @@ function getballV2(role, playerVel, inter_flag, target_point)
 		else
 			p1 = target_point
 		end
-		if player.infraredCount(role) < 5 then
+		if player.myinfraredCount(role) < 5 then
 			local qflag = inter_flag or 0
 			local playerPos = CGeoPoint:new_local( player.pos(role):x(),player.pos(role):y())
 			local inter_pos = stabilizePoint(Utils.GetBestInterPos(vision,playerPos,playerVel,qflag))
@@ -224,11 +224,11 @@ function power(p, Kp) --根据目标点与球之间的距离求出合适的 击�
 		local res = Kp * dist
 
 		if param.isReality then
-			if res > 380 then
-				res = 380
+			if res > 310 then
+				res = 310
 			end
-			if res < 230 then
-				res = 230
+			if res < 200 then
+				res = 200
 			end
 		else
 			if res > 6000 then
@@ -263,7 +263,7 @@ function GetBallV2(role, p, dist1, speed1) -------dist开始减速的距离   sp
 		else
 			p1 = p
 		end
-		if (player.infraredCount(role) < 20) then
+		if (player.myinfraredCount(role) < 20) then
 			if ((player.pos(role) - ball.pos()):mod() < dist) then
 				local idir = (ball.pos() - player.pos(role)):dir()
 				local pp = ball.pos() + Utils.Polar2Vector(0, idir)
@@ -1071,7 +1071,7 @@ function getFitData_runToPos(role)
 	    	-- 踢球车的准备点
 	    	local p1 = CGeoPoint:new_local(flag*param.FIT_PLAYER_POS_X, flag*param.FIT_PLAYER_POS_Y)
 
-    		if player.infraredCount(role) < 10 and flag == 1 then
+    		if player.myinfraredCount(role) < 10 and flag == 1 then
     			-- 踢球人如果没有拿到球，就去拿球
 	    		local idir = player.toPointDir(p0, role)
 				local mexe, mpos = GoCmuRush { pos = p0, dir = idir, acc = a, flag = 0x00000100, rec = r, vel = v }

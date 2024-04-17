@@ -275,7 +275,14 @@ end
 function infraredCount(role)
 	return world:InfraredOnCount(num(role))
 end
-
+function myinfraredCount(role)
+	local robotNum = num(role)
+	if robotNum ~= -1 then
+		return GlobalMessage.Tick.task[robotNum].infrared_count
+	else
+		return 0
+	end
+end
 -- role1为传球车
 function toShootOrRobot(role1)
 	return function(role2)
