@@ -37,9 +37,9 @@ firstState = "ready1",
 		-- end
 		
 	end,
-	Special = function() return task.defender_marking("Special",CGeoPoint(0,0)) end, --task.getball("Assister",param.playerVel,param.getballMode,CGeoPoint:new_local(0,0)), 
-	Kicker = function() return task.defender_marking("Kicker",CGeoPoint(0,0)) end,
-	match = "[SK]"
+	Kicker = task.getball("Assister",param.playerVel,param.getballMode,CGeoPoint:new_local(0,0)), 
+	-- Kicker = function() return task.defender_marking("Kicker",CGeoPoint(0,0)) end,
+	match = "[K]"
 },
 
 

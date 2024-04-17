@@ -118,9 +118,17 @@ local UpdataTickMessage = function (our_goalie_num,defend_num1,defend_num2)
         -- pass_pos = GlobalMessage.Tick.task[dribbling_player_num].max_confidence_pass_num
 
         if (player.num("Kicker") == pass_player_num) then
-            pass_pos = KickerRUNPos
+            if (player.pos("Kicker") - KickerRUNPos):mod() > 1500 then
+                 pass_pos =CGeoPoint((KickerRUNPos:x() + player.posX("Kicker")) / 2,(KickerRUNPos:y() + player.posY("Kicker")) / 2)
+            else
+                pass_pos = KickerRUNPos
+            end
         elseif (player.num("Special") == pass_player_num) then
-            pass_pos = SpecialRUNPos
+            if (player.pos("Special") - SpecialRUNPos):mod() > 1500 then
+                 pass_pos =CGeoPoint((SpecialRUNPos:x() + player.posX("Special")) / 2,(SpecialRUNPos:y() + player.posY("Special")) / 2)
+            else
+                pass_pos = SpecialRUNPos
+            end
         end
 
         -- pass_pos = CGeoPoint:new_local(player.posX(pass_player_num),player.posY(pass_player_num))
