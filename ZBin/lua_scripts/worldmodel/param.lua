@@ -15,7 +15,37 @@ module(..., package.seeall)
 -- lengthRatio	= 1.5
 -- widthRatio	= 1.5
 -- stopRatio = 1.1
+---------------------------------
+INF = 1e9
+PI = 3.141592653589793238462643383279
+maxPlayer   = 16
+ballDiameter = 42
+---------------------------------
+-- feild params
+pitchLength = CGetSettings("field/width","Int")
+pitchWidth  = CGetSettings("field/height","Int")
+goalWidth = CGetSettings("field/goalWidth","Int")
+goalDepth = CGetSettings("field/goalDepth","Int")
+ourGoalPos = CGeoPoint:new_local(-pitchLength/2, 0)
+ourTopGoalPos = CGeoPoint:new_local(-pitchLength/2, goalWidth/2)
+ourButtomGoalPos = CGeoPoint:new_local(-pitchLength/2, -goalWidth/2)
+freeKickAvoidBallDist = 500
 
+penaltyWidth    = CGetSettings("field/penaltyLength","Int")
+penaltyDepth	= CGetSettings("field/penaltyWidth","Int")
+-- penaltyRadius	= 1000  --?????????Is penaltyRadius ==  penaltyWidth/2 ???????????????
+penaltyRadius = penaltyWidth/2
+penaltySegment	= 500
+ourTopRightPenaltyPos = CGeoPoint:new_local(-pitchLength/2+penaltyDepth, penaltyRadius)
+ourTopPenaltyPos = CGeoPoint:new_local(-pitchLength/2, penaltyRadius)
+ourButtomPenaltyPos = CGeoPoint:new_local(-pitchLength/2, -penaltyRadius)
+
+
+playerFrontToCenter = 76
+lengthRatio	= 1.5
+widthRatio	= 1.5
+stopRatio = 1.1
+frameRate = 73
 ---------------------------------
 -- 射击力度
 powerShoot = 300
@@ -32,6 +62,7 @@ rotVel = 3.8
 playerVel = 1 	
 -- [0[激进模式], 1[保守模式], 2[middle]]
 getballMode = 2
+
 ---------------------------------
 -- 固定匹配
 defend_num1 = 1
@@ -41,48 +72,29 @@ our_goalie_num = 0
 -- lua 两点间有无敌人阈值
 enemy_buffer = 100
 ---------------------------------
-
----------------------------------
-
-
-INF = 1e9
-PI = 3.141592653589793238462643383279
-maxPlayer   = 16
----------------------------------
 -- player params
 playerRadius	= 90
 defenderBuf = playerRadius*3
-goalieBuf = playerRadius
-
-
+goalieBuf = 43
 ---------------------------------
--- feild params
-pitchLength = CGetSettings("field/width","Int")
-pitchWidth  = CGetSettings("field/height","Int")
-goalWidth = CGetSettings("field/goalWidth","Int")
-goalDepth = CGetSettings("field/goalDepth","Int")
-ourGoalPos = CGeoPoint:new_local(-pitchLength/2, 0)
-ourTopGoalPos = CGeoPoint:new_local(-pitchLength/2, goalWidth/2)
-ourButtomGoalPos = CGeoPoint:new_local(-pitchLength/2, -goalWidth/2)
-freeKickAvoidBallDist = 500
-ballDiameter = 42
+-- defend marking
 
-penaltyWidth    = CGetSettings("field/penaltyLength","Int")
-penaltyDepth	= CGetSettings("field/penaltyWidth","Int")
--- penaltyRadius	= 1000  --?????????Is penaltyRadius ==  penaltyWidth/2 ???????????????
-penaltyRadius = penaltyWidth/2
-penaltySegment	= 500
-ourTopRightPenaltyPos = CGeoPoint:new_local(-pitchLength/2+penaltyDepth, penaltyRadius)
-ourTopPenaltyPos = CGeoPoint:new_local(-pitchLength/2, penaltyRadius)
-ourButtomPenaltyPos = CGeoPoint:new_local(-pitchLength/2, -penaltyRadius)
+-- 球的X超过 markingThreshold 队友去盯防
+markingThreshold = 1500 
+minMarkingDist = playerRadius*3
+markingPosRate1 = 1/6
+markingPosRate2 = 1/10
+
+-- defender
 defenderRadius = ourGoalPos:dist(ourTopRightPenaltyPos) + defenderBuf
 defenderAimX = -pitchLength/4
 
-playerFrontToCenter = 76
-lengthRatio	= 1.5
-widthRatio	= 1.5
-stopRatio = 1.1
-frameRate = 73
+
+
+
+
+
+
 
 
 

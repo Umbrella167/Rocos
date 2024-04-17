@@ -57,63 +57,6 @@ function TurnRun(pos,vel)
 	return { mexe, mpos }
 end
 
-
--- function getball(role, playerVel, inter_flag, target_point)
--- 	return function()
--- 		local p1
--- 		if type(target_point) == 'function' then
--- 			p1 = target_point()
--- 		else
--- 			p1 = target_point
--- 		end
--- 		local __mexe = function(runner)
--- 			...  
--- 			local mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = iflag, rec = r, vel = endvel }
--- 			return mexe(runner)
--- 		end
--- 		local __mpos = function(runner)
--- 			function()
--- 			if player.infraredCount(role) < 5 then
--- 				local qflag = inter_flag or 0
--- 				local playerPos = CGeoPoint:new_local( player.pos(role):x(),player.pos(role):y())
--- 				local inter_pos = stabilizePoint(Utils.GetBestInterPos(vision,playerPos,playerVel,qflag))
--- 				local idir = player.toBallDir(role)
--- 				local ipos = ball.pos()
--- 				if inter_pos:x()  ==  param.INF or inter_pos:y()  == param.INF then
--- 					ipos = ball.pos()
--- 				else
--- 					ipos = inter_pos
--- 				end
--- 				-- local toballDir = math.abs(player.toBallDir(role))  * 57.3
--- 				local toballDir = math.abs((ball.rawPos() - player.rawPos(role)):dir() * 57.3)
--- 				local playerDir = math.abs(player.dir(role)) * 57.3
--- 				local Subdir = math.abs(toballDir-playerDir)
--- 				local iflag = bit:_or(flag.allow_dss, flag.dodge_ball)
--- 				if Subdir > 20 then 
--- 					local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
--- 					iflag =  DSS_FLAG
--- 				else
--- 					iflag = flag.dribbling
--- 				end
--- 				ipos = CGeoPoint:new_local(ipos:x(),ipos:y())
--- 				ipos = stabilizePoint(ipos)
--- 				local endvel = Utils.Polar2Vector(300,(ipos - player.pos(role)):dir())
--- 				local mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = iflag, rec = r, vel = endvel }
--- 				return { mexe, mpos }
--- 			else
--- 				local idir = (p1 - player.pos(role)):dir()
--- 				local pp = player.pos(role) + Utils.Polar2Vector(0 + 10, idir)
--- 				local iflag = flag.dribbling
--- 				local mexe, mpos = GoCmuRush { pos = pp, dir = idir, acc = 50, flag = iflag, rec = 1, vel = v }
--- 				return { mexe, mpos }
--- 			end
--- 			return BestInterceptPos(runner)
--- 		end
-
--- 	end
--- end
-
-
 function getball(role, playerVel, inter_flag, target_point)
 	return function()
 		local p1
@@ -142,7 +85,7 @@ function getball(role, playerVel, inter_flag, target_point)
 				local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
 				iflag =  DSS_FLAG
 			else
-				iflag = flag.dribbling
+				iflag = bit:_or(flag.allow_dss,flag.dribbling) 
 			end
 			ipos = CGeoPoint:new_local(ipos:x(),ipos:y())
 			ipos = stabilizePoint(ipos)
@@ -790,7 +733,8 @@ function defend_kick(role)
 			return (targetPos - player.pos(runner)):dir()
 		end
 		local mexe, mpos = GoCmuRush { pos = defenderPoint, dir = idir, acc = a, flag = 0x00000000, rec = r, vel = endVelController(role, defenderPoint) }
-		return { mexe, mpos, kick.chip, idir, pre.low, power(targetPos, kp), power(targetPos, kp), 0x00000000 }
+		-- return { mexe, mpos, kick.chip, idir, pre.low, power(targetPos, kp), power(targetPos, kp), 0x00000000 }
+		return { mexe, mpos, kick.flat, idir, pre.low, power(targetPos, kp), power(targetPos, kp), 0x00000000 }
 	else
 		local tTable = defend_norm(role, 2)
 		return tTable
@@ -847,7 +791,8 @@ function goalie(role, flag)
 				return (targetPos - player.pos(runner)):dir()
 			end
 			local mexe, mpos = GoCmuRush { pos = goaliePoint, dir = idir, acc = a, flag = 0x00000000, rec = r, vel = endVelController(role, goaliePoint) }
-			return { mexe, mpos, kick.chip, idir, pre.low, power(targetPos, kp), power(targetPos, kp), 0x00000000 }
+			-- return { mexe, mpos, kick.chip, idir, pre.low, power(targetPos, kp), power(targetPos, kp), 0x00000000 }
+			return { mexe, mpos, kick.flat, idir, pre.low, power(targetPos, kp), power(targetPos, kp), 0x00000000 }
 		elseif ball.velMod() < 1000 and Utils.InExclusionZone(getBallPos, param.goalieBuf, "our") then
 			-- 球滚到禁区内停止
 			local kp = 1
@@ -856,7 +801,8 @@ function goalie(role, flag)
 				return (targetPos - player.pos(runner)):dir()
 			end
 			local mexe, mpos = GoCmuRush { pos = goaliePoint, dir = idir, acc = a, flag = 0x00000000, rec = r, vel = endVelController(role, goaliePoint) }
-			return { mexe, mpos, kick.chip, idir, pre.low, power(targetPos, kp), power(targetPos, kp), 0x00000000 }
+			-- return { mexe, mpos, kick.chip, idir, pre.low, power(targetPos, kp), power(targetPos, kp), 0x00000000 }
+			return { mexe, mpos, kick.flat, idir, pre.low, power(targetPos, kp), power(targetPos, kp), 0x00000000 }
 		else
 			-- 准备状态
 			-- 这里是当球没有朝球门飞过来的时候，需要提前到达的跑位点
@@ -885,7 +831,7 @@ function goalie(role, flag)
 					-- goaliePoint = tP
 					goaliePoint = CGeoPoint:new_local((tP:x()+goaliePoint:x())/2, (tP:y()+goaliePoint:y())/2)
 				end
-				-- debugEngine:gui_debug_x(goaliePoint)
+			debugEngine:gui_debug_x(goaliePoint, param.WHITE)
 			end
 			local idir = player.toPointDir(enemyPos, role)
 			local mexe, mpos = GoCmuRush { pos = goaliePoint, dir = idir, acc = a, flag = 0x00000100, rec = r, vel = endVelController(role, goaliePoint) }
@@ -897,13 +843,62 @@ end
 
 
 --[[ 盯防 ]]
-markingTable = {
-	Special = '',
-	
-}
-function defender_marking(role,pos)
-	local theirDribblingNum = GlobalMessageTick.Tick.their.dribbling_num
+markingTable = {}
+markingTableLen = 0
 
+
+function defender_marking(role,pos)
+	local theirDribblingNum = GlobalMessage.Tick.their.dribbling_num
+	local p
+
+	markingTable = {}
+	markingTableLen = 0
+	if type(pos) == "function" then
+		p = pos()
+	else
+		p = pos 
+	end
+	local idir = player.toBallDir(role)
+		-- 初始化 获取需要盯防的对象 <= 2
+	-- if markingTableLen == 0 and ball.rawPos():x() > param.markingThreshold then 
+		for i=0,param.maxPlayer-1 do
+			if enemy.valid(i) and i ~= theirDribblingNum and enemy.posX(i) < param.markingThreshold then
+				markingTable[markingTableLen] = i
+				markingTableLen = markingTableLen + 1
+				if markingTableLen > 1 then
+					break
+				end
+			end
+		end
+	-- end
+	-- 如果 敌人在前场 ,我方正常跑位
+	if markingTableLen == 0 or (markingTableLen == 1 and role == "Special" )  then 
+		local mexe, mpos = GoCmuRush { pos = p, dir = idir, acc = a, flag = 0x00000000, rec = r, vel = v }
+		return { mexe, mpos }
+	else
+
+		if (role == "Kicker") then
+			minDistEnemyNum = markingTable[0]
+		elseif markingTableLen > 1 then 
+			minDistEnemyNum = markingTable[1]
+		end
+		local ballToEnemyDist = (enemy.pos(minDistEnemyNum) - ball.rawPos()):mod()
+		local ballToEnemyDir = (enemy.pos(minDistEnemyNum) - ball.rawPos()):dir()
+		if(markingTableLen ~= 0) then
+			local dirFlag = enemy.pos(minDistEnemyNum):y() < 0 and 1 or -1
+			local markingPos = enemy.pos(minDistEnemyNum) + 
+			Utils.Polar2Vector(ballToEnemyDist*param.markingPosRate1, ballToEnemyDir + dirFlag * math.pi / 2 ) + 
+			Utils.Polar2Vector(-param.minMarkingDist-ballToEnemyDist*param.markingPosRate2, ballToEnemyDir)
+			debugEngine:gui_debug_x(markingPos)
+			if(not Utils.InField(markingPos)) then
+				markingPos = CGeoPoint (player.posX(role),player.posY(role))
+			end
+
+			local mexe, mpos = GoCmuRush { pos = markingPos, dir = idir, acc = a, flag = 0x00000000, rec = r, vel = v }
+			return { mexe, mpos }
+		end
+
+	end
 end
 
 function Dfenending( role )
