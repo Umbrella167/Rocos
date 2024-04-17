@@ -179,18 +179,23 @@ function power(p, Kp) --根据目标点与球之间的距离求出合适的 击�
 		end
 		local dist = (p1 - ball.pos()):mod()
 		local res = Kp * dist
-		-- if res > 310 then
-		-- 	res = 310
-		-- end
-		-- if res < 230 then
-		-- 	res = 230
-		-- end
-		if res > 6000 then
-			res = 6000
+
+		if param.isReality then
+			if res > 310 then
+				res = 310
+			end
+			if res < 230 then
+				res = 230
+			end
+		else
+			if res > 6000 then
+				res = 6000
+			end
+			if res < 4000 then
+				res = 4000
+			end
 		end
-		if res < 3500 then
-			res = 3500
-		end
+
 		debugEngine:gui_debug_msg(CGeoPoint:new_local(0,3200),"Power" .. res .. "    toTargetDist: " .. dist,3)
 		return res
 	end
@@ -243,7 +248,7 @@ function GetBallV2(role, p, dist1, speed1) -------dist开始减速的距离   sp
 end
 
 
-function TurnToPoint(role, p, speed)
+function TurnToPointV1(role, p, speed)
 	--参数说明
 	-- role 	 使用这个函数的角色
 	-- p	     指向坐标
@@ -316,59 +321,52 @@ function TurnToPointV2(role, p, speed)
 	-- role 	 使用这个函数的角色
 	-- p	     指向坐标
 	-- speed	 旋转速度
+	local p1 = p
+	if type(p) == 'function' then
+		p1 = p()
+	else
+		p1 = p
+	end
 
-		local p1 = p
-		if type(p) == 'function' then
-			p1 = p()
+	if speed == nil then
+		speed = param.rotVel
+	end
+	debugEngine:gui_debug_x(p1,6)
+
+	-- local playerDir = player.dir(role)
+	-- local playerToTargetDir = (p1 - player.pos(role)):dir() * 57.3
+	-- local ballToTargetDir = (p1 - ball.pos()):dir() * 57.3
+	-- local subPlayerBallToTargetDir = playerToTargetDir - ballToTargetDir
+		local toballDir = (p1 - player.rawPos(role)):dir() * 57.3
+		local playerDir = player.dir(role) * 57.3
+		local subPlayerBallToTargetDir = toballDir - playerDir 
+		-- local Subdir = math.abs(toballDir-playerDir)
+		debugEngine:gui_debug_msg(CGeoPoint:new_local(1000,380),toballDir .. "                     " .. playerDir,4)
+		debugEngine:gui_debug_msg(CGeoPoint:new_local(1000,220),math.abs(toballDir-playerDir) .. "                     " .. subPlayerBallToTargetDir,3)
+	if math.abs(toballDir-playerDir) > 4 then
+		if subPlayerBallToTargetDir < 0 then
+			-- 顺时针旋转
+			-- debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "顺时针")
+			local ipos = CGeoPoint(param.rotPos:x(), param.rotPos:y() * -1)  --自身相对坐标 旋转
+			local ivel = speed * -1
+			local mexe, mpos = CircleRun {pos = ipos , vel = ivel}
+			return { mexe, mpos }
 		else
-			p1 = p
+			-- 逆时针旋转
+			-- debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "逆时针")
+			local ipos = param.rotPos  --自身相对坐标 旋转
+			local ivel = speed
+
+			local mexe, mpos = CircleRun {pos = ipos , vel = ivel}
+			return { mexe, mpos }
 		end
-
-		if speed == nil then
-			speed = param.rotVel
-		end
-		debugEngine:gui_debug_x(p1,6)
-
-		-- local playerDir = player.dir(role)
-		-- local playerToTargetDir = (p1 - player.pos(role)):dir() * 57.3
-		-- local ballToTargetDir = (p1 - ball.pos()):dir() * 57.3
-		-- local subPlayerBallToTargetDir = playerToTargetDir - ballToTargetDir
-			local toballDir = (p1 - player.rawPos(role)):dir() * 57.3
-			local playerDir = player.dir(role) * 57.3
-
-			local turnDir = angleDiff((p1 - player.rawPos(role)):dir(), player.dir(role))
-			local subPlayerBallToTargetDir = toballDir - playerDir 
-			-- local Subdir = math.abs(toballDir-playerDir)
-			debugEngine:gui_debug_msg(CGeoPoint:new_local(1000,380),toballDir .. "                     " .. playerDir,4)
-			debugEngine:gui_debug_msg(CGeoPoint:new_local(1000,220),math.abs(toballDir-playerDir) .. "                     " .. subPlayerBallToTargetDir,3)
+	else
+		local idir = (ball.pos() - player.pos(role)):dir()
+		local pp = ball.pos() + Utils.Polar2Vector(50, idir)
+		local mexe, mpos = GoCmuRush { pos = pp, dir = idir, acc = 50, flag = 0x00000100 + 0x04000000, rec = 1, vel = v }
+		return { mexe, mpos }  
 		
-
-		if math.abs(toballDir-playerDir) > 4 then
-			if turnDir > 0 then
-				-- 顺时针旋转
-				-- debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "顺时针")
-				local ipos = CGeoPoint(param.rotPos:x(), param.rotPos:y() * -1)  --自身相对坐标 旋转
-				local ivel = speed * -1
-				local mexe, mpos = CircleRun {pos = ipos , vel = ivel}
-				return { mexe, mpos }
-			else
-				-- 逆时针旋转
-				-- debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "逆时针")
-				local ipos = param.rotPos  --自身相对坐标 旋转
-				local ivel = speed
-
-				local mexe, mpos = CircleRun {pos = ipos , vel = ivel}
-				return { mexe, mpos }
-			end
-		else
-			local idir = (ball.pos() - player.pos(role)):dir()
-			local pp = ball.pos() + Utils.Polar2Vector(50, idir)
-			local mexe, mpos = GoCmuRush { pos = pp, dir = idir, acc = 50, flag = 0x00000100 + 0x04000000, rec = 1, vel = v }
-			return { mexe, mpos }  
-			
-		end
-
-		-- NOTE: 这里两个if都不成立时没有写额外的操作，需要自行判断退出
+	end
 end
 
 function ShootdotV2(p, Kp, error_, flag)
@@ -441,7 +439,6 @@ function playerDirToPointDirSub(role, p) -- 检测 某座标点  球  playe 是�
 	else
 		p1 = p
 	end
-
 	local playerDir = player.dir(role) * 57.3 + 180
 	local playerPointDit = (p1 - player.rawPos(role)):dir() * 57.3 + 180
 	local sub = math.abs(playerDir - playerPointDit)

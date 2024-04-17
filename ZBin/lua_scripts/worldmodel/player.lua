@@ -662,3 +662,15 @@ function atBallLine()
     end
     return playerNum
 end
+
+function closestBall()
+	local minDist = param.INF
+	local playerNum = -1
+	for i=0,param.maxPlayer do
+        if player.valid(i) and player.toBallDist(i)<minDist and player.name(i)~="Tier" and player.name(i)~="Defender" then
+        	minDist = player.toBallDist(i)
+        	playerNum = i
+        end
+    end
+    return playerNum
+end
