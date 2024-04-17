@@ -42,15 +42,17 @@ void CTouch::plan(const CVisionModule* pVision){
     // predict ball pos
     const auto ballStopPose = BallSpeedModel::instance()->poseForTime(9999);
 
-
     // stupid version of getballPos
     CGeoPoint bestPos = BallSpeedModel::instance()->poseForTime(1.0).Pos();
     for(double dist = 0; dist < 3000; dist += 20){
+    for(double dist = 0; dist < 3000; dist += 20){
         auto pos = ballPos + Utils::Polar2Vector(dist, ballVelDir);
-        double t1 = predictedTimeWithRawVel(me, pos);
+        double t1 = predictedTime(me, pos);
         double t2 = BallSpeedModel::Instance()->timeForDist(dist);
-        // GDebugEngine::Instance()->gui_debug_x(pos,COLOR_GREEN);
-        // GDebugEngine::Instance()->gui_debug_msg(pos, fmt::format("t:{:.2f},{:.2f}", t1, t2), COLOR_GREEN);
+        if (DEBUG_SWITCH){
+            GDebugEngine::Instance()->gui_debug_x(pos,COLOR_GREEN);
+            GDebugEngine::Instance()->gui_debug_msg(pos, fmt::format("t:{:.1f}", t1-t2), COLOR_GREEN, 0, 30);
+        }
         if(t1 < t2 || t1 < 0.1){
             bestPos = pos;
             break;
@@ -59,11 +61,11 @@ void CTouch::plan(const CVisionModule* pVision){
     const auto getBallPos = bestPos; // TODO : replace with GetBallPos after skillutils
 
     const CGeoSegment ballRunningSeg(ballPos, ballStopPose.Pos());
-    const auto me2segTime = predictedTimeWithRawVel(me, projectionRobotPos);
+    const auto me2segTime = predictedTime(me, projectionRobotPos);
     const auto ball2segTime = BallSpeedModel::Instance()->timeForDist(ballPos.dist(projectionMousePos));
     const bool canWaitForBall = ballRunningSeg.IsPointOnLineOnSegment(projectionMousePos) && me2segTime < ball2segTime;
-    const auto predictPos = ballVelMod > 300 ? getBallPos : ballPos;
-    const double ballVel_ball2Target_ad = ballVelMod > 300 ? angleDiff(ballVelDir, (target - ballPos).dir()) : 180;
+    const auto predictPos = ballVelMod > 500 ? getBallPos : ballPos;
+    const double ballVel_ball2Target_ad = ballVelMod > 500 ? angleDiff(ballVelDir, (target - ballPos).dir()) : 180;
     const bool angleCanTouch = std::abs(ballVel_ball2Target_ad) > 100 / 180.0 * PARAM::Math::PI;
 
     // const CVector targetRunVel = canWaitForBall ? CVector(0, 0) : Utils::Polar2Vector(200, ballVelDir);
@@ -77,14 +79,14 @@ void CTouch::plan(const CVisionModule* pVision){
     const auto me2TargetSeg = CGeoSegment(me.Pos(), targetRunPos);  
     const auto runTarget2kickTarget = target - targetRunPos;
 
-    const auto BALL_STATIC = ballVelMod < 300;
+    const auto BALL_STATIC = ballVelMod < 500;
     const auto runTargetDiff = angleDiff(me2target.dir(), runTarget2kickTarget.dir());
     const auto needAvoidStatic = BALL_STATIC && runTargetDiff;
-    const auto avoidDistStatic = needAvoidStatic ? 30.0 : 0.0;
+    const auto avoidDistStatic = needAvoidStatic ? 80.0 : 0.0;
 
     const auto diff4avoid_ball = std::abs(angleDiff(me2target.dir(), (targetMousePos - ballPos).dir()));
     const auto needAvoidDynamic = !BALL_STATIC && me2TargetSeg.IsPointOnLineOnSegment(ballPos) && diff4avoid_ball < 90 / 180.0 * PARAM::Math::PI;
-    const auto avoidDistDynamic = needAvoidDynamic ? 0.5*clip(90-diff4avoid_ball *180.0 / PARAM::Math::PI,0.0,90.0)+20 : 0;
+    const auto avoidDistDynamic = needAvoidDynamic ? 1.5*clip(90-diff4avoid_ball *180.0 / PARAM::Math::PI,30.0,90.0) : 0;
 
     double avoid_dist = 0;
 
