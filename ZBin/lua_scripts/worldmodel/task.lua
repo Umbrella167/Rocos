@@ -74,7 +74,7 @@ function getball(role, playerVel, inter_flag, target_point, permissions)
 			local playerDir = math.abs(player.dir(role)) * 57.3
 			local Subdir = math.abs(toballDir-playerDir)
 			local iflag = bit:_or(flag.allow_dss, flag.dodge_ball)
-			if Subdir > 20 then 
+			if Subdir > 10 then 
 				local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
 				iflag =  DSS_FLAG
 			else
@@ -82,7 +82,7 @@ function getball(role, playerVel, inter_flag, target_point, permissions)
 			end
 			ipos = CGeoPoint:new_local(ipos:x(),ipos:y())
 			ipos = stabilizePoint(ipos)
-			ipos = ipos + Utils.Polar2Vector(-70,player.toBallDir(role))
+			ipos = ipos + Utils.Polar2Vector(-50,player.toBallDir(role))
 			local ballLine = CGeoSegment(ball.pos(),ball.pos() + Utils.Polar2Vector(param.INF,ball.velDir()))
 			local playerPrj = ballLine:projection(player.rawPos(role))
 			local canRush = ballLine:IsPointOnLineOnSegment(playerPrj)
