@@ -31,11 +31,13 @@ return {
         switch = function()
             if bufcnt(true, 20) then
             end
-            for i=0, task.defenderCount-1 do
-                local rolePos = CGeoPoint:new_local(player.rawPos(task.defenderNums[i]):x(), player.rawPos(task.defenderNums[i]):y())
-                local getBallPos = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 2)
-                if player.toPointDist(task.defenderNums[i], getBallPos) < 300 then
-                    return "defend_kick"
+            if player.toBallDist(player.closestBall()) > param.playerRadius * 4 then
+                for i=0, task.defenderCount-1 do
+                    local rolePos = CGeoPoint:new_local(player.rawPos(task.defenderNums[i]):x(), player.rawPos(task.defenderNums[i]):y())
+                    local getBallPos = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 2)
+                    if player.toPointDist(task.defenderNums[i], getBallPos) < 300 then
+                        return "defend_kick"
+                    end
                 end
             end
             if enemy.toOurGoalDist(enemy.closestGoal()) > param.defenderRadius*5/3 then
