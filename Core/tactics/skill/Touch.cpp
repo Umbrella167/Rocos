@@ -81,8 +81,6 @@ void CTouch::plan(const CVisionModule *pVision)
     const CGeoPoint targetMousePos = canWaitForBall ? projectionMousePos : predictPos;
     const double targetRunDir = (useInter || !angleCanTouch) ? Utils::Normalize(ballVelDir + PARAM::Math::PI) : (target - targetMousePos).dir();
     const CGeoPoint targetRunPos = targetMousePos + Utils::Polar2Vector(PARAM::Vehicle::V2::PLAYER_CENTER_TO_BALL_CENTER, targetRunDir + PARAM::Math::PI);
-
-        const CGeoPoint targetRunPos = Utils::GetBestInterPos(pVision, me.Pos(), PARAM::Player::playerVel, 1, 0);
         // add avoid ball flag
         const auto me2target = targetRunPos - me.Pos();
         const auto me2TargetSeg = CGeoSegment(me.Pos(), targetRunPos);
