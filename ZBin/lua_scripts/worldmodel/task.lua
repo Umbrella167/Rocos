@@ -34,7 +34,7 @@ end
 function endVelController(role, p)
 	local endvel = Utils.Polar2Vector(50,(player.pos(role) - p):dir())
 	if player.toPointDist(role, p) > param.playerRadius*2 then
-		endvel = Utils.Polar2Vector(-800,(player.pos(role) - p):dir())
+		endvel = Utils.Polar2Vector(-100,(player.pos(role) - p):dir())
 	end
 	return endvel
 end
@@ -45,6 +45,8 @@ function TurnRun(pos,vel)
 	local mexe, mpos = CircleRun {pos = ipos , vel = ivel}
 	return { mexe, mpos }
 end
+
+
 
 function getball(role, playerVel, inter_flag, target_point, permissions)
 	return function()
@@ -58,7 +60,7 @@ function getball(role, playerVel, inter_flag, target_point, permissions)
 			permissions = 0
 		end
 
-		if player.myinfraredCount(role) < 5 then
+		if player.myinfraredCount(role) < 10 then
 			local qflag = inter_flag or 0
 			local playerPos = CGeoPoint:new_local(player.pos(role):x(),player.pos(role):y())
 			local inter_pos = stabilizePoint(Utils.GetBestInterPos(vision,playerPos,playerVel,qflag,permissions))
@@ -74,7 +76,7 @@ function getball(role, playerVel, inter_flag, target_point, permissions)
 			local playerDir = math.abs(player.dir(role)) * 57.3
 			local Subdir = math.abs(toballDir-playerDir)
 			local iflag = bit:_or(flag.allow_dss, flag.dodge_ball)
-			if Subdir > 10 then 
+			if Subdir > 40 then 
 				local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
 				iflag =  DSS_FLAG
 			else
@@ -82,38 +84,43 @@ function getball(role, playerVel, inter_flag, target_point, permissions)
 			end
 			ipos = CGeoPoint:new_local(ipos:x(),ipos:y())
 			ipos = stabilizePoint(ipos)
-			ipos = ipos + Utils.Polar2Vector(-50,player.toBallDir(role))
+			ipos = ipos + Utils.Polar2Vector(-28,player.toBallDir(role))
 			local ballLine = CGeoSegment(ball.pos(),ball.pos() + Utils.Polar2Vector(param.INF,ball.velDir()))
 			local playerPrj = ballLine:projection(player.rawPos(role))
 			local canRush = ballLine:IsPointOnLineOnSegment(playerPrj)
-			local endvel = Utils.Polar2Vector(0,(ipos - player.pos(role)):dir())
+			local endvel = Utils.Polar2Vector(150,(ipos - player.pos(role)):dir())
 			if canRush then
-				endvel = Utils.Polar2Vector(0,(ipos - player.pos(role)):dir())
+				endvel = Utils.Polar2Vector(150,(ipos - player.pos(role)):dir())
 			end
-			local mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = iflag, rec = r, vel = endvel }
+			local mexe, mpos = Getball { pos = ipos, dir = idir, acc = a, flag = iflag, rec = r, vel = endvel }
 			return { mexe, mpos }
 		else
 			local idir = (p1 - player.pos(role)):dir()
-			local pp = player.pos(role) + Utils.Polar2Vector(0 + 10, idir)
+			local pp = player.pos(role) + Utils.Polar2Vector(10 + 10, idir)
 			local iflag = flag.dribbling
-			local mexe, mpos = GoCmuRush { pos = pp, dir = idir, acc = a, flag = iflag, rec = 1, vel = v }
+			local mexe, mpos = Getball { pos = pp, dir = idir, acc = a, flag = iflag, rec = 1, vel = v }
 			return { mexe, mpos }
 		end
 	end
 end
--- function getball(role, playerVel, inter_flag, target_point)
--- 	return function()
 
+-- function getball(role, playerVel, inter_flag, target_point, permissions)
+-- 	return function()
 -- 		local p1
 -- 		if type(target_point) == 'function' then
 -- 			p1 = target_point()
 -- 		else
 -- 			p1 = target_point
 -- 		end
+-- 		if permissions == nil then
+-- 			permissions = 0
+-- 		end
+
 -- 		if player.myinfraredCount(role) < 10 then
 -- 			local qflag = inter_flag or 0
 -- 			local playerPos = CGeoPoint:new_local(player.pos(role):x(),player.pos(role):y())
--- 			local inter_pos = Utils.GetBestInterPos(vision,playerPos,playerVel,qflag)
+-- 			local inter_pos = stabilizePoint(Utils.GetBestInterPos(vision,playerPos,playerVel,qflag,permissions))
+-- 			local idir = player.toBallDir(role)
 -- 			local ipos = ball.pos()
 -- 			if inter_pos:x()  ==  param.INF or inter_pos:y()  == param.INF then
 -- 				ipos = ball.pos()
@@ -125,36 +132,43 @@ end
 -- 			local playerDir = math.abs(player.dir(role)) * 57.3
 -- 			local Subdir = math.abs(toballDir-playerDir)
 -- 			local iflag = bit:_or(flag.allow_dss, flag.dodge_ball)
--- 			if Subdir > 20 then 
+-- 			if Subdir > 40 then 
 -- 				local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
 -- 				iflag =  DSS_FLAG
 -- 			else
 -- 				iflag = bit:_or(flag.allow_dss,flag.dribbling) 
 -- 			end
--- 			iflag = flag.dribbling
 -- 			ipos = CGeoPoint:new_local(ipos:x(),ipos:y())
 -- 			ipos = stabilizePoint(ipos)
--- 			--local idir = (ball.pos() - ipos):dir()
--- 			local idir = player.toBallDir(role)
+-- 			ipos = ipos + Utils.Polar2Vector(-28,player.toBallDir(role))
 -- 			local ballLine = CGeoSegment(ball.pos(),ball.pos() + Utils.Polar2Vector(param.INF,ball.velDir()))
 -- 			local playerPrj = ballLine:projection(player.rawPos(role))
 -- 			local canRush = ballLine:IsPointOnLineOnSegment(playerPrj)
--- 			-- local endvel = Utils.Polar2Vector(ball.velMod() * 1.8,(ipos - player.pos(role)):dir())
--- 			local endvel = Utils.Polar2Vector(0,(ipos - player.pos(role)):dir())
+-- 			local endvel = Utils.Polar2Vector(150,(ipos - player.pos(role)):dir())
 -- 			if canRush then
--- 				endvel = Utils.Polar2Vector(0,(ipos - player.pos(role)):dir())
+-- 				endvel = Utils.Polar2Vector(150,(ipos - player.pos(role)):dir())
 -- 			end
--- 			local mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
+-- 			local mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = a, flag = iflag, rec = r, vel = endvel }
 -- 			return { mexe, mpos }
 -- 		else
 -- 			local idir = (p1 - player.pos(role)):dir()
--- 			local pp = player.pos(role) + Utils.Polar2Vector(0, idir)
+-- 			local pp = player.pos(role) + Utils.Polar2Vector(10 + 10, idir)
 -- 			local iflag = flag.dribbling
--- 			local mexe, mpos = GoCmuRush{ pos = pp, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
+-- 			local mexe, mpos = GoCmuRush { pos = pp, dir = idir, acc = a, flag = iflag, rec = 1, vel = v }
 -- 			return { mexe, mpos }
 -- 		end
 -- 	end
 -- end
+
+
+
+
+
+
+
+
+
+
 
 
 function getballV2(role, playerVel, inter_flag, target_point, permissions)
@@ -235,8 +249,8 @@ function power(p, Kp) --根据目标点与球之间的距离求出合适的 击�
 			if res > 310 then
 				res = 310
 			end
-			if res < 200 then
-				res = 200
+			if res < 230 then
+				res = 230
 			end
 		else
 			if res > 6000 then
@@ -896,7 +910,7 @@ function goalie(role, target, mode)
 
 			local roleToBallTargetDir = math.abs((ballPos - rolePos):dir())
 			local ballToTargetDir = math.abs((targetPos - ballPos):dir())	
-			local goaliePoint = CGeoPoint:new_local(getBallPos:x(), getBallPos:y()) + Utils.Polar2Vector(-param.playerRadius, ballToTargetDir)
+			local goaliePoint = CGeoPoint:new_local(getBallPos:x(), getBallPos:y()) + Utils.Polar2Vector(-param.playerRadius+10, ballToTargetDir)
 			local Subdir = math.abs(ballToTargetDir-roleToBallTargetDir)
 			local iflag = bit:_or(flag.allow_dss, flag.dodge_ball)
 			if Subdir > 0.14 then 
@@ -925,7 +939,7 @@ function goalie(role, target, mode)
 				local enemyAimLine = CGeoSegment(enemyPos, enemyPos+Utils.Polar2Vector(param.INF, enemyDir))
 				local tPos = goalLine:segmentsIntersectPoint(enemyAimLine)
 				-- 判断是否朝向球门
-				local isToGoal = -param.penaltySegment-200<tPos:y() and tPos:y()<param.penaltySegment+200
+				local isToGoal = -param.penaltySegment-500<tPos:y() and tPos:y()<param.penaltySegment+500
 
 				if isToGoal then
 					local tP = tPos+Utils.Polar2Vector(-goalieRadius, enemyDir)
