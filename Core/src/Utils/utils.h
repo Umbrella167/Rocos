@@ -35,28 +35,28 @@ namespace Utils
     extern std::string GlobalComputingPos(const CVisionModule *pVision);                           // 计算所有点位
     extern double map(double value, double min_in, double max_in, double min_out, double max_out); // 映射
     extern bool InField(CGeoPoint Point);                                                          // 判断点是否在场地内
-    extern bool InExclusionZone(CGeoPoint Point, double buffer = 0,std::string dir = "all");                             // 判断点是否在禁区内
+    extern bool InExclusionZone(CGeoPoint Point, double buffer = 0, std::string dir = "all");      // 判断点是否在禁区内
     extern bool InOurField(CGeoPoint Point);
-    extern double NumberNormalize(double data, double max_data, double min_data);                  // [0,1] 标准化
+    extern double NumberNormalize(double data, double max_data, double min_data); // [0,1] 标准化
     extern bool isValidPass(const CVisionModule *pVision, CGeoPoint start, CGeoPoint end, double buffer = 150);
-    extern GlobalTick UpdataTickMessage(const CVisionModule *pVision,int goalie_num ,int defend_player_num1, int defend_player_num2); // 获取帧信息
-    extern CGeoPoint GetInterPos(const CVisionModule *pVision, CGeoPoint player_pos, double velocity);                 // 获取最佳截球点
+    extern GlobalTick UpdataTickMessage(const CVisionModule *pVision, int goalie_num, int defend_player_num1, int defend_player_num2); // 获取帧信息
+    extern CGeoPoint GetInterPos(const CVisionModule *pVision, CGeoPoint player_pos, double velocity);                                 // 获取最佳截球点
     extern CGeoSegment PredictBallLine(const CVisionModule *pVision);
     extern double PosToPosTime(CGeoPoint start_pos, CGeoPoint end_pos, double velocity);
 
     /* =============== 小工具 =============== */
     extern CGeoPoint GetBallMaxPos(const CVisionModule *pVision);
-    extern double angleDiff(double angle1, double angle2);// 返回两个dir的差
-    extern double ShowDribblingGrade(const CVisionModule *pVision,CGeoPoint run_pos,CGeoPoint player_pos,CGeoPoint target_pos);
-    extern CGeoPoint GetShowDribblingPos(const CVisionModule *pVision,CGeoPoint player_pos,CGeoPoint target_pos);
-    extern int GetPointToMinDistEnemyNum(const CVisionModule *pVision,CGeoPoint player_pos); // 获取距离某坐标最进的敌人位置
-    extern CGeoPoint PosGetShootPoint(const CVisionModule *pVision, double x, double y);                                          // 获取某坐标而言对方守门员的空位
+    extern double angleDiff(double angle1, double angle2); // 返回两个dir的差
+    extern double ShowDribblingGrade(const CVisionModule *pVision, CGeoPoint run_pos, CGeoPoint player_pos, CGeoPoint target_pos);
+    extern CGeoPoint GetShowDribblingPos(const CVisionModule *pVision, CGeoPoint player_pos, CGeoPoint target_pos);
+    extern int GetPointToMinDistEnemyNum(const CVisionModule *pVision, CGeoPoint player_pos);                                  // 获取距离某坐标最进的敌人位置
+    extern CGeoPoint PosGetShootPoint(const CVisionModule *pVision, double x, double y);                                       // 获取某坐标而言对方守门员的空位
     extern CGeoPoint GetShootPoint(const CVisionModule *pVision, int num);                                                     // 获取某坐标而言对方守门员的空位 + 持球员朝向
     extern double GetAttackGrade(const CVisionModule *pVision, double x, double y, CGeoPoint player_pos, CGeoPoint shoot_pos); // 计算某坐标点的跑位分
     extern CGeoPoint GetAttackPos(const CVisionModule *pVision, int num);                                                      // 计算已某玩家为圆心，半径，范围圆内 最佳跑位点
-    extern CGeoPoint GetAttackPos(const CVisionModule *pVision,int num ,CGeoPoint shootPos,CGeoPoint startPoint,CGeoPoint endPoint,double step,double ballDist = 1000);
+    extern CGeoPoint GetAttackPos(const CVisionModule *pVision, int num, CGeoPoint shootPos, CGeoPoint startPoint, CGeoPoint endPoint, double step, double ballDist = 1000);
     extern CGeoPoint GetTouchPassPos(const CVisionModule *pVision, CGeoPoint touch_pos);
-    extern CGeoPoint GetTouchPos(const CVisionModule *pVision, CGeoPoint player_pos, double touchAngle,bool double_flag = false);
+    extern CGeoPoint GetTouchPos(const CVisionModule *pVision, CGeoPoint player_pos, double touchAngle, bool double_flag = false);
     extern double GetTouchGrade(const CVisionModule *pVision, double x, double y, CGeoPoint player_pos, CGeoPoint shoot_pos);
     extern double ConfidenceShoot(const CVisionModule *pVision, int num);
     extern double ConfidenceShoot(const CVisionModule *pVision, CGeoPoint player_pos);
@@ -64,6 +64,7 @@ namespace Utils
     extern double RobotToPosDirGrade(const CVisionModule *pVision, int num, CGeoPoint start, CGeoPoint end);
     extern double GlobalConfidence(const CVisionModule *pVision, int attack_flag = 0);
     extern std::string GlobalStatus(const CVisionModule *pVision, int attack_flag = 0);
+    extern bool CheckSideToTurn(const CVisionModule *pVision, int role, double angle);
     // 多模式
     extern double PosToPosDirGrade(double x, double y, double x1, double y1, int dir = -1);
     extern double PosToPosDirGrade(double x, double y, double x1, double y1, double peak_pos, int dir = -1);                              // = 4 / PARAM::Math::RADIAN * PARAM::Math::PI
@@ -73,7 +74,6 @@ namespace Utils
     extern double NumberNormalizeGauss(double data, double max_data, double min_data, double peak_pos, std::string model = "DOUBLELINE"); // [0,1] 高斯归一化
     extern double PosSafetyGrade(const CVisionModule *pVision, CGeoPoint start, CGeoPoint end, std::string model = "SHOOT");              // 路径安全性评分
     extern CGeoPoint GetBestInterPos(const CVisionModule *pVision, CGeoPoint playerPos, double playerVel, int flag, int permissions);
-    extern int getInitData(const CVisionModule *pVision, int flag);
     /* =============== Defence =============== */
     /* 球场信息 */
     /* 己方半场信息 */
@@ -88,10 +88,10 @@ namespace Utils
     const double DEFAULT_DISTANCE_MAX = PARAM::Field::PENALTY_AREA_WIDTH; // 两个后卫之间的最大距离
     const double DEFAULT_DISTANCE_MIN = 300.0;                            // 两个后卫之间的最小距离
 
-    extern int closestPlayerToPlayer(const CVisionModule *pVision, int role, int type);
-    extern CGeoPoint closestPlayerToPoint(const CVisionModule *pVision, CGeoPoint pos, int type, int role = -1);
-    extern int closestPlayerNoToPoint(const CVisionModule *pVision, CGeoPoint pos, int type, int role = -1);
-   
+    extern int ClosestPlayerToPlayer(const CVisionModule *pVision, int role, int type);
+    extern CGeoPoint ClosestPlayerToPoint(const CVisionModule *pVision, CGeoPoint pos, int type, int role = -1);
+    extern int ClosestPlayerNoToPoint(const CVisionModule *pVision, CGeoPoint pos, int type, int role = -1);
+
     extern CGeoPoint DEFENDER_ComputeCrossPenalty(const CVisionModule *pVision, CGeoLine line);
     extern double DEFENDER_ComputeDistance(CGeoPoint hitPoint);
 
