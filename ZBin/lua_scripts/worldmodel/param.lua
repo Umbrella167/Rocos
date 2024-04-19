@@ -50,7 +50,7 @@ frameRate = 73
 powerShoot = 300
 powerTouch = 300
 shootPos = CGeoPoint(4500,0)	
-shootError = 10--1.8
+shootError = 3--1.8
 shootKp = 0.06
 ---------------------------------
 -- 旋转参数
@@ -121,7 +121,7 @@ CYAN=5
 BLUE=6
 PURPLE=7
 GRAY=9
-BLACK=0
+BLACK=10
 --~ -------------------------------------------
 --~ used for getdata
 --~ -------------------------------------------

@@ -320,7 +320,8 @@ namespace Utils
             // GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(x, y), to_string(grade), 1, 0, 60);
         }
         GDebugEngine::Instance()->gui_debug_arc(Tick[now].ball.first_dribbling_pos, 1000, 0, 360, 8);
-        GDebugEngine::Instance()->gui_debug_x(max_grade_point, 3);
+//        GDebugEngine::Instance()->gui_debug_x(max_grade_point, 3);
+//        GDebugEngine::Instance()->gui_debug_msg(max_grade_point,"goDribblingPos", 3);
         return max_grade_point;
     }
 
@@ -983,6 +984,7 @@ namespace Utils
 
         //        GDebugEngine::Instance() ->gui_debug_msg(CGeoPoint(-2500,2000),to_string(shootdir) + "   " + to_string(passdir) + "   " + to_string(dir));
         GDebugEngine::Instance()->gui_debug_x(max_grade_point, 3);
+        GDebugEngine::Instance()->gui_debug_msg(max_grade_point, "bestTouchPos",3);
         //        GDebugEngine::Instance()->gui_debug_x(max_shoot_point, 3);
         return max_grade_point;
     }
@@ -1073,6 +1075,7 @@ namespace Utils
             }
         }
         GDebugEngine::Instance()->gui_debug_x(max_grade_pos, 3);
+        GDebugEngine::Instance()->gui_debug_msg(max_grade_pos,"attackPos", 3);
         return max_grade_pos;
     }
     CGeoPoint GetAttackPos(const CVisionModule *pVision, int num, CGeoPoint shootPos, CGeoPoint startPoint, CGeoPoint endPoint, double step, double ballDist)
@@ -1105,6 +1108,7 @@ namespace Utils
                     continue;
                 grade = GetAttackGrade(pVision, new_local.x(), new_local.y(), ball_pos, shootPos);
                 GDebugEngine::Instance()->gui_debug_x(new_local);
+
                 if (max_grade < grade)
                 {
                     max_grade = grade;
@@ -1114,6 +1118,7 @@ namespace Utils
             }
         }
         GDebugEngine::Instance()->gui_debug_x(max_pos, 3);
+        GDebugEngine::Instance()->gui_debug_msg(max_pos,"attackPos", 3);
         return max_pos;
     }
 
@@ -1185,6 +1190,7 @@ namespace Utils
         Tick[now].globalData.confidence_shoot = max_grade;
         CGeoPoint ShootPoint(PARAM::Field::PITCH_LENGTH / 2, max_y);
         GDebugEngine::Instance()->gui_debug_x(ShootPoint, 3);
+        GDebugEngine::Instance()->gui_debug_msg(ShootPoint,"shootPos", 3);
         return ShootPoint;
     }
     /**

@@ -37,6 +37,7 @@ local debugMesg = function ()
 		debugEngine:gui_debug_line(player.pos("Assister"),player.pos("Assister") + Utils.Polar2Vector(9999,player.dir("Assister")),4)
 	end
 		debugEngine:gui_debug_x(resShootPos,6)
+		debugEngine:gui_debug_msg(resShootPos,"rotCompensatePos",6)
 
 end
 return {
