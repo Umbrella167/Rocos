@@ -20,7 +20,7 @@ namespace Utils{
 	bool InField(CGeoPoint Point);
 	bool InOurField(CGeoPoint Point);
 	double angleDiff(double angle1, double angle2);
-	int getInitData(const CVisionModule *pVision, int flag=1);
+	// int getInitData(const CVisionModule *pVision, int flag = 1);
 	CGeoPoint PosGetShootPoint(const CVisionModule *pVision, double x, double y);   
 	CGeoPoint GetShootPoint(const CVisionModule *pVision, int num);
 	std::string GlobalStatus(const CVisionModule *pVision,int attack_flag);
@@ -28,10 +28,11 @@ namespace Utils{
 	std::string GlobalComputingPos(const CVisionModule *pVision);
 	CGeoPoint GetAttackPos(const CVisionModule *pVision,int num);
 	bool isValidPass(const CVisionModule *pVision, CGeoPoint start, CGeoPoint end, double buffer);
+    bool CheckSideToTurn(const CVisionModule *pVision, int role, double angle);
 	// Defence
-	int closestPlayerToPlayer(const CVisionModule *pVision, int role, int type);
-	CGeoPoint closestPlayerToPoint(const CVisionModule *pVision, CGeoPoint pos, int type, int role = -1);
-	int closestPlayerNoToPoint(const CVisionModule *pVision, CGeoPoint pos, int type, int role = -1);
+	int ClosestPlayerToPlayer(const CVisionModule *pVision, int role, int type);
+	CGeoPoint ClosestPlayerToPoint(const CVisionModule *pVision, CGeoPoint pos, int type, int role = -1);
+	int ClosestPlayerNoToPoint(const CVisionModule *pVision, CGeoPoint pos, int type, int role = -1);
 
 	CGeoPoint DEFENDER_ComputeCrossPenalty(const CVisionModule *pVision, CGeoLine line);
 	double DEFENDER_ComputeDistance(CGeoPoint hitPoint);
