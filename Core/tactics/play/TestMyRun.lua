@@ -95,8 +95,8 @@ local UpdataTickMessage = function (our_goalie_num,defend_num1,defend_num2)
 
     runCount = runCount + 1
 
-    -- 每runCount帧算一次点
-    if runCount > 10 then
+    -- 每30帧算一次点
+    if runCount > 30 then
         local KickerShootPos = Utils.PosGetShootPoint(vision, player.posX("Kicker"),player.posY("Kicker"))
         local SpecialShootPos = Utils.PosGetShootPoint(vision,player.posX("Special"),player.posY("Special"))
 
@@ -272,7 +272,7 @@ firstState = "Init",
             return State
         end
     end,
-    Assister = task.getball(function() return shoot_pos end,playerVel,getballMode),
+    Assister = task.getball(playerVel,getballMode),
     Kicker = task.goCmuRush(function() return KickerRUNPos end,closures_dir_ball("Kicker"),_,DSS_FLAG),
     Special = task.goCmuRush(function() return SpecialRUNPos end,closures_dir_ball("Special"),_,DSS_FLAG),
     Tier = gSubPlay.roleTask("Defender", "Tier"),

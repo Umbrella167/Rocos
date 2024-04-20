@@ -48,13 +48,12 @@ end
 
 
 
-function getball(shootPos,playerVel, inter_flag, permissions)
+function getball(playerVel, inter_flag, permissions)
 	return function()
 		if permissions == nil then
 			permissions = 0
 		end
-
-		local mexe, mpos = Getball {shootPos = shootPos,permissions = permissions ,inter_flag = qflag, pos = pp, dir = idir, acc = a, flag = iflag, rec = 1, vel = v }
+		local mexe, mpos = Getball {permissions = permissions ,inter_flag = qflag, pos = pp, dir = idir, acc = a, flag = iflag, rec = 1, vel = v }
 		return { mexe, mpos }
 	end
 end
