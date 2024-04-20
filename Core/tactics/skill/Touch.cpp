@@ -48,26 +48,22 @@ void CTouch::plan(const CVisionModule *pVision)
     const auto ballStopPose = BallSpeedModel::instance()->poseForTime(9999);
 
     // stupid version of getballPos
-    CGeoPoint bestPos = BallSpeedModel::instance()->poseForTime(1.0).Pos();
-    for (double dist = 0; dist < 3000; dist += 20)
-    {
-        for (double dist = 0; dist < 3000; dist += 20)
-        {
-            auto pos = ballPos + Utils::Polar2Vector(dist, ballVelDir);
-            double t1 = predictedTime(me, pos);
-            double t2 = BallSpeedModel::Instance()->timeForDist(dist);
-            if (DEBUG_SWITCH)
-            {
-                GDebugEngine::Instance()->gui_debug_x(pos, COLOR_GREEN);
-                GDebugEngine::Instance()->gui_debug_msg(pos, fmt::format("t:{:.1f}", t1 - t2), COLOR_GREEN, 0, 30);
-            }
-            if (t1 < t2 || t1 < 0.1)
-            {
-                bestPos = pos;
-                break;
-            }
+    CGeoPoint bestMousePos = BallSpeedModel::instance()->poseForTime(1.0).Pos();
+    for(double dist = 0; dist < 3000; dist += 20){
+        auto _mousePos = ballPos + Utils::Polar2Vector(dist, ballVelDir);
+        auto _robot_pos = _mousePos+Utils::Polar2Vector(PARAM::Vehicle::V2::PLAYER_CENTER_TO_BALL_CENTER, ballVelDir);
+        double t1 = predictedTime(me, _robot_pos);
+        double t2 = BallSpeedModel::Instance()->timeForDist(dist);
+        if (DEBUG_SWITCH){
+            GDebugEngine::Instance()->gui_debug_x(_robot_pos,COLOR_GREEN, 0, 10);
+            GDebugEngine::Instance()->gui_debug_msg(_robot_pos+CVector(50,50), fmt::format("t:{:.1f},{:.1f}", t1, t2), COLOR_RED, 0, 10, 30);
         }
-        const auto getBallPos = bestPos; // TODO : replace with GetBallPos after skillutils
+        if(t1 < t2 || t1 < 0.1){
+            bestMousePos = _mousePos;
+            break;
+        }
+    }
+    const auto getBallPos = bestMousePos; // TODO : replace with GetBallPos after skillutils
 
         const CGeoSegment ballRunningSeg(ballPos, ballStopPose.Pos());
         const auto me2segTime = predictedTime(me, projectionRobotPos);
@@ -125,4 +121,4 @@ void CTouch::plan(const CVisionModule *pVision)
         _lastCycle = pVision->getCycle();
         CPlayerTask::plan(pVision);
     }
-}
+

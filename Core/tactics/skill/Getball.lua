@@ -1,6 +1,7 @@
 function Getball(task)
 	local minter_flag = task.inter_flag or 1
 	local mpermissions = task.permissions or 0
+	local mshootPos = task.shootPos or CGeoPoint(param.pitchLength / 2,0)
 	local mpos
 	local mdir
 	local mflag   = task.flag or 0
@@ -12,28 +13,28 @@ function Getball(task)
 	local mspeed  = task.speed or 0
 	local mforce_maunal_set_running_param = task.force_manual or false
 	matchPos = function(runner)
-			local qflag = inter_flag or 0
-			local playerPos = CGeoPoint:new_local(player.pos(runner):x(),player.pos(runner):y())
-			local inter_pos = Utils.GetBestInterPos(vision,playerPos,4,0,0)
-			local ballLine = CGeoSegment(ball.pos(),ball.pos() + Utils.Polar2Vector(-param.INF,ball.velDir()))
-			local playerPrj = ballLine:projection(player.pos(runner))
-			local canGetBall = ballLine:IsPointOnLineOnSegment(playerPrj)
-			local toballdist = player.toBallDist(runner) 
-			-- if 
-			-- inter_pos:x() == ball.pos():x() 
-			-- and ball.velMod() > 500 
-			-- and canGetBall 
-			-- and toballdist >500 
-			-- then
-			-- 	inter_pos = CGeoPoint(-5700,-3400)
+			-- local qflag = inter_flag or 0
+			-- local playerPos = CGeoPoint:new_local(player.pos(runner):x(),player.pos(runner):y())
+			-- local inter_pos = Utils.GetBestInterPos(vision,playerPos,4,0,0)
+			-- local ballLine = CGeoSegment(ball.pos(),ball.pos() + Utils.Polar2Vector(-param.INF,ball.velDir()))
+			-- local playerPrj = ballLine:projection(player.pos(runner))
+			-- local canGetBall = ballLine:IsPointOnLineOnSegment(playerPrj)
+			-- local toballdist = player.toBallDist(runner) 
+			-- -- if 
+			-- -- inter_pos:x() == ball.pos():x() 
+			-- -- and ball.velMod() > 500 
+			-- -- and canGetBall 
+			-- -- and toballdist >500 
+			-- -- then
+			-- -- 	inter_pos = CGeoPoint(-5700,-3400)
+			-- -- end
+			-- if player.kickBall(runner) and inter_pos:x() == ball.pos():x()    then
+			-- 	inter_pos = CGeoPoint(-99999,-99999)
 			-- end
-			if player.kickBall(runner) and inter_pos:x() == ball.pos():x()    then
-				inter_pos = CGeoPoint(-99999,-99999)
-			end
 
-			debugEngine:gui_debug_x(inter_pos,4)
-			debugEngine:gui_debug_msg(inter_pos,runner .. "getBallPos",4)
-		return _c(inter_pos)
+			-- debugEngine:gui_debug_x(inter_pos,4)
+			-- debugEngine:gui_debug_msg(inter_pos,runner .. "getBallPos",4)
+		return _c(mshootPos)
 	end
 	execute = function(runner)
 		if runner >=0 and runner < param.maxPlayer then
