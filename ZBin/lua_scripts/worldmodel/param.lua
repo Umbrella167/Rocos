@@ -30,7 +30,6 @@ ourGoalPos = CGeoPoint:new_local(-pitchLength/2, 0)
 ourTopGoalPos = CGeoPoint:new_local(-pitchLength/2, goalWidth/2)
 ourButtomGoalPos = CGeoPoint:new_local(-pitchLength/2, -goalWidth/2)
 freeKickAvoidBallDist = 500
-
 penaltyWidth    = CGetSettings("field/penaltyLength","Int")
 penaltyDepth	= CGetSettings("field/penaltyWidth","Int")
 -- penaltyRadius	= 1000  --?????????Is penaltyRadius ==  penaltyWidth/2 ???????????????
@@ -40,6 +39,12 @@ ourTopRightPenaltyPos = CGeoPoint:new_local(-pitchLength/2+penaltyDepth, penalty
 ourTopPenaltyPos = CGeoPoint:new_local(-pitchLength/2, penaltyRadius)
 ourButtomPenaltyPos = CGeoPoint:new_local(-pitchLength/2, -penaltyRadius)
 
+
+
+---------------------------------
+KickerWaitPlacementPos = CGeoPoint(2950,800)
+SpecialWaitPlacementPos = CGeoPoint(2750,-800)
+---------------------------------
 playerFrontToCenter = 76
 lengthRatio	= 1.5
 widthRatio	= 1.5
@@ -50,8 +55,9 @@ frameRate = 73
 powerShoot = 300
 powerTouch = 300
 shootPos = CGeoPoint(4500,0)	
-shootError = 3--1.8
+shootError = 5--1.8
 shootKp = 0.06
+canTouchAngle = 45
 ---------------------------------
 -- 旋转参数
 -- rotPos = CGeoPoint(150,120)
@@ -62,8 +68,9 @@ rotCompensate = 0.05   --旋转补偿
 -- getball参数
 playerVel = 2.8 	
 -- [0[激进模式], 1[保守模式], 2[middle]]
-getballMode = 1
-
+getballMode = 2
+-- 上一次算点结果
+lastInterPos = CGeoPoint:new_local(-99999,-99999)
 ---------------------------------
 -- 固定匹配
 our_goalie_num = 0
@@ -78,32 +85,21 @@ enemy_buffer = 90
 playerRadius = 90
 ---------------------------------
 -- defend marking
-
 -- 球的X超过 markingThreshold 队友去盯防
 markingThreshold = 1500 
 minMarkingDist = playerRadius*3
 markingPosRate1 = 1/6
 markingPosRate2 = 1/10
-
 -- defender
 defenderBuf = playerRadius*3
 defenderRadius = ourGoalPos:dist(ourTopRightPenaltyPos) + defenderBuf
 defenderAimX = -pitchLength/4
-
 -- goalie
-
-
 goalieShootMode = function() return 1 end 	-- 1 flat  2 chip
 defenderShootMode = function() return 1 end 	-- 1 flat  2 chip
 goalieAimDirRadius = 9999
 goalieBuf = 43
 -- goalieAimDirRadius = pitchLength/4
-
-
-
-
-
-
 --------------------------
 -- 是否为真实场地
 isReality = false 
@@ -127,3 +123,5 @@ BLACK=10
 --~ -------------------------------------------
 FIT_PLAYER_POS_X = pitchLength/2 - penaltyDepth
 FIT_PLAYER_POS_Y = pitchWidth/2 - 200
+
+

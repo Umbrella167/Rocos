@@ -5,6 +5,80 @@ module(..., package.seeall)
 --			               HU-ROCOS-2024   	                 ---
 
 --- ///  /// --- /// /// --- /// /// --- /// /// --- /// /// ---
+
+
+
+function getBall_BallPlacement(role)
+	return function()
+		local ballPos = GlobalMessage.Tick.ball.pos
+		-- debugEngine:gui_debug_x(ballPos,3)
+		local placementflag = bit:_or(flag.dribbling, flag.our_ball_placement)
+		local ballPlacementPos = CGeoPoint(ball.placementPos():x(),ball.placementPos():y())
+		local ipos = ball.pos()
+		local idir = player.toBallDir(role)
+		local ia = 800
+		--如果球在场地内，机器人就可以走到球后面然后推着球走
+		if Utils.InField(ballPos) then
+			local toballDir = math.abs((ball.rawPos() - player.rawPos(role)):dir() * 57.3)
+			local playerDir = math.abs(( ballPlacementPos - player.pos(role)):dir()) * 57.3
+			local Subdir = math.abs(toballDir-playerDir)
+			
+			if bufcnt (Subdir < 18 and player.toBallDist(role) < 200,60) then
+				debugEngine:gui_debug_msg(CGeoPoint(0,0),"1")
+				placementflag = flag.our_ball_placement + flag.dribbling
+				idir =  (ballPlacementPos - player.pos(role)):dir()
+				ipos = ballPlacementPos + Utils.Polar2Vector(-90,idir)
+			else
+				debugEngine:gui_debug_msg(CGeoPoint(0,0),"2")
+				local DSS_FLAG = flag.our_ball_placement + flag.dodge_ball
+				placementflag =  DSS_FLAG
+				ipos = ball.pos() + Utils.Polar2Vector(-150, (ballPlacementPos - ball.pos()):dir())
+			end
+		else
+			-- debugEngine:gui_debug_msg(CGeoPoint(100,1000),player.myinfraredCount(role))
+			if player.myinfraredCount(role) < 20 then
+
+				local toballDir = math.abs((ball.rawPos() - player.rawPos(role)):dir() * 57.3)
+				local playerDir = math.abs((player.pos(role) -  ballPlacementPos):dir()) * 57.3
+				local Subdir = math.abs(toballDir-playerDir)
+				
+				if bufcnt( Subdir < 18 and player.toBallDist(role) < 200,60) then
+					debugEngine:gui_debug_msg(CGeoPoint(0,0),"3")
+					placementflag = flag.our_ball_placement + flag.dribbling
+					idir =  (player.pos(role) - ballPlacementPos ):dir()
+					ipos = ball.pos() + Utils.Polar2Vector(-30,idir)
+
+				else
+					debugEngine:gui_debug_msg(CGeoPoint(0,0),"4")
+					local DSS_FLAG = flag.our_ball_placement + flag.dodge_ball
+					placementflag =  DSS_FLAG
+					idir = player.toBallDir(role)
+					ipos = ball.pos() + Utils.Polar2Vector(-120,(ball.pos() - ballPlacementPos):dir())
+					ia = 2000
+				end
+			else
+				debugEngine:gui_debug_msg(CGeoPoint(0,0),"5")
+				idir =  (player.pos(role) - ballPlacementPos ):dir()
+				ipos = ballPlacementPos + Utils.Polar2Vector(0,idir)
+			end
+
+
+		end
+		local mexe, mpos = GoCmuRush { pos = ipos, dir = idir, acc = ia, flag = placementflag, rec = r, vel = v, speed = s, force_manual = force_manual }
+		return { mexe, mpos }
+	end
+end
+
+
+
+
+
+
+
+
+
+
+
 function angleDiff(angle1,  angle2)
     return math.atan2(math.sin(angle2 - angle1), math.cos(angle2 - angle1));
 end
@@ -48,12 +122,18 @@ end
 
 
 
-function getball(playerVel, inter_flag, permissions)
+function getball(shootPos_,playerVel, inter_flag, permissions)
 	return function()
+		local ishootpos
+		if type(shootPos_) == "function" then
+			ishootpos = shootPos_()
+		else
+			ishootpos = shootPos_
+		end
 		if permissions == nil then
 			permissions = 0
 		end
-		local mexe, mpos = Getball {permissions = permissions ,inter_flag = qflag, pos = pp, dir = idir, acc = a, flag = iflag, rec = 1, vel = v }
+		local mexe, mpos = Getball {shootPos = ishootpos,permissions = permissions ,inter_flag = qflag, pos = pp, dir = idir, acc = a, flag = iflag, rec = 1, vel = v }
 		return { mexe, mpos }
 	end
 end
@@ -147,7 +227,6 @@ function power(p, Kp) --根据目标点与球之间的距离求出合适的 击�
 				res = 4000
 			end
 		end
-
 		debugEngine:gui_debug_msg(CGeoPoint:new_local(0,3200),"Power" .. res .. "    toTargetDist: " .. dist,3)
 		return res
 	end
@@ -321,7 +400,7 @@ function TurnToPointV2(role, p, speed)
 	end
 end
 
-function ShootdotV2(p, Kp, error_, flag)
+function ShootdotV2(p, Kp, error_, flag_)
 	return function()
 		local p1
 		if type(p) == 'function' then
@@ -346,10 +425,12 @@ function ShootdotV2(p, Kp, error_, flag)
 			return error_ * math.pi / 180.0
 		end
 
-		local mexe, mpos = GoCmuRush { pos = shootpos, dir = idir, acc = a, flag = 0x00000100, rec = r, vel = v }
-		return { mexe, mpos, flag, idir, error__, power(p, kp1), power(p, kp1), 0x00000000 }
+		local mexe, mpos = GoCmuRush { pos = shootpos, dir = idir, acc = a, flag = flag.dribbling, rec = r, vel = v }
+		return { mexe, mpos, flag_, idir, error__, power(p, kp1), power(p, kp1), flag.dribbling }
 	end
 end
+
+
 function Shootdot(role,p, Kp, error_, flagShoot) --
 	return function(runner)
 		local p1
@@ -371,7 +452,7 @@ function Shootdot(role,p, Kp, error_, flagShoot) --
 		local playerDir = math.abs(player.dir(role)) * 57.3
 		local Subdir = math.abs(toballDir-playerDir)
 		local iflag = bit:_or(flag.allow_dss, flag.dodge_ball)
-		if Subdir > 5 then 
+		if Subdir > error_ then 
 			local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
 			iflag =  DSS_FLAG
 			shootpos = ball.pos() + Utils.Polar2Vector(-300, (p1 - ball.pos()):dir())
@@ -475,16 +556,14 @@ function touch()
 	return { mexe, mpos }
 end
 
-function touchKick(p, ifInter, power, mode)
-	local ipos = p or pos.theirGoal()
+function touchKick(p, ifInter, Kp, mode)
+	local ipos 
 	local idir = function(runner)
-		return (_c(ipos) - player.pos(runner)):dir()
+		return (_c(p) - player.pos(runner)):dir()
 	end
-	local mexe, mpos = Touch { pos = ipos, useInter = ifInter }
-	local ipower = function()
-		return power or 127
-	end
-	return { mexe, mpos, mode and kick.flat or kick.chip, idir, pre.low, ipower, cp.full, flag.nothing }
+	local mexe, mpos = Touch { pos = p, useInter = ifInter }
+
+	return { mexe, mpos, mode and kick.flat or kick.chip, idir, pre.low, power(p,Kp), cp.full, flag.nothing }
 end
 
 function goSpeciPos(p, d, f, a) -- 2014-03-26 增加a(加速度参数)

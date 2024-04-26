@@ -15,17 +15,17 @@
 
 ---[[
 gRefConfig = {
-    GameHalt = "GameHaltV1",
-    GameStop = "GameStopV1",
+    GameHalt = "",
+    GameStop = "",
     OurTimeout = "",
     TheirIndirectKick = "",
-    OurIndirectKick = "Ref_CornerKickV2",
+    OurIndirectKick = "",
     TheirKickOff = "",
     OurKickOff = "",
     TheirBallPlacement = "",
     OurBallPlacement = "",
     TheirPenaltyKick = "",
     OurPenaltyKick = "",
-    NormalPlay = "NormalPlayV1",
+    NormalPlay = "",
 }
 --]]

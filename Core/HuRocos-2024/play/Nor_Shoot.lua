@@ -108,7 +108,7 @@ firstState = "ready1",
 
 
 
-name = "shootPoint",
+name = "Nor_Shoot",
 applicable ={
 	exp = "a",
 	a = true

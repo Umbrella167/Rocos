@@ -72,7 +72,7 @@ namespace Utils
         Tick[now].our.goalie_num = goalie_num;
         // cout << "goalie_num: " << Tick[now].our.goalise_num << endl;
         // 球信息
-        Tick[now].ball.pos = pVision->ball().Valid() ? pVision->ball().Pos() : pVision->rawBall().Pos();
+        Tick[now].ball.pos = pVision->ball().Valid()?pVision->ball().Pos() : pVision->rawBall().Pos();
         Tick[now].ball.vel = pVision->ball().Vel().mod() / 1000;
         Tick[now].ball.vel_dir = pVision->ball().Vel().dir();
         Tick[now].ball.acc = (Tick[now].ball.vel - Tick[last].ball.vel) / Tick[now].time.delta_time;
@@ -85,6 +85,10 @@ namespace Utils
         {
             if (pVision->ourPlayer(i).Valid())
             {
+                // 如果球的视野消失，但是有红外信息，认为球的位置在触发红外的机器人上
+                if(!pVision ->ball().Valid())
+                    if(RobotSensor.InfraredOnCount(i)>5)
+                        Tick[now].ball.pos = pVision->ourPlayer(i).Pos()+Polar2Vector(60,pVision->ourPlayer(i).Dir());
                 // 我方距离球最近的车号
                 double to_ball_dist = pVision->ourPlayer(i).Pos().dist(Tick[now].ball.pos);
                 if (our_min_dist > to_ball_dist)
@@ -109,25 +113,31 @@ namespace Utils
         }
         Tick[now].our.player_num = num_count;
         Tick[now].their.player_num = num_count_their;
-
-        if (our_min_dist < PARAM::Player::playerBallRightsBuffer + 15 &&
-            abs(angleDiff(pVision->ourPlayer(Tick[now].our.to_balldist_min_num).RawDir(),
-                          (pVision->ball().Pos() - pVision->ourPlayer(Tick[now].our.to_balldist_min_num).Pos()).dir()) *
-                PARAM::Math::PI) < 1.28)
-            Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_count += 1;
+        // 处理红外无回包的情况
+        if (pVision->ball().Valid())
+        {
+            if (our_min_dist < PARAM::Player::playerBallRightsBuffer &&
+               abs(angleDiff(pVision->ourPlayer(Tick[now].our.to_balldist_min_num).RawDir(),
+               (pVision->ball().Pos() - pVision->ourPlayer(Tick[now].our.to_balldist_min_num).Pos()).dir()) *
+               PARAM::Math::PI) < 1.28)
+                Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_count += 1;
+            else
+                Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_count = 0;
+        }
         else
-            Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_count = 0;
-
+        {
+            Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_count =RobotSensor.InfraredOnCount(Tick[now].our.to_balldist_min_num);
+        }
         /// 球权判断
         // 球权一定是我方的情况
-        if (RobotSensor.IsInfraredOn(Tick[now].our.to_balldist_min_num) || (our_min_dist < PARAM::Player::playerBallRightsBuffer && their_min_dist > PARAM::Player::playerBallRightsBuffer))
+        if (RobotSensor.InfraredOnCount(Tick[now].our.to_balldist_min_num) > 5 || (our_min_dist < PARAM::Player::playerBallRightsBuffer && their_min_dist > PARAM::Player::playerBallRightsBuffer))
         {
             Tick[now].ball.rights = 1;
             Tick[now].our.dribbling_num = Tick[now].our.to_balldist_min_num;
             Tick[now].their.dribbling_num = -1;
         }
         // 球权一定是敌方的情况
-        else if (!RobotSensor.IsInfraredOn(Tick[now].our.to_balldist_min_num) && our_min_dist > PARAM::Player::playerBallRightsBuffer && their_min_dist < PARAM::Player::playerBallRightsBuffer)
+        else if ((RobotSensor.InfraredOffCount(Tick[now].our.to_balldist_min_num) > 5) && our_min_dist > PARAM::Player::playerBallRightsBuffer && their_min_dist < PARAM::Player::playerBallRightsBuffer + 10)
         {
             Tick[now].ball.rights = -1;
             Tick[now].their.dribbling_num = Tick[now].their.to_balldist_min_num;
@@ -598,12 +608,12 @@ namespace Utils
                     }
                     // 获取非带球机器人的被传球概率
                     Tick[now].task[num].confidence_shoot = ConfidenceShoot(pVision, pVision->ourPlayer(i).Pos());
-                    //                    Tick[now].task[num].confidence_shoot = Tick[now].task[num].confidence_shoot - 0.3 * (1 - NumberNormalize(pVision->ourPlayer(num).Pos().x(), 1200, 0));
+//                                        Tick[now].task[num].confidence_shoot = Tick[now].task[num].confidence_shoot - 0.3 * (1 - NumberNormalize(pVision->ourPlayer(num).Pos().x(), 1200, 0));
                     Tick[now].task[num].confidence_shoot = Tick[now].task[num].confidence_shoot;
                     Tick[now].task[num].confidence_pass = ConfidencePass(pVision, Tick[now].our.dribbling_num, i, Tick[now].task[num].confidence_shoot);
                     // 如果友方位置太靠后，酌情扣分
-                    //                    if (pVision->ourPlayer(num).Pos().x() < 1000)
-                    //                        Tick[now].task[num].confidence_pass = Tick[now].task[num].confidence_pass - 0.4 * (1 - NumberNormalize(pVision->ourPlayer(num).Pos().x(), 1000, -2000));
+                    if (pVision->ourPlayer(num).Pos().x() < 1000)
+                        Tick[now].task[num].confidence_pass = Tick[now].task[num].confidence_pass - 0.4 * (1 - NumberNormalize(pVision->ourPlayer(num).Pos().x(), 1000, -2000));
                     Tick[now].task[num].confidence_run = 1;
                     Tick[now].task[num].status = "Run";
                     // 保存最大的被传球自信度给带球机器人
@@ -1104,7 +1114,7 @@ namespace Utils
                     flag = 0;
                     continue;
                 }
-                if (!isValidPass(pVision, new_local, shootPos) || !isValidPass(pVision, ball_pos, new_local) || new_local.dist(Tick[now].ball.pos) < ballDist || InExclusionZone(new_local))
+                if (!isValidPass(pVision, new_local, shootPos) || !isValidPass(pVision, ball_pos, new_local,50) || new_local.dist(Tick[now].ball.pos) < ballDist || InExclusionZone(new_local,100))
                     continue;
                 grade = GetAttackGrade(pVision, new_local.x(), new_local.y(), ball_pos, shootPos);
                 GDebugEngine::Instance()->gui_debug_x(new_local);
