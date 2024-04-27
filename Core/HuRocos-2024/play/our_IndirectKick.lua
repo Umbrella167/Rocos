@@ -3,15 +3,22 @@ local pass_pos = CGeoPoint(0,0)
 local shootPosKicker__ = CGeoPoint(0,0)
 local PassPos = function()
     local KickerShootPos = Utils.PosGetShootPoint(vision, player.posX("Kicker"),player.posY("Kicker"))
-    if ball.posX() > 1000 and ball.posY() < 0 then
-        startPos = CGeoPoint(3500,1350)
-        endPos = CGeoPoint(4000,1000)
-    else
-        startPos = CGeoPoint(3500,-1350)
-        endPos = CGeoPoint(4000,-1000)
+    if ball.posX() > 1000 then
+        if ball.posY() < 0 then 
+            startPos = CGeoPoint(3500,1350)
+            endPos = CGeoPoint(4000,1000)
+        else
+            startPos = CGeoPoint(3500,-1350)
+            endPos = CGeoPoint(4000,-1000)
+        end
     end
     local res = Utils.GetAttackPos(vision, player.num("Kicker"),KickerShootPos,startPos,endPos,100,500)
     return CGeoPoint(res:x(),res:y())
+end
+local toBallDir = function(role)
+    return function()
+        return player.toBallDir(role)
+    end
 end
 
 gPlayTable.CreatePlay {
@@ -43,8 +50,8 @@ firstState = "start",
 
   end,
   Assister = task.stop(),
-  Kicker   = task.goCmuRush(function() return param.KickerWaitPlacementPos end),
-  Special  = task.goCmuRush(function() return param.SpecialWaitPlacementPos end),
+  Kicker   = task.goCmuRush(function() return param.KickerWaitPlacementPos end,toBallDir("Kicker")),
+  Special  = task.goCmuRush(function() return param.SpecialWaitPlacementPos end,toBallDir("Special")),
   Tier = task.stop(),
   Defender = task.stop(),
   Goalie = task.stop(),
@@ -68,8 +75,8 @@ firstState = "start",
         end
   end,
   Assister = task.Shootdot("Assister",function() return pass_pos end,1.2,15,kick.flat),
-  Kicker   = task.goCmuRush(function() return param.KickerWaitPlacementPos end),
-  Special  = task.goCmuRush(function() return param.SpecialWaitPlacementPos end),
+  Kicker   = task.goCmuRush(function() return param.KickerWaitPlacementPos end,toBallDir("Kicker")),
+  Special  = task.goCmuRush(function() return param.SpecialWaitPlacementPos end,toBallDir("Special")),
   Tier = task.stop(),
   Defender = task.stop(),
   Goalie = task.stop(),
