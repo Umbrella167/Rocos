@@ -35,7 +35,7 @@ local avoidPlacementPos = function(role,WitePos)
         local ballPlacementLine = CGeoSegment(ball.pos(),ball.placementPos())
         local playerPrj = ballPlacementLine:projection(player.pos(role))
         if inBallPlacementPos(role) then
-            local runPos = playerPrj + Utils.Polar2Vector(600,(player.pos(role) - playerPrj):dir())
+            local runPos = playerPrj + Utils.Polar2Vector(700,(player.pos(role) - playerPrj):dir())
             if not Utils.InField(runPos) then
                 runPos = CGeoPoint(0,0)
             end
@@ -92,7 +92,7 @@ firstState = "start",
 ["start"] = {
   switch = function()
     debugEngine:gui_debug_arc(ball.pos(),500,0,360,1)
-    return "getball"
+    -- return "getball111"
   end,
   Assister = task.stop(),
   Kicker   = task.stop(),
@@ -103,7 +103,7 @@ firstState = "start",
   match = "(AKS){TDG}"
 },
 
-["getball"] = {
+["getball111"] = {
   switch = function()
     GlobalMessage.Tick = Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
   end,

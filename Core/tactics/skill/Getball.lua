@@ -1,7 +1,7 @@
 function Getball(task)
 	local minter_flag = task.inter_flag or 1
 	local mpermissions = task.permissions or 0
-	local mshootPos = task.shootPos
+	local mshootPos = task.shootPos or CGeoPoint(-param.INF,-param.INF)
 	local mpos
 	local mdir
 	local msender = task.sender or 0
@@ -50,7 +50,7 @@ function Getball(task)
 			print("Error runner in getball", runner)
 		end
 		local playerPos = CGeoPoint:new_local(player.pos(runner):x(),player.pos(runner):y())
-		local inter_pos = Utils.GetBestInterPos(vision,playerPos,param.playerVel,minter_flag,mpermissions)
+		local inter_pos = Utils.GetBestInterPos(vision,playerPos,param.playerVel,minter_flag,0)
 		local idir = player.toBallDir(runner)
 		local ipos = inter_pos	
 
@@ -85,15 +85,17 @@ function Getball(task)
 			iflag = flag.dribbling
 			ipos = ball.pos() + Utils.Polar2Vector(-80,(theirDribblingPlayerPos - ball.pos()):dir())
 		end
-		if ipos:x() == param.inf then
-			ipos = ball.pos()
-		end
+
+
 
 
 
 		if (ipos - param.lastInterPos):mod() < 50 then
 			ipos = param.lastInterPos
 		end 
+		if ipos:x() == param.INF then
+			ipos = ball.pos()
+		end
 		param.lastInterPos = ipos
 		mvel = _c(endvel) or CVector:new_local(0,0)
 		mpos = _c(ipos,runner)

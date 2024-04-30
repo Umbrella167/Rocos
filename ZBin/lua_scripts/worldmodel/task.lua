@@ -130,9 +130,7 @@ function getball(shootPos_,playerVel, inter_flag, permissions)
 		else
 			ishootpos = shootPos_
 		end
-		if permissions == nil then
-			permissions = 0
-		end
+		ipermissions = permissions or 0
 		local mexe, mpos = Getball {shootPos = ishootpos,permissions = permissions ,inter_flag = qflag, pos = pp, dir = idir, acc = a, flag = iflag, rec = 1, vel = v }
 		return { mexe, mpos }
 	end
@@ -201,7 +199,29 @@ function getballV2(role, playerVel, inter_flag, target_point, permissions)
 		end
 	end
 end
-function power(p, Kp) --根据目标点与球之间的距离求出合适的 击球力度 kp系数需要调节   By Umbrella 2022 06
+
+playerPower = {
+	-- [num] = {min, max, KP} 
+	[0] = {230,310,0},
+	[1] = {230,310,0},
+	[2] = {230,310,0},
+	[3] = {230,310,0},
+	[4] = {230,310,0},
+	[5] = {230,310,0},
+	[6] = {230,310,0},
+	[7] = {230,310,0},
+	[8] = {230,310,0},
+	[9] = {230,310,0},
+	[10] = {230,310,0},
+	[11] = {230,310,0},
+	[12] = {230,310,0},
+	[13] = {230,310,0},
+	[14] = {230,310,0},
+	[15] = {230,310,0},
+	[16] = {230,310,0}, -- Other
+}
+
+function power(p, Kp, num) --根据目标点与球之间的距离求出合适的 击球力度 kp系数需要调节   By Umbrella 2022 06
 	return function()
 		local p1
 		if type(p) == 'function' then
@@ -209,22 +229,33 @@ function power(p, Kp) --根据目标点与球之间的距离求出合适的 击�
 		else
 			p1 = p
 		end
+		local playerNum
+		if type(num) == 'function' then
+			playerNum = num()
+		else
+			playerNum = num
+		end
 		local dist = (p1 - ball.pos()):mod()
-		local res = Kp * dist
+		
+		if playerNum == -1 or playerNum == nil then
+			playerNum = 16	
+		end
+		local res = (Kp + playerPower[playerNum][3]) * dist
 
 		if param.isReality then
-			if res > 310 then
-				res = 310
+			if res < playerPower[playerNum][1] then
+				res = playerPower[playerNum][1] 
 			end
-			if res < 230 then
-				res = 230
+			if res > playerPower[playerNum][2] then
+				res = playerPower[playerNum][2] 
 			end
 		else
-			if res > 6000 then
-				res = 6000
+			local SimulationRate = 15
+			if res < playerPower[playerNum][1]  * SimulationRate then
+				res = playerPower[playerNum][1] * SimulationRate
 			end
-			if res < 4000 then
-				res = 4000
+			if res > playerPower[playerNum][2]  * SimulationRate then
+				res = playerPower[playerNum][2] * SimulationRate
 			end
 		end
 		debugEngine:gui_debug_msg(CGeoPoint:new_local(0,3200),"Power" .. res .. "    toTargetDist: " .. dist,3)
@@ -401,7 +432,7 @@ function TurnToPointV2(role, p, speed)
 end
 
 function ShootdotV2(p, Kp, error_, flag_)
-	return function()
+	return function(runner)
 		local p1
 		if type(p) == 'function' then
 			p1 = p()
@@ -426,7 +457,7 @@ function ShootdotV2(p, Kp, error_, flag_)
 		end
 
 		local mexe, mpos = GoCmuRush { pos = shootpos, dir = idir, acc = a, flag = flag.dribbling, rec = r, vel = v }
-		return { mexe, mpos, flag_, idir, error__, power(p, kp1), power(p, kp1), flag.dribbling }
+		return { mexe, mpos, flag_, idir, error__, power(p, kp1,runner), power(p, kp1,runner), flag.dribbling }
 	end
 end
 
@@ -461,7 +492,7 @@ function Shootdot(role,p, Kp, error_, flagShoot) --
 			iflag = flag.dribbling
 		end
 		local mexe, mpos = GoCmuRush { pos = shootpos, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
-		return { mexe, mpos, flagShoot, idir, error__, power(p, Kp), power(p, Kp), 0x00000000 }
+		return { mexe, mpos, flagShoot, idir, error__, power(p, Kp, player.num(role)), power(p, Kp, player.num(role)), 0x00000000 }
 	end
 end
 
@@ -557,13 +588,14 @@ function touch()
 end
 
 function touchKick(p, ifInter, Kp, mode)
-	local ipos 
-	local idir = function(runner)
-		return (_c(p) - player.pos(runner)):dir()
+	return function(runner)
+		local ipos 
+		local idir = function(runner)
+			return (_c(p) - player.pos(runner)):dir()
+		end
+		local mexe, mpos = Touch { pos = p, useInter = ifInter }
+		return { mexe, mpos, mode and kick.flat or kick.chip, idir, pre.low, power(p,Kp,runner), power(p,Kp,runner), flag.nothing }
 	end
-	local mexe, mpos = Touch { pos = p, useInter = ifInter }
-
-	return { mexe, mpos, mode and kick.flat or kick.chip, idir, pre.low, power(p,Kp), cp.full, flag.nothing }
 end
 
 function goSpeciPos(p, d, f, a) -- 2014-03-26 增加a(加速度参数)

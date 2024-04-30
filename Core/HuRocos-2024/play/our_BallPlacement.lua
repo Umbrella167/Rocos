@@ -35,8 +35,8 @@ local avoidPlacementPos = function(role,WitePos)
         local ballPlacementLine = CGeoSegment(ball.pos(),ball.placementPos())
         local playerPrj = ballPlacementLine:projection(player.pos(role))
         if inBallPlacementPos(role) then
-            -- local runPos = playerPrj + Utils.Polar2Vector(3000,(player.pos(role) - playerPrj):dir())
-            local runPos = CGeoPoint(0,0)
+            local runPos = playerPrj + Utils.Polar2Vector(3000,(player.pos(role) - playerPrj):dir())
+            -- local runPos = CGeoPoint(0,0)
             if not Utils.InField(runPos) then
                 runPos = CGeoPoint(0,0)
             end
