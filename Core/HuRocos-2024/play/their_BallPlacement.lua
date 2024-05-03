@@ -35,7 +35,7 @@ local avoidPlacementPos = function(role,WitePos)
         local ballPlacementLine = CGeoSegment(ball.pos(),ball.placementPos())
         local playerPrj = ballPlacementLine:projection(player.pos(role))
         if inBallPlacementPos(role) then
-            local runPos = playerPrj + Utils.Polar2Vector(700,(player.pos(role) - playerPrj):dir())
+            local runPos = playerPrj + Utils.Polar2Vector(600,(player.pos(role) - playerPrj):dir())
             if not Utils.InField(runPos) then
                 runPos = CGeoPoint(0,0)
             end
@@ -84,15 +84,13 @@ local waitPosSpecial = function()
     end
 end
 -- local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
-local DSS_FLAG = flag.allow_dss + flag.dodge_ball + flag.our_ball_placement
 gPlayTable.CreatePlay {
 
 firstState = "start",
-
 ["start"] = {
   switch = function()
     debugEngine:gui_debug_arc(ball.pos(),500,0,360,1)
-    -- return "getball111"
+    return "getball"
   end,
   Assister = task.stop(),
   Kicker   = task.stop(),
@@ -103,7 +101,7 @@ firstState = "start",
   match = "(AKS){TDG}"
 },
 
-["getball111"] = {
+["getball"] = {
   switch = function()
     GlobalMessage.Tick = Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
   end,
@@ -116,7 +114,7 @@ firstState = "start",
   match = "(AKS){TDG}"
 },
 
-name = "their_BallPlacement",
+name = "theirballPlacement",
 applicable = {
   exp = "a",
   a = true

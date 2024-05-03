@@ -42,7 +42,7 @@ firstState = "start",
   Tier = task.goCmuRush(defendpos[3],dir.playerToBall,DSS_FLAG),
   Defender = task.goCmuRush(defendpos[2],dir.playerToBall,DSS_FLAG),
   Goalie = task.goCmuRush(defendpos[1],dir.playerToBall),
-  match = "(AKS){TDG}"
+  match = "[AKS]{TDG}"
 },
 
 name = "STOP",

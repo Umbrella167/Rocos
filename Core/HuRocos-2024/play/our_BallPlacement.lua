@@ -4,13 +4,11 @@ local defendpos = {
   CGeoPoint(-3300,-850),
 
 }
-
 local ballPlacementPos = function()
     return function()
         return ball.placementPos()
     end
 end
-
 local inBallPlacementPos = function(role)
     local ballPlacementLine = CGeoSegment(ball.pos(),ball.placementPos())
     local playerPrj = ballPlacementLine:projection(player.pos(role))
@@ -22,7 +20,6 @@ local inBallPlacementPos = function(role)
         return false
     end
 end
-
 local avoidPlacementPos = function(role,WitePos)
     return function()
         local iWitePos = WitePos or player.pos(role)
@@ -46,13 +43,15 @@ local avoidPlacementPos = function(role,WitePos)
         end
     end
 end
+
+
 local waitPosKicker = function()
     return function()
         local startPos
         local endPos
         local KickerShootPos = Utils.PosGetShootPoint(vision, player.posX("Kicker"),player.posY("Kicker"))
         -- 角球
-        if ball.placementPos():x() > 1000 then
+        if ball.placementPos():x() > 3000 then
             if ball.posY() > 0 then
                 startPos = CGeoPoint(2600,-1250)
                 endPos = CGeoPoint(3000,-850)
@@ -61,13 +60,18 @@ local waitPosKicker = function()
                 endPos = CGeoPoint(3000,850)
             end
         -- 中场球
-        elseif ball.placementPos():x() < 1000 and ball.placementPos():x() > -1000 then
-            startPos = CGeoPoint(1200,2500)
-            endPos = CGeoPoint(2600,470)
+        elseif ball.placementPos():x() < 3000 and ball.placementPos():x() > 0 then
+            if ball.posY() < 0 then 
+                startPos = CGeoPoint(4050,1500)
+                endPos = CGeoPoint(4400,800)
+            else
+                startPos = CGeoPoint(4050,-1500)
+                endPos = CGeoPoint(4400,-800)
+            end
         else
         -- 前场球
-            startPos = CGeoPoint(-3000,2100)
-            endPos = CGeoPoint(-1000,500)
+            startPos = CGeoPoint(ball.placementPos():x()+3000,1000)
+            endPos = CGeoPoint(ball.placementPos():x()+4000,-1000)
         end
         local attackPos = Utils.GetAttackPos(vision, player.num("Kicker"),KickerShootPos,startPos,endPos,130,500)
         if attackPos:x() == 0 and attackPos:y() == 0 then
@@ -81,18 +85,15 @@ local waitPosKicker = function()
                 attackPos = player.pos("Kicker")
             end
         end
-        param.KickerWaitPlacementPos = attackPos
         return attackPos
     end
 end
-
-
 local waitPosSpecial = function()
     return function()
         local startPos
         local endPos
         local SpecialShootPos = Utils.PosGetShootPoint(vision, player.posX("Special"),player.posY("Special"))
-        if ball.placementPos():x() > 1000 then
+        if ball.placementPos():x() > 3000 then
             if ball.posY() < 0 then
                 startPos = CGeoPoint(2400,-1100)
                 endPos = CGeoPoint(2900,-700)
@@ -100,23 +101,25 @@ local waitPosSpecial = function()
                 startPos = CGeoPoint(2400,1100)
                 endPos = CGeoPoint(2900,700)
             end
-        elseif ball.placementPos():x() < 1000 and ball.placementPos():x() > -1000 then
-            startPos = CGeoPoint(800,-2500)
-            endPos = CGeoPoint(2400,-400)
+        elseif ball.placementPos():x() < 3000 and ball.placementPos():x() > 0 then
+            if ball.posY() < 0 then 
+                startPos = CGeoPoint(3000,-750)
+                endPos = CGeoPoint(3500,-1300)
+            else
+                startPos = CGeoPoint(3000,750)
+                endPos = CGeoPoint(3500,1300)
+            end
         else
-            startPos = CGeoPoint(-1500,0)
-            endPos = CGeoPoint(0,-1700)
+            startPos = CGeoPoint(ball.placementPos():x()+1000,0)
+            endPos = CGeoPoint(ball.placementPos():x()+2500,-1700)
         end
         local attackPos = Utils.GetAttackPos(vision, player.num("Special"),SpecialShootPos,startPos,endPos,130,500)
         if attackPos:x() == 0 and attackPos:y() == 0 then
             attackPos = player.pos("Special") 
         end
-        param.SpecialWaitPlacementPos = attackPos
         return attackPos
     end
 end
--- local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
-
 local AssisterDir = function()
     if player.valid(player.num("Kicker")) then
         return (player.pos("Kicker") - player.pos("Assister")):dir()
@@ -131,7 +134,6 @@ firstState = "start",
 ["start"] = {
   switch = function()
     debugEngine:gui_debug_arc(ball.pos(),500,0,360,1)
-    
     return "getball"
   end,
   Assister = task.stop(),

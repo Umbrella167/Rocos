@@ -1,20 +1,5 @@
 module(..., package.seeall)
 
--- maxPlayer   = 12
--- pitchLength = 600
--- pitchWidth  = 400
--- goalWidth = 70
--- goalDepth = 20
--- freeKickAvoidBallDist = 50
--- playerRadius	= 9
--- penaltyWidth    = 195
--- penaltyDepth	= 80
--- penaltyRadius	= 80
--- penaltySegment	= 35
--- playerFrontToCenter = 7.6
--- lengthRatio	= 1.5
--- widthRatio	= 1.5
--- stopRatio = 1.1
 ---------------------------------
 INF = 1e9
 PI = 3.141592653589793238462643383279
@@ -42,8 +27,7 @@ ourButtomPenaltyPos = CGeoPoint:new_local(-pitchLength/2, -penaltyRadius)
 
 
 ---------------------------------
-KickerWaitPlacementPos = CGeoPoint(2950,800)
-SpecialWaitPlacementPos = CGeoPoint(2750,-800)
+
 ---------------------------------
 playerFrontToCenter = 76
 lengthRatio	= 1.5
@@ -76,7 +60,6 @@ lastInterPos = CGeoPoint:new_local(-99999,-99999)
 our_goalie_num = 0
 defend_num1 =1
 defend_num2 = 2
-
 ---------------------------------
 -- lua 两点间有无敌人阈值
 enemy_buffer = 90
@@ -124,4 +107,86 @@ BLACK=10
 FIT_PLAYER_POS_X = pitchLength/2 - penaltyDepth
 FIT_PLAYER_POS_Y = pitchWidth/2 - 200
 
-
+--- 定位球配置
+-- 前场判定位置
+CornerKickPosX = 3000
+CenterKickPosX = 0
+KickerWaitPlacementPos = function()
+    local startPos
+    local endPos
+    local KickerShootPos = Utils.PosGetShootPoint(vision, player.posX("Kicker"),player.posY("Kicker"))
+    -- 角球
+    if ball.posX() > CornerKickPosX then
+        if ball.posY() > 0 then
+            startPos = CGeoPoint(2600,-1250)
+            endPos = CGeoPoint(3000,-850)
+        else
+            startPos = CGeoPoint(2600,1250)
+            endPos = CGeoPoint(3000,850)
+        end
+    -- 中场球
+    elseif ball.posX() < CornerKickPosX and ball.posX() > CenterKickPosX then
+        if ball.posY() < 0 then 
+            startPos = CGeoPoint(4050,1500)
+            endPos = CGeoPoint(4400,800)
+        else
+            startPos = CGeoPoint(4050,-1500)
+            endPos = CGeoPoint(4400,-800)
+        end
+    else
+    -- 前场球
+        startPos = CGeoPoint(ball.posX()+3000,1000)
+        endPos = CGeoPoint(ball.posX()+4000,-1000)
+    end
+    local attackPos = Utils.GetAttackPos(vision, player.num("Kicker"),KickerShootPos,startPos,endPos,130,500)
+    if attackPos:x() == 0 and attackPos:y() == 0 then
+        if ball.posX() > CornerKickPosX then
+            if ball.posY() < 0 then
+                attackPos = CGeoPoint(3000,850)
+            else
+                attackPos = CGeoPoint(3000,-850)
+            end
+        else
+            attackPos = player.pos("Kicker")
+        end
+    end
+    return attackPos
+end
+SpecialWaitPlacementPos = function()
+    local startPos
+    local endPos
+    local SpecialShootPos = Utils.PosGetShootPoint(vision, player.posX("Special"),player.posY("Special"))
+    if ball.posX() > CornerKickPosX then
+        if ball.posY() < 0 then
+            startPos = CGeoPoint(2400,-1100)
+            endPos = CGeoPoint(2900,-700)
+        else
+            startPos = CGeoPoint(2400,1100)
+            endPos = CGeoPoint(2900,700)
+        end
+    elseif ball.posX() < CornerKickPosX and ball.posX() > CenterKickPosX then
+        if ball.posY() < 0 then 
+            startPos = CGeoPoint(3000,-750)
+            endPos = CGeoPoint(3500,-1300)
+        else
+            startPos = CGeoPoint(3000,750)
+            endPos = CGeoPoint(3500,1300)
+        end
+    else
+        startPos = CGeoPoint(ball.posX()+1000,0)
+        endPos = CGeoPoint(ball.posX()+2500,-1700)
+    end
+    local attackPos = Utils.GetAttackPos(vision, player.num("Special"),SpecialShootPos,startPos,endPos,130,500)
+    if attackPos:x() == 0 and attackPos:y() == 0 then
+        if ball.posX() > CornerKickPosX then
+            if ball.posY() > 0 then
+                attackPos = CGeoPoint(3000,850)
+            else
+                attackPos = CGeoPoint(3000,-850)
+            end
+        else
+            attackPos = player.pos("Special")
+        end
+    end
+    return attackPos
+end

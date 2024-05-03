@@ -107,7 +107,7 @@ function Getball(task)
 		end
 		local debugflag = iflag == flag.dribbling and "Dribbling" or "DSS"
 		debugEngine:gui_debug_msg(CGeoPoint(0,-3800),"iflag:  " .. debugflag)
-		debugEngine:gui_debug_msg(CGeoPoint(0,-3600),ipos:x().."  "..ipos:y())
+		debugEngine:gui_debug_msg(ipos,"GetballPos",4)
 		task_param = TaskT:new_local()
 		task_param.executor = runner
 		task_param.player.pos = CGeoPoint(mpos)
