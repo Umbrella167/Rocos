@@ -6,8 +6,6 @@ module(..., package.seeall)
 
 --- ///  /// --- /// /// --- /// /// --- /// /// --- /// /// ---
 
-
-
 function getBall_BallPlacement(role)
 	return function()
 		local ballPos = GlobalMessage.Tick.ball.pos
@@ -36,12 +34,11 @@ function getBall_BallPlacement(role)
 			end
 		else
 			-- debugEngine:gui_debug_msg(CGeoPoint(100,1000),player.myinfraredCount(role))
+			
 			if player.myinfraredCount(role) < 20 then
-
 				local toballDir = math.abs((ball.rawPos() - player.rawPos(role)):dir() * 57.3)
 				local playerDir = math.abs((player.pos(role) -  ballPlacementPos):dir()) * 57.3
 				local Subdir = math.abs(toballDir-playerDir)
-				
 				if bufcnt( Subdir < 18 and player.toBallDist(role) < 200,60) then
 					debugEngine:gui_debug_msg(CGeoPoint(0,0),"3")
 					placementflag = flag.our_ball_placement + flag.dribbling
