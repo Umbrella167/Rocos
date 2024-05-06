@@ -45,7 +45,7 @@ namespace Utils
     extern double PosToPosTime(CGeoPoint start_pos, CGeoPoint end_pos, double velocity);
 
     /* =============== 小工具 =============== */
-    extern CGeoPoint GetBallMaxPos(const CVisionModule *pVision);
+    extern CGeoPoint GetBallMaxPos(const CVisionModule *pVision,double a);
     extern double angleDiff(double angle1, double angle2); // 返回两个dir的差
     extern double ShowDribblingGrade(const CVisionModule *pVision, CGeoPoint run_pos, CGeoPoint player_pos, CGeoPoint target_pos);
     extern CGeoPoint GetShowDribblingPos(const CVisionModule *pVision, CGeoPoint player_pos, CGeoPoint target_pos);
@@ -73,7 +73,7 @@ namespace Utils
     extern double PosToPosDistGrade(double x, double y, double x1, double y1, int dir = 1, std::string model = "GAUSS");                  // 坐标到坐标的距离评分
     extern double NumberNormalizeGauss(double data, double max_data, double min_data, double peak_pos, std::string model = "DOUBLELINE"); // [0,1] 高斯归一化
     extern double PosSafetyGrade(const CVisionModule *pVision, CGeoPoint start, CGeoPoint end, std::string model = "SHOOT");              // 路径安全性评分
-    extern CGeoPoint GetBestInterPos(const CVisionModule *pVision, CGeoPoint playerPos, double playerVel, int flag, int permissions);
+    extern CGeoPoint GetBestInterPos(const CVisionModule *pVision, CGeoPoint playerPos, double playerVel, int flag, int permissions, double acc = PARAM::Field::V_DECAY_RATE);
     /* =============== Defence =============== */
     /* 球场信息 */
     /* 己方半场信息 */

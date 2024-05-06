@@ -6,10 +6,12 @@ local middlePos = function()
   return pos
 end
 local leftPos = function()
-  local ballPos = ball.pos()
-  local idir = ((pos.ourGoal() - ballPos):dir()) + 0.6
-  local pos = ballPos + Utils.Polar2Vector(550+param.playerFrontToCenter,idir)
-  return pos
+    local ballPos = ball.pos()
+    ballPos = CGeoPoint(ballPos:x(),ballPos:y())
+    local idir = ((pos.ourGoal() - ballPos):dir()) + 0.6
+    local pos = ballPos + Utils.Polar2Vector(550+param.playerFrontToCenter,idir)
+    debugEngine:gui_debug_msg(CGeoPoint(0,0),"x:" ..ballPos:x() .. "      y:" ..ballPos:y())
+    return pos
 end
 local rightPos = function()
   local ballPos = ball.pos()

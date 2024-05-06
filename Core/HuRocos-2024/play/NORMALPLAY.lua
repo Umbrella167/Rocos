@@ -277,7 +277,7 @@ firstState = "Init",
 -- 带球
 ["dribbling"] = {
     switch = function()
-        -- UpdataTickMessage(defend_num1,defend_num2)
+        UpdataTickMessage(our_goalie_num,defend_num1,defend_num2)
         if bufcnt(true,30) then 
             return "GetGlobalMessage"
         end
@@ -299,7 +299,7 @@ firstState = "Init",
         getState()
         return State
     end,
-    Assister = task.getball(function() return shoot_pos end,playerVel,getballMode),
+Assister = task.getball(function() return shoot_pos end,playerVel,getballMode),
     Kicker = function() return task.defender_marking("Kicker",function() return KickerRUNPos end) end,--task.goCmuRush(function() return KickerRUNPos end,closures_dir_ball("Kicker"),_,DSS_FLAG),--
     Special = function() return task.defender_marking("Special",function() return SpecialRUNPos end) end ,--task.goCmuRush(function() return SpecialRUNPos end,closures_dir_ball("Special"),_,DSS_FLAG),--
     Tier = gSubPlay.roleTask("Defender", "Tier"),

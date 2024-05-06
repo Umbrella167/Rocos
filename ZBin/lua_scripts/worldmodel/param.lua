@@ -25,67 +25,67 @@ ourTopPenaltyPos = CGeoPoint:new_local(-pitchLength/2, penaltyRadius)
 ourButtomPenaltyPos = CGeoPoint:new_local(-pitchLength/2, -penaltyRadius)
 
 
+-- 是否为真实场地
+isReality = false 
 
----------------------------------
-
----------------------------------
+-----------------------------------------------|
+--                Getball参数                 --|
+-----------------------------------------------|
+playerVel = 2                                       -- 机器人速度
+getballMode = 2                                     -- [0[激进模式], 1[保守模式], 2[middle]]
+local V_DECAY_RATE_Reality = 600                          -- 场地摩擦
+lastInterPos = CGeoPoint:new_local(-INF,-INF)       -- 上一次算点结果
+-----------------------------------------------|
+--                Robot参数                  --|
+-----------------------------------------------|
+enemy_buffer = 120   -- lua 两点间有无敌人阈值
 playerFrontToCenter = 76
 lengthRatio	= 1.5
 widthRatio	= 1.5
 stopRatio = 1.1
 frameRate = 73
----------------------------------
--- 射击力度
-powerShoot = 300
-powerTouch = 300
-shootPos = CGeoPoint(4500,0)	
-shootError = 5--1.8
-shootKp = 0.06
-canTouchAngle = 45
----------------------------------
--- 旋转参数
--- rotPos = CGeoPoint(150,120)
-rotPos = CGeoPoint(80,80)
-rotVel = 3.8
-rotCompensate = 0.05   --旋转补偿
----------------------------------
--- getball参数
-playerVel = 2.8 	
--- [0[激进模式], 1[保守模式], 2[middle]]
-getballMode = 2
--- 上一次算点结果
-lastInterPos = CGeoPoint:new_local(-99999,-99999)
----------------------------------
--- 固定匹配
+playerRadius = 90   -- 机器人半径
+-----------------------------------------------|
+--                Shoot参数                   --|
+-----------------------------------------------|
+
+local shootError_Reality = 1.8  -- 射击误差
+shootKp = 0.1             -- 射击力度比例
+shootPos = CGeoPoint(pitchLength / 2,0)	
+canTouchAngle = 45        -- 可以touch的角度
+-----------------------------------------------|
+--               rot参数                     --|
+-----------------------------------------------|
+rotPos = CGeoPoint(80,80)      --旋转坐标
+rotVel = 3.8                   --旋转速度
+local rotCompensate_Reality = -0.006 --旋转补偿
+-----------------------------------------------|
+--                Tick固定匹配参数             --|
+-----------------------------------------------|
 our_goalie_num = 0
 defend_num1 =1
 defend_num2 = 2
----------------------------------
--- lua 两点间有无敌人阈值
-enemy_buffer = 90
----------------------------------
--- player params
-playerRadius = 90
----------------------------------
--- defend marking
--- 球的X超过 markingThreshold 队友去盯防
-markingThreshold = 1500 
+
+-----------------------------------------------|
+--             marking参数             --|
+-----------------------------------------------|
+markingThreshold = 1500   -- 球的X超过 markingThreshold 队友去盯防
 minMarkingDist = playerRadius*3
 markingPosRate1 = 1/6
 markingPosRate2 = 1/10
--- defender
+-----------------------------------------------|
+--             defend参数             --|
+-----------------------------------------------|
 defenderBuf = playerRadius*3
 defenderRadius = ourGoalPos:dist(ourTopRightPenaltyPos) + defenderBuf
 defenderAimX = -pitchLength/4
--- goalie
+-----------------------------------------------|
+--             goalie参数             --|
+-----------------------------------------------|
 goalieShootMode = function() return 1 end 	-- 1 flat  2 chip
 defenderShootMode = function() return 1 end 	-- 1 flat  2 chip
 goalieAimDirRadius = 9999
 goalieBuf = 43
--- goalieAimDirRadius = pitchLength/4
---------------------------
--- 是否为真实场地
-isReality = false 
 -- 对齐的准确度
 alignRate = 0.8
 --~ -------------------------------------------
@@ -107,6 +107,12 @@ BLACK=10
 FIT_PLAYER_POS_X = pitchLength/2 - penaltyDepth
 FIT_PLAYER_POS_Y = pitchWidth/2 - 200
 
+-------------------------------------------
+-- 方便实物，仿真的值互换  因为因为仿真的值是固定的
+V_DECAY_RATE = isReality and V_DECAY_RATE_Reality or 2100
+rotCompensate = isReality and rotCompensate_Reality or 0.05 
+shootError = isReality and shootError_Reality or 8
+-------------------------------------------
 --- 定位球配置
 -- 前场判定位置
 CornerKickPosX = 3000

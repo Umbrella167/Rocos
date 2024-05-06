@@ -150,7 +150,7 @@ firstState = "start",
     GlobalMessage.Tick = Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
     debugEngine:gui_debug_msg(CGeoPoint(0,2800),"ballRights: " .. GlobalMessage.Tick.ball.rights,2)
     debugEngine:gui_debug_msg(CGeoPoint(0,2600),"InfraredCount: " .. player.myinfraredCount("Assister"),3)
-    if ball.pos():dist(ball.placementPos()) < 200 then
+    if ball.pos():dist(ball.placementPos()) < 130 then
         return "avoid"
     end
   end,
@@ -166,7 +166,10 @@ firstState = "start",
 ["avoid"] = {
   switch = function()
     GlobalMessage.Tick = Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
-        if ball.pos():dist(ball.placementPos()) > 200 then
+    if cond.isNormalStart() then
+        return "exit"
+    end
+        if ball.pos():dist(ball.placementPos()) > 130 then
         return "getball"
     end
   end,

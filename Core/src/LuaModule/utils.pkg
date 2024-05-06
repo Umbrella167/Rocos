@@ -12,10 +12,10 @@ namespace Utils{
 
 	CGeoPoint GetTouchPos(const CVisionModule *pVision, CGeoPoint player_pos, double touchAngle,bool double_flag = false);
 
-	CGeoPoint GetBestInterPos(const CVisionModule *pVision, CGeoPoint playerPos, double playerVel, int flag = 0, int permissions = 0);
+	CGeoPoint GetBestInterPos(const CVisionModule *pVision, CGeoPoint playerPos, double playerVel, int flag = 0, int permissions = 0, double acc = PARAM::Field::V_DECAY_RATE);
 	
 	// 小工具
-	CGeoPoint GetBallMaxPos(const CVisionModule *pVision);
+	CGeoPoint GetBallMaxPos(const CVisionModule *pVision, double a);
 	bool InExclusionZone(CGeoPoint Point, double buffer = 0,std::string dir = "all");
 	bool InField(CGeoPoint Point);
 	bool InOurField(CGeoPoint Point);

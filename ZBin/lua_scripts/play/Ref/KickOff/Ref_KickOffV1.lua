@@ -225,7 +225,7 @@ firstState = "ready",
 		end
 	end,
 	Assister = task.goCmuRush(runPos_Assister(-400), Dir_ball("Assister"), a, f, r, v),
-	Special = task.touchKick(runPos_Kicker(0), false, param.powerTouch, kick.flat),
+	Special = task.touchKick(runPos_Kicker(0), false, param.shootKp, kick.flat),
 	Kicker = task.goCmuRush(runPos_Kicker(-400), Dir_ball("Kicker"), a, f, r, v),
 	-- Tier = task.defender_defence("Tier"),
 	-- Defender = task.defender_defence("Defender"),

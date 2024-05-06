@@ -34,9 +34,10 @@ firstState = "ready1",
 
 		GlobalMessage.Tick = Utils.UpdataTickMessage(vision,0,1,2)
 		debugEngine:gui_debug_msg(CGeoPoint(0,2800),"ballRights: " .. GlobalMessage.Tick.ball.rights)
-		debugEngine:gui_debug_msg(CGeoPoint(0,2600),"InfraredCount: " .. player.myinfraredCount(0),2)
+		debugEngine:gui_debug_msg(CGeoPoint(0,2600),"InfraredCount: " .. player.myinfraredCount("Assister"),2)
 		debugEngine:gui_debug_msg(CGeoPoint(0,2400),"RawBallPos: " .. ball.rawPos():x() .. "    " .. ball.rawPos():y() ,3)
 		debugEngine:gui_debug_msg(CGeoPoint(0,2200),"BallPos: " .. ball.pos():x() .. "    " .. ball.pos():y() ,4)
+		debugEngine:gui_debug_msg(CGeoPoint(0,2000),"BallValid: " .. tostring(ball.valid()),5)
 	end,
 
 	Assister = task.stop(), 
