@@ -33,7 +33,7 @@ isReality = false
 -----------------------------------------------|
 playerVel = 2                                       -- 机器人速度
 getballMode = 2                                     -- [0[激进模式], 1[保守模式], 2[middle]]
-local V_DECAY_RATE_Reality = 600                          -- 场地摩擦
+local V_DECAY_RATE_Reality = 750                          -- 场地摩擦
 lastInterPos = CGeoPoint:new_local(-INF,-INF)       -- 上一次算点结果
 -----------------------------------------------|
 --                Robot参数                  --|
@@ -54,7 +54,7 @@ shootKp = 0.1             -- 射击力度比例
 shootPos = CGeoPoint(pitchLength / 2,0)	
 canTouchAngle = 45        -- 可以touch的角度
 -----------------------------------------------|
---               rot参数                     --|
+--               rot参数                      --|
 -----------------------------------------------|
 rotPos = CGeoPoint(80,80)      --旋转坐标
 rotVel = 3.8                   --旋转速度

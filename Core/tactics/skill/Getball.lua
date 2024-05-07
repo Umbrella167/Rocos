@@ -19,15 +19,14 @@ function Getball(task)
 			local playerPrj = ballLine:projection(player.pos(runner))
 			local canGetBall = ballLine:IsPointOnLineOnSegment(playerPrj)
 			local toballdist = player.toBallDist(runner) 
-
-			
-			if player.kickBall(runner) and inter_pos:x() == ball.pos():x()    then
+			if player.kickBall(runner) and inter_pos:x() == ball.pos():x() then
 				inter_pos = CGeoPoint(-99999,-99999)
 			end
-			if(GlobalMessage.Tick.ball.rights == -1 or ball.velMod() < 500) then
-				inter_pos = ball.pos()
-			end
-
+		--  特殊情况 敌方球权的时候
+		if GlobalMessage.Tick.ball.rights == -1 or GlobalMessage.Tick.ball.rights == 2 then
+			local theirDribblingPlayerPos = enemy.pos(GlobalMessage.Tick.their.dribbling_num)
+			inter_pos = ball.pos() + Utils.Polar2Vector(80,(ball.pos() - theirDribblingPlayerPos):dir())
+		end
 
 			if ((player.pos(runner) - mshootPos):mod() < 800) then
 				inter_pos = mshootPos
@@ -35,10 +34,9 @@ function Getball(task)
 			if(GlobalMessage.Tick.ball.rights == 0 and ball.velMod() < 500 and ball.pos() - player.pos(runner)) then
 				inter_pos = ball.pos()
 			end
-			-- debugEngine:gui_debug_x(inter_pos,4)
-			-- debugEngine:gui_debug_msg(inter_pos,runner .. "getBallPos",4)
-			-- debugEngine:gui_debug_x(inter_pos,4)
-			-- debugEngine:gui_debug_msg(inter_pos,runner .. "getBallPos",4)
+			debugEngine:gui_debug_x(inter_pos,3)
+			debugEngine:gui_debug_msg(inter_pos,runner .. "getBallPos",3)
+
 		return _c(inter_pos)
 	end
 	execute = function(runner)
@@ -105,11 +103,6 @@ function Getball(task)
 			ipos = ball.pos()
 			debugError = "Special: 103"
 		end
-
-
-
-
-
 
 		param.lastInterPos = ipos
 		mvel = _c(endvel) or CVector:new_local(0,0)

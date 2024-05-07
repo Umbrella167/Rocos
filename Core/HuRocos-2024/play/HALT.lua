@@ -1,9 +1,11 @@
 gPlayTable.CreatePlay{
 firstState = "halt",
 switch = function()
-	return "halt"
+	-- debugEngine:gui_debug_msg(CGeoPoint(0,0),task.getManMarkEnemy())
+	-- return "halt"
 end,
 ["halt"] = {
+	
 	["Leader"]   = task.stop(),
 	["Special"]  = task.stop(),
 	["Assister"] = task.stop(),

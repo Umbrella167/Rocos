@@ -347,17 +347,26 @@ namespace Utils
      * @return
      */
     int disappearCount = -1;
+    int GetBallMaxDist_v = 0;
     double GetBallMaxDist(const CVisionModule *pVision,double a)
     {
 
         double v = pVision->ball().Vel().mod();
-        if (!Tick[last].ball.valid)
+
+        if (!Tick[last].ball.valid && Tick[now].ball.valid)
         {
             if (v - Tick[last].ball.vel * 1000 < -1 * Tick[last].ball.vel * 1000 / 3)
             {
                 v = Tick[last].ball.vel * 1000 - 80;
+                GetBallMaxDist_v = v;
             }
-
+        }
+        if (!Tick[last].ball.valid && !Tick[now].ball.valid)
+        {
+            if (v - Tick[last].ball.vel * 1000 < -1 * Tick[last].ball.vel * 1000 / 3)
+            {
+                v = GetBallMaxDist_v - 80;
+            }
         }
         double maxT = v / a;
         double maxDist = a * maxT * maxT;
@@ -462,11 +471,7 @@ namespace Utils
                 continue;
             if (maxTolerance != -inf && tolerance < 0)
                 break;
-            if (enemyGetballNum_min != -1)
-            {
-                if (pVision ->theirPlayer(enemyGetballNum_min).Pos().dist(ballPrePos) < 100)
-                    break;
-            }
+
             // 可能截到球的点
             if (tolerance >= 0)
             {
@@ -484,6 +489,12 @@ namespace Utils
                     maxTolerancePos = ballPrePos;
                 }
                 //                GDebugEngine::Instance()->gui_debug_x(ballPrePos, 2);
+            }
+
+            if (enemyGetballNum_min != -1)
+            {
+                if (pVision ->theirPlayer(enemyGetballNum_min).Pos().dist(ballPrePos) < 100)
+                    return ball_pos + Polar2Vector(dist - 100, pVision->ball().Vel().dir());;
             }
             maxAllowedBallPos = ballPrePos;
 //                        GDebugEngine::Instance()->gui_debug_msg(ballPrePos, to_string(getBallTime),3,0,90);
@@ -776,7 +787,7 @@ namespace Utils
         CGeoPoint dribbling_player_pos = pVision->ourPlayer(dribbling_player_num).Pos();
         CGeoPoint getball_player_pos = pVision->ourPlayer(getball_player_num).Pos();
         pass_safty_grade = PosSafetyGrade(pVision, dribbling_player_pos, getball_player_pos, "PASS");
-        pos_to_pos_dist_grade = PosToPosDistGrade(dribbling_player_pos.x(), getball_player_pos.y(), getball_player_pos.x(), getball_player_pos.y());
+        pos_to_pos_dist_grade = PosToPosDistGrade(dribbling_player_pos.x(), dribbling_player_pos.y(), getball_player_pos.x(), getball_player_pos.y());
         robot_to_pos_dir_grade = PosToPosDirGrade(dribbling_player_pos.x(), dribbling_player_pos.y(), getball_player_pos.x(), getball_player_pos.y(), 4 / PARAM::Math::RADIAN * PARAM::Math::PI, 1);
 
         pass_grade = 0.2 * pos_to_pos_dist_grade + 0.8 * robot_to_pos_dir_grade;
