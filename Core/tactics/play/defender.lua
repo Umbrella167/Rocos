@@ -5,7 +5,6 @@ return {
     firstState = "defend_norm",
     ["defend_norm"] = {
         switch = function()
-
             local ballToCloestEnemyDist = ball.rawPos():dist(enemy.pos(enemy.closestBall()))
             for i=0, param.maxPlayer-1 do
                 if enemy.valid(i) then

@@ -694,17 +694,26 @@ function defend_norm(role, mode, flag)
 	return { mexe, mpos }
 end
 
-function defend_front(role)
+
+-- TODO：模式暂定，这样写可能会有很多问题，先完成其他功能
+-- 当敌人靠近我方时，defender的行动模式
+-- aimMode 盯防模式 0-离我方球门最近的敌人，1-拥有球权的敌人
+-- defender1,2的区分方式为离aimEnenmy的距离
+-- defender1Mode 防御者的模式 0
+function defend_front(role, aimMode, defender1Mode, defender2Mode)
 	getDefenderCount()
+	-- 防御离球门最近的敌人
 	local enemyNum = enemy.closestGoal()
 	local enemyPos = CGeoPoint:new_local(enemy.posX(enemyNum), enemy.posY(enemyNum))
 	local enemyToGoalDir = (param.ourGoalPos - enemyPos):dir()
 	local defenderPoint = enemyPos + Utils.Polar2Vector(3*param.playerRadius, enemyToGoalDir)
 	if isClosestPointDefender(role, defenderPoint) then
+		-- defener1
 		local idir = player.toPointDir(enemyPos, role)
 		local mexe, mpos = GoCmuRush { pos = defenderPoint, dir = idir, acc = a, flag = 0x00000100, rec = r, vel = endVelController(role, defenderPoint) }
 		return { mexe, mpos }
 	else
+		-- defener2
 		local tTable = defend_norm(role, 2)
 		return tTable
 	end
@@ -734,6 +743,7 @@ function defend_kick(role)
 	end
 
 end
+
 
 -- 守门员skill
 -- 当球进禁区时要踢到的目标点
