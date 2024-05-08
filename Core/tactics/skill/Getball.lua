@@ -34,8 +34,8 @@ function Getball(task)
 			if(GlobalMessage.Tick.ball.rights == 0 and ball.velMod() < 500 and ball.pos() - player.pos(runner)) then
 				inter_pos = ball.pos()
 			end
-			debugEngine:gui_debug_x(inter_pos,3)
-			debugEngine:gui_debug_msg(inter_pos,runner .. "getBallPos",3)
+			-- debugEngine:gui_debug_x(inter_pos,3)
+			-- debugEngine:gui_debug_msg(inter_pos,runner .. "getBallPos",3)
 
 		return _c(inter_pos)
 	end
@@ -53,10 +53,12 @@ function Getball(task)
 		local idir = (ball.pos() - inter_pos ):dir()
 		local ballLine = CGeoSegment(ball.pos(),ball.pos() + Utils.Polar2Vector(9999,ball.velDir()))
 		local prjPos = ballLine:projection(player.pos(runner))
-		if (inter_pos:x() == ball.posX() and inter_pos:y() == ball.posY()) or not ballLine:IsPointOnLineOnSegment(prjPos) then
+		
+		if (inter_pos:x() == ball.posX() and inter_pos:y() == ball.posY()) or not ballLine:IsPointOnLineOnSegment(prjPos)then
 			idir = player.toBallDir(runner)
 			debugError = "GetballPos Special: 60"
 		end
+
 		local ipos = inter_pos	
 
 		local toballDir = math.abs((ball.rawPos() - player.rawPos(runner)):dir() * 57.3)
@@ -68,25 +70,23 @@ function Getball(task)
 			iflag =  DSS_FLAG
 		else
 			-- iflag = bit:_or(flag.allow_dss,flag.dribbling) 
-			iflag = flag.dribbling
+			iflag = flag.dribbling + flag.allow_dss
 		end
-		-- 如果是敌方的球权，那么关闭闭障，直接怼脸
 
 		ipos = CGeoPoint:new_local(ipos:x(),ipos:y())
-		local ballLine = CGeoSegment(ball.pos(),ball.pos() + Utils.Polar2Vector(param.INF,ball.velDir()))
-		local playerPrj = ballLine:projection(player.rawPos(runner))
-		local canRush = ballLine:IsPointOnLineOnSegment(playerPrj)
-		local endvel = Utils.Polar2Vector(0,(ipos - player.pos(runner)):dir())
-		if canRush then
-			endvel = Utils.Polar2Vector(0,(ipos - player.pos(runner)):dir())
+		-- 球速过慢 去追球的时候
+		if (ball.velMod() < 700 and not ballLine:IsPointOnLineOnSegment(prjPos)) then
+			iflag = flag.dribbling
+			idir = player.toBallDir(runner)
+			ipos = ball.pos() + Utils.Polar2Vector(-65,idir)
+			debugError = "GetballPos Special: 900"
 		end
-
-
-		--  特殊情况 敌方球权的时候
+		--  特殊情况 敌方球权的时候		-- 如果是敌方的球权，那么关闭闭障，直接怼脸
 		if GlobalMessage.Tick.ball.rights == -1 or GlobalMessage.Tick.ball.rights == 2 then
 			local theirDribblingPlayerPos = enemy.pos(GlobalMessage.Tick.their.dribbling_num)
-			iflag = flag.dribbling
-			ipos = ball.pos() + Utils.Polar2Vector(80,(ball.pos() - theirDribblingPlayerPos):dir())
+			iflag = flag.dribbling 
+			local dist_ = 65
+			ipos = ball.pos() + Utils.Polar2Vector(dist_,(ball.pos() - theirDribblingPlayerPos):dir())
 			debugError = "GetballPos Special: 94"
 		end
 		--  特殊情况 去球坐标的时候
@@ -101,8 +101,38 @@ function Getball(task)
 		end 
 		if ipos:x() == param.INF then
 			ipos = ball.pos()
-			debugError = "Special: 103"
+			idir = player.toBallDir(runner)
+			debugError = "GetballPos Special: 103"
+			
 		end
+		-- 解决敌人过近的问题
+		local minEnemyDistNum = {}
+		for i = 0 ,param.maxPlayer do 
+			if enemy.valid(i) then
+				if enemy.pos(i):dist(ball.pos()) < 200 then
+					table.insert(minEnemyDistNum,i)
+				end
+				if #minEnemyDistNum == 2 then
+					break
+				end
+			end
+		end
+		if (#minEnemyDistNum == 2) then
+			local dist_ = 65
+			local theirDribblingPlayerPos = enemy.pos(GlobalMessage.Tick.their.dribbling_num)
+			local middlePos = enemy.pos(minEnemyDistNum[1]):midPoint(enemy.pos(minEnemyDistNum[2]))
+			debugEngine:gui_debug_msg(middlePos,"middlePos",9)
+			debugEngine:gui_debug_x(middlePos,9)
+			theirDribblingPlayerPos = middlePos
+			ipos = ball.pos() + Utils.Polar2Vector(dist_,(ball.pos() - theirDribblingPlayerPos):dir())
+		elseif (minEnemyDistNum == 1) then
+			local theirDribblingPlayerPos = enemy.pos(GlobalMessage.Tick.their.dribbling_num)
+			ipos = ball.pos() + Utils.Polar2Vector(dist_,(ball.pos() - theirDribblingPlayerPos):dir())
+			debugError = "GetballPos Special: 131"
+		end
+
+
+
 
 		param.lastInterPos = ipos
 		mvel = _c(endvel) or CVector:new_local(0,0)

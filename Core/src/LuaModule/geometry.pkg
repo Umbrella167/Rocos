@@ -35,6 +35,9 @@ class CGeoPoint{
 	CGeoPoint operator+(const CVector& v) const;
 	CGeoPoint operator*(const double& a) const;
 	CVector operator-(const CGeoPoint& p) const;
+	CGeoPoint midPoint(const CGeoPoint& p) const {
+		return CGeoPoint((_x + p.x()) / 2, (_y + p.y()) / 2);
+    }
 };
 class CGeoLine{
 	CGeoLine();

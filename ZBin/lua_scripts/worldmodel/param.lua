@@ -23,15 +23,13 @@ penaltySegment	= 500
 ourTopRightPenaltyPos = CGeoPoint:new_local(-pitchLength/2+penaltyDepth, penaltyRadius)
 ourTopPenaltyPos = CGeoPoint:new_local(-pitchLength/2, penaltyRadius)
 ourButtomPenaltyPos = CGeoPoint:new_local(-pitchLength/2, -penaltyRadius)
-
-
 -- 是否为真实场地
-isReality = false 
+isReality = true 
 
 -----------------------------------------------|
 --                Getball参数                 --|
 -----------------------------------------------|
-playerVel = 2                                       -- 机器人速度
+playerVel = 1.5                                       -- 机器人速度
 getballMode = 2                                     -- [0[激进模式], 1[保守模式], 2[middle]]
 local V_DECAY_RATE_Reality = 750                          -- 场地摩擦
 lastInterPos = CGeoPoint:new_local(-INF,-INF)       -- 上一次算点结果

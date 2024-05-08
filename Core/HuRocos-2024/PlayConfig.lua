@@ -12,7 +12,6 @@
 - `OurPenaltyKick`      : 我方点球
 - `NormalPlay`          : 正常比赛
 ]]
-
 ---[[
 gRefConfig = {
     GameHalt = "HALT",

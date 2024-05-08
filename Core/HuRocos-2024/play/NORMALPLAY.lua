@@ -271,16 +271,18 @@ firstState = "Init",
     Tier = gSubPlay.roleTask("Defender", "Tier"),
     Defender = gSubPlay.roleTask("Defender", "Defender"),
     Goalie = task.goalie("Goalie"),
-    match = "[AKS]{TDG}"
+    match = "(AKS){TDG}"
 },
 
 -- 带球
 ["dribbling"] = {
     switch = function()
         UpdataTickMessage(our_goalie_num,defend_num1,defend_num2)
-        if bufcnt(true,30) then 
-            return "GetGlobalMessage"
-        end
+        local State = getState()
+        return State
+        -- if bufcnt(true,30) then 
+        --     return "GetGlobalMessage"
+        -- end
     end,
     --dribbling_target_pos
     Assister = task.goCmuRush(ShowDribblingPos(), dribblingDir("Assister"),dribblingVel,flag.dribbling),
@@ -305,7 +307,7 @@ firstState = "Init",
     Tier = gSubPlay.roleTask("Defender", "Tier"),
     Defender = gSubPlay.roleTask("Defender", "Defender"),
     Goalie = task.goalie("Goalie"),
-    match = "[AKS]{TDG}"
+    match = "(AKS){TDG}"
 },
 name = "NORMALPLAY",
 applicable ={

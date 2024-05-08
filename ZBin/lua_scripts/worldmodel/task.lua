@@ -1016,7 +1016,8 @@ function defender_marking(role,pos)
 			local markingPos = enemy.pos(minDistEnemyNum) + 
 			Utils.Polar2Vector(ballToEnemyDist*param.markingPosRate1, ballToEnemyDir + dirFlag * math.pi / 2 ) + 
 			Utils.Polar2Vector(-param.minMarkingDist-ballToEnemyDist*param.markingPosRate2, ballToEnemyDir)
-			debugEngine:gui_debug_x(markingPos)
+			debugEngine:gui_debug_x(markingPos,4)
+			debugEngine:gui_debug_msg(markingPos,"markingPos",4)
 			if(not Utils.InField(markingPos)) then
 				markingPos = CGeoPoint (player.posX(role),player.posY(role))
 			end

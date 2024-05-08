@@ -142,7 +142,7 @@ namespace Utils
             Tick[now].their.dribbling_num = -1;
         }
         // 球权一定是敌方的情况
-        else if ((RobotSensor.InfraredOffCount(Tick[now].our.to_balldist_min_num) > 5) && our_min_dist > PARAM::Player::playerBallRightsBuffer && their_min_dist < PARAM::Player::playerBallRightsBuffer)
+        else if (RobotSensor.InfraredOffCount(Tick[now].our.to_balldist_min_num) > 5 && our_min_dist > PARAM::Player::playerBallRightsBuffer && their_min_dist < PARAM::Player::playerBallRightsBuffer)
         {
             Tick[now].ball.rights = -1;
             Tick[now].their.dribbling_num = Tick[now].their.to_balldist_min_num;
@@ -168,7 +168,7 @@ namespace Utils
 
         // 获取第一次带球的位置
         // 如果远离球一定距离就一直更新
-        if (our_min_dist > PARAM::Player::playerBallRightsBuffer)
+        if (our_min_dist > PARAM::Player::playerBallRightsBuffer + 40)
         {
             Tick[now].ball.first_dribbling_pos = Tick[now].ball.pos;
         }
@@ -352,7 +352,6 @@ namespace Utils
     {
 
         double v = pVision->ball().Vel().mod();
-
         if (!Tick[last].ball.valid && Tick[now].ball.valid)
         {
             if (v - Tick[last].ball.vel * 1000 < -1 * Tick[last].ball.vel * 1000 / 3)
