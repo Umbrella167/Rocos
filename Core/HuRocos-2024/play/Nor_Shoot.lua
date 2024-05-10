@@ -14,22 +14,10 @@ local runPos = function()
 	end
 end
 
-local shootPosFun = function()
-	if type(param.shootPos) == "function" then
-		return param.shootPos()
-	else
-		return param.shootPos
-	end
-end
-
 
 local shoot_kp = param.shootKp
-local resShootPos = CGeoPoint(4500,0)
-local shootKPFun = function()
-	return function()
-		return shoot_kp
-	end
-end
+local resShootPos = CGeoPoint(param.pitchLength / 2,0)
+
 local debugMesg = function ()
 	if(task.playerDirToPointDirSub("Assister",resShootPos) < param.shootError) then 
 		debugEngine:gui_debug_line(player.pos("Assister"),player.pos("Assister") + Utils.Polar2Vector(9999,player.dir("Assister")),1)
@@ -37,11 +25,15 @@ local debugMesg = function ()
 		debugEngine:gui_debug_line(player.pos("Assister"),player.pos("Assister") + Utils.Polar2Vector(9999,player.dir("Assister")),4)
 	end
 		debugEngine:gui_debug_msg(CGeoPoint(0,-2800),"ballRights: " .. GlobalMessage.Tick.ball.rights)
-		debugEngine:gui_debug_msg(CGeoPoint(0,-2600),"myInfraredCount: " .. player.myinfraredCount("Assister").. "    InfraredCount: " .. player.infraredCount("Assister"),2)
+		if player.myinfraredCount("Assister") > 0 then
+			debugEngine:gui_debug_msg(CGeoPoint(0,-2600),"myInfraredCount: " .. player.myinfraredCount("Assister").. "    InfraredCount: " .. player.infraredCount("Assister") .. "    InfraredOffCount:" .. player.myinfraredOffCount("Assister") ,2)
+		end
 		debugEngine:gui_debug_msg(CGeoPoint(0,-2400),"RawBallPos: " .. ball.rawPos():x() .. "    " .. ball.rawPos():y() ,3)
 		debugEngine:gui_debug_msg(CGeoPoint(0,-2200),"BallPos: " .. ball.pos():x() .. "    " .. ball.pos():y() ,4)
 		debugEngine:gui_debug_msg(CGeoPoint(0,-2000),"BallVel: " .. ball.velMod() ,4)
 		debugEngine:gui_debug_msg(CGeoPoint(0,-1600),"BallValid: " .. tostring(ball.valid()) ,4)
+		debugEngine:gui_debug_msg(CGeoPoint(0,-1400),"shoot_kp: " .. shoot_kp ,4)
+		
 		debugEngine:gui_debug_x(resShootPos,6)
 		debugEngine:gui_debug_msg(resShootPos,"rotCompensatePos",6)
 		debugEngine:gui_debug_x(param.shootPos,6)
@@ -58,14 +50,15 @@ firstState = "getball",
         shoot_pos = args.pos
     end,
 
+
+
+
+
 ["getball"] = {
 	switch = function()
 		GlobalMessage.Tick = Utils.UpdataTickMessage(vision,our_goalie_num,defend_num1,defend_num2)
 		debugMesg()
-		
-		shoot_pos = shootPosFun()
-
-		if(player.myinfraredCount("Assister") > 5) then
+		if(player.myinfraredCount("Assister") > 15) then
 			return "turnToPoint"
 		end
 	end,
@@ -81,7 +74,7 @@ firstState = "getball",
 		-- end
 		debugEngine:gui_debug_msg(CGeoPoint:new_local(0,0),player.rotVel("Assister"))
 		debugMesg()
-		if shootPosFun():x() == param.pitchLength / 2 then
+		if param.shootPos:x() == param.pitchLength / 2 then
 			shoot_kp = 10000
 		else
 			shoot_kp = param.shootKp
@@ -111,10 +104,17 @@ firstState = "getball",
 			return "getball"
 		end
 	end,
-	Assister = task.ShootdotV2(function() return resShootPos end, shootKPFun() , param.shootError, kick.flat),
+	Assister = task.ShootdotV2(function() return resShootPos end,function() return shoot_kp end, param.shootError, kick.flat),
 	match = "{A}"
 },
+	
+["touch"] = {
+	switch = function()
 
+	end,
+	Assister = task.touchKick(function() return resShootPos end, false, function() return shoot_kp end, kick.flat),
+	match = "[A]"
+},
 
 
 name = "Nor_Shoot",

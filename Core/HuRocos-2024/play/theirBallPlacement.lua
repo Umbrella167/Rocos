@@ -114,7 +114,7 @@ firstState = "start",
   match = "(AKS){TDG}"
 },
 
-name = "their_BallPlacement",
+name = "theirBallPlacement",
 applicable = {
   exp = "a",
   a = true

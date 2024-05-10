@@ -2,7 +2,7 @@ local temp01 = CGeoPoint:new_local(-1000,1000)
 local temp02 = CGeoPoint:new_local(-1000,-1000)
 local temp03 = CGeoPoint:new_local(-1000,0)
 local temp04 = CGeoPoint:new_local(-1500,500)
-local theirgoal = CGeoPoint:new_local(4500,0)
+local theirgoal = CGeoPoint:new_local(param.pitchLength / 2,0)
 local target = CGeoPoint:new_local(3000,2000)
 local target2 = CGeoPoint:new_local(-2500,1500)
 local target3 = CGeoPoint:new_local(0,0)
@@ -109,7 +109,7 @@ dribbling_player_num = 1
 -- 球权初始化
 ballRights = -1
 -- 射门坐标初始化
-shoot_pos = CGeoPoint:new_local(4500,0)
+shoot_pos = CGeoPoint:new_local(param.pitchLength / 2,0)
 -- 被传球机器人
 pass_player_num = 0
 

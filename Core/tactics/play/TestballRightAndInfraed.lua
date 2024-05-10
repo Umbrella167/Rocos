@@ -7,7 +7,7 @@ local balldir = function ()
 		return player.toBallDir("Assister")
 	end
 end
-local shoot_pos = CGeoPoint:new_local(4500,0)
+local shoot_pos = CGeoPoint:new_local(param.pitchLength / 2,0)
 local error_dir = 8
 local KP = 0.00000002
 local defendPos = function(role)
@@ -17,7 +17,7 @@ local defendPos = function(role)
 	end
 end
 local run_pos = CGeoPoint:new_local(0,0)
-local resPos = CGeoPoint(4500,0)
+local resPos = CGeoPoint(param.pitchLength / 2,0)
 
 local runPos = function()
 	return function()

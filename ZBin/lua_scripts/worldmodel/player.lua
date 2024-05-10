@@ -296,6 +296,16 @@ function myinfraredCount(role)
 		return 0
 	end
 end
+function myinfraredOffCount(role)
+	local robotNum = num(role)
+	if robotNum ~= -1 then
+		local MyInfraredOffCount = GlobalMessage.Tick.task[robotNum].infrared_off_count
+		return MyInfraredOffCount
+	else
+		return 0
+	end
+
+end
 -- role1为传球车
 function toShootOrRobot(role1)
 	return function(role2)

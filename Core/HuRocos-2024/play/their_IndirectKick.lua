@@ -25,7 +25,7 @@ dribbling_player_num = 1
 -- 球权初始化
 ballRights = -1
 -- 射门坐标初始化
-local shoot_pos = CGeoPoint:new_local(4500,0)
+local shoot_pos = CGeoPoint:new_local(param.pitchLength / 2,0)
 -- 守门员号码
 local our_goalie_num = param.our_goalie_num
 -- 后卫号码

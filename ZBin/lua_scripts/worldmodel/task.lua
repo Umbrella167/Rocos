@@ -11,12 +11,11 @@ function getBall_BallPlacement(role)
 		local ballPos = GlobalMessage.Tick.ball.pos
 		debugEngine:gui_debug_x(ballPos,3)
 		debugEngine:gui_debug_msg(ballPos,"BallPos",3)
-		debugEngine:gui_debug_msg(CGeoPoint(0,1800),"ball.pos()",3)
 		local placementflag = bit:_or(flag.dribbling, flag.our_ball_placement)
 		local ballPlacementPos = CGeoPoint(ball.placementPos():x(),ball.placementPos():y())
 		local ipos = ballPos
 		local idir = player.toBallDir(role)
-		local ia = 800
+		local ia = 1600
 		--如果球在场地内，机器人就可以走到球后面然后推着球走
 		if Utils.InField(ballPos) then
 			bufcnt_Infield  = bufcnt_Infield + 1
@@ -48,7 +47,7 @@ function getBall_BallPlacement(role)
 					debugEngine:gui_debug_msg(CGeoPoint(0,0),"3")
 					placementflag = flag.our_ball_placement + flag.dribbling
 					idir =  (player.pos(role) - ballPlacementPos ):dir()
-					ipos = ballPos + Utils.Polar2Vector(-30,idir)
+					ipos = ballPos + Utils.Polar2Vector(-param.playerFrontToCenter,idir)
 				else
 					debugEngine:gui_debug_msg(CGeoPoint(0,0),"4")
 					local DSS_FLAG = flag.our_ball_placement + flag.dodge_ball + flag.dribbling
@@ -70,7 +69,7 @@ function getBall_BallPlacement(role)
 				idir =  (player.pos(role) - ballPlacementPos ):dir()
 				ipos = ballPlacementPos + Utils.Polar2Vector(0,idir)
 				if not ball.valid() then
-					local DSS_FLAG = flag.our_ball_placement + flag.dodge_ball
+					local DSS_FLAG = flag.our_ball_placement + flag.dodge_ball + flag.dribbling
 					placementflag =  DSS_FLAG
 					ipos = CGeoPoint(0,0)
 				end
@@ -127,6 +126,26 @@ function TurnRun(pos,vel)
 end
 
 
+function getball_dribbling(role)
+	return function()
+		local idir = player.toBallDir(role)
+		local p = ball.pos() + Utils.Polar2Vector(-10,idir)
+		local endVel = Utils.Polar2Vector(ball.velMod() + 100,idir)
+		local toballDir = math.abs((ball.pos() - player.rawPos(role)):dir() * 57.3)
+		local playerDir = math.abs(player.dir(role)) * 57.3
+		local Subdir = math.abs(toballDir-playerDir)
+		local iflag = flag.dribbling + flag.allow_dss
+		local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
+		if Subdir > 15 and player.toBallDist(role) < 150 then 
+			iflag =  DSS_FLAG
+		else
+			iflag = flag.dribbling + flag.allow_dss
+		end
+		local mexe, mpos = GoCmuRush { pos = p, dir = idir, acc = a, flag = iflag, rec = r, vel = endVel, speed = s, force_manual = force_manual }
+		return { mexe, mpos }
+	end
+
+end
 
 function getball(shootPos_,playerVel, inter_flag, permissions)
 	return function()
@@ -137,7 +156,7 @@ function getball(shootPos_,playerVel, inter_flag, permissions)
 			ishootpos = shootPos_
 		end
 		ipermissions = permissions or 0
-		local mexe, mpos = Getball {shootPos = ishootpos,permissions = permissions ,inter_flag = qflag, pos = pp, dir = idir, acc = a, flag = iflag, rec = 1, vel = v }
+		local mexe, mpos = Getball {shootPos = ishootpos,permissions = permissions ,inter_flag = inter_flag, pos = pp, dir = idir, acc = a, flag = iflag, rec = 1, vel = v }
 		return { mexe, mpos }
 	end
 end
@@ -465,6 +484,38 @@ function ShootdotV2(p, Kp, error_, flag_,role)
 
 		local mexe, mpos = GoCmuRush { pos = shootpos, dir = idir, acc = a, flag = flag.dribbling, rec = r, vel = v }
 		return { mexe, mpos, flag_, idir, error__, power(p, kp1,player.num(irole)), power(p, kp1,player.num(irole)), flag.dribbling }
+	end
+end
+
+
+function ShootdotDribbling(p, Kp, error_, flag_,role)
+	return function()
+		local irole = role or "Assister"
+		local p1
+		if type(p) == 'function' then
+			p1 = p()
+		else
+			p1 = p
+		end
+		
+		local kp1
+		if type(Kp) == 'function' then
+			kp1 = Kp()
+		else
+			kp1 = Kp
+		end
+		local shootpos = function(runner)
+			return ball.pos() + Utils.Polar2Vector(-50, (p1 - ball.pos()):dir())
+		end
+		local idir = function(runner)
+			return (p1 - player.pos(runner)):dir()
+		end
+		local error__ = function()
+			return error_ * math.pi / 180.0
+		end
+		local iPower = param.isReality and kp.specified(110) or kp.specified(1300)
+		local mexe, mpos = GoCmuRush { pos = shootpos, dir = idir, acc = a, flag = flag.dribbling, rec = r, vel = v }
+		return { mexe, mpos, flag_, idir, error__,iPower , iPower, flag.dribbling }
 	end
 end
 

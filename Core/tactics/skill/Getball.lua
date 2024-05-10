@@ -15,6 +15,7 @@ function Getball(task)
 			local qflag = inter_flag or 0
 			local playerPos = CGeoPoint:new_local(player.pos(runner):x(),player.pos(runner):y())
 			local inter_pos = Utils.GetBestInterPos(vision,playerPos,param.playerVel,minter_flag,0,param.V_DECAY_RATE)
+			debugEngine:gui_debug_msg(CGeoPoint(0,0),minter_flag)
 			local ballLine = CGeoSegment(ball.pos(),ball.pos() + Utils.Polar2Vector(-param.INF,ball.velDir()))
 			local playerPrj = ballLine:projection(player.pos(runner))
 			local canGetBall = ballLine:IsPointOnLineOnSegment(playerPrj)
@@ -55,7 +56,7 @@ function Getball(task)
 		local idir = player.toBallDir(runner)
 		local ballLine = CGeoSegment(ball.pos(),ball.pos() + Utils.Polar2Vector(9999,ball.velDir()))
 		local prjPos = ballLine:projection(player.pos(runner))
-		local toballDir = math.abs((ball.rawPos() - player.rawPos(runner)):dir() * 57.3)
+		local toballDir = math.abs((ball.pos() - player.rawPos(runner)):dir() * 57.3)
 		local playerDir = math.abs(player.dir(runner)) * 57.3
 		local Subdir = math.abs(toballDir-playerDir)
 		local iflag = flag.dribbling + flag.allow_dss
@@ -74,23 +75,26 @@ function Getball(task)
 		if (ballLine:IsPointOnLineOnSegment(prjPos)) and ball.velMod() > 200 then
 			idir = (ball.pos() - inter_pos):dir()
 			debugError = "GetballPos Special: InterceptBall"
-		elseif (ball.velMod() < 700 and ball.velMod() > 200 and not ballLine:IsPointOnLineOnSegment(prjPos)) then
+		elseif (ball.velMod() < 800 and ball.velMod() > 200 and not ballLine:IsPointOnLineOnSegment(prjPos)) then
 			idir = player.toBallDir(runner)
-			iacc = ball.velMod() + 800
-			inter_pos = ball.pos() + Utils.Polar2Vector(-180,(ball.pos() - inter_pos):dir())
+			inter_pos = ball.pos() + Utils.Polar2Vector(-10,idir)
+			endVel = Utils.Polar2Vector(ball.velMod() + 100,idir)
+
 			debugError = "GetballPos Special: RushToBall"
-		elseif (ball.velMod() > 700 and not ballLine:IsPointOnLineOnSegment(prjPos)) then
+		elseif (ball.velMod() > 1200 and not ballLine:IsPointOnLineOnSegment(prjPos)) then
 			idir = (ball.pos() - inter_pos):dir()
+			iflag =  flag.dodge_ball
 			debugError = "GetballPos Special: RushToInterceptBall"
 		elseif ball.velMod() < 200 then
 			idir = player.toBallDir(runner)
 			inter_pos = ball.pos() + Utils.Polar2Vector(-param.playerFrontToCenter + 15,idir)
 			debugError = "GetballPos Special: GoBallPos"
+			endvel = Utils.Polar2Vector(400,(inter_pos - player.pos(runner)):dir())
 
 		end
 		
 		--  除去抖动
-		if (inter_pos - param.lastInterPos):mod() < 50 then
+		if (inter_pos - param.lastInterPos):mod() < 10 then
 			inter_pos = param.lastInterPos
 		end 
 		-- 在禁区的时候
@@ -101,47 +105,48 @@ function Getball(task)
 		end
 
 		-- 解决敌人过近的问题
-		local minEnemyDistNum = {}
-		for i = 0 ,param.maxPlayer -1 do 
-			if enemy.valid(i) then
-				if enemy.pos(i):dist(ball.pos()) < 300 then
-					-- print(i)
-					table.insert(minEnemyDistNum,i)
+		if GlobalMessage.Tick.ball.rights == -1 or GlobalMessage.Tick.ball.rights == 2 then
+			local minEnemyDistNum = {}
+			for i = 0 ,param.maxPlayer -1 do 
+				if enemy.valid(i) then
+					if enemy.pos(i):dist(ball.pos()) < 300 then
+						-- print(i)
+						table.insert(minEnemyDistNum,i)
+					end
+					if #minEnemyDistNum == 2 then
+						break
+					end
 				end
-				if #minEnemyDistNum == 2 then
-					break
+			end
+			if (#minEnemyDistNum == 2) then
+				local dist_ = param.playerFrontToCenter + 20
+
+				
+				local theirDribblingPlayerPos = enemy.pos(GlobalMessage.Tick.their.dribbling_num)
+				local middlePos = enemy.pos(minEnemyDistNum[1]):midPoint(enemy.pos(minEnemyDistNum[2]))
+
+				theirDribblingPlayerPos = middlePos
+				if player.pos(runner):dist(ball.pos() + Utils.Polar2Vector(param.playerFrontToCenter + 80,(ball.pos() - theirDribblingPlayerPos):dir())) < 50 then
+					dist_ = param.playerFrontToCenter
+
 				end
+				inter_pos = ball.pos() + Utils.Polar2Vector(dist_,(ball.pos() - theirDribblingPlayerPos):dir())
+
+				debugEngine:gui_debug_msg(inter_pos,"middlePos",9)
+				debugEngine:gui_debug_x(inter_pos,9)
+				debugError = "GetballPos Special: TwoEnemy"
+
+			elseif (#minEnemyDistNum == 1) then
+				local dist_ = param.playerFrontToCenter + 80
+
+				local theirDribblingPlayerPos = enemy.pos(GlobalMessage.Tick.their.dribbling_num)
+				if player.pos(runner):dist(ball.pos() + Utils.Polar2Vector(param.playerFrontToCenter + 80,(ball.pos() - theirDribblingPlayerPos):dir())) < 50 then
+					dist_ = param.playerFrontToCenter
+				end
+				inter_pos = ball.pos() + Utils.Polar2Vector(dist_,(ball.pos() - theirDribblingPlayerPos):dir())
+				debugError = "GetballPos Special: OneEnemy"
 			end
 		end
-		if (#minEnemyDistNum == 2) then
-			local dist_ = param.playerFrontToCenter + 80
-
-			
-			local theirDribblingPlayerPos = enemy.pos(GlobalMessage.Tick.their.dribbling_num)
-			local middlePos = enemy.pos(minEnemyDistNum[1]):midPoint(enemy.pos(minEnemyDistNum[2]))
-
-			theirDribblingPlayerPos = middlePos
-			if player.pos(runner):dist(ball.pos() + Utils.Polar2Vector(param.playerFrontToCenter + 80,(ball.pos() - theirDribblingPlayerPos):dir())) < 50 then
-				dist_ = param.playerFrontToCenter
-
-			end
-			inter_pos = ball.pos() + Utils.Polar2Vector(dist_,(ball.pos() - theirDribblingPlayerPos):dir())
-
-			debugEngine:gui_debug_msg(inter_pos,"middlePos",9)
-			debugEngine:gui_debug_x(inter_pos,9)
-			debugError = "GetballPos Special: TwoEnemy"
-
-		elseif (#minEnemyDistNum == 1) then
-			local dist_ = param.playerFrontToCenter + 80
-
-			local theirDribblingPlayerPos = enemy.pos(GlobalMessage.Tick.their.dribbling_num)
-			if player.pos(runner):dist(ball.pos() + Utils.Polar2Vector(param.playerFrontToCenter + 80,(ball.pos() - theirDribblingPlayerPos):dir())) < 50 then
-				dist_ = param.playerFrontToCenter
-			end
-			inter_pos = ball.pos() + Utils.Polar2Vector(dist_,(ball.pos() - theirDribblingPlayerPos):dir())
-			debugError = "GetballPos Special: OneEnemy"
-		end
-
 
 
 

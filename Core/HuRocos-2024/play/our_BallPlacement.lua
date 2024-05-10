@@ -126,6 +126,7 @@ local AssisterDir = function()
     end
     return player.toBallDir("Assister")
 end
+local count = 0
 local DSS_FLAG = flag.allow_dss + flag.dodge_ball + flag.our_ball_placement
 gPlayTable.CreatePlay {
 
@@ -151,6 +152,11 @@ firstState = "start",
     debugEngine:gui_debug_msg(CGeoPoint(0,2800),"ballRights: " .. GlobalMessage.Tick.ball.rights,2)
     debugEngine:gui_debug_msg(CGeoPoint(0,2600),"InfraredCount: " .. player.myinfraredCount("Assister"),3)
     if ball.pos():dist(ball.placementPos()) < 130 then
+        count = count + 1
+    else
+        count = 0
+    end
+    if count > 60 then
         return "avoid"
     end
   end,

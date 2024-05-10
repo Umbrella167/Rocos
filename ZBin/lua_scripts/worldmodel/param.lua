@@ -30,7 +30,7 @@ isReality = true
 --                Getball参数                 --|
 -----------------------------------------------|
 playerVel = 1.66                                       -- 机器人速度
-getballMode = 2                                     -- [0[激进模式], 1[保守模式], 2[middle]]
+getballMode = 1                                       -- [0[激进模式], 1[保守模式], 2[middle]]
 local V_DECAY_RATE_Reality = 750                          -- 场地摩擦
 lastInterPos = CGeoPoint:new_local(-INF,-INF)       -- 上一次算点结果
 -----------------------------------------------|
@@ -47,7 +47,7 @@ playerRadius = 90   -- 机器人半径
 --                Shoot参数                   --|
 -----------------------------------------------|
 
-local shootError_Reality = 1.8  -- 射击误差
+local shootError_Reality = 5--1.8  -- 射击误差
 shootKp = 0.1             -- 射击力度比例
 shootPos = CGeoPoint(pitchLength / 2,0)	
 canTouchAngle = 45        -- 可以touch的角度
@@ -56,13 +56,13 @@ canTouchAngle = 45        -- 可以touch的角度
 -----------------------------------------------|
 rotPos = CGeoPoint(80,80)      --旋转坐标
 rotVel = 3.8                   --旋转速度
-local rotCompensate_Reality = -0.006 --旋转补偿
+local rotCompensate_Reality = -0.025 --旋转补偿
 -----------------------------------------------|
 --                Tick固定匹配参数             --|
 -----------------------------------------------|
-our_goalie_num = 0
-defend_num1 =1
-defend_num2 = 2
+our_goalie_num = 10
+defend_num1 = 11
+defend_num2 = 12
 
 -----------------------------------------------|
 --             marking参数             --|

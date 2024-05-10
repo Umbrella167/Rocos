@@ -121,17 +121,31 @@ namespace Utils
         // 处理红外无回包的情况 自定义红外
         if (pVision->ball().Valid())
         {
-            if (our_min_dist < PARAM::Player::playerInfraredCountBuffer &&
+            if ((our_min_dist < PARAM::Player::playerInfraredCountBuffer &&
                abs(angleDiff(pVision->ourPlayer(Tick[now].our.to_balldist_min_num).RawDir(),
                (pVision->ball().Pos() - pVision->ourPlayer(Tick[now].our.to_balldist_min_num).Pos()).dir()) *
-               PARAM::Math::PI) < 1.28)
-                Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_count += 1;
+               PARAM::Math::PI) < 1.28) || RobotSensor.InfraredOnCount(Tick[now].our.to_balldist_min_num) > 1)
+            {
+                Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_off_count = 0;
+                if (RobotSensor.InfraredOnCount(Tick[now].our.to_balldist_min_num) > 10)
+                {
+                    Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_count = RobotSensor.InfraredOnCount(Tick[now].our.to_balldist_min_num);
+                }
+                else
+                {
+                    Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_count += 1;
+                }
+            }
             else
+            {
                 Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_count = 0;
+                Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_off_count += 1;
+            }
         }
         else
         {
             Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_count =RobotSensor.InfraredOnCount(Tick[now].our.to_balldist_min_num);
+            Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_off_count = RobotSensor.InfraredOffCount(Tick[now].our.to_balldist_min_num);
         }
         /// 球权判断
         // 球权一定是我方的情况
@@ -168,10 +182,11 @@ namespace Utils
 
         // 获取第一次带球的位置
         // 如果远离球一定距离就一直更新
-        if (our_min_dist > PARAM::Player::playerBallRightsBuffer + 40)
+        if (our_min_dist > PARAM::Player::playerBallRightsBuffer + 15)
         {
             Tick[now].ball.first_dribbling_pos = Tick[now].ball.pos;
         }
+        GDebugEngine::Instance()->gui_debug_arc(Tick[now].ball.first_dribbling_pos, 1000, 0, 360, 8);
         return Tick[now];
     }
 
@@ -279,15 +294,15 @@ namespace Utils
      */
     double ShowDribblingGrade(const CVisionModule *pVision, CGeoPoint run_pos, CGeoPoint player_pos, CGeoPoint target_pos)
     {
+        CGeoPoint ballPos = Tick[now].ball.pos;
         double player_to_target_dir_grade = 0;
         double min_enemy_grade = 0;
         double min_dist = inf;
         double player_to_limit_grade = 0;
-        double player_to_ball_dir = (target_pos - player_pos).dir();
+        double player_to_ball_dir = (ballPos - run_pos).dir();
         double runpos_to_target_dir = (target_pos - run_pos).dir();
-        double sub_dir = abs((runpos_to_target_dir - player_to_ball_dir) * PARAM::Math::RADIAN);
+        double sub_dir = 180-abs(angleDiff(player_to_ball_dir,runpos_to_target_dir)  * PARAM::Math::RADIAN); //abs((runpos_to_target_dir - player_to_ball_dir) * PARAM::Math::RADIAN);
         double grade;
-
         for (int i = 0; i < PARAM::Field::MAX_PLAYER; ++i)
         {
             if (!pVision->theirPlayer(i).Valid())
@@ -303,11 +318,11 @@ namespace Utils
         // 目标点方向 得分
         double target_pos_dist = run_pos.dist(target_pos);
         double target_pos_dist_grade = NumberNormalize(target_pos_dist, 4000, 500);
-        player_to_target_dir_grade = 0.5 * (1 - NumberNormalize(sub_dir, 40, 0)) + 0.5 * target_pos_dist_grade;
+        player_to_target_dir_grade = NumberNormalize(sub_dir, 180, 0);
 
         player_to_limit_grade = 1 - NumberNormalize(run_pos.dist(Tick[now].ball.first_dribbling_pos), 1000, 300);
-        grade = 0.2 * min_enemy_grade + 0.6 * player_to_target_dir_grade + 0.2 * player_to_limit_grade;
-        // GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(0, -1000), to_string(grade));
+        grade = 0.45 * min_enemy_grade + 0.35 * player_to_target_dir_grade + 0.2 * player_to_limit_grade;
+//         GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(0, -1000), to_string(grade));
 
         return grade;
     }
@@ -331,15 +346,22 @@ namespace Utils
                 max_grade = grade;
                 max_grade_point = CGeoPoint(x, y);
             }
-            // GDebugEngine::Instance()->gui_debug_x(CGeoPoint(x, y));
-            // GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(x, y), to_string(grade), 1, 0, 60);
+             GDebugEngine::Instance()->gui_debug_x(CGeoPoint(x, y));
+             GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(x, y), to_string(grade), 1, 0, 60);
         }
+
+        GDebugEngine::Instance()->gui_debug_x(max_grade_point, 3);
+        GDebugEngine::Instance()->gui_debug_msg(max_grade_point,"goDribblingPos", 3);
+
         GDebugEngine::Instance()->gui_debug_arc(Tick[now].ball.first_dribbling_pos, 1000, 0, 360, 8);
-//        GDebugEngine::Instance()->gui_debug_x(max_grade_point, 3);
-//        GDebugEngine::Instance()->gui_debug_msg(max_grade_point,"goDribblingPos", 3);
         return max_grade_point;
     }
 
+    CGeoPoint ShowPassPoint(const CVisionModule *pVision,CGeoPoint player_pos,CGeoPoint target_pos)
+    {
+
+
+    }
     /**
      * 获取球运动的最远距离
      * @brief GetBallMaxDist
@@ -493,7 +515,10 @@ namespace Utils
             if (enemyGetballNum_min != -1)
             {
                 if (pVision ->theirPlayer(enemyGetballNum_min).Pos().dist(ballPrePos) < 100)
-                    return ball_pos + Polar2Vector(dist - 100, pVision->ball().Vel().dir());;
+                {
+                    GDebugEngine::Instance()->gui_debug_x(ball_pos + Polar2Vector(dist - 200, pVision->ball().Vel().dir()),9);
+                    return ball_pos + Polar2Vector(dist - 200, pVision->ball().Vel().dir());
+                }
             }
             maxAllowedBallPos = ballPrePos;
 //                        GDebugEngine::Instance()->gui_debug_msg(ballPrePos, to_string(getBallTime),3,0,90);
@@ -642,7 +667,7 @@ namespace Utils
                 {
                     // 获取带球机器人的射门置信度
                     Tick[now].task[num].confidence_shoot = ConfidenceShoot(pVision, i);
-                    Tick[now].task[num].confidence_shoot = Tick[now].task[num].confidence_shoot - 0.3 * (1 - NumberNormalize(pVision->ourPlayer(num).Pos().x(), 1200, 0));
+                    Tick[now].task[num].confidence_shoot = Tick[now].task[num].confidence_shoot - 0.3 * (1 - NumberNormalize(pVision->ourPlayer(num).Pos().x(), PARAM::Field::PITCH_LENGTH / 2 * 0.266, 0));
                 }
                 // 非带球机器人状态  ->  [跑位，接球]
                 else
@@ -660,9 +685,12 @@ namespace Utils
 //                                        Tick[now].task[num].confidence_shoot = Tick[now].task[num].confidence_shoot - 0.3 * (1 - NumberNormalize(pVision->ourPlayer(num).Pos().x(), 1200, 0));
                     Tick[now].task[num].confidence_shoot = Tick[now].task[num].confidence_shoot;
                     Tick[now].task[num].confidence_pass = ConfidencePass(pVision, Tick[now].our.dribbling_num, i, Tick[now].task[num].confidence_shoot);
-                    // 如果友方位置太靠后，酌情扣分
-                    if (pVision->ourPlayer(num).Pos().x() < 1000)
-                        Tick[now].task[num].confidence_pass = Tick[now].task[num].confidence_pass - 0.4 * (1 - NumberNormalize(pVision->ourPlayer(num).Pos().x(), 1000, -2000));
+//                    // 如果友方位置太靠后，酌情扣分
+//                    if (pVision->ourPlayer(num).Pos().x()< 1000)
+//                        Tick[now].task[num].confidence_pass = Tick[now].task[num].confidence_pass - 0.4 * (1 - NumberNormalize(pVision->ourPlayer(num).Pos().x(), 1000, -2000));
+
+                    // 如果友方在球的后方，酌情扣分
+                    Tick[now].task[num].confidence_pass = Tick[now].task[num].confidence_pass - 0.4 * (1 - NumberNormalize(pVision->ourPlayer(num).Pos().x() - pVision->ball().Pos().x(), 0, -1000));
                     Tick[now].task[num].confidence_run = 1;
                     Tick[now].task[num].status = "Run";
                     // 保存最大的被传球自信度给带球机器人
