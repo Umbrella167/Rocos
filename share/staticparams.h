@@ -47,6 +47,7 @@ namespace PARAM {
         const double FREE_KICK_AVOID_BALL_DIST = 500;     // 开任意球的时候,对方必须离球这么远
     //  const double FIELD_WALL_DIST = 20;               // 场地护栏到边界的距离
         const double RATIO = 1.5;
+//        const double V_DECAY_RATE = 700;
 //        const double V_DECAY_RATE = 600;
         const double V_DECAY_RATE = 2000;
     }
@@ -54,7 +55,8 @@ namespace PARAM {
         const int playerFrontToCenter = 76; // 机器人圆心到嘴的距离
         const int playerRadiusr = 90; // 机器人半径
         const int playerBuffer = 100; // 检测敌人是否在某直线上的缓冲值
-        const double playerBallRightsBuffer = 85; // 球权判断缓冲值
+        const double playerBallRightsBuffer = 130; // 球权判断缓冲值
+        const double playerInfraredCountBuffer = 93; // 球权判断缓冲值
         const int playerTouchAngle = 60;
     }
     namespace Tick{

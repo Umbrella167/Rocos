@@ -201,13 +201,11 @@ return {
 firstState = "Init",
 ["Init"] = {
     switch = function()
-        if bufcnt(true,30) then 
-            if not subScript then
-                gSubPlay.new("ShootPoint", "Nor_Shoot",{pos = function() return shoot_pos end})
-                gSubPlay.new("Defender", "Nor_Defend")
-            end
-            return "GetGlobalMessage"
+        if not subScript then
+            gSubPlay.new("ShootPoint", "Nor_Shoot",{pos = function() return shoot_pos end})
+            gSubPlay.new("Defender", "Nor_Defend")
         end
+        return "GetGlobalMessage"
     end,
     Assister = task.stop(),
     Kicker = task.stop(),
@@ -309,7 +307,7 @@ firstState = "Init",
     Goalie = task.goalie("Goalie"),
     match = "(AKS){TDG}"
 },
-name = "NormalPlayV1",
+name = "their_BallPlacement",
 applicable ={
     exp = "a",
     a = true

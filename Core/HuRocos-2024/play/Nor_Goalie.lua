@@ -1,0 +1,58 @@
+function isShooting()
+    -- 判断是否踢向球门
+    local ballPos = ball.rawPos()
+    local ballVelDir = ball.velDir()
+    local ballLine = CGeoSegment(ballPos, ballPos+Utils.Polar2Vector(param.INF, ballVelDir))
+    local tPos = param.ourGoalLine:segmentsIntersectPoint(ballLine)
+    return -param.goalRadius-100<tPos:y() and tPos:y()<param.goalRadius+100
+end
+
+return {
+    __init__ = function(name, args)
+        print("in __init__ func : ",name, args)
+    end,
+    firstState = "goalie_norm",
+    ["goalie_norm"] = {
+        switch = function()
+            local rolePos = CGeoPoint:new_local(player.rawPos("Goalie"):x(), player.rawPos("Goalie"):y())
+            local getBallPos = task.stabilizePoint(Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1,param.V_DECAY_RATE))
+
+            if isShooting() and Utils.InExclusionZone(getBallPos, param.goalieBuf, "our") then
+                return "goalie_getBall"
+            end
+        end,
+        Goalie = function() return task.goalie_norm("Goalie") end,
+        -- Goalie = task.goalie("Goalie"),
+        match = "(G)"
+    },
+    ["goalie_getBall"] = {
+        switch = function()
+            local rolePos = CGeoPoint:new_local(player.rawPos("Goalie"):x(), player.rawPos("Goalie"):y())
+            local getBallPos = task.stabilizePoint(Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1,param.V_DECAY_RATE))
+
+            if not Utils.InExclusionZone(getBallPos, param.goalieBuf, "our") then
+                return "goalie_norm"
+            end
+        end,
+        -- Goalie = task.goalie("Goalie"),
+        Goalie = function() return task.goalie_getBall("Goalie") end,
+        match = "(G)"
+    },
+    ["defend_kick"] = {
+        switch = function()
+            -- if bufcnt(true, 20) then
+            --     return "defend_norm"
+            -- end
+        end,
+        Goalie = task.goalie("Goalie"),
+        match = "(G)"
+    },
+
+    name = "Nor_Goalie",
+    applicable = {
+        exp = "a",
+        a = true
+    },
+    attribute = "attack",
+    timeout = 99999
+}

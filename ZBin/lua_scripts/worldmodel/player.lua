@@ -54,18 +54,22 @@ function name(role)
 	return retNum
 end
 
-function canTouch(role, p, interPos, touchAngle)
+function canTouch(startPos, endPos, touchAngle)
 	local shoot_pos
-	if type(p) == 'function' then
-		shoot_pos = p()
+	if type(endPos) == 'function' then
+		shoot_pos = endPos()
 	else
-		shoot_pos = p
+		shoot_pos = endPos
+	end
+
+	local start
+	if type(startPos) == 'function' then
+		start = startPos()
+	else
+		start = startPos
 	end
 	local touchAngle = touchAngle or 30
-	local shoot_dir = 90 + (shoot_pos - pos(role)):dir() * 57.3
-	local pass_dir = 90 + (pos(role) - ball.pos()):dir() * 57.3
-	touch_dir = 180 - (pass_dir - shoot_dir);
-	touch_dir = pos(role):y() < ball.posY() and 360 - touch_dir or touch_dir
+	local touch_dir = math.abs(Utils.angleDiff((ball.pos() - start):dir(), (shoot_pos - start):dir()) * 57.3)
 	debugEngine:gui_debug_msg(CGeoPoint:new_local(-4000, -2500), touch_dir, 3)
 	if touch_dir > touchAngle then
 		return false
@@ -278,7 +282,16 @@ end
 function myinfraredCount(role)
 	local robotNum = num(role)
 	if robotNum ~= -1 then
-		return GlobalMessage.Tick.task[robotNum].infrared_count
+		local OfficalInfraredCount = world:InfraredOnCount(robotNum)
+		local MyInfraredCount = GlobalMessage.Tick.task[robotNum].infrared_count
+		if OfficalInfraredCount ~= 0 then
+			if OfficalInfraredCount > MyInfraredCount then
+				return OfficalInfraredCount
+			else
+				return MyInfraredCount
+			end
+		end
+		return MyInfraredCount
 	else
 		return 0
 	end

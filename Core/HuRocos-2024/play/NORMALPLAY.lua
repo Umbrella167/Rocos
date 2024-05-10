@@ -201,13 +201,11 @@ return {
 firstState = "Init",
 ["Init"] = {
     switch = function()
-        if bufcnt(true,30) then 
-            if not subScript then
-                gSubPlay.new("ShootPoint", "Nor_Shoot",{pos = function() return shoot_pos end})
-                gSubPlay.new("Defender", "Nor_Defend")
-            end
-            return "GetGlobalMessage"
+        if not subScript then
+            gSubPlay.new("ShootPoint", "Nor_Shoot",{pos = function() return shoot_pos end})
+            gSubPlay.new("Defender", "Nor_Defend")
         end
+        return "GetGlobalMessage"
     end,
     Assister = task.stop(),
     Kicker = task.stop(),
@@ -244,7 +242,7 @@ firstState = "Init",
 
         if (Utils.InExclusionZone(CGeoPoint( ball.posX(),ball.posY()),50)) then
             return "dribbling"
-        end
+        end 
         return State
     end,
     Assister = gSubPlay.roleTask("ShootPoint", "Assister"),
@@ -273,13 +271,13 @@ firstState = "Init",
     Tier = gSubPlay.roleTask("Defender", "Tier"),
     Defender = gSubPlay.roleTask("Defender", "Defender"),
     Goalie = task.goalie("Goalie"),
-    match = "(A)(KS){TDG}"
+    match = "[AKS]{TDG}"
 },
 
 -- 带球
 ["dribbling"] = {
     switch = function()
-        -- UpdataTickMessage(defend_num1,defend_num2)
+        UpdataTickMessage(our_goalie_num,defend_num1,defend_num2)
         if bufcnt(true,30) then 
             return "GetGlobalMessage"
         end
@@ -307,9 +305,9 @@ firstState = "Init",
     Tier = gSubPlay.roleTask("Defender", "Tier"),
     Defender = gSubPlay.roleTask("Defender", "Defender"),
     Goalie = task.goalie("Goalie"),
-    match = "(AKS){TDG}"
+    match = "[AKS]{TDG}"
 },
-name = "NormalPlayV1",
+name = "NORMALPLAY",
 applicable ={
     exp = "a",
     a = true

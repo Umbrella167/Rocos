@@ -180,7 +180,7 @@ firstState = "get",
   	end
 
   end,
-  Assister   = task.touchKick(runPos("Kicker",true),false,param.powerShoot,kick.flat),
+  Assister   = task.touchKick(runPos("Kicker",true),false,param.shootKp,kick.flat),
   Kicker  = task.goCmuRush(waitPos),
   Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
   Tier = task.stop(),

@@ -140,6 +140,7 @@ struct PlayerPoseT : public ObjectPoseT { // 目标信息
 
 struct balls{
     public:
+        bool valid = true;
         double vel = 1; // 球速度
         double acc = 1; // 球加速度
         CGeoPoint pos = CGeoPoint(0,0); // 球位置

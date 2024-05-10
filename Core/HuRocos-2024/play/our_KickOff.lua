@@ -6,13 +6,13 @@ local theirgoal = CGeoPoint:new_local(4500,0)
 local target = CGeoPoint:new_local(3000,2000)
 local target2 = CGeoPoint:new_local(-2500,1500)
 local target3 = CGeoPoint:new_local(0,0)
-local p1 = CGeoPoint:new_local(-100,130)
+local p1 = CGeoPoint:new_local(-120,-170)
 local p2 = CGeoPoint:new_local(-250,-2000)
 local p3 = CGeoPoint:new_local(-200,1500)
 local p4 = CGeoPoint:new_local(-2200,100)
 local p5 = CGeoPoint:new_local(-2200,-100)
-local p6 = CGeoPoint:new_local(-3000,0)
-
+local p6 = CGeoPoint:new_local(-3000,-800)
+local p7 = CGeoPoint:new_local(-3000,800)
 local Dir_ball = function(role)
 	return function()
 		return (ball.pos() - player.pos(role)):dir()
@@ -142,9 +142,9 @@ local UpdataTickMessage = function()
 	--GetAttackPos(const CVisionModule *pVision,int num ,CGeoPoint shootPos,CGeoPoint startPoint,CGeoPoint endPoint,double step,double ballDist)
 	shootPosKicker = Utils.GetShootPoint(vision,player.num("Kicker"))
 	shootPosAssister = Utils.GetShootPoint(vision,player.num("Assister"))
-	runPosAssister = Utils.GetAttackPos(vision,player.num("Assister"),shootPosAssister,CGeoPoint(2700,2000),CGeoPoint(4200,350),300)
-	runPosKicker = Utils.GetAttackPos(vision,player.num("Kicker"),shootPosKicker,CGeoPoint(2000,0),CGeoPoint(4000,-2500),300)
-	runPosSpecial = Utils.GetAttackPos(vision,player.num("Special"),runPosKicker,CGeoPoint(1200,2500),CGeoPoint(2500,800),300)
+	runPosAssister = Utils.GetAttackPos(vision,player.num("Assister"),shootPosAssister,CGeoPoint(3500,1350),CGeoPoint(4000,1000),300)
+	runPosKicker = Utils.GetAttackPos(vision,player.num("Kicker"),shootPosKicker,CGeoPoint(1200,-100),CGeoPoint(1800,-800),300)
+	runPosSpecial = Utils.GetAttackPos(vision,player.num("Special"),runPosKicker,CGeoPoint(500,2500),CGeoPoint(1000,1900),300)
 end
 
 local runPos_Assister = function(dist)
@@ -174,6 +174,7 @@ local KickerShootPos = function()
 		return shootPosKicker
 	end
 end
+local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
 gPlayTable.CreatePlay{
 firstState = "ready",
 ["ready"] = {
@@ -185,15 +186,14 @@ firstState = "ready",
 		 	return "OtherRunPos"
 		end
 	end,
-	Assister   = task.goCmuRush(CGeoPoint(-200,1000), Dir_ball("Assister"), a, f, r, v),
-	Special  = task.goCmuRush(p3, Dir_ball("Special"), a, f, r, v),
-	Kicker = task.goCmuRush(p2, Dir_ball("Kicker"), a, f, r, v),
-	Tier = task.goCmuRush(p1, Dir_ball("Tier"), a, f, r, v),
-	Defender = task.goCmuRush(p1, Dir_ball("Tier"), a, f, r, v),
-	Goalie = task.goalie(),
+	Assister   = task.goCmuRush(p1, Dir_ball("Assister")),
+	Special  = task.goCmuRush(p3, Dir_ball("Special")),
+	Kicker = task.goCmuRush(p2, Dir_ball("Kicker")),
+	Tier = task.goCmuRush(p7, Dir_ball("Tier")),
+	Defender = task.goCmuRush(p6, Dir_ball("Defender")),
+    Goalie = task.goalie("Goalie"),
     match = "[ASK]{TDG}"
 },
-
 
 ["OtherRunPos"] = {
 	switch = function ()
@@ -201,17 +201,17 @@ firstState = "ready",
 		if tick.ball.rights == -1 then 
 			return "exit"
 		end
-		if(player.kickBall("Tier")) then
+
+		if(player.kickBall("Assister")) then
 			return "SpecialTouch"
 		end
 	end,
-	Assister = task.goCmuRush(runPos_Assister(-400), Dir_ball("Assister"), a, f, r, v),
+	Assister = task.Shootdot("Assister",runPos_Special(-400), shootKp, 5, kick.flat),
 	Special = task.goCmuRush(runPos_Special(-400), Dir_ball("Special"), a, f, r, v),
 	Kicker = task.goCmuRush(runPos_Kicker(-400), Dir_ball("Kicker"), a, f, r, v),
---ball.pos() + Utils.Polar2Vector(-800,player.toPointDir(player.pos("Special"),"Tier"))	
-	Tier = task.Shootdot("Tier",playerPos("Special"), shootKp, 10, kick.flat),
+	-- Tier = task.Shootdot("Tier",playerPos("Special"), shootKp, 5, kick.flat),
 	-- Defender = task.defender_defence("Defender"),
-	Goalie = task.goalie(),
+    Goalie = task.goalie("Goalie"),
 	match = "{ASKTDG}"
 },
 ["SpecialTouch"] = {
@@ -224,12 +224,12 @@ firstState = "ready",
 			return "KickerTouch"
 		end
 	end,
-	Assister = task.goCmuRush(runPos_Assister(-400), Dir_ball("Assister"), a, f, r, v),
+	Assister = task.goCmuRush(runPos_Assister(-400), Dir_ball("Assister"), a, DSS_FLAG, r, v),
 	Special = task.touchKick(runPos_Kicker(0), false, param.shootKp, kick.flat),
 	Kicker = task.goCmuRush(runPos_Kicker(-400), Dir_ball("Kicker"), a, f, r, v),
 	-- Tier = task.defender_defence("Tier"),
 	-- Defender = task.defender_defence("Defender"),
-	Goalie = task.goalie(),
+    Goalie = task.goalie("Goalie"),
 	match = "{ASKTDG}"
 },
 
@@ -244,12 +244,12 @@ firstState = "ready",
 			return "exit"
 		end
 	end,
-	Assister = task.goCmuRush(runPos_Assister(-400), Dir_ball("Assister"), a, f, r, v),
+	Assister = task.goCmuRush(runPos_Assister(-400), Dir_ball("Assister"), a, DSS_FLAG, r, v),
 	Special = task.goCmuRush(runPos_Special(-400), Dir_ball("Special"), a, f, r, v),
-	Kicker = task.getball("Kicker", param.playerVel, param.getballMode, KickerShootPos()),
+	Kicker = task.getball(_, param.playerVel, param.getballMode, KickerShootPos()),
 	-- Tier = task.defender_defence("Tier"),
 	-- Defender = task.defender_defence("Defender"),
-	Goalie = task.goalie(),
+    Goalie = task.goalie("Goalie"),
 	match = "{ASKTDG}"
 },
 
@@ -262,17 +262,17 @@ firstState = "ready",
 			return "exit"
 		end
 	end,
-	Assister = task.goCmuRush(runPos_Assister(-400), Dir_ball("Assister"), a, f, r, v),
+	Assister = task.goCmuRush(runPos_Assister(-400), Dir_ball("Assister"), a, DSS_FLAG, r, v),
 	Special = task.goCmuRush(runPos_Special(-400), Dir_ball("Special"), a, f, r, v),
 	Kicker = task.getball("Kicker", param.playerVel, param.getballMode, KickerShootPos()),
 	-- Tier = task.defender_defence("Tier"),
 	-- Defender = task.defender_defence("Defender"),
-	Goalie = task.goalie(),
+    Goalie = task.goalie("Goalie"),
 	match = "{ASKTDG}"
 },
 
 
-name = "Ref_KickOffV1",
+name = "our_KickOff",
 applicable ={
 	exp = "a",
 	a = true
