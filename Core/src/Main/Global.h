@@ -9,13 +9,15 @@
 #include "WorldModel.h"
 #include "skillapi.h"
 #include "BallSpeedModel.h"
+#include "Tick.h"
 
-extern CVisionModule*  vision;
-extern CKickStatus*    kickStatus;
-extern CDribbleStatus* dribbleStatus;
-extern CGDebugEngine*  debugEngine;
-extern CWorldModel* world;
-extern CSkillAPI* skillapi;
+extern CVisionModule*   vision;
+extern CKickStatus*     kickStatus;
+extern CDribbleStatus*  dribbleStatus;
+extern CGDebugEngine*   debugEngine;
+extern CWorldModel*     world;
+extern CSkillAPI*       skillapi;
 extern CBallSpeedModel* ballModel;
+extern CTick*           tick;
 void initializeSingleton();
 #endif

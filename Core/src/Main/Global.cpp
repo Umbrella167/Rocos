@@ -7,6 +7,7 @@ CGDebugEngine*  debugEngine;
 CWorldModel* world;
 CSkillAPI* skillapi;
 CBallSpeedModel *ballModel;
+CTick *tick;
 void initializeSingleton()
 {
 	vision        = VisionModule::Instance();
@@ -16,4 +17,5 @@ void initializeSingleton()
     world         = WorldModel::Instance();
 	skillapi	  = SkillAPI::Instance();
 	ballModel = BallSpeedModel::Instance();
+	tick = Tick::Instance();
 }

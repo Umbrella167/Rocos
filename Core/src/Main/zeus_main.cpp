@@ -73,6 +73,7 @@ int runLoop() {
         decision->DoDecision();
         action->sendAction();
         GDebugEngine::Instance()->send(option->MyColor() == PARAM::BLUE); //Show two teams debug messages
+        tick->updateTick();
     }
 }
 int main(int argc, char* argv[]) {
