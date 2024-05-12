@@ -84,15 +84,15 @@ end
 local runCount = 0
 local UpdataTickMessage = function (our_goalie_num,defend_num1,defend_num2)
     -- 获取 Tick 信息
-    GlobalMessage.Tick = Utils.UpdataTickMessage(vision,our_goalie_num,defend_num1,defend_num2)
+     
     -- debugEngine:gui_debug_msg(CGeoPoint(0,-2000),our_goalie_num .. "  " .. defend_num1  ..  "  "  .. defend_num2)
-    -- debugEngine:gui_debug_msg(CGeoPoint:new_local(4500,-3000),GlobalMessage.Tick.our.player_num)
+    -- debugEngine:gui_debug_msg(CGeoPoint:new_local(4500,-3000),GlobalMessage.Tick().our.player_num)
     -- 获取全局状态，进攻状态为传统
     status.getGlobalStatus(1)  
     -- 带球机器人初始化
     dribbling_player_num = -1
     -- 获取球权
-    ball_rights = GlobalMessage.Tick.ball.rights
+    ball_rights = GlobalMessage.Tick().ball.rights
 
 
     runCount = runCount + 1
@@ -128,11 +128,11 @@ local UpdataTickMessage = function (our_goalie_num,defend_num1,defend_num2)
 
     -- 处理球权是我方的情况
     -- if ball_rights == 1 and dribbling_player_num ~= our_goalie_num and dribbling_player_num ~= defend_num1 and  dribbling_player_num ~= defend_num2 then
-    if GlobalMessage.Tick.our.dribbling_num ~= -1 and dribbling_player_num ~= our_goalie_num and dribbling_player_num ~= defend_num1 and  dribbling_player_num ~= defend_num2 then
-        dribbling_player_num = GlobalMessage.Tick.our.dribbling_num
+    if GlobalMessage.Tick().our.dribbling_num ~= -1 and dribbling_player_num ~= our_goalie_num and dribbling_player_num ~= defend_num1 and  dribbling_player_num ~= defend_num2 then
+        dribbling_player_num = GlobalMessage.Tick().our.dribbling_num
         runCount = param.INF
-        pass_player_num = GlobalMessage.Tick.task[dribbling_player_num].max_confidence_pass_num
-        -- pass_pos = GlobalMessage.Tick.task[dribbling_player_num].max_confidence_pass_num
+        pass_player_num = GlobalMessage.Tick().task[dribbling_player_num].max_confidence_pass_num
+        -- pass_pos = GlobalMessage.Tick().task[dribbling_player_num].max_confidence_pass_num
 
         --  解决传球时算点跳动太远的问题
         --  PassErrorRate 如果要传球的角色距离 目标点太远，那么选择 （X1 + X2) / PassErrorRate 
@@ -156,7 +156,7 @@ local UpdataTickMessage = function (our_goalie_num,defend_num1,defend_num2)
                 pass_pos = SpecialRUNPos
             end
         end
-        shoot_pos = GlobalMessage.Tick.task[dribbling_player_num].shoot_pos
+        shoot_pos = GlobalMessage.Tick().task[dribbling_player_num].shoot_pos
         shoot_pos = CGeoPoint:new_local(shoot_pos:x(),shoot_pos:y())
         dribbling_target_pos = shoot_pos
         dribblingStatus = status.getPlayerStatus(dribbling_player_num)  -- 获取带球机器人状态

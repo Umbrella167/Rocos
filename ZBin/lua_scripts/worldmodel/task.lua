@@ -8,7 +8,7 @@ module(..., package.seeall)
 local bufcnt_Infield = 0
 function getBall_BallPlacement(role)
 	return function()
-		local ballPos = GlobalMessage.Tick.ball.pos
+		local ballPos = GlobalMessage.Tick().ball.pos
 		debugEngine:gui_debug_x(ballPos,3)
 		debugEngine:gui_debug_msg(ballPos,"BallPos",3)
 		local placementflag = bit:_or(flag.dribbling, flag.our_ball_placement)
@@ -244,8 +244,14 @@ playerPower = {
 	[16] = {230,310,0}, -- Other
 }
 
-function power(p, Kp, num) --根据目标点与球之间的距离求出合适的 击球力度 kp系数需要调节   By Umbrella 2022 06
+function power(p, Kp1, num) --根据目标点与球之间的距离求出合适的 击球力度 kp系数需要调节   By Umbrella 2022 06
 	return function()
+		local Kp
+		if type(Kp1) == 'function' then
+			Kp = Kp1()
+		else
+			Kp = Kp1
+		end
 		local p1
 		if type(p) == 'function' then
 			p1 = p()
@@ -639,7 +645,7 @@ end
 --~ p为要走的点,d默认为射门朝向
 
 function touch()
-	local ipos = function()  return CGeoPoint( ball.posX(),ball.posY()) + Utils.Polar2Vector(500,(ball.pos() - GlobalMessage.Tick.ball.pos_move_befor):dir()) end
+	local ipos = function()  return CGeoPoint( ball.posX(),ball.posY()) + Utils.Polar2Vector(500,(ball.pos() - GlobalMessage.Tick().ball.pos_move_befor):dir()) end
 	local mexe, mpos = Touch { pos = ipos }
 	return { mexe, mpos }
 end
@@ -650,7 +656,7 @@ function touchKick(p, ifInter, Kp, mode)
 		if type(Kp) == "function" then
 			iKp = Kp()
 		else
-			iKp = KP
+			iKp = Kp
 		end
 		local ipos 
 		local idir = function(runner)
@@ -1153,7 +1159,7 @@ markingTableLen = 0
 
 
 function defender_marking(role,pos)
-	local enemyDribblingNum = GlobalMessage.Tick.their.dribbling_num
+	local enemyDribblingNum = GlobalMessage.Tick().their.dribbling_num
 	local p
 
 	markingTable = {}

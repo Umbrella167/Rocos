@@ -58,9 +58,9 @@ function getPlayerRunPos()
 		end
 	end
 
-	local dribbling_run_pos =  Utils.GetAttackPos(vision,GlobalMessage.Tick.our.dribbling_num)
+	local dribbling_run_pos =  Utils.GetAttackPos(vision,GlobalMessage.Tick().our.dribbling_num)
 	run_pos_table = {
-				num = GlobalMessage.Tick.our.dribbling_num,
+				num = GlobalMessage.Tick().our.dribbling_num,
 				pos = dribbling_run_pos
 			}
 	table.insert(GlobalMessage.attackPlayerRunPos, run_pos_table)

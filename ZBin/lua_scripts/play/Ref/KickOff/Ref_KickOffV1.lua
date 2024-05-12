@@ -197,8 +197,8 @@ firstState = "ready",
 
 ["OtherRunPos"] = {
 	switch = function ()
-		local tick = Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
-		if tick.ball.rights == -1 then 
+		  
+		if   GlobalMessage.Tick().ball.rights == -1 then 
 			return "exit"
 		end
 		if(player.kickBall("Tier")) then
@@ -209,15 +209,15 @@ firstState = "ready",
 	Special = task.goCmuRush(runPos_Special(-400), Dir_ball("Special"), a, f, r, v),
 	Kicker = task.goCmuRush(runPos_Kicker(-400), Dir_ball("Kicker"), a, f, r, v),
 --ball.pos() + Utils.Polar2Vector(-800,player.toPointDir(player.pos("Special"),"Tier"))	
-	Tier = task.Shootdot("Tier",playerPos("Special"), shootKp, 10, kick.flat),
+	Tier = task.Shootdot("Tier",playerPos("Special"), param.shootKp, 10, kick.flat),
 	-- Defender = task.defender_defence("Defender"),
 	Goalie = task.goalie(),
 	match = "{ASKTDG}"
 },
 ["SpecialTouch"] = {
 	switch = function ()
-		local tick = Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
-		if tick.ball.rights == -1 then 
+		  
+		if   GlobalMessage.Tick().ball.rights == -1 then 
 			return "exit"
 		end
 		if(player.kickBall("Special")) then
@@ -236,8 +236,8 @@ firstState = "ready",
 
 ["KickerTouch"] = {
 	switch = function ()
-		local tick = Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
-		if tick.ball.rights == -1 then 
+		  
+		if   GlobalMessage.Tick().ball.rights == -1 then 
 			return "exit"
 		end
 		if(player.toBallDist("Kicker") < 300) then
@@ -257,8 +257,8 @@ firstState = "ready",
 
 ["shoot"] = {
 	switch = function ()
-		local tick = Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
-		if tick.ball.rights == -1 then 
+		  
+		if   GlobalMessage.Tick().ball.rights == -1 then 
 			return "exit"
 		end
 	end,

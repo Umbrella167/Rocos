@@ -22,7 +22,7 @@ namespace PARAM {
         /* 长度单位均为厘米,时间单位均为秒,质量单位为克,角度单位为弧度 */
         /* Ball */
         const double BALL_SIZE	= 21.5; // 半径
-        const double BALL_DECAY = 0.2928; // 场地对球的衰减因子（越小线越短）
+
         /* Player */
         const double MAX_PLAYER_SIZE = 180;
 
@@ -47,17 +47,18 @@ namespace PARAM {
         const double FREE_KICK_AVOID_BALL_DIST = 500;     // 开任意球的时候,对方必须离球这么远
     //  const double FIELD_WALL_DIST = 20;               // 场地护栏到边界的距离
         const double RATIO = 1.5;
-        const double V_DECAY_RATE = 700;
-//        const double V_DECAY_RATE = 600;
-//        const double V_DECAY_RATE = 2000;
+        const double V_DECAY_RATE = 700; // == param.V_DECAY_RATE
+
     }
     namespace Player {
         const int playerFrontToCenter = 76; // 机器人圆心到嘴的距离
         const int playerRadiusr = 90; // 机器人半径
-        const int playerBuffer = 130; // 检测敌人是否在某直线上的缓冲值
-        const double playerBallRightsBuffer = 130; // 球权判断缓冲值
-        const double playerInfraredCountBuffer = 130; // 红外判断缓冲值
-        const int playerTouchAngle = 60;
+        const int playerBuffer = 130; // 检测敌人是否在某直线上的缓冲值                      == param.enemy_buffer
+        const double playerBallRightsBuffer = 120; // 球权判断缓冲值                      == param.playerBallRightsBuffer
+        const double playerInfraredCountBuffer = 120; // 红外判断缓冲值                   == param.playerInfraredCountBuffer
+        const int our_goalie_num = 0; //                                                == param.our_goalie_num
+        const int defend_num1 = 1; //                                                   == param.defend_num1
+        const int defend_num2 = 2; //                                                   == param.defend_num2
     }
     namespace Tick{
         const int TickLength = 5; //保存的帧数

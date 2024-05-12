@@ -70,7 +70,7 @@ firstState = "Init",
 	
 ["getball"] = {
 	switch = function()
-		-- GlobalMessage.Tick = Utils.UpdataTickMessage(vision,our_goalie_num,defend_num1,defend_num2)
+		--  
 		-- shoot_pos = shootPosFun()
 		-- debugEngine:gui_debug_msg(CGeoPoint(0,0),player.num("Assister"))
 		if(player.myinfraredCount("Assister") > 5) then
@@ -85,14 +85,14 @@ firstState = "Init",
 ["dribbling"] = {
     switch = function()
 		dribblingCount = dribblingCount + 1
-		GlobalMessage.Tick = Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
+		
 		if player.myinfraredOffCount("Assister") > 20 then
 			return "getball"
 		end
 		
 		local StartPos = CGeoPoint(player.posX("Assister"),player.posY("Assister"))
 		local endPos = CGeoPoint(player.posX("Assister"),player.posY("Assister"))
-		local dribbleLimitDist = GlobalMessage.Tick.ball.first_dribbling_pos:dist(player.pos("Assister"))
+		local dribbleLimitDist = GlobalMessage.Tick().ball.first_dribbling_pos:dist(player.pos("Assister"))
 		showPassPos = Utils.GetAttackPos(vision,player.num("Assister"),param.shootPos,CGeoPoint(param.pitchLength / 2 * 0.9, param.pitchWidth / 2 * 0.85),CGeoPoint( 0 , -1 * param.pitchWidth / 2 * 0.85),300,200)
 		if dribblingCount > 40 then
 			show_dribbling_pos = Utils.GetShowDribblingPos(vision,CGeoPoint(player.posX("Assister"),player.posY("Assister")),showPassPos);
@@ -115,7 +115,7 @@ firstState = "Init",
 },
 ["turnToPoint"] = {
 	switch = function()
-		GlobalMessage.Tick = Utils.UpdataTickMessage(vision,our_goalie_num,defend_num1,defend_num2)
+		 
 		-- if(not bufcnt(player.infraredOn("Assister"),1)) then
 		-- 	return "ready1"
 		-- end
@@ -145,7 +145,7 @@ firstState = "Init",
 
 ["shoot"] = {
 	switch = function()
-		GlobalMessage.Tick = Utils.UpdataTickMessage(vision,our_goalie_num,defend_num1,defend_num2)
+		 
 		if(bufcnt(player.myinfraredCount("Assister") < 1,1)) then
 			return "getball"
 		end

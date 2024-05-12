@@ -186,19 +186,19 @@ firstState = "ready",
 		 	return "OtherRunPos"
 		end
 	end,
-	Assister   = task.goCmuRush(p1, Dir_ball("Assister")),
-	Special  = task.goCmuRush(p3, Dir_ball("Special")),
-	Kicker = task.goCmuRush(p2, Dir_ball("Kicker")),
-	Tier = task.goCmuRush(p7, Dir_ball("Tier")),
-	Defender = task.goCmuRush(p6, Dir_ball("Defender")),
+	Assister   = task.goCmuRush(p1, Dir_ball("Assister"),_,DSS_FLAG),
+	Special  = task.goCmuRush(p3, Dir_ball("Special"),_,DSS_FLAG),
+	Kicker = task.goCmuRush(p2, Dir_ball("Kicker"),_,DSS_FLAG),
+	Tier = task.goCmuRush(p7, Dir_ball("Tier"),_,DSS_FLAG),
+	Defender = task.goCmuRush(p6, Dir_ball("Defender"),_,DSS_FLAG),
     Goalie = task.goalie("Goalie"),
     match = "[ASK]{TDG}"
 },
 
 ["OtherRunPos"] = {
 	switch = function ()
-		local tick = Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
-		if tick.ball.rights == -1 then 
+		  
+		if   GlobalMessage.Tick().ball.rights == -1 then 
 			return "exit"
 		end
 
@@ -206,7 +206,7 @@ firstState = "ready",
 			return "SpecialTouch"
 		end
 	end,
-	Assister = task.Shootdot("Assister",runPos_Special(-400), shootKp, 5, kick.flat),
+	Assister = task.Shootdot("Assister",runPos_Special(-400), param.shootKp, 5, kick.flat),
 	Special = task.goCmuRush(runPos_Special(-400), Dir_ball("Special"), a, f, r, v),
 	Kicker = task.goCmuRush(runPos_Kicker(-400), Dir_ball("Kicker"), a, f, r, v),
 	-- Tier = task.Shootdot("Tier",playerPos("Special"), shootKp, 5, kick.flat),
@@ -216,8 +216,7 @@ firstState = "ready",
 },
 ["SpecialTouch"] = {
 	switch = function ()
-		local tick = Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
-		if tick.ball.rights == -1 then 
+		if   GlobalMessage.Tick().ball.rights == -1 then 
 			return "exit"
 		end
 		if(player.kickBall("Special")) then
@@ -236,8 +235,8 @@ firstState = "ready",
 
 ["KickerTouch"] = {
 	switch = function ()
-		local tick = Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
-		if tick.ball.rights == -1 then 
+		  
+		if   GlobalMessage.Tick().ball.rights == -1 then 
 			return "exit"
 		end
 		if(player.toBallDist("Kicker") < 300) then
@@ -257,8 +256,8 @@ firstState = "ready",
 
 ["shoot"] = {
 	switch = function ()
-		local tick = Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
-		if tick.ball.rights == -1 then 
+		  
+		if   GlobalMessage.Tick().ball.rights == -1 then 
 			return "exit"
 		end
 	end,

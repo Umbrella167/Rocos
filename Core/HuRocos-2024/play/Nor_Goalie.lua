@@ -14,7 +14,7 @@ return {
     firstState = "goalie_norm",
     ["goalie_norm"] = {
         switch = function()
-            GlobalMessage.Tick = Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
+
             local rolePos = CGeoPoint:new_local(player.rawPos("Goalie"):x(), player.rawPos("Goalie"):y())
             local getBallPos = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1,param.V_DECAY_RATE)
             if isShooting() and Utils.InExclusionZone(getBallPos, param.goalieBuf, "our") then

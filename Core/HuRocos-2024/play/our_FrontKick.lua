@@ -24,7 +24,7 @@ firstState = "start",
 
 ["ready"] = {
   	switch = function()
-        GlobalMessage.Tick = Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
+
         if Utils.isValidPass(vision,CGeoPoint(ball.posX(),ball.posY()),CGeoPoint(player.posX("Kicker"),player.posY("Kicker")),param.enemy_buffer) then
 			return "passToKicker"
         elseif Utils.isValidPass(vision,CGeoPoint(ball.posX(),ball.posY()),CGeoPoint(player.posX("Special"),player.posY("Special")),param.enemy_buffer) then
@@ -44,8 +44,8 @@ firstState = "start",
 
 ["passToKicker"] = {
 	switch = function()
-        GlobalMessage.Tick = Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
-        if(GlobalMessage.Tick.ball.rights == -1 or player.toBallDist("Kicker") > 500) then
+
+        if(GlobalMessage.Tick().ball.rights == -1 or player.toBallDist("Kicker") > 500) then
             return "exit"
         end
   end,
@@ -59,8 +59,8 @@ firstState = "start",
 },
 ["passToSpecial"] = {
 	switch = function()
-        GlobalMessage.Tick = Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
-        if(GlobalMessage.Tick.ball.rights == -1 or player.toBallDist("Special") > 500) then
+
+        if(GlobalMessage.Tick().ball.rights == -1 or player.toBallDist("Special") > 500) then
             return "exit"
         end
   end,

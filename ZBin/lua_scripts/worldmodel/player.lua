@@ -283,7 +283,7 @@ function myinfraredCount(role)
 	local robotNum = num(role)
 	if robotNum ~= -1 then
 		local OfficalInfraredCount = world:InfraredOnCount(robotNum)
-		local MyInfraredCount = GlobalMessage.Tick.task[robotNum].infrared_count
+		local MyInfraredCount = GlobalMessage.Tick().task[robotNum].infrared_count
 		if OfficalInfraredCount ~= 0 then
 			if OfficalInfraredCount > MyInfraredCount then
 				return OfficalInfraredCount
@@ -299,7 +299,7 @@ end
 function myinfraredOffCount(role)
 	local robotNum = num(role)
 	if robotNum ~= -1 then
-		local MyInfraredOffCount = GlobalMessage.Tick.task[robotNum].infrared_off_count
+		local MyInfraredOffCount = GlobalMessage.Tick().task[robotNum].infrared_off_count
 		return MyInfraredOffCount
 	else
 		return 0

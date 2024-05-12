@@ -31,11 +31,11 @@ firstState = "ready1",
 
 ["ready1"] = {
 	switch = function()
-		GlobalMessage.Tick = Utils.UpdataTickMessage(vision,0,1,2)
+
 		local playerPos = CGeoPoint(player.posX("Assister"),player.posY("Assister"))
 		local ballRightBuffer = 120
 		
-		debugEngine:gui_debug_msg(CGeoPoint(0,2800),"BallRights: " .. GlobalMessage.Tick.ball.rights)
+		debugEngine:gui_debug_msg(CGeoPoint(0,2800),"BallRights: " .. GlobalMessage.Tick().ball.rights)
 		debugEngine:gui_debug_msg(CGeoPoint(0,2600),"InfraredCount: " .. player.myinfraredCount("Assister"),2)
 
 
@@ -61,7 +61,7 @@ firstState = "ready1",
 
 	end,
 
-	Assister = task.stop(), 
+	Assister = task.goCmuRush(), 
 	-- Assister = task.getball(function() return shoot_pos end,param.playerVel,param.getballMode),
 	match = "[A]"
 },

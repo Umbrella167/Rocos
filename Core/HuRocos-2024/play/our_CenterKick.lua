@@ -39,7 +39,7 @@ firstState = "start",
 
 ["ready"] = {
   switch = function()
-        GlobalMessage.Tick = Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
+
         pass_pos = CGeoPoint (param.SpecialWaitPlacementPos():x(),param.SpecialWaitPlacementPos():y())
         -- 如果有挑球，无脑传bugpass
         if Utils.isValidPass(vision,CGeoPoint(ball.posX(),ball.posY()),pass_pos,param.enemy_buffer) then
@@ -62,7 +62,7 @@ firstState = "start",
 
 ["BugPass"] = {
   switch = function()
-    GlobalMessage.Tick = Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
+
     pass_pos = CGeoPoint (param.KickerWaitPlacementPos():x(),param.KickerWaitPlacementPos():y())
 	
     if player.num("Special") ~= -1 and player.num("Special") ~= nil then 
@@ -73,8 +73,8 @@ firstState = "start",
     end
 
     debugEngine:gui_debug_x(shootPosKicker__,3)
-    debugEngine:gui_debug_msg(CGeoPoint(0,0),GlobalMessage.Tick.ball.rights)
-    if(GlobalMessage.Tick.ball.rights == -1) then
+    debugEngine:gui_debug_msg(CGeoPoint(0,0),GlobalMessage.Tick().ball.rights)
+    if(GlobalMessage.Tick().ball.rights == -1) then
         return "exit"
     end
 	debugEngine:gui_debug_msg(CGeoPoint(-1000,-1000),player.num("Special"),4)
@@ -104,8 +104,8 @@ firstState = "start",
 
 ["KickerTouch"] = {
   switch = function()
-        GlobalMessage.Tick = Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
-        if(GlobalMessage.Tick.ball.rights == -1) then
+
+        if(GlobalMessage.Tick().ball.rights == -1) then
             return "exit"
         end
       	debugEngine:gui_debug_msg(CGeoPoint(-1000,-1000),tostring(player.canTouch(ball.pos(), shootPosSpecial__, param.canTouchAngle)))
@@ -135,8 +135,8 @@ firstState = "start",
 
 ["KickerGetball"] = {
     switch = function()
-        GlobalMessage.Tick = Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
-        if(GlobalMessage.Tick.ball.rights == -1 or player.toBallDist("Kicker") < 500) then
+
+        if(GlobalMessage.Tick().ball.rights == -1 or player.toBallDist("Kicker") < 500) then
             return "exit"
         end
     end,
@@ -152,8 +152,8 @@ firstState = "start",
 
 ["SpecialTouch"] = {
 	switch = function()
-		  GlobalMessage.Tick = Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
-		  if(GlobalMessage.Tick.ball.rights == -1) then
+
+		  if(GlobalMessage.Tick().ball.rights == -1) then
 			  return "exit"
 		  end
 		  if (player.kickBall("Kicker")) then

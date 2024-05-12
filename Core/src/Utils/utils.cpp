@@ -20,7 +20,6 @@
 */
 
 const int inf = 1e9;
-
 GlobalTick Tick[PARAM::Tick::TickLength];
 int now = PARAM::Tick::TickLength - 1;
 int last = PARAM::Tick::TickLength - 2;
@@ -50,12 +49,12 @@ namespace Utils
      * @param  {int} defend_player_num2 : 后卫 2 编号
      * @return {GlobalTick}             : 返回 Tick
      */
+    GlobalTick GetTick(){
+        return Tick[now];
+    }
     GlobalTick UpdataTickMessage(const CVisionModule *pVision, int goalie_num, int defend_player_num1, int defend_player_num2)
     {
         CWorldModel RobotSensor;
-
-
-
         int oldest = 0;
         double our_min_dist = inf;
         double their_min_dist = inf;
@@ -191,6 +190,7 @@ namespace Utils
         {
             Tick[now].ball.first_dribbling_pos = Tick[now].ball.pos;
         }
+        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(-3000,-2000), "TickCount: "+ to_string (Tick[now].time.tick_count));
         GDebugEngine::Instance()->gui_debug_arc(Tick[now].ball.first_dribbling_pos, 1000, 0, 360, 8);
         return Tick[now];
     }
@@ -453,12 +453,12 @@ namespace Utils
      * @param dist
      * @return
      */
-    double GetBallToDistTime(const CVisionModule *pVision, double dist)
+    double GetBallToDistTime(const CVisionModule *pVision, double dist,double a)
     {
         // TODO: 当球运动到最后的时候停在最远点，此时球到达这个点的时间应该是无限大的（前提：没有人去拿球）
         //       所以当球滚到最后（且速度较慢）的时候，应该相应的增加其权重
 
-        double a = PARAM::Field::V_DECAY_RATE;
+
         double v = pVision->ball().Vel().mod();
         double t = sqrt((2 * a * dist + v * v) / a * a) - v / a;
         //        GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(1000, 2000), "t:"+to_string(t));
@@ -528,7 +528,7 @@ namespace Utils
             CGeoPoint ballPrePos = ball_pos + Polar2Vector(dist, pVision->ball().Vel().dir());
             double playerToBallDist = playerPos.dist(ballPrePos);
             double t = (playerToBallDist / playerVel) * 10 / 1000;
-            double getBallTime = GetBallToDistTime(pVision, dist) / 1000;
+            double getBallTime = GetBallToDistTime(pVision, dist,acc) / 1000;
             double tolerance = getBallTime - t;
             // 判断是否在禁区
             if (InExclusionZone(ballPrePos, 200) && permissions == 0)

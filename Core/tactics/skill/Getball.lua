@@ -13,31 +13,37 @@ function Getball(task)
 	local mforce_maunal_set_running_param = task.force_manual or false
 
 	matchPos = function(runner)
-			local qflag = inter_flag or 0
-			local playerPos = CGeoPoint:new_local(player.pos(runner):x(),player.pos(runner):y())
-			local inter_pos = Utils.GetBestInterPos(vision,playerPos,param.playerVel,minter_flag,0,param.V_DECAY_RATE,param.distRate)
-			debugEngine:gui_debug_msg(CGeoPoint(0,0),minter_flag)
-			local ballLine = CGeoSegment(ball.pos(),ball.pos() + Utils.Polar2Vector(-param.INF,ball.velDir()))
-			local playerPrj = ballLine:projection(player.pos(runner))
-			local canGetBall = ballLine:IsPointOnLineOnSegment(playerPrj)
-			local toballdist = player.toBallDist(runner) 
-
-			--  敌方球权的情况
-			if GlobalMessage.Tick.ball.rights == -1 or GlobalMessage.Tick.ball.rights == 2 then
-				local theirDribblingPlayerPos = enemy.pos(GlobalMessage.Tick.their.dribbling_num)
-				inter_pos = ball.pos() + Utils.Polar2Vector(80,(ball.pos() - theirDribblingPlayerPos):dir())
-			end
-			-- 接球的情况
-			if ((player.pos(runner) - mshootPos):mod() < 800) then
-				inter_pos = mshootPos
-			end
-			-- 踢了一脚
-			if(player.kickBall(runner) or( GlobalMessage.Tick.ball.rights == 0 and canGetBall and player.myinfraredOffCount(runner)  < 20))then
-				inter_pos = CGeoPoint(-99999,-99999)
-			end
-				debugEngine:gui_debug_x(inter_pos,9)
-				debugEngine:gui_debug_msg(inter_pos,runner .. "getBallPos",9)
-			return _c(inter_pos)
+		local qflag = inter_flag or 0
+		local playerPos = CGeoPoint:new_local(player.pos(runner):x(),player.pos(runner):y())
+		local inter_pos = Utils.GetBestInterPos(vision,playerPos,param.playerVel,minter_flag,0,param.V_DECAY_RATE,param.distRate)
+		debugEngine:gui_debug_msg(CGeoPoint(0,0),minter_flag)
+		local ballLine = CGeoSegment(ball.pos(),ball.pos() + Utils.Polar2Vector(-param.INF,ball.velDir()))
+		local playerPrj = ballLine:projection(player.pos(runner))
+		local canGetBall = ballLine:IsPointOnLineOnSegment(playerPrj)
+		local toballdist = player.toBallDist(runner) 
+		
+		-- --  敌方球权的情况
+		-- if GlobalMessage.Tick().ball.rights == -1 or GlobalMessage.Tick().ball.rights == 2 then
+		-- 	local theirDribblingPlayerPos = enemy.pos(GlobalMessage.Tick().their.dribbling_num)
+		-- 	inter_pos = ball.pos() + Utils.Polar2Vector(80,(ball.pos() - theirDribblingPlayerPos):dir())
+		-- end
+		-- -- 接球的情况
+		-- if ((player.pos(runner) - mshootPos):mod() < 800 and canGetBall ) then
+		-- 	inter_pos = mshootPos
+		-- end
+		-- -- 踢了一脚
+		-- if(player.kickBall(runner) or( GlobalMessage.Tick().ball.rights == 0 and not canGetBall and player.myinfraredOffCount(runner)  < 20) and ball.velMod() > 1500)then
+		-- 	inter_pos = CGeoPoint(-99999,-99999)
+		-- end
+		-- if(player.myinfraredOffCount(runner)  > 1) then
+		-- 	inter_pos = CGeoPoint(ball.posX(),ball.posY())
+		-- end
+		
+		
+		
+		debugEngine:gui_debug_x(inter_pos,9)
+		debugEngine:gui_debug_msg(inter_pos,runner .. "getBallPos",9)
+		return _c(inter_pos)
 	end
 
 	execute = function(runner)
@@ -97,8 +103,8 @@ function Getball(task)
 
 		-- 球迎面向我的情况   接球
 		if (isOnBallLine) and ball.velMod() > 200 then
-			-- if GlobalMessage.Tick.ball.pos_move_befor then
-			if GlobalMessage.Tick.ball.pos_move_befor:dist(player.pos(runner)) < 2000 then
+			-- if GlobalMessage.Tick().ball.pos_move_befor then
+			if GlobalMessage.Tick().ball.pos_move_befor:dist(player.pos(runner)) < 2000 then
 				endVel = Utils.Polar2Vector(0 ,idir)
 			end
 			idir = (ball.pos() - inter_pos):dir()
@@ -136,7 +142,7 @@ function Getball(task)
 		end
 
 		-- 解决敌人过近的问题
-		if GlobalMessage.Tick.ball.rights == -1 or GlobalMessage.Tick.ball.rights == 2 then
+		if GlobalMessage.Tick().ball.rights == -1 or GlobalMessage.Tick().ball.rights == 2 then
 			local minEnemyDistNum = {}
 			for i = 0 ,param.maxPlayer -1 do 
 				if enemy.valid(i) then
@@ -153,7 +159,7 @@ function Getball(task)
 				local dist_ = param.playerFrontToCenter + 20
 
 				
-				local theirDribblingPlayerPos = enemy.pos(GlobalMessage.Tick.their.dribbling_num)
+				local theirDribblingPlayerPos = enemy.pos(GlobalMessage.Tick().their.dribbling_num)
 				local middlePos = enemy.pos(minEnemyDistNum[1]):midPoint(enemy.pos(minEnemyDistNum[2]))
 
 				theirDribblingPlayerPos = middlePos
@@ -170,7 +176,7 @@ function Getball(task)
 			elseif (#minEnemyDistNum == 1) then
 				local dist_ = param.playerFrontToCenter + 80
 
-				local theirDribblingPlayerPos = enemy.pos(GlobalMessage.Tick.their.dribbling_num)
+				local theirDribblingPlayerPos = enemy.pos(GlobalMessage.Tick().their.dribbling_num)
 				if player.pos(runner):dist(ball.pos() + Utils.Polar2Vector(param.playerFrontToCenter + 80,(ball.pos() - theirDribblingPlayerPos):dir())) < 50 then
 					dist_ = param.playerFrontToCenter
 				end

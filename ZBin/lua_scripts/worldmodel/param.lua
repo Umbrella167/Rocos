@@ -30,7 +30,7 @@ ourButtomGoalPos = CGeoPoint:new_local(-pitchLength/2, -goalRadius)
 
 
 -- 是否为真实场地
-isReality = true
+isReality = false
 
 -----------------------------------------------|
 --                Getball参数                 --|
@@ -40,7 +40,13 @@ getballMode = 1                                       -- [0[激进模式], 1[保
 local V_DECAY_RATE_Reality = 630                          -- 场地摩擦
 lastInterPos = CGeoPoint:new_local(-INF,-INF)       -- 上一次算点结果
 rushToBallCount = 0
-distRate = 0
+distRate = 0.2  -- 
+
+-----------------------------------------------|
+--                球权和红外参数                --|
+-----------------------------------------------|
+playerBallRightsBuffer = 120  --球权判断缓冲值
+playerInfraredCountBuffer = 120-- 红外判断缓冲值
 -----------------------------------------------|
 --                Robot参数                  --|
 -----------------------------------------------|
@@ -68,7 +74,7 @@ local rotCompensate_Reality = -0.015 --旋转补偿
 -----------------------------------------------|
 --                Tick固定匹配参数             --|
 -----------------------------------------------|
-our_goalie_num = 10
+our_goalie_num = 0
 defend_num1 = 1
 defend_num2 = 2
 -----------------------------------------------|

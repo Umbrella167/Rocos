@@ -3,8 +3,7 @@ module(..., package.seeall)
 function pos()
     local ballPos = vision:ball():Pos()
     if not vision:ball():Valid() then
-        GlobalMessage.Tick = Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
-        ballPos = GlobalMessage.Tick.ball.pos
+        ballPos = GlobalMessage.Tick().ball.pos
     end
     return ballPos
 end

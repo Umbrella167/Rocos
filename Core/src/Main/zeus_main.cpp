@@ -67,9 +67,12 @@ int runLoop() {
     _best_visiondata_copy_mutex = new std::mutex();
     _value_getter_mutex = new std::mutex();
     RefereeBoxInterface::Instance();
+    /*
+
+    */
     while (true) {
         vision->setNewVision();
-//        Utils::UpdataTickMessage(vision,goalie_num,defend_player_num1,defend_player_num2);
+        Utils::UpdataTickMessage(vision,0,1,2);
         decision->DoDecision();
         action->sendAction();
         GDebugEngine::Instance()->send(option->MyColor() == PARAM::BLUE); //Show two teams debug messages

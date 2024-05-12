@@ -103,7 +103,7 @@ firstState = "start",
 
 ["getball"] = {
   switch = function()
-    GlobalMessage.Tick = Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
+
   end,
   Assister = task.goCmuRush(avoidPlacementPos("Assister"),function() return player.toBallDir("Assister") end,_,DSS_FLAG),
   Kicker   = task.goCmuRush(avoidPlacementPos("Kicker"),function() return player.toBallDir("Kicker") end,_,DSS_FLAG),

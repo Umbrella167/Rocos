@@ -24,7 +24,7 @@ firstState = "start",
 ["start"] = {
   switch = function()
     debugEngine:gui_debug_arc(ball.pos(),500,0,360,1)
-    GlobalMessage.Tick = Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
+
     return "ready"
   end,
   Assister = task.goCmuRush(function() return ball.pos() end),
@@ -38,7 +38,7 @@ firstState = "start",
 
 ["ready"] = {
   switch = function()
-        GlobalMessage.Tick = Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
+
         pass_pos = PassPos()
         debugEngine:gui_debug_x(pass_pos)
         debugEngine:gui_debug_msg(pass_pos,"PassPos")
@@ -61,11 +61,11 @@ firstState = "start",
 
 ["BugPass"] = {
   switch = function()
-    GlobalMessage.Tick = Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
+
     shootPosKicker__ = Utils.PosGetShootPoint(vision, pass_pos:x(),pass_pos:y())
     debugEngine:gui_debug_x(shootPosKicker__,3)
-    debugEngine:gui_debug_msg(CGeoPoint(0,0),GlobalMessage.Tick.ball.rights)
-    if(GlobalMessage.Tick.ball.rights == -1) then
+    debugEngine:gui_debug_msg(CGeoPoint(0,0),GlobalMessage.Tick().ball.rights)
+    if(GlobalMessage.Tick().ball.rights == -1) then
         return "exit"
     end
     if(player.kickBall("Assister") )then
@@ -90,8 +90,8 @@ firstState = "start",
 
 ["KickerTouch"] = {
   switch = function()
-        GlobalMessage.Tick = Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
-        if(GlobalMessage.Tick.ball.rights == -1) then
+
+        if(GlobalMessage.Tick().ball.rights == -1) then
             return "exit"
         end
         if (player.kickBall("Kicker")) then
@@ -111,8 +111,8 @@ firstState = "start",
 
 ["KickerGetball"] = {
     switch = function()
-        GlobalMessage.Tick = Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
-        if(GlobalMessage.Tick.ball.rights == -1 or player.toBallDist("Kicker") < 500) then
+
+        if(GlobalMessage.Tick().ball.rights == -1 or player.toBallDist("Kicker") < 500) then
             return "exit"
         end
     end,

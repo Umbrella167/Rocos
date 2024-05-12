@@ -14,7 +14,6 @@ local runPos = function()
 	end
 end
 
-
 local shoot_kp = param.shootKp
 local resShootPos = CGeoPoint(param.pitchLength / 2,0)
 
@@ -24,12 +23,12 @@ local debugMesg = function ()
 	else
 		debugEngine:gui_debug_line(player.pos("Assister"),player.pos("Assister") + Utils.Polar2Vector(9999,player.dir("Assister")),4)
 	end
-		debugEngine:gui_debug_msg(CGeoPoint(0,-2800),"ballRights: " .. GlobalMessage.Tick.ball.rights)
+		debugEngine:gui_debug_msg(CGeoPoint(0,-2800),"ballRights: " .. GlobalMessage.Tick().ball.rights)
 		if player.myinfraredCount("Assister") > 0 then
 			debugEngine:gui_debug_msg(CGeoPoint(0,-2600),"myInfraredCount: " .. player.myinfraredCount("Assister").. "    InfraredCount: " .. player.infraredCount("Assister") .. "    InfraredOffCount:" .. player.myinfraredOffCount("Assister") ,2)
 		end
 		debugEngine:gui_debug_msg(CGeoPoint(0,-2400),"RawBallPos: " .. ball.rawPos():x() .. "    " .. ball.rawPos():y() ,3)
-		debugEngine:gui_debug_msg(CGeoPoint(0,-2200),"BallPos: " .. GlobalMessage.Tick.ball.pos:x() .. "    " .. GlobalMessage.Tick.ball.pos:y() ,4)
+		debugEngine:gui_debug_msg(CGeoPoint(0,-2200),"BallPos: " .. GlobalMessage.Tick().ball.pos:x() .. "    " .. GlobalMessage.Tick().ball.pos:y() ,4)
 		debugEngine:gui_debug_msg(CGeoPoint(0,-2000),"BallVel: " .. ball.velMod() ,4)
 		debugEngine:gui_debug_msg(CGeoPoint(0,-1600),"BallValid: " .. tostring(ball.valid()) ,4)
 		debugEngine:gui_debug_msg(CGeoPoint(0,-1400),"shoot_kp: " .. shoot_kp ,4)
@@ -66,13 +65,11 @@ firstState = "Init",
 
 ["getball"] = {
 	switch = function()
-		GlobalMessage.Tick = Utils.UpdataTickMessage(vision,our_goalie_num,defend_num1,defend_num2)
 		debugMesg()
 		if(player.myinfraredCount("Assister") > 15) then
 			return "turnToPoint"
 		end
 		local Vy = player.rotVel("Assister")
-
 		local ToTargetDist = player.toPointDist("Assister",param.shootPos)
 		resShootPos = task.compensateAngle("Assister",Vy,param.shootPos,ToTargetDist * param.rotCompensate)
 		debugEngine:gui_debug_msg(CGeoPoint(0,-3000),shoot_kp)
@@ -87,7 +84,7 @@ firstState = "Init",
 
 ["turnToPoint"] = {
 	switch = function()
-		GlobalMessage.Tick = Utils.UpdataTickMessage(vision,our_goalie_num,defend_num1,defend_num2)
+		--  
 		-- if(not bufcnt(player.infraredOn("Assister"),1)) then
 		-- 	return "ready1"
 		-- end
@@ -117,7 +114,7 @@ firstState = "Init",
 
 ["shoot"] = {
 	switch = function()
-		GlobalMessage.Tick = Utils.UpdataTickMessage(vision,our_goalie_num,defend_num1,defend_num2)
+		--  
 		debugMesg()	
 		if(bufcnt(player.myinfraredCount("Assister") < 1,1)) then
 			return "getball"
@@ -133,7 +130,7 @@ firstState = "Init",
 	
 ["touch"] = {
 	switch = function()
-		GlobalMessage.Tick = Utils.UpdataTickMessage(vision,our_goalie_num,defend_num1,defend_num2)
+		--  
 	end,
 	Assister = task.touch(),--task.touchKick(function() return resShootPos end, true, function() return shoot_kp end, kick.flat),
 	match = "[A]"

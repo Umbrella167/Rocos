@@ -8,7 +8,7 @@ namespace Utils{
 	CGeoPoint GetAttackPos(const CVisionModule *pVision,int num ,CGeoPoint shootPos,CGeoPoint startPoint,CGeoPoint endPoint,double step,double ballDist = 1000);
 
 	CGeoPoint GetShowDribblingPos(const CVisionModule *pVision,CGeoPoint player_pos,CGeoPoint target_pos);
-
+	GlobalTick GetTick();
 	CGeoPoint GetTouchPos(const CVisionModule *pVision, CGeoPoint player_pos, double touchAngle,bool double_flag = false);
 	double ConfidenceGetBall(const CVisionModule *pVision,int ourGetBallPlayerNum);
 	CGeoPoint GetBestInterPos(const CVisionModule *pVision, CGeoPoint playerPos, double playerVel, int flag = 0, int permissions = 0, double acc = PARAM::Field::V_DECAY_RATE,double rate = 0);

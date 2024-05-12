@@ -35,8 +35,11 @@ struct GlobalTick;
 //int defend_player_num2 = 2;
 namespace Utils
 {
+
     /* =============== HuRocos 2024 =============== */
+
     extern std::string GlobalComputingPos(const CVisionModule *pVision);                           // 计算所有点位
+    extern GlobalTick GetTick();
     extern double map(double value, double min_in, double max_in, double min_out, double max_out); // 映射
     extern bool InField(CGeoPoint Point);                                                          // 判断点是否在场地内
     extern bool InExclusionZone(CGeoPoint Point, double buffer = 0, std::string dir = "all");      // 判断点是否在禁区内

@@ -94,4 +94,5 @@ attackMainPlayerStatus = {
 	-- },
 }
 -- 帧信息
-Tick = Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
+-- Tick1 = function() return Utils.GetTick() end
+Tick = function() return Utils.GetTick() end
