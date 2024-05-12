@@ -98,6 +98,9 @@ goalieMoveLine = CGeoSegment(CGeoPoint:new_local(-pitchLength/2+goalieBuf, -INF)
 goalieMoveX = -pitchLength/2+goalieBuf
 -- goalie 移动的半径（mode-1）
 goalieRadius = goalRadius-goalieBuf
+-- goalie 吸到球后往稳定点缓慢移动一段距离
+goalieStablePoint = CGeoPoint(-pitchLength/2+penaltyDepth/2, 0)
+
 -- 对齐的准确度
 alignRate = 0.8
 

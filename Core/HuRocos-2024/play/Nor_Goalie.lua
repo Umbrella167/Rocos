@@ -21,8 +21,8 @@ return {
                 return "goalie_getBall"
             end
         end,
-        Goalie = function() return task.goalie_norm("Goalie") end,
         -- Goalie = task.goalie("Goalie"),
+        Goalie = function() return task.goalie_norm("Goalie") end,
         match = "(G)"
     },
     ["goalie_getBall"] = {
@@ -33,18 +33,30 @@ return {
             if not Utils.InExclusionZone(getBallPos, param.goalieBuf, "our") then
                 return "goalie_norm"
             end
+
+            if player.myinfraredCount("Goalie") > 40 then
+                return "goalie_kick"
+            end
+
         end,
         -- Goalie = task.goalie("Goalie"),
         Goalie = function() return task.goalie_getBall("Goalie") end,
         match = "(G)"
     },
-    ["defend_kick"] = {
+    ["goalie_kick"] = {
         switch = function()
-            -- if bufcnt(true, 20) then
-            --     return "defend_norm"
-            -- end
+            local rolePos = CGeoPoint:new_local(player.rawPos("Goalie"):x(), player.rawPos("Goalie"):y())
+            local getBallPos = task.stabilizePoint(Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1,param.V_DECAY_RATE))
+
+            if not Utils.InExclusionZone(getBallPos, param.goalieBuf, "our") then
+                return "goalie_norm"
+            end
+
+            if player.kickBall("Goalie") then
+                return "goalie_norm"
+            end
         end,
-        Goalie = task.goalie("Goalie"),
+        Goalie = function() return task.goalie_kick("Goalie") end,
         match = "(G)"
     },
 
