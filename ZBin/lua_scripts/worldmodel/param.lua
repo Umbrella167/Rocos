@@ -68,7 +68,7 @@ local rotCompensate_Reality = -0.015 --旋转补偿
 -----------------------------------------------|
 --                Tick固定匹配参数             --|
 -----------------------------------------------|
-our_goalie_num = 0
+our_goalie_num = 10
 defend_num1 = 1
 defend_num2 = 2
 -----------------------------------------------|
@@ -88,7 +88,7 @@ defenderAimX = -pitchLength/4
 -----------------------------------------------|
 --             goalie参数             --|
 -----------------------------------------------|
-goalieShootMode = function() return 1 end 	-- 1 flat  2 chip
+goalieShootMode = function() return 2 end 	-- 1 flat  2 chip
 goalieBuf = playerRadius
 -- goalie 需要考虑敌人朝向的距离，一般为半场的一半
 goalieAimDirRadius = pitchLength/4
@@ -104,7 +104,7 @@ goalieStablePoint = CGeoPoint(-pitchLength/2+penaltyDepth/2, 0)
 -- goalie 带球的最大帧数
 goalieDribblingFrame = 200
 -- goalie 带球的加速度
-goalieDribblingA = 400
+goalieDribblingA = 1200
 
 
 -- goalie 要踢向的点

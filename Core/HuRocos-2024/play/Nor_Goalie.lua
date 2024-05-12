@@ -14,16 +14,16 @@ return {
     firstState = "goalie_norm",
     ["goalie_norm"] = {
         switch = function()
+            GlobalMessage.Tick = Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
             local rolePos = CGeoPoint:new_local(player.rawPos("Goalie"):x(), player.rawPos("Goalie"):y())
-            local getBallPos = task.stabilizePoint(Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1,param.V_DECAY_RATE))
-
+            local getBallPos = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1,param.V_DECAY_RATE)
             if isShooting() and Utils.InExclusionZone(getBallPos, param.goalieBuf, "our") then
                 return "goalie_getBall"
             end
         end,
         -- Goalie = task.goalie("Goalie"),
         Goalie = function() return task.goalie_norm("Goalie") end,
-        match = "(G)"
+        match = "{G}"
     },
     ["goalie_getBall"] = {
         switch = function()
@@ -42,7 +42,7 @@ return {
         end,
         -- Goalie = task.goalie("Goalie"),
         Goalie = function() return task.goalie_getBall("Goalie") end,
-        match = "(G)"
+        match = "{G}"
     },
     ["goalie_kick"] = {
         switch = function()
@@ -58,7 +58,7 @@ return {
             end
         end,
         Goalie = function() return task.goalie_kick("Goalie") end,
-        match = "(G)"
+        match = "{G}"
     },
 
     name = "Nor_Goalie",

@@ -104,7 +104,7 @@ firstState = "Init",
 		debugEngine:gui_debug_msg(CGeoPoint(0,-1200),"PlayerToShootPosAngle: "..SubDir,6)
 		local inMyMouse = player.myinfraredCount("Assister") > 30 and true or false
 		if  (inMyMouse and dribbleLimitDist > 800) or (Utils.isValidPass(vision,StartPos,showPassPos,param.enemy_buffer) and SubDir < canShootAngle) then
-			-- return "shoot"
+			return "shoot"
 		end
 		
     end,

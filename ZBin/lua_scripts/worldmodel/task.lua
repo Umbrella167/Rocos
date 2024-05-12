@@ -972,7 +972,7 @@ end
 
 function goalie_getBall(role)
 	local rolePos = CGeoPoint:new_local(player.rawPos(role):x(), player.rawPos(role):y())
-	local getBallPos = stabilizePoint(Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1,param.V_DECAY_RATE))
+	local getBallPos = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1,param.V_DECAY_RATE)
 	local ballPos = ball.pos()
 	local ballToRoleDir = (rolePos - ballPos):dir()
 	local idir = function(runner)
@@ -985,13 +985,13 @@ function goalie_getBall(role)
 	local a = 4000
 	if ball.velMod() < 800 and player.myinfraredCount(role) < 10 then
 		-- goaliePoint = CGeoPoint:new_local(getBallPos:x(), getBallPos:y()) + Utils.Polar2Vector(param.playerRadius-30, ballToRoleDir)
-		goaliePoint = ballPos + Utils.Polar2Vector(param.playerRadius, ballToRoleDir)
+		goaliePoint = ballPos + Utils.Polar2Vector(param.playerFrontToCenter, ballToRoleDir)
 	elseif 10 <= player.myinfraredCount(role) and player.myinfraredCount(role) <= param.goalieDribblingFrame then
 		-- local playerToStablePointDir = (param.goalieStablePoint-rolePos):dir()
 		-- goaliePoint = ballPos + Utils.Polar2Vector(param.playerRadius, ballToRoleDir) + Utils.Polar2Vector(50, playerToStablePointDir)
 		a = param.goalieDribblingA
 		goaliePoint = param.goalieStablePoint
-
+		idir = (param.goalieTargetPos - rolePos):dir()
 	elseif player.myinfraredCount(role) > param.goalieDribblingFrame then
 		-- 一般这个状态就跳到kick去了
 		-- goaliePoint = ballPos + Utils.Polar2Vector(param.playerRadius, ballToRoleDir)
@@ -1029,7 +1029,7 @@ function goalie_kick(role)
 
 	local mexe, mpos = GoCmuRush { pos = goaliePoint, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
 	-- return { mexe, mpos, kick.chip, idir, pre.low, power(param.goalieTargetPos, kp), power(param.goalieTargetPos, kp), 0x00000000 }
-	return { mexe, mpos, param.goalieShootMode, idir, pre.low, power(param.goalieTargetPos, kp), power(param.goalieTargetPos, kp), 0x00000000 }
+	return { mexe, mpos, param.goalieShootMode, idir, pre.low, power(param.goalieTargetPos, kp,player.num(role)), power(param.goalieTargetPos, kp,player.num(role)), 0x00000000 }
 end
 
 
