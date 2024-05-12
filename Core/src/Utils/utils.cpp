@@ -148,12 +148,13 @@ namespace Utils
         }
         else
         {
+
             Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_count =RobotSensor.InfraredOnCount(Tick[now].our.to_balldist_min_num);
             Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_off_count = RobotSensor.InfraredOffCount(Tick[now].our.to_balldist_min_num);
         }
         /// 球权判断
         // 球权一定是我方的情况
-        if (RobotSensor.InfraredOnCount(Tick[now].our.to_balldist_min_num) > 5 || Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_count > 5)
+        if (RobotSensor.InfraredOnCount(Tick[now].our.to_balldist_min_num) > 1 || Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_count > 1)
         {
             Tick[now].ball.rights = 1;
             Tick[now].our.dribbling_num = Tick[now].our.to_balldist_min_num;
@@ -175,7 +176,7 @@ namespace Utils
         {
             Tick[now].ball.rights = 2;
         }
-//        if (ConfidenceGetBall(pVision,Tick[now].our.to_balldist_min_num) > 0.5)Tick[now].ball.rights = 1;
+
         // 球静止状态
         if (Tick[now].ball.vel < 0.01 || (abs(Tick[last].ball.vel_dir - Tick[now].ball.vel_dir) > 0.006 && abs(Tick[last].ball.vel_dir - Tick[now].ball.vel_dir) < 6))
         {

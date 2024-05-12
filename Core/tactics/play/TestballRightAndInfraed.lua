@@ -31,15 +31,19 @@ firstState = "ready1",
 
 ["ready1"] = {
 	switch = function()
-
+		GlobalMessage.Tick = Utils.UpdataTickMessage(vision,0,1,2)
 		local playerPos = CGeoPoint(player.posX("Assister"),player.posY("Assister"))
 		local ballRightBuffer = 120
-		GlobalMessage.Tick = Utils.UpdataTickMessage(vision,0,1,2)
+		
 		debugEngine:gui_debug_msg(CGeoPoint(0,2800),"BallRights: " .. GlobalMessage.Tick.ball.rights)
 		debugEngine:gui_debug_msg(CGeoPoint(0,2600),"InfraredCount: " .. player.myinfraredCount("Assister"),2)
+
+
 		debugEngine:gui_debug_msg(CGeoPoint(0,2400),"BallPos: " .. ball.pos():x() .. "    " .. ball.pos():y() ,3)
 		debugEngine:gui_debug_msg(CGeoPoint(0,2200),"ToBallDist: " .. player.toBallDist("Assister") ,4)
+		
 		debugEngine:gui_debug_msg(CGeoPoint(0,2000),"BallValid: " .. tostring(ball.valid()),5)
+
 		debugEngine:gui_debug_arc(ball.pos(),47,0,360,4)
 		debugEngine:gui_debug_x(ball.pos(),4,0,15)
 		debugEngine:gui_debug_arc(player.pos("Assister"),ballRightBuffer,0,360,4)

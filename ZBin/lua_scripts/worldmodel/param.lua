@@ -24,7 +24,7 @@ ourTopRightPenaltyPos = CGeoPoint:new_local(-pitchLength/2+penaltyDepth, penalty
 ourTopPenaltyPos = CGeoPoint:new_local(-pitchLength/2, penaltyRadius)
 ourButtomPenaltyPos = CGeoPoint:new_local(-pitchLength/2, -penaltyRadius)
 -- 是否为真实场地
-isReality = false
+isReality = true
 
 -----------------------------------------------|
 --                Getball参数                 --|
