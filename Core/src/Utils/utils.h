@@ -29,6 +29,10 @@
 class CVisionModule;
 struct PlayerPoseT;
 struct GlobalTick;
+
+//int goalie_num = 0;
+//int defend_player_num1 = 1;
+//int defend_player_num2 = 2;
 namespace Utils
 {
     /* =============== HuRocos 2024 =============== */
@@ -73,7 +77,8 @@ namespace Utils
     extern double PosToPosDistGrade(double x, double y, double x1, double y1, int dir = 1, std::string model = "GAUSS");                  // 坐标到坐标的距离评分
     extern double NumberNormalizeGauss(double data, double max_data, double min_data, double peak_pos, std::string model = "DOUBLELINE"); // [0,1] 高斯归一化
     extern double PosSafetyGrade(const CVisionModule *pVision, CGeoPoint start, CGeoPoint end, std::string model = "SHOOT");              // 路径安全性评分
-    extern CGeoPoint GetBestInterPos(const CVisionModule *pVision, CGeoPoint playerPos, double playerVel, int flag, int permissions, double acc = PARAM::Field::V_DECAY_RATE);
+    extern CGeoPoint GetBestInterPos(const CVisionModule *pVision, CGeoPoint playerPos, double playerVel, int flag, int permissions, double acc = PARAM::Field::V_DECAY_RATE,double rate = 0);
+    extern double ConfidenceGetBall(const CVisionModule *pVision,int ourGetBallPlayerNum);
     /* =============== Defence =============== */
     /* 球场信息 */
     /* 己方半场信息 */

@@ -1,3 +1,6 @@
+package.path = package.path .. ";./lua_scripts/worldmodel/?.lua"
+require("param")
+
 
 IS_YELLOW = CGetSettings("ZAlert/IsYellow","Bool")
 local team = IS_YELLOW and "Yellow" or "Blue"
@@ -17,10 +20,11 @@ gStateFileNameString = string.format(os.date("%Y%m%d%H%M"))
 
 gTestPlay = CGetSettings("ZAlert/" .. team .. "_TestScriptName", "String")
 
+
 gRoleFixNum = {
-        ["Goalie"]   = { 0 },
-        ["Defender"] = { 1 },
-        ["Tier"]     = { 2 },
+        ["Goalie"]   = { param.our_goalie_num },
+        ["Defender"] = { param.defend_num1 },
+        ["Tier"]     = { param.defend_num2 },
 }
 
 -- 用来进行定位球的保持

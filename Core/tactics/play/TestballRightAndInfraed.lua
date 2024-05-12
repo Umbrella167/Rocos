@@ -7,7 +7,7 @@ local balldir = function ()
 		return player.toBallDir("Assister")
 	end
 end
-local shoot_pos = CGeoPoint:new_local(4500,0)
+local shoot_pos = CGeoPoint:new_local(param.pitchLength / 2,0)
 local error_dir = 8
 local KP = 0.00000002
 local defendPos = function(role)
@@ -17,7 +17,7 @@ local defendPos = function(role)
 	end
 end
 local run_pos = CGeoPoint:new_local(0,0)
-local resPos = CGeoPoint(4500,0)
+local resPos = CGeoPoint(param.pitchLength / 2,0)
 
 local runPos = function()
 	return function()
@@ -32,15 +32,33 @@ firstState = "ready1",
 ["ready1"] = {
 	switch = function()
 
+		local playerPos = CGeoPoint(player.posX("Assister"),player.posY("Assister"))
+		local ballRightBuffer = 120
 		GlobalMessage.Tick = Utils.UpdataTickMessage(vision,0,1,2)
-		debugEngine:gui_debug_msg(CGeoPoint(0,2800),"ballRights: " .. GlobalMessage.Tick.ball.rights)
+		debugEngine:gui_debug_msg(CGeoPoint(0,2800),"BallRights: " .. GlobalMessage.Tick.ball.rights)
 		debugEngine:gui_debug_msg(CGeoPoint(0,2600),"InfraredCount: " .. player.myinfraredCount("Assister"),2)
-		debugEngine:gui_debug_msg(CGeoPoint(0,2400),"RawBallPos: " .. ball.rawPos():x() .. "    " .. ball.rawPos():y() ,3)
-		debugEngine:gui_debug_msg(CGeoPoint(0,2200),"BallPos: " .. ball.pos():x() .. "    " .. ball.pos():y() ,4)
+		debugEngine:gui_debug_msg(CGeoPoint(0,2400),"BallPos: " .. ball.pos():x() .. "    " .. ball.pos():y() ,3)
+		debugEngine:gui_debug_msg(CGeoPoint(0,2200),"ToBallDist: " .. player.toBallDist("Assister") ,4)
 		debugEngine:gui_debug_msg(CGeoPoint(0,2000),"BallValid: " .. tostring(ball.valid()),5)
+		debugEngine:gui_debug_arc(ball.pos(),47,0,360,4)
+		debugEngine:gui_debug_x(ball.pos(),4,0,15)
+		debugEngine:gui_debug_arc(player.pos("Assister"),ballRightBuffer,0,360,4)
+
+		local confidence_getball = Utils.ConfidenceGetBall(vision,player.num("Assister"));
+		debugEngine:gui_debug_msg(CGeoPoint(0,1800),"ConfidenceGetBall: " .. tostring(confidence_getball),6)
+
+
+		local getballPos = Utils.GetBestInterPos(vision,playerPos,param.playerVel,param.getballMode,0,param.V_DECAY_RATE)
+		debugEngine:gui_debug_x(getballPos,4)
+		debugEngine:gui_debug_msg(getballPos,"GetballPos ",4)
+		local playerPos = CGeoPoint:new_local(player.pos("Assister"):x(),player.pos("Assister"):y()) 
+		local mouthPos = playerPos + Utils.Polar2Vector(param.playerFrontToCenter,player.dir("Assister"))
+		debugEngine:gui_debug_x(mouthPos,4)
+
 	end,
 
 	Assister = task.stop(), 
+	-- Assister = task.getball(function() return shoot_pos end,param.playerVel,param.getballMode),
 	match = "[A]"
 },
 

@@ -3,13 +3,14 @@ package.path = package.path .. ";./lua_scripts/play/?.lua"
 package.path = package.path .. ";./lua_scripts/worldmodel/?.lua"
 package.path = package.path .. ";./lua_scripts/utils/?.lua"
 package.path = package.path .. ";./lua_scripts/opponent/?.lua"
-
 ranStr=tostring(os.time()):reverse():sub(1, 3)
 math.randomseed(ranStr)
 math.random(1,10)
 
 --print("RanSeed:"..ranStr)
 require(OPPONENT_NAME)
+require("GlobalMessage")
+require("status")
 require("Skill")
 require("Play")
 require("SubPlay")
@@ -33,8 +34,7 @@ require("utils")
 require("learn")
 require("file")
 require("score")
-require("GlobalMessage")
-require("status")
+
 --require("combo")
 
 for _, value in ipairs(gSkill) do

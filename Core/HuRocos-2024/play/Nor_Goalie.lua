@@ -34,7 +34,8 @@ return {
                 return "goalie_norm"
             end
 
-            if player.myinfraredCount("Goalie") > 40 then
+            if player.myinfraredCount("Goalie") > param.goalieDribblingFrame or param.goalieStablePoint:dist(rolePos) < param.playerRadius then
+            -- if bufcnt(player.myinfraredCount("Goalie") > param.goalieDribblingFrame or param.goalieStablePoint:dist(rolePos) < param.playerRadius, 60) then
                 return "goalie_kick"
             end
 

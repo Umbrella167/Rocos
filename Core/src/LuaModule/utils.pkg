@@ -4,15 +4,14 @@ $#include "staticparams.h"
 namespace Utils{
 	// // // // // Hu-ROCOS-2024 // // // // // 
 
-	
 	GlobalTick UpdataTickMessage(const CVisionModule *pVision,int goalie_num ,int defend_player_num1, int defend_player_num2); //获取帧信息
 	CGeoPoint GetAttackPos(const CVisionModule *pVision,int num ,CGeoPoint shootPos,CGeoPoint startPoint,CGeoPoint endPoint,double step,double ballDist = 1000);
 
 	CGeoPoint GetShowDribblingPos(const CVisionModule *pVision,CGeoPoint player_pos,CGeoPoint target_pos);
 
 	CGeoPoint GetTouchPos(const CVisionModule *pVision, CGeoPoint player_pos, double touchAngle,bool double_flag = false);
-
-	CGeoPoint GetBestInterPos(const CVisionModule *pVision, CGeoPoint playerPos, double playerVel, int flag = 0, int permissions = 0, double acc = PARAM::Field::V_DECAY_RATE);
+	double ConfidenceGetBall(const CVisionModule *pVision,int ourGetBallPlayerNum);
+	CGeoPoint GetBestInterPos(const CVisionModule *pVision, CGeoPoint playerPos, double playerVel, int flag = 0, int permissions = 0, double acc = PARAM::Field::V_DECAY_RATE,double rate = 0);
 	
 	// 小工具
 	CGeoPoint GetBallMaxPos(const CVisionModule *pVision, double a);

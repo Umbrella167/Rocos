@@ -26,6 +26,7 @@ void __new_goto_point_omni(const PlayerPoseT& start,
 						PlayerPoseT& nextStep);
 double expectedCMPathTime(const PlayerPoseT& start, const CGeoPoint& final, double maxAccel, double maxVelocity, double accel_factor);
 double predictedTime(const PlayerVisionT& start, const CGeoPoint& Target, const CVector& targetVel = CVector(0, 0));
+double predictedTime(const CGeoPoint & playerPos,const CVector& playerVel, const CGeoPoint & Target, const CVector& targetVel = CVector(0, 0));
 double predictedTimeWithRawVel(const PlayerVisionT& start, const CGeoPoint & Target, const CVector& targetVel = CVector(0, 0));
 double predictedTheirTime(const PlayerVisionT& start, const CGeoPoint& Target, const CVector& targetVel = CVector(0, 0));
 double predictedTime2d(const PlayerVisionT& start, const CGeoPoint& final, double maxAccel, double maxVelocity, double accel_factor);

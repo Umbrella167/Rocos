@@ -8,11 +8,17 @@ local toBallDir = function(role)
         return player.toBallDir(role)
     end
 end
+local enemyRobot = {
+
+}
+-- 获取敌方带球机器人，顺手获取另外的机器人
 local getTheirDribblingPlayer = function()
+    enemyRobot = {}
     local minDist = 99999
     local minPlayer = -1
-    for i=0,param.maxPlayer do
-        if enemy.valid(i)then 
+    for i=0,param.maxPlayer - 1 do
+        if enemy.valid(i)then
+            table.insert(enemyRobot,i)
             local dist = (enemy.pos(i) - ball.pos()):mod()
             if dist < minDist then
                 minDist = dist
@@ -20,46 +26,133 @@ local getTheirDribblingPlayer = function()
             end
         end
     end
+    for k,v in pairs(enemyRobot) do
+        if v == minPlayer then
+            table.remove(enemyRobot, k)
+        end
+    end
     return minPlayer
 end
-local dirbblingEnemyDir = 0
-local interPos = function(enemyNum)
-        local num 
-        if type(enemyNum) == "function" then
-            num = enemyNum()
+-- 获取敌方可能想要传球的机器人
+local rotTable = {}
+local getInterPos = function(theirDribblingPlayer)
+    local dir = enemy.toBallDir(theirDribblingPlayer) * 57.3
+    table.insert(rotTable, 1, dir)
+    if #rotTable > 10 then
+        table.remove(rotTable)
+    end
+    local enemyToBallLine = CGeoSegment(enemy.pos(theirDribblingPlayer),enemy.pos(theirDribblingPlayer) + Utils.Polar2Vector(9999,enemy.toBallDir(theirDribblingPlayer)))
+    local enemy1prjPos =  enemyToBallLine:projection(enemy.pos(enemyRobot[1]))
+    local enemy1ToLineDist = enemy1prjPos:dist(enemy.pos(enemyRobot[1]))
+    table.insert(rotTable, 1, enemy1ToLineDist)
+    if #rotTable > 10 then
+        table.remove(rotTable)
+    end
+    local enemy2prjPos =  enemyToBallLine:projection(enemy.pos(enemyRobot[2]))
+    local enemy2ToLineDist = enemy2prjPos:dist(enemy.pos(enemyRobot[2]))
+    local dribblingDir = math.abs(57.3 * Utils.angleDiff(enemy.toBallDir(theirDribblingPlayer),(CGeoPoint(0,0) - enemy.pos(theirDribblingPlayer)):dir()))
+    local resPos
+    if math.abs(enemy.rotVel(theirDribblingPlayer)) > 1 then
+        local DDbool = dribblingDir > 60 and true or false
+    -- local DDbool = rotTable > 0  and true or false
+    -- DDbool = dribblingDir > 60 and not DDbool or DDbool
+    if #rotTable > 5 then 
+        if rotTable[2] - rotTable[1] > 0 then
+            DDbool = true
         else
-            num = enemyNum
+            DDbool = false
         end
-		local enemyDirPos = (enemy.pos(num) + Utils.Polar2Vector(-1200, (enemy.pos(num)-ball.pos()):dir()))
-		if enemy.rotVel(num) > 1 then
-			
-		end
-        for i,v in pairs(firstPos) do
-            if player.toPointDist("Assister",v) < 700 then
-                p = CGeoPoint(0,0)
-                break
-            end
-        end
-        return enemyDirPos
+    end
+    if(DDbool) then
+        resPos = enemy.pos(enemyRobot[1]) + Utils.Polar2Vector(-2000,(enemy.pos(enemyRobot[1]) - enemy.pos(theirDribblingPlayer)):dir())
+    else
+        resPos = enemy.pos(enemyRobot[2]) + Utils.Polar2Vector(-2000,(enemy.pos(enemyRobot[2]) - enemy.pos(theirDribblingPlayer)):dir())
+    end
+    else
+        resPos = enemy.pos(theirDribblingPlayer) + Utils.Polar2Vector(2000,enemy.toBallDir(theirDribblingPlayer))
+    end
+    debugEngine:gui_debug_x(resPos)
+    -- debugEngine:gui_debug_msg(enemy.pos(theirDribblingPlayer),"dribblingDir:"..dribblingDir .. "rotVel: "..math.abs(enemy.rotVel(theirDribblingPlayer)),4)
+    debugEngine:gui_debug_msg(enemy.pos(theirDribblingPlayer),"rotVel: "..math.abs(enemy.rotVel(theirDribblingPlayer)),4)
+    debugEngine:gui_debug_msg(enemy.pos(enemyRobot[1]),"enemy1ToLineDist:"..enemy1ToLineDist,4)
+    debugEngine:gui_debug_msg(enemy.pos(enemyRobot[2]),"enemy2ToLineDist:"..enemy2ToLineDist,4)
+    debugEngine:gui_debug_line(enemy.pos(theirDribblingPlayer),enemy.pos(theirDribblingPlayer) + Utils.Polar2Vector(9999,enemy.toBallDir(theirDribblingPlayer)))
+    return resPos
 end
+local ppos = CGeoPoint(0,0)
 gPlayTable.CreatePlay{
 firstState = "Init",
+-- ["Init"] = {
+--     switch = function()
+--         local num = getTheirDribblingPlayer()
+--         getInterPos(num)
+--         return "Run"
+--     end,
+--     Assister = task.stop(),
+--     match = "[A]"
+-- },
+
+-- ["Run"] = {
+--     switch = function()
+--         ppos = getInterPos(getTheirDribblingPlayer())
+--     end,
+--     Assister = task.goCmuRush(function() return ppos end,toBallDir("Assister"),_,_,_,Utils.Polar2Vector(300,(ppos - player.pos("Assister")):dir())),
+--     match = "[A]"
+-- },
+
 ["Init"] = {
     switch = function()
-        debugEngine:gui_debug_x(interPos(function() return getTheirDribblingPlayer() end))
+        if player.toTargetDist("Assister") < 50 then
+            return "Init1"
+        end
+        debugEngine:gui_debug_msg(CGeoPoint(0,0),(enemy.posX(1) + enemy.posX(0)) / 2)
+        -- return "Run"
     end,
-    Assister = task.stop(),
+    Assister = task.goCmuRush(function() return  CGeoPoint((enemy.posX(1) + enemy.posX(0)) / 2,(enemy.posY(1) + enemy.posY(0)) / 2) end),
     match = "[A]"
 },
-["Run"] = {
+
+["Init1"] = {
     switch = function()
-		
+        if player.toTargetDist("Assister") < 50 then
+            return "Init"
+        end
 
+        -- return "Run"
     end,
-    Assister = task.goCmuRush(function()return interPos(function() return getTheirDribblingPlayer() end)end, toBallDir("Assister"),_,_,Utils.Polar2Vector(700,(interPos(function() return getTheirDribblingPlayer() end) - player.pos("Assister")):dir())),
+    Assister = task.goCmuRush(function() return  CGeoPoint((enemy.posX(1) + enemy.posX(4)) / 2,(enemy.posY(1) + enemy.posY(4)) / 2) end),
     match = "[A]"
 },
+-- ["Init"] = {
+--     switch = function()
+--         local num = getTheirDribblingPlayer()
+--         getInterPos(num)
+        
+--         for k,v in ipairs(firstPos) do 
+--             if player.pos("Assister"):dist(v) > 600 and ball.velMod() > 300 then
+--                 return "getball"
+--             end
+--         end
+--         -- return "Run"
+--     end,
+--     Assister = task.goCmuRush(CGeoPoint(0,0)),
+--     match = "[A]"
+-- },
 
+-- ["getball"] = {
+--     switch = function()
+--         local num = getTheirDribblingPlayer()
+--         getInterPos(num)
+--         for k,v in ipairs(firstPos) do 
+--             if player.pos("Assister"):dist(v) < 600 then
+--                 return "Init"
+--             end
+--         end
+--         -- return "Run"
+--     end,
+--     Assister = task.getball(_,param.playerVel,param.getballMode),
+--     match = "[A]"
+-- },
 
 name = 'BOSS',
 }

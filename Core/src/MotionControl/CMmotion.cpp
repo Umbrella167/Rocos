@@ -489,6 +489,25 @@ double expectedCMPathTime(const PlayerPoseT& start, const CGeoPoint& final, doub
     return time;
 }
 
+double predictedTime(const CGeoPoint & playerPos,const CVector& playerVel, const CGeoPoint & Target, const CVector& targetVel) {
+    CVector x = playerPos - Target;
+    CVector v = playerVel;
+    double time;
+    CVector a;
+    double time_acc, time_dec, time_flat;
+    double accel_factor = PREDICT_TIME_ACC_RATIO;
+    if(IS_SIMULATION) {
+        accel_factor = 1.0;
+    }
+    compute_motion_2d(x, v, targetVel,
+                      OUR_MAX_ACC,
+                      OUR_MAX_DEC,
+                      OUR_MAX_SPEED,
+                      accel_factor,
+                      a, time);
+
+    return time;
+}
 double predictedTime(const PlayerVisionT& start, const CGeoPoint & Target, const CVector& targetVel) {
     CVector x = start.Pos() - Target;
     CVector v = start.Vel();

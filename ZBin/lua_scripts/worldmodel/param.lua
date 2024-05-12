@@ -30,20 +30,22 @@ ourButtomGoalPos = CGeoPoint:new_local(-pitchLength/2, -goalRadius)
 
 
 -- 是否为真实场地
-isReality = false 
+isReality = false
 
 -----------------------------------------------|
 --                Getball参数                 --|
 -----------------------------------------------|
-playerVel = 2                                       -- 机器人速度
-getballMode = 2                                     -- [0[激进模式], 1[保守模式], 2[middle]]
-local V_DECAY_RATE_Reality = 750                          -- 场地摩擦
+playerVel = 1                                       -- 机器人速度
+getballMode = 1                                       -- [0[激进模式], 1[保守模式], 2[middle]]
+local V_DECAY_RATE_Reality = 630                          -- 场地摩擦
 lastInterPos = CGeoPoint:new_local(-INF,-INF)       -- 上一次算点结果
+rushToBallCount = 0
+distRate = 0
 -----------------------------------------------|
 --                Robot参数                  --|
 -----------------------------------------------|
 enemy_buffer = 120   -- lua 两点间有无敌人阈值
-playerFrontToCenter = 76
+playerFrontToCenter = 60
 lengthRatio	= 1.5
 widthRatio	= 1.5
 stopRatio = 1.1
@@ -53,23 +55,22 @@ playerRadius = 90   -- 机器人半径
 --                Shoot参数                   --|
 -----------------------------------------------|
 
-local shootError_Reality = 1.8  -- 射击误差
+local shootError_Reality = 5--1.8  -- 射击误差
 shootKp = 0.1             -- 射击力度比例
 shootPos = CGeoPoint(pitchLength / 2,0)	
 canTouchAngle = 45        -- 可以touch的角度
 -----------------------------------------------|
 --               rot参数                      --|
 -----------------------------------------------|
-rotPos = CGeoPoint(80,80)      --旋转坐标
-rotVel = 3.8                   --旋转速度
-local rotCompensate_Reality = -0.006 --旋转补偿
+rotPos = CGeoPoint(60,60)--CGeoPoint(80,80)      --旋转坐标
+rotVel = 4                   --旋转速度
+local rotCompensate_Reality = -0.015 --旋转补偿
 -----------------------------------------------|
 --                Tick固定匹配参数             --|
 -----------------------------------------------|
 our_goalie_num = 0
-defend_num1 =1
+defend_num1 = 1
 defend_num2 = 2
-
 -----------------------------------------------|
 --             marking参数             --|
 -----------------------------------------------|
@@ -100,6 +101,15 @@ goalieMoveX = -pitchLength/2+goalieBuf
 goalieRadius = goalRadius-goalieBuf
 -- goalie 吸到球后往稳定点缓慢移动一段距离
 goalieStablePoint = CGeoPoint(-pitchLength/2+penaltyDepth/2, 0)
+-- goalie 带球的最大帧数
+goalieDribblingFrame = 200
+-- goalie 带球的加速度
+goalieDribblingA = 400
+
+
+-- goalie 要踢向的点
+goalieTargetPos = CGeoPoint(param.pitchLength/2, param.pitchWidth/2)
+
 
 -- 对齐的准确度
 alignRate = 0.8

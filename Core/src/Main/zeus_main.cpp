@@ -16,7 +16,7 @@
 #include "RefereeBoxIf.h"
 #include "ActionModule.h"
 #include <QCoreApplication>
-
+#include "utils.h"
 /*! \mainpage Zeus - Run for number one
 *
 * \section Introduction
@@ -34,7 +34,6 @@
 *
 * etc...
 */
-
 extern Semaphore visionEvent;
 extern std::mutex decisionMutex;
 /// <summary> For GPU. </summary>
@@ -70,6 +69,7 @@ int runLoop() {
     RefereeBoxInterface::Instance();
     while (true) {
         vision->setNewVision();
+//        Utils::UpdataTickMessage(vision,goalie_num,defend_player_num1,defend_player_num2);
         decision->DoDecision();
         action->sendAction();
         GDebugEngine::Instance()->send(option->MyColor() == PARAM::BLUE); //Show two teams debug messages

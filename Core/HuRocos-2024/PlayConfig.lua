@@ -12,7 +12,6 @@
 - `OurPenaltyKick`      : 我方点球
 - `NormalPlay`          : 正常比赛
 ]]
-
 ---[[
 gRefConfig = {
     GameHalt = "HALT",
@@ -34,7 +33,7 @@ gRefConfig = {
 
     TheirKickOff = "their_KickOff",
     OurKickOff = "our_KickOff",
-    TheirBallPlacement = "their_BallPlacement",
+    TheirBallPlacement = "theirBallPlacement",
     OurBallPlacement = "our_BallPlacement",
     TheirPenaltyKick = "STOP",
     OurPenaltyKick = "STOP",
