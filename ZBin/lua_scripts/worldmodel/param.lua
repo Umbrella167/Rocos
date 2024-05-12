@@ -24,20 +24,22 @@ ourTopRightPenaltyPos = CGeoPoint:new_local(-pitchLength/2+penaltyDepth, penalty
 ourTopPenaltyPos = CGeoPoint:new_local(-pitchLength/2, penaltyRadius)
 ourButtomPenaltyPos = CGeoPoint:new_local(-pitchLength/2, -penaltyRadius)
 -- 是否为真实场地
-isReality = true
+isReality = false
 
 -----------------------------------------------|
 --                Getball参数                 --|
 -----------------------------------------------|
-playerVel = 1.66                                       -- 机器人速度
+playerVel = 1                                       -- 机器人速度
 getballMode = 1                                       -- [0[激进模式], 1[保守模式], 2[middle]]
-local V_DECAY_RATE_Reality = 750                          -- 场地摩擦
+local V_DECAY_RATE_Reality = 630                          -- 场地摩擦
 lastInterPos = CGeoPoint:new_local(-INF,-INF)       -- 上一次算点结果
+rushToBallCount = 0
+distRate = 0
 -----------------------------------------------|
 --                Robot参数                  --|
 -----------------------------------------------|
 enemy_buffer = 120   -- lua 两点间有无敌人阈值
-playerFrontToCenter = 76
+playerFrontToCenter = 60
 lengthRatio	= 1.5
 widthRatio	= 1.5
 stopRatio = 1.1
@@ -54,16 +56,15 @@ canTouchAngle = 45        -- 可以touch的角度
 -----------------------------------------------|
 --               rot参数                      --|
 -----------------------------------------------|
-rotPos = CGeoPoint(80,80)      --旋转坐标
-rotVel = 3.8                   --旋转速度
-local rotCompensate_Reality = -0.025 --旋转补偿
+rotPos = CGeoPoint(60,60)--CGeoPoint(80,80)      --旋转坐标
+rotVel = 4                   --旋转速度
+local rotCompensate_Reality = -0.015 --旋转补偿
 -----------------------------------------------|
 --                Tick固定匹配参数             --|
 -----------------------------------------------|
-our_goalie_num = 10
-defend_num1 = 11
-defend_num2 = 12
-
+our_goalie_num = 0
+defend_num1 = 1
+defend_num2 = 2
 -----------------------------------------------|
 --             marking参数             --|
 -----------------------------------------------|

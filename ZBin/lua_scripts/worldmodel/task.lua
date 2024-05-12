@@ -144,7 +144,6 @@ function getball_dribbling(role)
 		local mexe, mpos = GoCmuRush { pos = p, dir = idir, acc = a, flag = iflag, rec = r, vel = endVel, speed = s, force_manual = force_manual }
 		return { mexe, mpos }
 	end
-
 end
 
 function getball(shootPos_,playerVel, inter_flag, permissions)
@@ -230,10 +229,10 @@ playerPower = {
 	[0] = {230,310,0},
 	[1] = {230,310,0},
 	[2] = {230,310,0},
-	[3] = {230,310,0},
+	[3] = {230,310,0}, -- 吸球强
 	[4] = {500,750,0.5},
-	[5] = {230,310,0},
-	[6] = {230,310,0},
+	[5] = {180,310,-0.01},
+	[6] = {180,310,-0.01},
 	[7] = {230,310,0},
 	[8] = {230,310,0},
 	[9] = {230,310,0},
@@ -283,7 +282,7 @@ function power(p, Kp, num) --根据目标点与球之间的距离求出合适的
 				res = 310 * SimulationRate
 			end
 		end
-		debugEngine:gui_debug_msg(CGeoPoint:new_local(0,-3000),"Kp:".. (Kp + playerPower[playerNum][3]) .. "runner:" .. playerNum .."    Power" .. res .. "    toTargetDist: " .. dist,3)
+		debugEngine:gui_debug_msg(CGeoPoint:new_local(0,-3000),"Kp:".. (Kp + playerPower[playerNum][3]) .. "    runner:" .. playerNum .."    Power" .. res .. "    toTargetDist: " .. dist,3)
 		return res
 	end
 end
@@ -641,19 +640,25 @@ end
 --~ p为要走的点,d默认为射门朝向
 
 function touch()
-	local ipos = pos.ourGoal()
+	local ipos = function()  return CGeoPoint( ball.posX(),ball.posY()) + Utils.Polar2Vector(500,(ball.pos() - GlobalMessage.Tick.ball.pos_move_befor):dir()) end
 	local mexe, mpos = Touch { pos = ipos }
 	return { mexe, mpos }
 end
 
 function touchKick(p, ifInter, Kp, mode)
 	return function(runner)
+		local iKp
+		if type(Kp) == "function" then
+			iKp = Kp()
+		else
+			iKp = KP
+		end
 		local ipos 
 		local idir = function(runner)
 			return (_c(p) - player.pos(runner)):dir()
 		end
 		local mexe, mpos = Touch { pos = p, useInter = ifInter }
-		return { mexe, mpos, mode and kick.flat or kick.chip, idir, pre.low, power(p,Kp,runner), power(p,Kp,runner), flag.nothing }
+		return { mexe, mpos, mode and kick.flat or kick.chip, idir, pre.low, power(p,iKp,runner), power(p,iKp,runner), flag.nothing }
 	end
 end
 

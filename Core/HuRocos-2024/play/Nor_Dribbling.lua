@@ -30,24 +30,6 @@ local shootKPFun = function()
 		return shoot_kp
 	end
 end
-local debugMesg = function ()
-	if(task.playerDirToPointDirSub("Assister",resShootPos) < param.shootError) then 
-		debugEngine:gui_debug_line(player.pos("Assister"),player.pos("Assister") + Utils.Polar2Vector(9999,player.dir("Assister")),1)
-	else
-		debugEngine:gui_debug_line(player.pos("Assister"),player.pos("Assister") + Utils.Polar2Vector(9999,player.dir("Assister")),4)
-	end
-		debugEngine:gui_debug_msg(CGeoPoint(0,-2800),"ballRights: " .. GlobalMessage.Tick.ball.rights)
-		debugEngine:gui_debug_msg(CGeoPoint(0,-2600),"myInfraredCount: " .. player.myinfraredCount("Assister").. "    InfraredCount: " .. player.infraredCount("Assister") .. "    InfraredOffCount:" .. player.myinfraredOffCount("Assister") ,2)
-		debugEngine:gui_debug_msg(CGeoPoint(0,-2400),"RawBallPos: " .. ball.rawPos():x() .. "    " .. ball.rawPos():y() ,3)
-		debugEngine:gui_debug_msg(CGeoPoint(0,-2200),"BallPos: " .. ball.pos():x() .. "    " .. ball.pos():y() ,4)
-		debugEngine:gui_debug_msg(CGeoPoint(0,-2000),"BallVel: " .. ball.velMod() ,4)
-		debugEngine:gui_debug_msg(CGeoPoint(0,-1600),"BallValid: " .. tostring(ball.valid()) ,4)
-		-- debugEngine:gui_debug_x(resShootPos,6)
-		-- debugEngine:gui_debug_msg(resShootPos,"rotCompensatePos",6)
-		debugEngine:gui_debug_x(param.shootPos,6)
-		debugEngine:gui_debug_msg(param.shootPos,"ShootPos",6)
-		
-end
 
 local ShowDribblingPos = function ()
     return function()
@@ -67,7 +49,7 @@ local canShootAngle = 30
 local showPassPos = param.shootPos
 return {
 
-firstState = "getball",
+firstState = "Init",
 
     __init__ = function(name, args)
         print("in __init__ func : ",name, args)
@@ -75,11 +57,22 @@ firstState = "getball",
         shoot_pos = args.pos
     end,
 
+["Init"] = {
+	switch = function()
+		if player.num("Assister") ~= -1 then
+			return "getball"
+		end
+	end,
+	Assister = task.getball_dribbling("Assister"),
+	match = "[A]"
+},
+
+	
 ["getball"] = {
 	switch = function()
-		GlobalMessage.Tick = Utils.UpdataTickMessage(vision,our_goalie_num,defend_num1,defend_num2)
-		debugMesg()
-		shoot_pos = shootPosFun()
+		-- GlobalMessage.Tick = Utils.UpdataTickMessage(vision,our_goalie_num,defend_num1,defend_num2)
+		-- shoot_pos = shootPosFun()
+		-- debugEngine:gui_debug_msg(CGeoPoint(0,0),player.num("Assister"))
 		if(player.myinfraredCount("Assister") > 5) then
 			return "dribbling"
 		end
@@ -93,8 +86,6 @@ firstState = "getball",
     switch = function()
 		dribblingCount = dribblingCount + 1
 		GlobalMessage.Tick = Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
-
-		debugMesg()
 		if player.myinfraredOffCount("Assister") > 20 then
 			return "getball"
 		end
@@ -113,7 +104,7 @@ firstState = "getball",
 		debugEngine:gui_debug_msg(CGeoPoint(0,-1200),"PlayerToShootPosAngle: "..SubDir,6)
 		local inMyMouse = player.myinfraredCount("Assister") > 30 and true or false
 		if  (inMyMouse and dribbleLimitDist > 800) or (Utils.isValidPass(vision,StartPos,showPassPos,param.enemy_buffer) and SubDir < canShootAngle) then
-			return "shoot"
+			-- return "shoot"
 		end
 		
     end,
@@ -128,7 +119,7 @@ firstState = "getball",
 		-- if(not bufcnt(player.infraredOn("Assister"),1)) then
 		-- 	return "ready1"
 		-- end
-		debugEngine:gui_debug_msg(CGeoPoint:new_local(0,0),player.rotVel("Assister"))
+		-- debugEngine:gui_debug_msg(CGeoPoint:new_local(0,0),player.rotVel("Assister"))
 		debugMesg()
 		if shootPosFun():x() == param.pitchLength / 2 then
 			shoot_kp = 10000
@@ -155,7 +146,6 @@ firstState = "getball",
 ["shoot"] = {
 	switch = function()
 		GlobalMessage.Tick = Utils.UpdataTickMessage(vision,our_goalie_num,defend_num1,defend_num2)
-		debugMesg()
 		if(bufcnt(player.myinfraredCount("Assister") < 1,1)) then
 			return "getball"
 		end
