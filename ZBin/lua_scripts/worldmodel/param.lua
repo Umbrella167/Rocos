@@ -6,23 +6,29 @@ PI = 3.141592653589793238462643383279
 maxPlayer   = 16
 ballDiameter = 42
 ---------------------------------
--- feild params
+-----------------------------------------------|
+--                feild参数                  --|
+-----------------------------------------------|
 pitchLength = CGetSettings("field/width","Int")
 pitchWidth  = CGetSettings("field/height","Int")
-goalWidth = CGetSettings("field/goalWidth","Int")
-goalDepth = CGetSettings("field/goalDepth","Int")
-ourGoalPos = CGeoPoint:new_local(-pitchLength/2, 0)
-ourTopGoalPos = CGeoPoint:new_local(-pitchLength/2, goalWidth/2)
-ourButtomGoalPos = CGeoPoint:new_local(-pitchLength/2, -goalWidth/2)
 freeKickAvoidBallDist = 500
 penaltyWidth    = CGetSettings("field/penaltyLength","Int")
 penaltyDepth	= CGetSettings("field/penaltyWidth","Int")
--- penaltyRadius	= 1000  --?????????Is penaltyRadius ==  penaltyWidth/2 ???????????????
 penaltyRadius = penaltyWidth/2
 penaltySegment	= 500
 ourTopRightPenaltyPos = CGeoPoint:new_local(-pitchLength/2+penaltyDepth, penaltyRadius)
 ourTopPenaltyPos = CGeoPoint:new_local(-pitchLength/2, penaltyRadius)
 ourButtomPenaltyPos = CGeoPoint:new_local(-pitchLength/2, -penaltyRadius)
+-- 球门参数
+goalWidth = CGetSettings("field/goalWidth","Int")
+goalDepth = CGetSettings("field/goalDepth","Int")
+goalRadius = goalWidth/2
+ourGoalLine = CGeoSegment(CGeoPoint:new_local(-pitchLength/2, -INF), CGeoPoint:new_local(-pitchLength/2, INF))
+ourGoalPos = CGeoPoint:new_local(-pitchLength/2, 0)
+ourTopGoalPos = CGeoPoint:new_local(-pitchLength/2, goalRadius)
+ourButtomGoalPos = CGeoPoint:new_local(-pitchLength/2, -goalRadius)
+
+
 -- 是否为真实场地
 isReality = true
 
@@ -75,6 +81,7 @@ markingPosRate2 = 1/10
 -----------------------------------------------|
 --             defend参数             --|
 -----------------------------------------------|
+defenderShootMode = function() return 1 end     -- 1 flat  2 chip
 defenderBuf = playerRadius*3
 defenderRadius = ourGoalPos:dist(ourTopRightPenaltyPos) + defenderBuf
 defenderAimX = -pitchLength/4
@@ -82,11 +89,31 @@ defenderAimX = -pitchLength/4
 --             goalie参数             --|
 -----------------------------------------------|
 goalieShootMode = function() return 1 end 	-- 1 flat  2 chip
-defenderShootMode = function() return 1 end 	-- 1 flat  2 chip
-goalieAimDirRadius = 9999
-goalieBuf = 43
+goalieBuf = playerRadius
+-- goalie 需要考虑敌人朝向的距离，一般为半场的一半
+goalieAimDirRadius = pitchLength/4
+-- goalie 在考虑敌人朝向时会走出的最远距离， 一般为球门半径
+enemyAimBuf = goalRadius
+-- goalie 移动的线（mode-0）
+goalieMoveLine = CGeoSegment(CGeoPoint:new_local(-pitchLength/2+goalieBuf, -INF), CGeoPoint:new_local(-pitchLength/2+goalieBuf, INF))
+goalieMoveX = -pitchLength/2+goalieBuf
+-- goalie 移动的半径（mode-1）
+goalieRadius = goalRadius-goalieBuf
+-- goalie 吸到球后往稳定点缓慢移动一段距离
+goalieStablePoint = CGeoPoint(-pitchLength/2+penaltyDepth/2, 0)
+-- goalie 带球的最大帧数
+goalieDribblingFrame = 200
+-- goalie 带球的加速度
+goalieDribblingA = 400
+
+
+-- goalie 要踢向的点
+goalieTargetPos = CGeoPoint(param.pitchLength/2, param.pitchWidth/2)
+
+
 -- 对齐的准确度
 alignRate = 0.8
+
 --~ -------------------------------------------
 --~ used for debug
 --~ -------------------------------------------
