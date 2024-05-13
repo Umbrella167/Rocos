@@ -206,7 +206,7 @@ firstState = "ready",
 			return "SpecialTouch"
 		end
 	end,
-	Assister = task.Shootdot("Assister",runPos_Special(-400), param.shootKp, 5, kick.flat),
+	Assister = task.Shootdot("Assister",runPos_Special(-400), 5, kick.flat),
 	Special = task.goCmuRush(runPos_Special(-400), Dir_ball("Special"), a, f, r, v),
 	Kicker = task.goCmuRush(runPos_Kicker(-400), Dir_ball("Kicker"), a, f, r, v),
 	-- Tier = task.Shootdot("Tier",playerPos("Special"), shootKp, 5, kick.flat),

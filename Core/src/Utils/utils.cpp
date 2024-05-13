@@ -581,8 +581,13 @@ namespace Utils
             {
                 if (pVision ->theirPlayer(enemyGetballNum_min).Pos().dist(ballPrePos) < PARAM::Player::playerBuffer + 10)
                 {
-                    GDebugEngine::Instance()->gui_debug_x(ball_pos + Polar2Vector(dist - 260, pVision->ball().Vel().dir()),9);
-                    return ball_pos + Polar2Vector(dist - 200, pVision->ball().Vel().dir());
+                    CGeoPoint SpecialPos(ball_pos + Polar2Vector(dist - 200, pVision->ball().Vel().dir()));
+                    if (InExclusionZone(SpecialPos,0))
+                    {
+                        return ball_pos;
+                    }
+                    GDebugEngine::Instance()->gui_debug_x(SpecialPos,9);
+                    return SpecialPos;
                 }
             }
             maxAllowedBallPos = ballPrePos;

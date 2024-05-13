@@ -202,7 +202,7 @@ firstState = "get",
             return "exit"
         end
   end,
-  Assister = task.Shootdot("Assister",playerPos("Special"), shootKp, 10, kick.flat),
+  Assister = task.Shootdot("Assister",playerPos("Special"),10, kick.flat),
   Kicker = task.goCmuRush(runPos_Kicker(0),closures_dir_ball("Kicker")),
   Special = task.goCmuRush(runPos_Special(0),closures_dir_ball("Special")),
   Tier = task.stop(),

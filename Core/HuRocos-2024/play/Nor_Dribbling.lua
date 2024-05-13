@@ -144,7 +144,7 @@ firstState = "Init",
 			return "getball"
 		end
 	end,
-	Assister = task.ShootdotDribbling(0.000001 , 100, kick.flat),
+	Assister = task.ShootdotDribbling(100, kick.flat),
 	match = "{A}"
 },
 

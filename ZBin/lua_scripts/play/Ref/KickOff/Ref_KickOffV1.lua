@@ -209,7 +209,7 @@ firstState = "ready",
 	Special = task.goCmuRush(runPos_Special(-400), Dir_ball("Special"), a, f, r, v),
 	Kicker = task.goCmuRush(runPos_Kicker(-400), Dir_ball("Kicker"), a, f, r, v),
 --ball.pos() + Utils.Polar2Vector(-800,player.toPointDir(player.pos("Special"),"Tier"))	
-	Tier = task.Shootdot("Tier",playerPos("Special"), param.shootKp, 10, kick.flat),
+	Tier = task.Shootdot("Tier",playerPos("Special"), 10, kick.flat),
 	-- Defender = task.defender_defence("Defender"),
 	Goalie = task.goalie(),
 	match = "{ASKTDG}"

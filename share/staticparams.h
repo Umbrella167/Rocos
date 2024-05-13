@@ -69,11 +69,11 @@ namespace PARAM
         const int playerFrontToCenter = 76;           // 机器人圆心到嘴的距离
         const int playerRadiusr = 90;                 // 机器人半径
         const int playerBuffer = 130;                 // 检测敌人是否在某直线上的缓冲值                      == param.enemy_buffer
-        const double playerBallRightsBuffer = 120;    // 球权判断缓冲值                      == param.playerBallRightsBuffer
+        const double playerBallRightsBuffer = 120;    // 球权判断缓冲值                      ==
         const double playerInfraredCountBuffer = 120; // 红外判断缓冲值                   == param.playerInfraredCountBuffer
-        const int our_goalie_num = 2;                 //                                                == param.our_goalie_num
+/*        const int our_goalie_num = 2;                 //                                                == param.our_goalie_num
         const int defend_num1 = 1;                    //                                                   == p aram.defend_num1
-        const int defend_num2 = 12;                    //                                                   == param.defend_num2
+        const int defend_num2 = 12;     */               //                                                   == param.defend_num2
     }
     namespace Tick
     {

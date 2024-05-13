@@ -92,7 +92,7 @@ firstState = "start",
         end
     end
   end,
-  Assister = task.Shootdot("Assister",function() return pass_pos end ,param.shootKp+1,15,kick.flat),
+  Assister = task.Shootdot("Assister",function() return pass_pos end,15,kick.flat),
   Kicker   = task.goCmuRush(function() return param.KickerWaitPlacementPos() end,function() return (player.pos("Special") - player.pos("Kicker") ):dir() end),
   Special  = task.goCmuRush(function() return param.SpecialWaitPlacementPos() end,function() return (shootPosSpecial__ - player.pos("Special")):dir() end),
   Tier = task.stop(),

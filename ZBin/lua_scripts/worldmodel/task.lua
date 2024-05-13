@@ -222,56 +222,72 @@ function getballV2(role, playerVel, inter_flag, target_point, permissions)
 		end
 	end
 end
-
 playerPowerONE = 
 {
-	-- [num] = {min, max, KP} 
-	[0] = {230,310,0},
-	[1] = {230,310,0},
-	[2] = {230,310,0},
-	[3] = {230,310,0}, -- 吸球强
-	[4] = {500,750,0.5},
-	[5] = {180,310,-0.01},
-	[6] = {180,310,-0.01},
-	[7] = {230,310,0},
-	[8] = {230,310,0},
-	[9] = {230,310,0},
-	[10] = {230,310,0},
-	[11] = {230,310,0},
-	[12] = {230,310,0},
-	[13] = {230,310,0},
-	[14] = {230,310,0},
-	[15] = {230,310,0},
-	[16] = {230,310,0}, -- Other
+		-- [0] = {230,310,0},
+	-- [1] = {230,310,0},
+	-- [2] = {230,310,0},
+	-- [3] = {230,310,0}, -- 吸球强
+	-- [4] = {500,750,0.5},
+	-- [5] = {180,310,-0.01},
+	-- [6] = {180,310,-0.01},
+	-- [7] = {230,310,0},
+	-- [8] = {230,310,0},
+	-- [9] = {230,310,0},
+	-- [10] = {230,310,0},
+	-- [11] = {230,310,0},
+	-- [12] = {230,310,0},
+	-- [13] = {230,310,0},
+	-- [14] = {230,310,0},
+	-- [15] = {230,310,0},
+	-- [16] = {230,310,0}, -- Other
+	-- [num] = {minist,maxDist,minPower, maxPower, ShootPower,chipPower} 
+	[0] = {0,7500,200,330,400,7000},
+	[1] = {0,7500,120,330,315,7000},
+	[2] = {0,7500,120,330,315,7000},
+	[3] = {0,7500,120,330,315,7000},
+	[4] = {0,7500,120,330,315,7000},
+	[5] = {0,7500,120,330,315,7000},
+	[6] = {0,7500,120,330,315,7000},
+	[7] = {0,7500,120,330,315,7000},
+	[8] = {0,7500,120,330,315,7000},
+	[9] = {0,7500,120,330,315,7000},
+	[10] = {0,7500,120,330,315,7000},
+	[11] = {0,7500,120,330,315,7000},
+	[12] = {0,7500,120,330,315,7000},
+	[14] = {0,7500,120,330,315,7000},
+	[15] = {0,7500,120,330,315,7000},
+	[16] = {0,7500,120,330,315,7000},
+
 }
 playerPowerTWO = {
-	-- [num] = {min, max, KP} 
-	[0] = {230,310,0},
-	[1] = {230,310,0},
-	[2] = {230,310,0},
-	[3] = {230,310,0}, -- 吸球强
-	[4] = {230,230,0},
-	[5] = {230,310,0},
-	[6] = {230,310,0},
-	[7] = {230,310,0},
-	[8] = {230,310,0},
-	[9] = {230,310,0},
-	[10] = {230,310,0},
-	[11] = {230,310,0},
-	[12] = {230,310,0},
-	[13] = {230,310,0},
-	[14] = {230,310,0},
-	[15] = {230,310,0},
-	[16] = {230,310,0}, -- Other
+	-- [num] = {minist,maxDist,minPower, maxPower, ShootPower,chipPower} 
+	[0] = {0,7500,200,330,400,7000},
+	[1] = {0,7500,120,330,315,7000},
+	[2] = {0,7500,120,330,315,7000},
+	[3] = {0,7500,120,330,315,7000},
+	[4] = {0,7500,120,330,315,7000},
+	[5] = {0,7500,120,330,315,7000},
+	[6] = {0,7500,120,330,315,7000},
+	[7] = {0,7500,120,330,315,7000},
+	[8] = {0,7500,120,330,315,7000},
+	[9] = {0,7500,120,330,315,7000},
+	[10] = {0,7500,120,330,315,7000},
+	[11] = {0,7500,120,330,315,7000},
+	[12] = {0,7500,120,330,315,7000},
+	[14] = {0,7500,120,330,315,7000},
+	[15] = {0,7500,120,330,315,7000},
+	[16] = {0,7500,120,330,315,7000},
 }
-playerPower = Team == "ONE" and playerPowerONE or playerPowerTWO
-function power(p, Kp1, num) --根据目标点与球之间的距离求出合适的 击球力度 kp系数需要调节   By Umbrella 2022 06
+
+playerPower = (param.Team == "ONE") and playerPowerONE or playerPowerTWO
+function power(p, num,shootFlag)
 	return function()
-		local Kp
-		if type(Kp1) == 'function' then
-			Kp = Kp1()
+		local iflag
+		if type(shootFlag) == 'function' then
+			iflag = shootFlag()
 		else
-			Kp = Kp1
+			iflag = shootFlag
 		end
 		local p1
 		if type(p) == 'function' then
@@ -279,6 +295,9 @@ function power(p, Kp1, num) --根据目标点与球之间的距离求出合适�
 		else
 			p1 = p
 		end
+		local shootPos = function()return param.shootPos end
+		local isShoot = shootPos():x() == param.pitchLength / 2 and true or false
+		
 		local playerNum
 		if type(num) == 'function' then
 			playerNum = num()
@@ -286,29 +305,21 @@ function power(p, Kp1, num) --根据目标点与球之间的距离求出合适�
 			playerNum = num
 		end
 		local dist = (p1 - ball.pos()):mod()
-		
 		if playerNum == -1 or playerNum == nil then
 			playerNum = 16	
 		end
-		local res = (Kp + playerPower[playerNum][3]) * dist
+		local res = Utils.map(dist,playerPower[playerNum][1],playerPower[playerNum][2],playerPower[playerNum][3],playerPower[playerNum][4])
 
-		if param.isReality then
-			if res < playerPower[playerNum][1] then
-				res = playerPower[playerNum][1] 
-			end
-			if res > playerPower[playerNum][2] then
-				res = playerPower[playerNum][2] 
-			end
-		else
-			local SimulationRate = 15
-			if res < 230  * SimulationRate then
-				res = 230 * SimulationRate
-			end
-			if res > 310  * SimulationRate then
-				res = 310 * SimulationRate
-			end
+		if iflag == kick.chip() then
+			res = playerPower[playerNum][6]
+		elseif iflag == kick.flat() and isShoot == true then
+			res = playerPower[playerNum][5]
 		end
-		debugEngine:gui_debug_msg(CGeoPoint:new_local(0,-3000),"Kp:".. (Kp + playerPower[playerNum][3]) .. "    runner:" .. playerNum .."    Power" .. res .. "    toTargetDist: " .. dist,3)
+		---仿真的力度
+		if not param.isReality then
+			local SimulationRate = 15
+			res = res * SimulationRate
+		end	
 		return res
 	end
 end
@@ -358,7 +369,6 @@ function GetBallV2(role, p, dist1, speed1) -------dist开始减速的距离   sp
 		end
 	end
 end
-
 
 function TurnToPointV2(role, p, speed)
 	--参数说明
@@ -417,7 +427,7 @@ function TurnToPointV2(role, p, speed)
 	end
 end
 
-function ShootdotV2(p, Kp, error_, flag_,role)
+function ShootdotV2(p, error_, flag_,role)
 	return function()
 		local irole = role or "Assister"
 		local p1
@@ -426,13 +436,7 @@ function ShootdotV2(p, Kp, error_, flag_,role)
 		else
 			p1 = p
 		end
-		
-		local kp1
-		if type(Kp) == 'function' then
-			kp1 = Kp()
-		else
-			kp1 = Kp
-		end
+
 		local shootpos = function(runner)
 			return ball.pos() + Utils.Polar2Vector(-50, (p1 - ball.pos()):dir())
 		end
@@ -444,12 +448,12 @@ function ShootdotV2(p, Kp, error_, flag_,role)
 		end
 
 		local mexe, mpos = GoCmuRush { pos = shootpos, dir = idir, acc = a, flag = flag.dribbling, rec = r, vel = v }
-		return { mexe, mpos, flag_, idir, error__, power(p, kp1,player.num(irole)), power(p, kp1,player.num(irole)), flag.dribbling }
+		return { mexe, mpos, flag_, idir, error__, power(p,player.num(irole),flag_), power(p, player.num(irole),flag_), flag.dribbling }
 	end
 end
 
 
-function ShootdotDribbling(Kp, error_, flag_)
+function ShootdotDribbling(error_, flag_)
 	return function()
 		local irole = role or "Assister"
 		local p1
@@ -457,12 +461,6 @@ function ShootdotDribbling(Kp, error_, flag_)
 			p1 = p()
 		else
 			p1 = p
-		end
-		local kp1
-		if type(Kp) == 'function' then
-			kp1 = Kp()
-		else
-			kp1 = Kp
 		end
 		local shootpos = function(runner)
 			return ball.pos() + Utils.Polar2Vector(50, player.toBallDir(runner))
@@ -480,7 +478,7 @@ function ShootdotDribbling(Kp, error_, flag_)
 end
 
 
-function Shootdot(role,p, Kp, error_, flagShoot) --
+function Shootdot(role,p, error_, flagShoot) --
 	return function(runner)
 		local p1
 
@@ -511,7 +509,7 @@ function Shootdot(role,p, Kp, error_, flagShoot) --
 			iflag = flag.dribbling
 		end
 		local mexe, mpos = GoCmuRush { pos = shootpos, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
-		return { mexe, mpos, flagShoot, idir, error__, power(p, Kp, player.num(role)), power(p, Kp, player.num(role)), 0x00000000 }
+		return { mexe, mpos, flagShoot, idir, error__, power(p,player.num(role),flag_), power(p, player.num(role),flag_), 0x00000000 }
 	end
 end
 
@@ -554,20 +552,14 @@ function touch()
 	return { mexe, mpos }
 end
 
-function touchKick(p, ifInter, Kp, mode)
+function touchKick(p, ifInter,mode)
 	return function(runner)
-		local iKp
-		if type(Kp) == "function" then
-			iKp = Kp()
-		else
-			iKp = Kp
-		end
 		local ipos 
 		local idir = function(runner)
 			return (_c(p) - player.pos(runner)):dir()
 		end
 		local mexe, mpos = Touch { pos = p, useInter = ifInter }
-		return { mexe, mpos, mode and kick.flat or kick.chip, idir, pre.low, power(p,iKp,runner), power(p,iKp,runner), flag.nothing }
+		return { mexe, mpos, mode and kick.flat or kick.chip, idir, pre.low, power(p,runner,mode and kick.flat or kick.chip), power(p,runner,mode and kick.flat or kick.chip), flag.nothing }
 	end
 end
 
@@ -809,7 +801,6 @@ function defend_kick(role)
 	local defenderPoint = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 2,0,param.V_DECAY_RATE)
 	local targetPos = ball.rawPos() --改了可能会出bug
 	if isClosestPointDefender(role, defenderPoint) then
-		local Kp = 1
 		local idir = function(runner)
 			return (targetPos - player.pos(runner)):dir()
 		end
@@ -820,7 +811,7 @@ function defend_kick(role)
 		if math.abs(player.dir(role)) > math.pi/2 then
 			return { mexe, mpos, param.defenderShootMode, idir, pre.low, kp.specified(0), kp.specified(0), 0x00000000 }
 		end
-		return { mexe, mpos, param.defenderShootMode, idir, pre.low, power(targetPos, Kp), power(targetPos, Kp), 0x00000000 }
+		return { mexe, mpos, param.defenderShootMode, idir, pre.low, power(targetPos,player.num(role) ,param.defenderShootMode), power(targetPos,player.num(role) ,param.defenderShootMode), 0x00000000 }
 	else
 		local tTable = defend_norm(role, 2)
 		return tTable
@@ -998,7 +989,7 @@ function goalie(role, target, mode)
 			end
 			local mexe, mpos = GoCmuRush { pos = goaliePoint, dir = idir, acc = a, flag = 0x00000000, rec = r, vel = endVelController(role, goaliePoint) }
 			-- return { mexe, mpos, kick.chip, idir, pre.low, power(ballPos, kp), power(ballPos, kp), 0x00000000 }
-			return { mexe, mpos, kick.flat, idir, pre.low, power(ballPos, kp), power(ballPos, kp), 0x00000000 }
+			return { mexe, mpos, kick.flat, idir, pre.low, power(ballPos,player.num(role) ,kick.flat), power(ballPos,player.num(role),kick.flat) ,0x00000000 }
 		elseif ball.velMod() < 1000 and Utils.InExclusionZone(getBallPos, param.goalieBuf, "our") then
 			-- 球滚到禁区内停止
 			local kp = 1
@@ -1023,7 +1014,7 @@ function goalie(role, target, mode)
 
 			local mexe, mpos = GoCmuRush { pos = goaliePoint, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
 			-- return { mexe, mpos, kick.chip, idir, pre.low, power(targetPos, kp), power(targetPos, kp), 0x00000000 }
-			return { mexe, mpos, kick.flat, idir, pre.low, power(targetPos, kp), power(targetPos, kp), 0x00000000 }
+			return { mexe, mpos, kick.flat, idir, pre.low, power(targetPos, player.num(role) , kick.flat), power(targetPos, player.num(role) ,kick.flat), 0x00000000 }
 		else
 			-- 准备状态
 			-- 这里是当球没有朝球门飞过来的时候，需要提前到达的跑位点

@@ -33,9 +33,7 @@ ourButtomPenaltyPos       = CGeoPoint:new_local(-pitchLength / 2, -penaltyRadius
 goalWidth                 = CGetSettings("field/goalWidth", "Int")
 goalDepth                 = CGetSettings("field/goalDepth", "Int")
 goalRadius                = goalWidth / 2
-ourGoalLine               = CGeoSegment(CGeoPoint:new_local(-pitchLength / 2, -INF),
-    CGeoPoint:new_local(-pitchLength / 2,
-        INF))
+ourGoalLine               = CGeoSegment(CGeoPoint:new_local(-pitchLength / 2, -INF), CGeoPoint:new_local(-pitchLength / 2,INF))
 ourGoalPos                = CGeoPoint:new_local(-pitchLength / 2, 0)
 ourTopGoalPos             = CGeoPoint:new_local(-pitchLength / 2, goalRadius)
 ourButtomGoalPos          = CGeoPoint:new_local(-pitchLength / 2, -goalRadius)
@@ -45,7 +43,6 @@ ourButtomGoalPos          = CGeoPoint:new_local(-pitchLength / 2, -goalRadius)
 isReality = true
 Team = "ONE"
 -- Team = "TWO"
-
 -----------------------------------------------|
 --                Getball参数                 --|
 -----------------------------------------------|
@@ -74,10 +71,11 @@ playerRadius = 90 -- 机器人半径
 -----------------------------------------------|
 --                Shoot参数                   --|
 -----------------------------------------------|
-
 local shootError_Reality = 5 --1.8  -- 射击误差
 shootKp = 0.1                -- 射击力度比例
-shootPos = CGeoPoint(pitchLength / 2, 0)
+shootPos = CGeoPoint(0, 0)
+-- shootPos = CGeoPoint(pitchLength / 2, 0)
+
 canTouchAngle = 45           -- 可以touch的角度
 -----------------------------------------------|
 --               rot参数                      --|

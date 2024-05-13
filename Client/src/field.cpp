@@ -62,14 +62,14 @@ namespace
     int param_penaltyWidth;
     int param_penaltyLength;
 
-    /* ZJHU */
-    int player_buffer;
-    int player_ballrights_buffer;
-    int player_infraredcount_buffer;
-    int player_goalie;
-    int player_defender1;
-    int player_defender2;
-    /* ZJHU */
+    // /* ZJHU */
+    // int player_buffer;
+    // int player_ballrights_buffer;
+    // int player_infraredcount_buffer;
+    // int player_goalie;
+    // int player_defender1;
+    // int player_defender2;
+    // /* ZJHU */
 
     auto zpm = ZSS::ZParamManager::instance();
     bool isSimulation;
@@ -205,14 +205,14 @@ Field::Field(QQuickItem *parent)
     zpm->loadParam(numberSize, "size/numberSize", 200);
     zpm->loadParam(debugPointSize, "size/debugPointSize", 5);
 
-    /* ZJHU */
-    zpm->loadParam(player_buffer, "ZJHU/player_buffer", 130);
-    zpm->loadParam(player_ballrights_buffer, "ZJHU/player_ballrights_buffer", 120);
-    zpm->loadParam(player_infraredcount_buffer, "ZJHU/player_infraredcount_buffer", 120);
-    zpm->loadParam(player_goalie, "ZJHU/player_goalie", 0);
-    zpm->loadParam(player_defender1, "ZJHU/player_defender1", 1);
-    zpm->loadParam(player_defender2, "ZJHU/player_defender2", 2);
-    /* ZJHU */
+    // /* ZJHU */
+    // zpm->loadParam(player_buffer, "ZJHU/player_buffer", 130);
+    // zpm->loadParam(player_ballrights_buffer, "ZJHU/player_ballrights_buffer", 120);
+    // zpm->loadParam(player_infraredcount_buffer, "ZJHU/player_infraredcount_buffer", 120);
+    // zpm->loadParam(player_goalie, "ZJHU/player_goalie", 0);
+    // zpm->loadParam(player_defender1, "ZJHU/player_defender1", 1);
+    // zpm->loadParam(player_defender2, "ZJHU/player_defender2", 2);
+    // /* ZJHU */
 
     setAcceptedMouseButtons(Qt::LeftButton | Qt::RightButton | Qt::MiddleButton);
     // setAcceptHoverEvents(true);
@@ -611,14 +611,14 @@ void Field::setSize(int width, int height)
 }
 void Field::init()
 {
-    /* ZJHU */
-    zpm->loadParam(player_buffer, "ZJHU/player_buffer", 130);
-    zpm->loadParam(player_ballrights_buffer, "ZJHU/player_ballrights_buffer", 120);
-    zpm->loadParam(player_infraredcount_buffer, "ZJHU/player_infraredcount_buffer", 120);
-    zpm->loadParam(player_goalie, "ZJHU/player_goalie", 0);
-    zpm->loadParam(player_defender1, "ZJHU/player_defender1", 1);
-    zpm->loadParam(player_defender2, "ZJHU/player_defender2", 2);
-    /* ZJHU */
+    // /* ZJHU */
+    // zpm->loadParam(player_buffer, "ZJHU/player_buffer", 130);
+    // zpm->loadParam(player_ballrights_buffer, "ZJHU/player_ballrights_buffer", 120);
+    // zpm->loadParam(player_infraredcount_buffer, "ZJHU/player_infraredcount_buffer", 120);
+    // zpm->loadParam(player_goalie, "ZJHU/player_goalie", 0);
+    // zpm->loadParam(player_defender1, "ZJHU/player_defender1", 1);
+    // zpm->loadParam(player_defender2, "ZJHU/player_defender2", 2);
+    // /* ZJHU */
 
     zpm->loadParam(param_width, "field/width", 9000);
     zpm->loadParam(param_height, "field/height", 6000);

@@ -170,7 +170,7 @@ firstState = "get",
     runPosKicker = Utils.GetAttackPos(vision,player.num("Kicker"),runPosSpecial,CGeoPoint(-300,-700),CGeoPoint(2500,-2200),400)
     return "run"
   end,
-  Assister = task.Shootdot("Assister",playerPos("Special"), param.shootKp, 10, kick.flat),
+  Assister = task.Shootdot("Assister",playerPos("Special"),  10, kick.flat),
   Kicker = task.goCmuRush(runPos("Kicker",true),closures_dir_ball("Kicker")),
   Special = task.goCmuRush(runPos("Special"),closures_dir_ball("Special")),
   Tier = task.stop(),
@@ -185,7 +185,7 @@ firstState = "get",
             return "exit"
         end
   end,
-  Assister = task.Shootdot("Assister",playerPos("Special"), param.shootKp, 10, kick.flat),
+  Assister = task.Shootdot("Assister",playerPos("Special"), 10, kick.flat),
   Special = task.goCmuRush(runPos_Special(0),closures_dir_ball("Special")),
   Kicker = task.goCmuRush(runPos_Kicker(0),closures_dir_ball("Kicker")),
   Tier = task.stop(),

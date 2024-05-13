@@ -127,7 +127,7 @@ firstState = "Init",
 			return "getball"
 		end
 	end,
-	Assister = task.ShootdotV2(function() return resShootPos end,function() return shoot_kp end, param.shootError, kick.flat),
+	Assister = task.ShootdotV2(function() return resShootPos end, param.shootError, kick.flat),
 	match = "{A}"
 },
 	
