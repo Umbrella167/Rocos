@@ -24,17 +24,11 @@ end
 
 
 local shoot_kp = param.shootKp
-local resShootPos = CGeoPoint(param.pitchLength / 2,0)
+-- local resShootPos = CGeoPoint(param.pitchLength / 2,0)
 local shootKPFun = function()
 	return function()
 		return shoot_kp
 	end
-end
-
-local ShowDribblingPos = function ()
-    return function()
-        return CGeoPoint:new_local(show_dribbling_pos:x(),show_dribbling_pos:y())
-    end
 end
 
 local dribblingDir = function(role)
@@ -93,8 +87,8 @@ firstState = "Init",
 		local StartPos = CGeoPoint(player.posX("Assister"),player.posY("Assister"))
 		local endPos = CGeoPoint(player.posX("Assister"),player.posY("Assister"))
 		local dribbleLimitDist = GlobalMessage.Tick().ball.first_dribbling_pos:dist(player.pos("Assister"))
-		showPassPos = Utils.GetAttackPos(vision,player.num("Assister"),param.shootPos,CGeoPoint(param.pitchLength / 2 * 0.9, param.pitchWidth / 2 * 0.85),CGeoPoint( 0 , -1 * param.pitchWidth / 2 * 0.85),300,200)
-		if dribblingCount > 40 then
+		-- showPassPos = Utils.GetAttackPos(vision,player.num("Assister"),param.shootPos,CGeoPoint(param.pitchLength / 2 * 0.9, param.pitchWidth / 2 * 0.85),CGeoPoint( 0 , -1 * param.pitchWidth / 2 * 0.85),300,200)
+		if dribblingCount > 30 then
 			show_dribbling_pos = Utils.GetShowDribblingPos(vision,CGeoPoint(player.posX("Assister"),player.posY("Assister")),showPassPos);
 			dribblingCount = 0
 		end
@@ -104,44 +98,44 @@ firstState = "Init",
 		debugEngine:gui_debug_msg(CGeoPoint(0,-1200),"PlayerToShootPosAngle: "..SubDir,6)
 		local inMyMouse = player.myinfraredCount("Assister") > 30 and true or false
 		if  (inMyMouse and dribbleLimitDist > 800) or (Utils.isValidPass(vision,StartPos,showPassPos,param.enemy_buffer) and SubDir < canShootAngle) then
-			return "shoot"
+			-- return "shoot"
 		end
 		
     end,
     --dribbling_target_pos
-    Assister = task.goCmuRush(ShowDribblingPos(), dribblingDir("Assister"),dribblingVel,flag.dribbling),
+    Assister = task.goCmuRush(function() return show_dribbling_pos end, dribblingDir("Assister"),dribblingVel,flag.dribbling),
 
     match = "[A]"
 },
-["turnToPoint"] = {
-	switch = function()
+-- ["turnToPoint"] = {
+-- 	switch = function()
 		 
-		-- if(not bufcnt(player.infraredOn("Assister"),1)) then
-		-- 	return "ready1"
-		-- end
-		-- debugEngine:gui_debug_msg(CGeoPoint:new_local(0,0),player.rotVel("Assister"))
-		debugMesg()
-		if shootPosFun():x() == param.pitchLength / 2 then
-			shoot_kp = 10000
-		else
-			shoot_kp = param.shootKp
-		end
+-- 		-- if(not bufcnt(player.infraredOn("Assister"),1)) then
+-- 		-- 	return "ready1"
+-- 		-- end
+-- 		-- debugEngine:gui_debug_msg(CGeoPoint:new_local(0,0),player.rotVel("Assister"))
+-- 		debugMesg()
+-- 		if shootPosFun():x() == param.pitchLength / 2 then
+-- 			shoot_kp = 10000
+-- 		else
+-- 			shoot_kp = param.shootKp
+-- 		end
 
-		if(bufcnt(player.myinfraredCount("Assister") < 1,4)) then
-			return "getball"
-		end
-		local Vy = player.rotVel("Assister")
-		local ToTargetDist = player.toPointDist("Assister",param.shootPos)
-		resShootPos = task.compensateAngle("Assister",Vy,param.shootPos,ToTargetDist * param.rotCompensate)
-		debugEngine:gui_debug_msg(CGeoPoint(0,-3000),shoot_kp)
-		if(task.playerDirToPointDirSub("Assister",resShootPos) < param.shootError) then 
-			return "shoot"
-		end
+-- 		if(bufcnt(player.myinfraredCount("Assister") < 1,4)) then
+-- 			return "getball"
+-- 		end
+-- 		local Vy = player.rotVel("Assister")
+-- 		local ToTargetDist = player.toPointDist("Assister",param.shootPos)
+-- 		resShootPos = task.compensateAngle("Assister",Vy,param.shootPos,ToTargetDist * param.rotCompensate)
+-- 		debugEngine:gui_debug_msg(CGeoPoint(0,-3000),shoot_kp)
+-- 		if(task.playerDirToPointDirSub("Assister",resShootPos) < param.shootError) then 
+-- 			return "shoot"
+-- 		end
 
-	end,
-	Assister = function() return task.TurnToPointV2("Assister", function() return resShootPos end,param.rotVel) end,
-	match = "{A}"
-},
+-- 	end,
+-- 	Assister = function() return task.TurnToPointV2("Assister", function() return resShootPos end,param.rotVel) end,
+-- 	match = "{A}"
+-- },
 
 ["shoot"] = {
 	switch = function()
@@ -150,7 +144,7 @@ firstState = "Init",
 			return "getball"
 		end
 	end,
-	Assister = task.ShootdotDribbling(function() return showPassPos end, 0.000001 , 100, kick.flat),
+	Assister = task.ShootdotDribbling(0.000001 , 100, kick.flat),
 	match = "{A}"
 },
 

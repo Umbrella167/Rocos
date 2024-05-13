@@ -5,7 +5,7 @@ function pos()
     if not vision:ball():Valid() then
         ballPos = GlobalMessage.Tick().ball.pos
     end
-    return ballPos
+    return CGeoPoint(ballPos:x(),ballPos:y()) 
 end
 
 function posX()

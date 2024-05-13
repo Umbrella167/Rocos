@@ -23,9 +23,9 @@ function getBall_BallPlacement(role)
 			bufcnt_Infield = 0
 		end
 		if bufcnt_Infield > 60 then 
-			local toballDir = math.abs((ball.rawPos() - player.rawPos(role)):dir() * 57.3)
-			local playerDir = math.abs(( ballPlacementPos - player.pos(role)):dir()) * 57.3
-			local Subdir = math.abs(toballDir-playerDir)
+			local toballDir = math.abs((ball.pos() - player.rawPos(role)):dir())
+			local playerDir = math.abs(player.dir(role))
+			local Subdir = math.abs(Utils.angleDiff(toballDir,playerDir) * 180/math.pi)
 			if bufcnt (Subdir < 30 and player.toBallDist(role) < 200,60) then
 				debugEngine:gui_debug_msg(CGeoPoint(0,0),"1")
 				placementflag = flag.our_ball_placement + flag.dribbling
@@ -40,9 +40,9 @@ function getBall_BallPlacement(role)
 		else
 			-- debugEngine:gui_debug_msg(CGeoPoint(100,1000),player.myinfraredCount(role))
 			if player.myinfraredCount(role) < 20 then
-				local toballDir = math.abs((ball.rawPos() - player.rawPos(role)):dir() * 57.3)
-				local playerDir = math.abs((player.pos(role) -  ballPlacementPos):dir()) * 57.3
-				local Subdir = math.abs(toballDir-playerDir)
+				local toballDir = math.abs((ball.pos() - player.rawPos(role)):dir())
+				local playerDir = math.abs(player.dir(role))
+				local Subdir = math.abs(Utils.angleDiff(toballDir,playerDir) * 180/math.pi)
 				if bufcnt( Subdir < 30 and player.toBallDist(role) < 200,60) then
 					debugEngine:gui_debug_msg(CGeoPoint(0,0),"3")
 					placementflag = flag.our_ball_placement + flag.dribbling
@@ -130,9 +130,9 @@ function getball_dribbling(role)
 		local idir = player.toBallDir(role)
 		local p = ball.pos() + Utils.Polar2Vector(-10,idir)
 		local endVel = Utils.Polar2Vector(ball.velMod() + 100,idir)
-		local toballDir = math.abs((ball.pos() - player.rawPos(role)):dir() * 57.3)
-		local playerDir = math.abs(player.dir(role)) * 57.3
-		local Subdir = math.abs(toballDir-playerDir)
+		local toballDir = math.abs((ball.pos() - player.rawPos(role)):dir())
+		local playerDir = math.abs(player.dir(role))
+		local Subdir = math.abs(Utils.angleDiff(toballDir,playerDir) * 180/math.pi)
 		local iflag = flag.dribbling + flag.allow_dss
 		local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
 		if Subdir > 15 and player.toBallDist(role) < 150 then 
@@ -185,9 +185,9 @@ function getballV2(role, playerVel, inter_flag, target_point, permissions)
 			end
 			
 			-- local toballDir = math.abs(player.toBallDir(role))  * 57.3
-			local toballDir = math.abs((ball.rawPos() - player.rawPos(role)):dir() * 57.3)
-			local playerDir = math.abs(player.dir(role)) * 57.3
-			local Subdir = math.abs(toballDir-playerDir)
+			local toballDir = math.abs((ball.pos() - player.rawPos(role)):dir())
+			local playerDir = math.abs(player.dir(role))
+			local Subdir = math.abs(Utils.angleDiff(toballDir,playerDir) * 180/math.pi)
 			local subPlayerBallToTargetDir = toballDir - playerDir 
 			local iflag = bit:_or(flag.allow_dss, flag.dodge_ball)
 			if Subdir > 20 then 
@@ -223,7 +223,8 @@ function getballV2(role, playerVel, inter_flag, target_point, permissions)
 	end
 end
 
-playerPower = {
+playerPowerONE = 
+{
 	-- [num] = {min, max, KP} 
 	[0] = {230,310,0},
 	[1] = {230,310,0},
@@ -243,7 +244,27 @@ playerPower = {
 	[15] = {230,310,0},
 	[16] = {230,310,0}, -- Other
 }
-
+playerPowerTWO = {
+	-- [num] = {min, max, KP} 
+	[0] = {230,310,0},
+	[1] = {230,310,0},
+	[2] = {230,310,0},
+	[3] = {230,310,0}, -- 吸球强
+	[4] = {230,230,0},
+	[5] = {230,310,0},
+	[6] = {230,310,0},
+	[7] = {230,310,0},
+	[8] = {230,310,0},
+	[9] = {230,310,0},
+	[10] = {230,310,0},
+	[11] = {230,310,0},
+	[12] = {230,310,0},
+	[13] = {230,310,0},
+	[14] = {230,310,0},
+	[15] = {230,310,0},
+	[16] = {230,310,0}, -- Other
+}
+playerPower = Team == "ONE" and playerPowerONE or playerPowerTWO
 function power(p, Kp1, num) --根据目标点与球之间的距离求出合适的 击球力度 kp系数需要调节   By Umbrella 2022 06
 	return function()
 		local Kp
@@ -424,20 +445,22 @@ function TurnToPointV2(role, p, speed)
 	end
 	debugEngine:gui_debug_x(p1,6)
 
-	-- local playerDir = player.dir(role)
-	-- local playerToTargetDir = (p1 - player.pos(role)):dir() * 57.3
-	-- local ballToTargetDir = (p1 - ball.pos()):dir() * 57.3
-	-- local subPlayerBallToTargetDir = playerToTargetDir - ballToTargetDir
-		local toballDir = (p1 - player.rawPos(role)):dir() * 57.3
-		local playerDir = player.dir(role) * 57.3
-		local subPlayerBallToTargetDir = toballDir - playerDir 
+		-- local toballDir = (p1 - player.rawPos(role)):dir() * 57.3
+		-- local playerDir = player.dir(role) * 57.3
+		-- local subPlayerBallToTargetDir = toballDir - playerDir 
+
+		
+		local toballDir = (p1 - player.rawPos(role)):dir()
+		local playerDir = player.dir(role)
+		local subPlayerBallToTargetDir = Utils.angleDiff(toballDir,playerDir) * 180/math.pi
 		-- local Subdir = math.abs(toballDir-playerDir)
 		debugEngine:gui_debug_msg(CGeoPoint:new_local(1000,380),toballDir .. "                     " .. playerDir,4)
 		debugEngine:gui_debug_msg(CGeoPoint:new_local(1000,220),math.abs(toballDir-playerDir) .. "                     " .. subPlayerBallToTargetDir,3)
-	if math.abs(toballDir-playerDir) > 4 then
-		if subPlayerBallToTargetDir < 0 then
+	if math.abs(subPlayerBallToTargetDir) > 4 then
+		if subPlayerBallToTargetDir > 0 then
 			-- 顺时针旋转
-			-- debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "顺时针")
+		debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "顺时针".. subPlayerBallToTargetDir)
+
 			local ipos = CGeoPoint(param.rotPos:x(), param.rotPos:y() * -1)  --自身相对坐标 旋转
 			local ivel = speed * -1
 			local mexe, mpos = CircleRun {pos = ipos , vel = ivel}
@@ -445,6 +468,8 @@ function TurnToPointV2(role, p, speed)
 		else
 			-- 逆时针旋转
 			-- debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "逆时针")
+		debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "逆时针".. subPlayerBallToTargetDir)
+
 			local ipos = param.rotPos  --自身相对坐标 旋转
 			local ivel = speed
 
@@ -492,7 +517,7 @@ function ShootdotV2(p, Kp, error_, flag_,role)
 end
 
 
-function ShootdotDribbling(p, Kp, error_, flag_,role)
+function ShootdotDribbling(Kp, error_, flag_)
 	return function()
 		local irole = role or "Assister"
 		local p1
@@ -501,7 +526,6 @@ function ShootdotDribbling(p, Kp, error_, flag_,role)
 		else
 			p1 = p
 		end
-		
 		local kp1
 		if type(Kp) == 'function' then
 			kp1 = Kp()
@@ -509,10 +533,10 @@ function ShootdotDribbling(p, Kp, error_, flag_,role)
 			kp1 = Kp
 		end
 		local shootpos = function(runner)
-			return ball.pos() + Utils.Polar2Vector(-50, (p1 - ball.pos()):dir())
+			return ball.pos() + Utils.Polar2Vector(50, player.toBallDir(runner))
 		end
 		local idir = function(runner)
-			return (p1 - player.pos(runner)):dir()
+			return player.toBallDir(runner)
 		end
 		local error__ = function()
 			return error_ * math.pi / 180.0
@@ -542,9 +566,9 @@ function Shootdot(role,p, Kp, error_, flagShoot) --
 		end
 		local endvel = Utils.Polar2Vector(300,player.toBallDir(role))
 		-- local toballDir = math.abs(player.toBallDir(role))  * 57.3
-		local toballDir = math.abs((ball.rawPos() - player.rawPos(role)):dir() * 57.3)
-		local playerDir = math.abs(player.dir(role)) * 57.3
-		local Subdir = math.abs(toballDir-playerDir)
+		local toballDir = math.abs((ball.pos() - player.rawPos(role)):dir())
+		local playerDir = math.abs(player.dir(role))
+		local Subdir = math.abs(Utils.angleDiff(toballDir,playerDir) * 180/math.pi)
 		local iflag = bit:_or(flag.allow_dss, flag.dodge_ball)
 		if Subdir > error_ then 
 			local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
@@ -605,27 +629,14 @@ function playerDirToPointDirSub(role, p) -- 检测 某座标点  球  playe 是�
 	else
 		p1 = p
 	end
+	local toballDir = (p1 - ball.pos()):dir()
+	local playerDir = player.dir(role)
+	local Subdir = math.abs(Utils.angleDiff(toballDir,playerDir) * 180/math.pi)
 	local playerDir = player.dir(role) * 57.3 + 180
 	local playerPointDit = (p1 - player.rawPos(role)):dir() * 57.3 + 180
-	local sub = math.abs(playerDir - playerPointDit)
-	debugEngine:gui_debug_msg(CGeoPoint:new_local(0, -4000),  "AngleError: ".. sub)
-	return sub
-end
-
-function pointToPointAngleSub(p, p2) -- 检测 某座标点  球  playe 是否在一条直线上
-	if type(p) == 'function' then
-		p1 = p()
-	else
-		p1 = p
-	end
-	local dir_pass = (ball.pos() - p2):dir() * 57.3 + 180
-	local dir_xy = (p1 - ball.pos()):dir() * 57.3 + 180
-	local sub = math.abs(dir_pass - dir_xy)
-	if sub > 300 then
-		sub = 360 - sub
-	end
-	debugEngine:gui_debug_msg(CGeoPoint:new_local(-1000, 0), sub)
-	return sub
+	local Subdir = math.abs(playerDir - playerPointDit)
+	debugEngine:gui_debug_msg(CGeoPoint:new_local(0, -4000),  "AngleError: ".. Subdir)
+	return Subdir
 end
 
 --- ///  /// --- /// /// --- /// /// --- /// /// --- /// /// ---
@@ -1275,7 +1286,6 @@ function getInitData(role, p)
 		return { mexe, mpos }
 	end
 end
-
 kickPower = {}
 minPower = 1000
 maxPower = 6000
@@ -1285,7 +1295,6 @@ fitPlayerLen = 0
 fitPlayerList = {}
 fitPlayer1 = -1
 fitPlayer2 = -1
-
 -- isFitfinshed = false
 function fitPower(i)
 	return function()

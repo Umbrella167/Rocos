@@ -16,7 +16,6 @@ our_goalie_num            = CGetSettings("ZJHU/our_goalie_num", "Int")
 defend_num1               = CGetSettings("ZJHU/defend_num1", "Int")
 defend_num2               = CGetSettings("ZJHU/defend_num2", "Int")
 
-
 -----------------------------------------------|
 --                feild参数                  --|
 -----------------------------------------------|
@@ -43,14 +42,16 @@ ourButtomGoalPos      = CGeoPoint:new_local(-pitchLength / 2, -goalRadius)
 
 -- 是否为真实场地
 isReality = true
+Team = "ONE"
+-- Team = "TWO"
 
 -----------------------------------------------|
 --                Getball参数                 --|
 -----------------------------------------------|
-playerVel = 1                                  -- 机器人速度
-getballMode = 1                                -- [0[激进模式], 1[保守模式], 2[middle]]
-local V_DECAY_RATE_Reality = 630               -- 场地摩擦
-lastInterPos = CGeoPoint:new_local(-INF, -INF) -- 上一次算点结果
+playerVel = 1                                       -- 机器人速度
+getballMode = 1                                       -- [0[激进模式], 1[保守模式], 2[middle]]
+local V_DECAY_RATE_Reality = 700                          -- 场地摩擦
+lastInterPos = CGeoPoint:new_local(-INF,-INF)       -- 上一次算点结果
 rushToBallCount = 0
 distRate = 0.2                                 --
 
