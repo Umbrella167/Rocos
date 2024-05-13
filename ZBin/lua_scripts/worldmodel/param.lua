@@ -42,7 +42,7 @@ ourButtomGoalPos          = CGeoPoint:new_local(-pitchLength / 2, -goalRadius)
 
 
 -- 是否为真实场地
-isReality = true
+isReality = false
 Team = "ONE"
 -- Team = "TWO"
 
@@ -113,7 +113,8 @@ goalieBuf = playerRadius
 -- goalie 需要考虑敌人朝向的距离，一般为半场的一半
 goalieAimDirRadius = pitchLength / 4
 -- goalie 在考虑敌人朝向时会走出的最远距离， 一般为球门半径
-enemyAimBuf = goalRadius
+-- enemyAimBuf = goalRadius
+enemyAimBuf = goalWidth
 -- goalie 移动的线（mode-0）
 goalieMoveLine = CGeoSegment(CGeoPoint:new_local(-pitchLength / 2 + goalieBuf, -INF),
     CGeoPoint:new_local(-pitchLength / 2 + goalieBuf, INF))
@@ -128,6 +129,10 @@ goalieDribblingFrame = 200
 goalieDribblingA = 1000
 -- goalie 要踢向的点
 goalieTargetPos = CGeoPoint(param.pitchLength / 2, param.pitchWidth / 2)
+-- 当截球点离goalie非常近的时候就会直接拦球
+goalieCatchBuf = goalieBuf*2
+
+
 -- 对齐的准确度
 alignRate = 0.8
 

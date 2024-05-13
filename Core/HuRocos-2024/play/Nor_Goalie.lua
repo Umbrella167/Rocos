@@ -16,15 +16,16 @@ return {
         switch = function()
             local rolePos = CGeoPoint:new_local(player.rawPos("Goalie"):x(), player.rawPos("Goalie"):y())
             local getBallPos = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1,param.V_DECAY_RATE)
-            
             if player.myinfraredCount("Goalie") > 10 then
                 return "goalie_getBall"
             end
-            
             if isShooting() and Utils.InExclusionZone(getBallPos, param.goalieBuf, "our") then
                 return "goalie_getBall"
             end
             if ball.velMod() < 1000 and Utils.InExclusionZone(getBallPos, param.goalieBuf, "our") then
+                return "goalie_getBall"
+            end
+            if rolePos:dist(getBallPos)<param.goalieCatchBuf then
                 return "goalie_getBall"
             end
         end,
@@ -36,7 +37,6 @@ return {
         switch = function()
             local rolePos = CGeoPoint:new_local(player.rawPos("Goalie"):x(), player.rawPos("Goalie"):y())
             local getBallPos = task.stabilizePoint(Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1,param.V_DECAY_RATE))
-
             if not Utils.InExclusionZone(getBallPos, param.goalieBuf, "our") then
                 return "goalie_norm"
             end
@@ -55,7 +55,6 @@ return {
         switch = function()
             local rolePos = CGeoPoint:new_local(player.rawPos("Goalie"):x(), player.rawPos("Goalie"):y())
             local getBallPos = task.stabilizePoint(Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1,param.V_DECAY_RATE))
-
             if not Utils.InExclusionZone(getBallPos, param.goalieBuf, "our") then
                 return "goalie_norm"
             end

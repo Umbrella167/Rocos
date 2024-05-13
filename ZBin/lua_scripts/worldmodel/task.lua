@@ -825,9 +825,7 @@ function defend_kick(role)
 		local tTable = defend_norm(role, 2)
 		return tTable
 	end
-
 end
-
 
 -- 守门员skill
 -- 守门员的预备状态
@@ -838,6 +836,9 @@ function goalie_norm(role, target, mode)
 	end
 	local rolePos = CGeoPoint:new_local(player.rawPos(role):x(), player.rawPos(role):y())
 	local enemyNum = getManMarkEnemy()
+	if enemyNum == -1 then
+		return Stop { }
+	end
 	local enemyDir = enemy.dir(enemyNum)
 	local enemyPos = CGeoPoint:new_local(enemy.posX(enemyNum), enemy.posY(enemyNum))
 	local enemyDirLine = CGeoSegment(enemyPos, enemyPos+Utils.Polar2Vector(param.INF, enemyDir))
@@ -888,9 +889,7 @@ function goalie_getBall(role)
 	local idir = function(runner)
 		return (ballPos - player.pos(runner)):dir()
 	end
-
 	-- debugEngine:gui_debug_x(param.goalieStablePoint)
-
 	local goaliePoint = CGeoPoint:new_local(getBallPos:x(), getBallPos:y())
 	local a = 4000
 	if ball.velMod() < 800 and player.myinfraredCount(role) < 10 then
@@ -910,7 +909,6 @@ function goalie_getBall(role)
 		-- goaliePoint = ballPos + Utils.Polar2Vector(param.playerRadius, ballToRoleDir)
 		goaliePoint = rolePos
 	end
-
 	local mexe, mpos = GoCmuRush { pos = goaliePoint, dir = idir, acc = a, flag = flag.dribbling, rec = r, vel = endVelController(role, goaliePoint), speed = s, force_manual = force_manual }
 	return { mexe, mpos }
 end
@@ -931,15 +929,12 @@ function goalie_kick(role)
 	elseif param.goalieShootMode() == 2 then
 		kp = 9999
 	end
-
 	local idir = function(runner)
 		return (fungoalieTargetPos() - rolePos):dir()
 	end
-
 	local goaliePoint = CGeoPoint:new_local(getBallPos:x(), getBallPos:y()) + Utils.Polar2Vector(-param.playerRadius+10, ballToTargetDir)
 	local Subdir = math.abs(Utils.angleDiff(ballToTargetDir,roleToBallTargetDir))
 	local iflag = bit:_or(flag.allow_dss, flag.dodge_ball)
-	debugEngine:gui_debug_msg(CGeoPoint(0, 0), Subdir)
 	if Subdir > 0.14 then 
 		local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
 		iflag =  DSS_FLAG

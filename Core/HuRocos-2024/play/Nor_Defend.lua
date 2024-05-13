@@ -27,8 +27,7 @@ return {
         end,
         Tier = function() return task.defend_norm("Tier", 0) end,
         Defender = function() return task.defend_norm("Defender", 1) end,
-        Goalie = task.goalie("Goalie"),
-        match = "(GTD)"
+        match = "(TD)"
     },
     ["defend_front"] = {
         switch = function()
@@ -49,8 +48,7 @@ return {
         end,
         Tier = function() return task.defend_front("Tier") end,
         Defender = function() return task.defend_front("Defender") end,
-        Goalie = task.goalie("Goalie"),
-        match = "(GTD)"
+        match = "(TD)"
     },
     ["defend_kick"] = {
         switch = function()
@@ -60,8 +58,7 @@ return {
         end,
         Tier = function() return task.defend_kick("Tier") end,
         Defender = function() return task.defend_kick("Defender") end,
-        Goalie = task.goalie("Goalie"),
-        match = "(GTD)"
+        match = "(TD)"
     },
 
     name = "Nor_Defend",
