@@ -72,7 +72,7 @@ int runLoop() {
     */
     while (true) {
         vision->setNewVision();
-        Utils::UpdateTickMessage(vision,0,1,2);
+        Utils::UpdateTickMessage(vision,PARAM::Player::our_goalie_num,PARAM::Player::defend_num1,PARAM::Player::defend_num2);
         decision->DoDecision();
         action->sendAction();
         GDebugEngine::Instance()->send(option->MyColor() == PARAM::BLUE); //Show two teams debug messages

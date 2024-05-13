@@ -60,7 +60,7 @@ firstState = "Init",
 	Assister = task.getball_dribbling("Assister"),
 	match = "[A]"
 },
-	
+
 
 ["getball"] = {
 	switch = function()
@@ -68,9 +68,8 @@ firstState = "Init",
 		local toballDir = (param.shootPos - ball.pos()):dir()
 		local playerDir = player.dir("Assister")
 		local subDir = math.abs(Utils.angleDiff(toballDir,playerDir) * 180/math.pi)
-		-- local drbblingRate = Utils.NumberNormalize(subDir,)
-
-		if(player.myinfraredCount("Assister") > 15) then
+		local drbblingRate = math.ceil((15 * Utils.NumberNormalize(subDir,120,30)))
+		if(player.myinfraredCount("Assister") > 15 + drbblingRate) then
 			return "turnToPoint"
 		end
 		local Vy = player.rotVel("Assister")

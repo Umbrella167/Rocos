@@ -50,6 +50,8 @@ namespace PARAM {
         const double V_DECAY_RATE = 700; // == param.V_DECAY_RATE
 
     }
+
+
     namespace Player {
         const int playerFrontToCenter = 76; // 机器人圆心到嘴的距离
         const int playerRadiusr = 90; // 机器人半径

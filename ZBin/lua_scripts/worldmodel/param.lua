@@ -16,7 +16,6 @@ player_goalie               = CGetSettings("ZJHU/player_goalie", "Int")
 player_defender1            = CGetSettings("ZJHU/player_defender1", "Int")
 player_defender2            = CGetSettings("ZJHU/player_defender2", "Int")
 
-
 -----------------------------------------------|
 --                feild参数                  --|
 -----------------------------------------------|
@@ -42,7 +41,7 @@ ourButtomGoalPos      = CGeoPoint:new_local(-pitchLength / 2, -goalRadius)
 
 
 -- 是否为真实场地
-isReality = IS_SIMULATION
+isReality = true
 Team = "ONE"
 -- Team = "TWO"
 
