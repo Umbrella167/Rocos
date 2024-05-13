@@ -1,20 +1,20 @@
 module(..., package.seeall)
 
 ---------------------------------
-INF                         = 1e9
-PI                          = 3.141592653589793238462643383279
-maxPlayer                   = 16
-ballDiameter                = 42
+INF                       = 1e9
+PI                        = 3.141592653589793238462643383279
+maxPlayer                 = 16
+ballDiameter              = 42
 ---------------------------------
 -----------------------------------------------|
 --                ZJHU参数                  --|
 -----------------------------------------------|
-player_buffer               = CGetSettings("ZJHU/player_buffer", "Int")
-player_ballrights_buffer    = CGetSettings("ZJHU/player_ballrights_buffer", "Int")
-player_infraredcount_buffer = CGetSettings("ZJHU/player_infraredcount_buffer", "Int")
-player_goalie               = CGetSettings("ZJHU/player_goalie", "Int")
-player_defender1            = CGetSettings("ZJHU/player_defender1", "Int")
-player_defender2            = CGetSettings("ZJHU/player_defender2", "Int")
+enemy_buffer              = CGetSettings("ZJHU/enemy_buffer", "Int")
+playerBallRightsBuffer    = CGetSettings("ZJHU/playerBallRightsBuffer", "Int")
+playerInfraredCountBuffer = CGetSettings("ZJHU/playerInfraredCountBuffer", "Int")
+our_goalie_num            = CGetSettings("ZJHU/our_goalie_num", "Int")
+defend_num1               = CGetSettings("ZJHU/defend_num1", "Int")
+defend_num2               = CGetSettings("ZJHU/defend_num2", "Int")
 
 -----------------------------------------------|
 --                feild参数                  --|

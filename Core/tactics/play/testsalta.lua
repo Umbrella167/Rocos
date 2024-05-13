@@ -26,6 +26,7 @@ gPlayTable.CreatePlay {
 --[[
 ~/zss.ini                                   是拿来存放参数的
 ~/Client/src/field.cpp                      利用 PARAM::FIELD::init 加了个初始化，从 zss.ini 里面加载
+~/share/staticparams.h                      里面定义了 PARAM::ZJHU
 ~/share/staticparams.cpp                    里面定义了 PARAM::ZJHU
 ~/ZBin/lua_scripts/worldmodel/param.lua     lua 层的也从 zss.ini 里面加载
  ]]
