@@ -37,8 +37,11 @@ firstState = "ready1",
 		
 		debugEngine:gui_debug_msg(CGeoPoint(0,2800),"BallRights: " .. GlobalMessage.Tick().ball.rights)
 		debugEngine:gui_debug_msg(CGeoPoint(0,2600),"InfraredCount: " .. player.myinfraredCount("Assister"),2)
-
-
+		-- for i=0,param.maxPlayer do
+		-- 	if player.valid(i) then
+				
+		-- 	end
+		-- end
 		debugEngine:gui_debug_msg(CGeoPoint(0,2400),"BallPos: " .. ball.pos():x() .. "    " .. ball.pos():y() ,3)
 		debugEngine:gui_debug_msg(CGeoPoint(0,2200),"ToBallDist: " .. player.toBallDist("Assister") ,4)
 		
@@ -57,13 +60,17 @@ firstState = "ready1",
 		debugEngine:gui_debug_msg(getballPos,"GetballPos ",4)
 		local playerPos = CGeoPoint:new_local(player.pos("Assister"):x(),player.pos("Assister"):y()) 
 		local mouthPos = playerPos + Utils.Polar2Vector(param.playerFrontToCenter,player.dir("Assister"))
+		task.playerDirToPointDirSub("Assister",CGeoPoint(0,0))
 		debugEngine:gui_debug_x(mouthPos,4)
 
 	end,
 
-	Assister = task.goCmuRush(), 
+	Assister = task.stop, 
+	Kicker = task.stop, 
+	Special = task.stop, 
+
 	-- Assister = task.getball(function() return shoot_pos end,param.playerVel,param.getballMode),
-	match = "[A]"
+	match = "[AKS]"
 },
 
 

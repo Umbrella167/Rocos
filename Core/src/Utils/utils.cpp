@@ -52,7 +52,7 @@ namespace Utils
     GlobalTick GetTick(){
         return Tick[now];
     }
-    GlobalTick UpdataTickMessage(const CVisionModule *pVision, int goalie_num, int defend_player_num1, int defend_player_num2)
+    GlobalTick UpdateTickMessage(const CVisionModule *pVision, int goalie_num, int defend_player_num1, int defend_player_num2)
     {
         CWorldModel RobotSensor;
         int oldest = 0;
@@ -91,6 +91,8 @@ namespace Utils
         {
             if (pVision->ourPlayer(i).Valid())
             {
+                if (Tick[now].task[i].infrared_count == 0)
+                    Tick[now].task[i].infrared_off_count += 1;
                 // 如果球的视野消失，但是有红外信息，认为球的位置在触发红外的机器人上
                 if(!pVision ->ball().Valid())
                     if(RobotSensor.InfraredOnCount(i)>5)
@@ -142,14 +144,25 @@ namespace Utils
             else
             {
                 Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_count = 0;
-                Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_off_count += 1;
+
             }
         }
         else
         {
+            if(RobotSensor.InfraredOnCount(Tick[now].our.to_balldist_min_num) > 0)
+            {
+                Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_count = RobotSensor.InfraredOnCount(Tick[now].our.to_balldist_min_num);
+                Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_off_count = 0;
+            }
+            else
+            {
+                if ((our_min_dist < PARAM::Player::playerInfraredCountBuffer - 20 && dribblePlayerToBallAngle < minJudgeAngle))
+                {
+                    Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_count += 1;
+                    Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_off_count = 0;
+                }
+            }
 
-            Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_count =RobotSensor.InfraredOnCount(Tick[now].our.to_balldist_min_num);
-            Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_off_count = RobotSensor.InfraredOffCount(Tick[now].our.to_balldist_min_num);
         }
         /// 球权判断
         // 球权一定是我方的情况
@@ -343,8 +356,9 @@ namespace Utils
             double x = player_pos.x() + radius * cos(angle);
             double y = player_pos.y() + radius * sin(angle);
             CGeoPoint run_pos = CGeoPoint(x, y);
-            if (run_pos.dist(Tick[now].ball.first_dribbling_pos) > 1000)
+            if (run_pos.dist(Tick[now].ball.first_dribbling_pos) > 1000 || InExclusionZone(run_pos,180) || !IsInField(run_pos,300))
                 continue;
+
             double grade = ShowDribblingGrade(pVision, run_pos, player_pos, target_pos);
             if (max_grade < grade)
             {
@@ -501,8 +515,13 @@ namespace Utils
         double enemyToBallLineDist_min = inf;
         double enemyGetballNum_min = -1;
 
-        if (!IsPlayerOnBallLine)
-            return maxBallPos;
+//        if (!IsPlayerOnBallLine)
+//        {
+//            if(!InField(maxBallPos) || InExclusionZone(maxBallPos))
+//                return CGeoPoint(inf,inf);
+//            else
+//                return maxBallPos;
+//        }
 
         for(int i = 0; i<PARAM::Field::MAX_PLAYER; i++)
         {
@@ -837,14 +856,16 @@ namespace Utils
             {
 
                 global_status = global_status + "[" + to_string(Tick[now].task[i].player_num) + "," + Tick[now].task[i].status + "]";
-                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision->ourPlayer(i).Pos().x(), pVision->ourPlayer(i).Pos().y() - 160), "Number: " + to_string(Tick[now].task[i].player_num), 4, 0, 80);
-                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision->ourPlayer(i).Pos().x(), pVision->ourPlayer(i).Pos().y() - 250), "shoot: " + to_string(Tick[now].task[i].confidence_shoot), 8, 0, 80);
-                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision->ourPlayer(i).Pos().x(), pVision->ourPlayer(i).Pos().y() - 340), "Pass: " + to_string(Tick[now].task[i].confidence_pass), 2, 0, 80);
+                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision->ourPlayer(i).Pos().x(), pVision->ourPlayer(i).Pos().y() - 160), "Number: " + to_string(Tick[now].task[i].player_num), 4, 0, 70);
+                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision->ourPlayer(i).Pos().x(), pVision->ourPlayer(i).Pos().y() - 250), "shoot: " + to_string(Tick[now].task[i].confidence_shoot), 8, 0, 70);
+                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision->ourPlayer(i).Pos().x(), pVision->ourPlayer(i).Pos().y() - 340), "Pass: " + to_string(Tick[now].task[i].confidence_pass), 2, 0, 70);
+
                 //                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision->ourPlayer(i).Pos().x(), pVision->ourPlayer(i).Pos().y() - 430), "Dribbling: " + to_string(Tick[now].task[i].confidence_dribbling), 1, 0, 80);
                 //                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision->ourPlayer(i).Pos().x(), pVision->ourPlayer(i).Pos().y() - 520), "Getball: " + to_string(Tick[now].task[i].confidence_getball), 5, 0, 80);
                 //                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision->ourPlayer(i).Pos().x(), pVision->ourPlayer(i).Pos().y() - 610), "Defene: " + to_string(Tick[now].task[i].confidence_defend), 6, 0, 80);
                 //                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision->ourPlayer(i).Pos().x(), pVision->ourPlayer(i).Pos().y() - 700), "Run: " + to_string(Tick[now].task[i].confidence_run), 7, 0, 80);
                 GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision->ourPlayer(i).Pos().x(), pVision->ourPlayer(i).Pos().y() - 430), "Status: " + Tick[now].task[i].status, 3, 0, 80);
+                GDebugEngine::Instance()->gui_debug_msg(CGeoPoint(pVision->ourPlayer(i).Pos().x(), pVision->ourPlayer(i).Pos().y() - 520), "FraredOn: " + to_string(Tick[now].task[i].infrared_count) + " FraredOff: " + to_string(Tick[now].task[i].infrared_off_count) , 5, 0, 60);
             }
         }
 
@@ -1640,6 +1661,8 @@ namespace Utils
      * @param  {double} max_out :映射后最大值
      * @return {double}         :
      */
+
+    //  dist : [0,100] - > [230,310]
     double map(double value, double min_in, double max_in, double min_out, double max_out)
     {
         return min_out + (max_out - min_out) * (value - min_in) / (max_in - min_in);

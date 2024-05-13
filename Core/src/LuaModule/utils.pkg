@@ -4,7 +4,7 @@ $#include "staticparams.h"
 namespace Utils{
 	// // // // // Hu-ROCOS-2024 // // // // // 
 
-	GlobalTick UpdataTickMessage(const CVisionModule *pVision,int goalie_num ,int defend_player_num1, int defend_player_num2); //获取帧信息
+	//	GlobalTick UpdataTickMessage(const CVisionModule *pVision,int goalie_num ,int defend_player_num1, int defend_player_num2); //获取帧信息
 	CGeoPoint GetAttackPos(const CVisionModule *pVision,int num ,CGeoPoint shootPos,CGeoPoint startPoint,CGeoPoint endPoint,double step,double ballDist = 1000);
 
 	CGeoPoint GetShowDribblingPos(const CVisionModule *pVision,CGeoPoint player_pos,CGeoPoint target_pos);
@@ -14,6 +14,7 @@ namespace Utils{
 	CGeoPoint GetBestInterPos(const CVisionModule *pVision, CGeoPoint playerPos, double playerVel, int flag = 0, int permissions = 0, double acc = PARAM::Field::V_DECAY_RATE,double rate = 0);
 	
 	// 小工具
+	double NumberNormalize(double data, double max_data, double min_data); // [0,1] 标准化
 	CGeoPoint GetBallMaxPos(const CVisionModule *pVision, double a);
 	bool InExclusionZone(CGeoPoint Point, double buffer = 0,std::string dir = "all");
 	bool InField(CGeoPoint Point);

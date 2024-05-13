@@ -33,10 +33,10 @@ local debugMesg = function ()
 		debugEngine:gui_debug_msg(CGeoPoint(0,-1600),"BallValid: " .. tostring(ball.valid()) ,4)
 		debugEngine:gui_debug_msg(CGeoPoint(0,-1400),"shoot_kp: " .. shoot_kp ,4)
 		
-		debugEngine:gui_debug_x(resShootPos,6)
-		debugEngine:gui_debug_msg(resShootPos,"rotCompensatePos",6)
-		debugEngine:gui_debug_x(param.shootPos,6)
-		debugEngine:gui_debug_msg(param.shootPos,"ShootPos",6)
+		debugEngine:gui_debug_x(resShootPos,6,0,65)
+		debugEngine:gui_debug_msg(resShootPos,"rotCompensatePos",6,0,65)
+		debugEngine:gui_debug_x(param.shootPos,6,0,65)
+		debugEngine:gui_debug_msg(param.shootPos,"ShootPos",6,0,65)
 
 end
 return {
@@ -62,17 +62,21 @@ firstState = "Init",
 },
 	
 
-
 ["getball"] = {
 	switch = function()
 		debugMesg()
+		local toballDir = (param.shootPos - ball.pos()):dir()
+		local playerDir = player.dir("Assister")
+		local subDir = math.abs(Utils.angleDiff(toballDir,playerDir) * 180/math.pi)
+		-- local drbblingRate = Utils.NumberNormalize(subDir,)
+
 		if(player.myinfraredCount("Assister") > 15) then
 			return "turnToPoint"
 		end
 		local Vy = player.rotVel("Assister")
 		local ToTargetDist = player.toPointDist("Assister",param.shootPos)
 		resShootPos = task.compensateAngle("Assister",Vy,param.shootPos,ToTargetDist * param.rotCompensate)
-		debugEngine:gui_debug_msg(CGeoPoint(0,-3000),shoot_kp)
+		-- debugEngine:gui_debug_msg(CGeoPoint(0,-3000),shoot_kp)
 		-- if(task.playerDirToPointDirSub("Assister",resShootPos) < param.shootError) then 
 		-- 	return "shoot"
 		-- end

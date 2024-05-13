@@ -72,7 +72,7 @@ int runLoop() {
     */
     while (true) {
         vision->setNewVision();
-        Utils::UpdataTickMessage(vision,0,1,2);
+        Utils::UpdateTickMessage(vision,0,1,2);
         decision->DoDecision();
         action->sendAction();
         GDebugEngine::Instance()->send(option->MyColor() == PARAM::BLUE); //Show two teams debug messages

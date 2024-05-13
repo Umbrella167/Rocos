@@ -30,14 +30,16 @@ ourButtomGoalPos = CGeoPoint:new_local(-pitchLength/2, -goalRadius)
 
 
 -- 是否为真实场地
-isReality = true
+isReality = IS_SIMULATION
+Team = "ONE"
+-- Team = "TWO"
 
 -----------------------------------------------|
 --                Getball参数                 --|
 -----------------------------------------------|
 playerVel = 1                                       -- 机器人速度
 getballMode = 1                                       -- [0[激进模式], 1[保守模式], 2[middle]]
-local V_DECAY_RATE_Reality = 630                          -- 场地摩擦
+local V_DECAY_RATE_Reality = 700                          -- 场地摩擦
 lastInterPos = CGeoPoint:new_local(-INF,-INF)       -- 上一次算点结果
 rushToBallCount = 0
 distRate = 0.2  -- 
@@ -63,7 +65,9 @@ playerRadius = 90   -- 机器人半径
 
 local shootError_Reality = 5--1.8  -- 射击误差
 shootKp = 0.1             -- 射击力度比例
-shootPos = CGeoPoint(pitchLength / 2,0)	
+-- shootPos = CGeoPoint(pitchLength / 2,0)	
+shootPos = CGeoPoint(0,0)	
+
 canTouchAngle = 45        -- 可以touch的角度
 -----------------------------------------------|
 --               rot参数                      --|

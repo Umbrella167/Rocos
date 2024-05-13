@@ -118,18 +118,21 @@ function Getball(task)
 		
 		if (not isOnBallLine and (prjPos:dist(player.pos(runner)) < 150 or ball.velMod() < 1000) or ball.velMod() < 200 ) then
 			idir = player.toBallDir(runner)
-			inter_pos = ball.pos() + Utils.Polar2Vector(-10,idir)
+			inter_pos = ball.pos() + Utils.Polar2Vector(-50,idir)
 			if Subdir > 15 and player.toBallDist(runner) < 250 then 
 				iflag =  DSS_FLAG
 				debugError = debugError .. "  DSS_FLAG "
+				inter_pos = ball.pos() + Utils.Polar2Vector(-130,idir)
 			else
 				iflag = flag.dribbling + flag.allow_dss
 				debugError = debugError .. "  DRIBLE_FLAG "
 			end
+
 			debugError = debugError .."  RushToBall "
 			endVel = Utils.Polar2Vector((ball.velMod() * playerEndVel[runner][2]) + playerEndVel[runner][1],idir)
 		end
 
+		
 		-- --  除去抖动
 		-- if (inter_pos - param.lastInterPos):mod() < 10 then
 		-- 	inter_pos = param.lastInterPos
@@ -140,7 +143,6 @@ function Getball(task)
 			idir = player.toBallDir(runner)
 			debugError = debugError .. "  INF "
 		end
-
 		-- 解决敌人过近的问题
 		if GlobalMessage.Tick().ball.rights == -1 or GlobalMessage.Tick().ball.rights == 2 then
 			local minEnemyDistNum = {}
@@ -184,9 +186,6 @@ function Getball(task)
 				debugError = debugError ..   "  OneEnemy "
 			end
 		end
-
-
-
 		param.lastInterPos = inter_pos
 		mvel = _c(endVel) or CVector:new_local(0,0)
 		mpos = _c(inter_pos,runner)
