@@ -15,16 +15,17 @@ namespace PARAM
     const int BALLMERGEDISTANCE = 0;
     const int TEAMS = 2;
 
+    /* ZJHU */
     namespace ZJHU
     {
-
-        extern const int enemy_buffer;
-        extern const int playerBallRightsBuffer;
-        extern const int playerInfraredCountBuffer;
-        extern const int our_goalie_num;
-        extern const int defend_num1;
-        extern const int defend_num2;
+        extern const double enemy_buffer;
+        extern const double playerBallRightsBuffer;
+        extern const double playerInfraredCountBuffer;
+        extern const double our_goalie_num;
+        extern const double defend_num1;
+        extern const double defend_num2;
     }
+    /* ZJHU */
 
     namespace Field
     {

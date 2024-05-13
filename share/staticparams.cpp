@@ -15,10 +15,13 @@ namespace PARAM
         const double GOAL_DEPTH = zpm->value("field/goalDepth", QVariant(200)).toFloat();
     }
 
-    const double enemy_buffer = zpm->value("ZJHU/enemy_buffer", QVariant(130)).toFloat();
-    const double playerBallRightsBuffer_BUFFER = zpm->value("ZJHU/playerBallRightsBuffer", QVariant(120)).toFloat();
-    const double playerInfraredCountBuffer = zpm->value("ZJHU/playerInfraredCountBuffer", QVariant(120)).toFloat();
-    const double our_goalie_num = zpm->value("ZJHU/our_goalie_num", QVariant(0)).toFloat();
-    const double defend_num1 = zpm->value("ZJHU/defend_num1", QVariant(1)).toFloat();
-    const double defend_num2 = zpm->value("ZJHU/defend_num2", QVariant(2)).toFloat();
+    namespace ZJHU
+    {
+        const double enemy_buffer = zpm->value("ZJHU/enemy_buffer", QVariant(130)).toFloat();
+        const double playerBallRightsBuffer_BUFFER = zpm->value("ZJHU/playerBallRightsBuffer", QVariant(120)).toFloat();
+        const double playerInfraredCountBuffer = zpm->value("ZJHU/playerInfraredCountBuffer", QVariant(120)).toFloat();
+        const double our_goalie_num = zpm->value("ZJHU/our_goalie_num", QVariant(0)).toFloat();
+        const double defend_num1 = zpm->value("ZJHU/defend_num1", QVariant(1)).toFloat();
+        const double defend_num2 = zpm->value("ZJHU/defend_num2", QVariant(2)).toFloat();
+    }
 }

@@ -19,25 +19,26 @@ defend_num2               = CGetSettings("ZJHU/defend_num2", "Int")
 -----------------------------------------------|
 --                feild参数                  --|
 -----------------------------------------------|
-pitchLength           = CGetSettings("field/width", "Int")
-pitchWidth            = CGetSettings("field/height", "Int")
-freeKickAvoidBallDist = 500
-penaltyWidth          = CGetSettings("field/penaltyLength", "Int")
-penaltyDepth          = CGetSettings("field/penaltyWidth", "Int")
-penaltyRadius         = penaltyWidth / 2
-penaltySegment        = 500
-ourTopRightPenaltyPos = CGeoPoint:new_local(-pitchLength / 2 + penaltyDepth, penaltyRadius)
-ourTopPenaltyPos      = CGeoPoint:new_local(-pitchLength / 2, penaltyRadius)
-ourButtomPenaltyPos   = CGeoPoint:new_local(-pitchLength / 2, -penaltyRadius)
+pitchLength               = CGetSettings("field/width", "Int")
+pitchWidth                = CGetSettings("field/height", "Int")
+freeKickAvoidBallDist     = 500
+penaltyWidth              = CGetSettings("field/penaltyLength", "Int")
+penaltyDepth              = CGetSettings("field/penaltyWidth", "Int")
+penaltyRadius             = penaltyWidth / 2
+penaltySegment            = 500
+ourTopRightPenaltyPos     = CGeoPoint:new_local(-pitchLength / 2 + penaltyDepth, penaltyRadius)
+ourTopPenaltyPos          = CGeoPoint:new_local(-pitchLength / 2, penaltyRadius)
+ourButtomPenaltyPos       = CGeoPoint:new_local(-pitchLength / 2, -penaltyRadius)
 -- 球门参数
-goalWidth             = CGetSettings("field/goalWidth", "Int")
-goalDepth             = CGetSettings("field/goalDepth", "Int")
-goalRadius            = goalWidth / 2
-ourGoalLine           = CGeoSegment(CGeoPoint:new_local(-pitchLength / 2, -INF), CGeoPoint:new_local(-pitchLength / 2,
-    INF))
-ourGoalPos            = CGeoPoint:new_local(-pitchLength / 2, 0)
-ourTopGoalPos         = CGeoPoint:new_local(-pitchLength / 2, goalRadius)
-ourButtomGoalPos      = CGeoPoint:new_local(-pitchLength / 2, -goalRadius)
+goalWidth                 = CGetSettings("field/goalWidth", "Int")
+goalDepth                 = CGetSettings("field/goalDepth", "Int")
+goalRadius                = goalWidth / 2
+ourGoalLine               = CGeoSegment(CGeoPoint:new_local(-pitchLength / 2, -INF),
+    CGeoPoint:new_local(-pitchLength / 2,
+        INF))
+ourGoalPos                = CGeoPoint:new_local(-pitchLength / 2, 0)
+ourTopGoalPos             = CGeoPoint:new_local(-pitchLength / 2, goalRadius)
+ourButtomGoalPos          = CGeoPoint:new_local(-pitchLength / 2, -goalRadius)
 
 
 -- 是否为真实场地
@@ -48,12 +49,12 @@ Team = "ONE"
 -----------------------------------------------|
 --                Getball参数                 --|
 -----------------------------------------------|
-playerVel = 1                                       -- 机器人速度
-getballMode = 1                                       -- [0[激进模式], 1[保守模式], 2[middle]]
-local V_DECAY_RATE_Reality = 700                          -- 场地摩擦
-lastInterPos = CGeoPoint:new_local(-INF,-INF)       -- 上一次算点结果
+playerVel = 1                                 -- 机器人速度
+getballMode = 1                               -- [0[激进模式], 1[保守模式], 2[middle]]
+local V_DECAY_RATE_Reality = 700              -- 场地摩擦
+lastInterPos = CGeoPoint:new_local(-INF, -INF) -- 上一次算点结果
 rushToBallCount = 0
-distRate = 0.2                                 --
+distRate = 0.2                                --
 
 -----------------------------------------------|
 --                球权和红外参数                --|
@@ -84,9 +85,9 @@ canTouchAngle = 45           -- 可以touch的角度
 rotPos = CGeoPoint(60, 60)           --CGeoPoint(80,80)      --旋转坐标
 rotVel = 4                           --旋转速度
 local rotCompensate_Reality = -0.015 --旋转补偿
--- -----------------------------------------------|
--- --                Tick固定匹配参数             --|
--- -----------------------------------------------|
+-----------------------------------------------|
+--                Tick固定匹配参数             --|
+-----------------------------------------------|
 -- our_goalie_num = 0
 -- defend_num1 = 1
 -- defend_num2 = 2
