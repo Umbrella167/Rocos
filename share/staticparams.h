@@ -1,12 +1,13 @@
 #ifndef STATICPARAMS_H
 #define STATICPARAMS_H
-//change param for 2018 rule
-//wait for change camera number
+// change param for 2018 rule
+// wait for change camera number
 #include <QString>
-namespace PARAM {
+namespace PARAM
+{
     const bool DEBUG = false;
     const int CAMERA = 8;
-    const int ROBOTNUM = 16;// max allow robot on the playgroung
+    const int ROBOTNUM = 16; // max allow robot on the playgroung
     const int ROBOTMAXID = 16;
     const int BALLNUM = 20;
     const int BLUE = 0;
@@ -14,104 +15,128 @@ namespace PARAM {
     const int BALLMERGEDISTANCE = 0;
     const int TEAMS = 2;
 
-    namespace Field{
+    /* ZJHU */
+    extern const int enemy_buffer;
+    extern const int playerBallRightsBuffer;
+    extern const int playerInfraredCountBuffer;
+    extern const int our_goalie_num;
+    extern const int defend_num1;
+    extern const int defend_num2;
+    /* ZJHU */
+
+    namespace Field
+    {
         const int POS_SIDE_LEFT = 1;
         const int POS_SIDE_RIGHT = -1;
         const int MAX_PLAYER = 16;
         const int MAX_BALL_SPEED = 6300;
         /* 长度单位均为厘米,时间单位均为秒,质量单位为克,角度单位为弧度 */
         /* Ball */
-        const double BALL_SIZE	= 21.5; // 半径
+        const double BALL_SIZE = 21.5; // 半径
 
         /* Player */
         const double MAX_PLAYER_SIZE = 180;
-        const double BALL_DECAY = 0.2928; // 场地对球的衰减因子(越小线越短)
-        extern const double PITCH_LENGTH;                 // 场地长
-        extern const double PITCH_WIDTH;                  // 场地宽
-        extern const double PENALTY_AREA_WIDTH;           // rectangle禁区宽度
-        extern const double PENALTY_AREA_DEPTH;            // rectangle禁区深度
+        const double BALL_DECAY = 0.2928;       // 场地对球的衰减因子(越小线越短)
+        extern const double PITCH_LENGTH;       // 场地长
+        extern const double PITCH_WIDTH;        // 场地宽
+        extern const double PENALTY_AREA_WIDTH; // rectangle禁区宽度
+        extern const double PENALTY_AREA_DEPTH; // rectangle禁区深度
         extern const double GOAL_WIDTH;
         extern const double GOAL_DEPTH;
 
-        const double PITCH_MARGIN = 10;                   // 边界宽度
-        const double CENTER_CIRCLE_R = 500;               // 中圈半径
+        const double PITCH_MARGIN = 10;     // 边界宽度
+        const double CENTER_CIRCLE_R = 500; // 中圈半径
 
-        const double GOAL_POST_AVOID_LENGTH = 20;         //伸进场地内门柱的避障长度
-        const double GOAL_POST_THICKNESS = 20;           //门柱宽度
-        const bool   IF_USE_ELLIPSE = false;             // whether use ellipse penalty
-        const double PENALTY_AREA_R = 800;               // ellipse penalty 两个圆弧
-        const double PENALTY_AREA_L = 350;          // ellipse penalty 连接两个圆弧的线段
-        const double PENALTY_L = 500;						//代替PENALTY_AREA_L
-        const double PENALTY_MARK_X = 4800;               // 点球点的X坐标
-        const double OUTER_PENALTY_AREA_WIDTH = 1950;     // 外围禁区宽度(界外开球时不能站在该线内)
-        const double FREE_KICK_AVOID_BALL_DIST = 500;     // 开任意球的时候,对方必须离球这么远
-    //  const double FIELD_WALL_DIST = 20;               // 场地护栏到边界的距离
+        const double GOAL_POST_AVOID_LENGTH = 20;     // 伸进场地内门柱的避障长度
+        const double GOAL_POST_THICKNESS = 20;        // 门柱宽度
+        const bool IF_USE_ELLIPSE = false;            // whether use ellipse penalty
+        const double PENALTY_AREA_R = 800;            // ellipse penalty 两个圆弧
+        const double PENALTY_AREA_L = 350;            // ellipse penalty 连接两个圆弧的线段
+        const double PENALTY_L = 500;                 // 代替PENALTY_AREA_L
+        const double PENALTY_MARK_X = 4800;           // 点球点的X坐标
+        const double OUTER_PENALTY_AREA_WIDTH = 1950; // 外围禁区宽度(界外开球时不能站在该线内)
+        const double FREE_KICK_AVOID_BALL_DIST = 500; // 开任意球的时候,对方必须离球这么远
+                                                      //  const double FIELD_WALL_DIST = 20;               // 场地护栏到边界的距离
         const double RATIO = 1.5;
         const double V_DECAY_RATE = 700; // == param.V_DECAY_RATE
 
     }
-    namespace Player {
-        const int playerFrontToCenter = 76; // 机器人圆心到嘴的距离
-        const int playerRadiusr = 90; // 机器人半径
-        const int playerBuffer = 130; // 检测敌人是否在某直线上的缓冲值                      == param.enemy_buffer
-        const double playerBallRightsBuffer = 120; // 球权判断缓冲值                      == param.playerBallRightsBuffer
+    namespace Player
+    {
+        const int playerFrontToCenter = 76;           // 机器人圆心到嘴的距离
+        const int playerRadiusr = 90;                 // 机器人半径
+        const int playerBuffer = 130;                 // 检测敌人是否在某直线上的缓冲值                      == param.enemy_buffer
+        const double playerBallRightsBuffer = 120;    // 球权判断缓冲值                      == param.playerBallRightsBuffer
         const double playerInfraredCountBuffer = 120; // 红外判断缓冲值                   == param.playerInfraredCountBuffer
-        const int our_goalie_num = 0; //                                                == param.our_goalie_num
-        const int defend_num1 = 1; //                                                   == param.defend_num1
-        const int defend_num2 = 2; //                                                   == param.defend_num2
+        const int our_goalie_num = 0;                 //                                                == param.our_goalie_num
+        const int defend_num1 = 1;                    //                                                   == param.defend_num1
+        const int defend_num2 = 2;                    //                                                   == param.defend_num2
     }
-    namespace Tick{
-        const int TickLength = 5; //保存的帧数
+    namespace Tick
+    {
+        const int TickLength = 5; // 保存的帧数
     }
-    namespace Rule{
-        const int Version = 2019; // 规则的版本/年份
+    namespace Rule
+    {
+        const int Version = 2019;          // 规则的版本/年份
         const double MaxDribbleDist = 500; // 最大带球距离, 0代表没有限制
     }
-    namespace Vision{
+    namespace Vision
+    {
         const double FRAME_RATE = 73;
     }
-    namespace Latency{
+    namespace Latency
+    {
         // 下面分开的部分是给server作仿真用的
         const double TOTAL_LATED_FRAME = 4.7;
     }
-    namespace Physics {
+    namespace Physics
+    {
         const double G = 9.8;
     }
-    namespace Math{
+    namespace Math
+    {
         const double PI = 3.14159265358979323846;
         const double RADIAN = 180 / PI;
     }
-    namespace Vehicle{
-        namespace V2{
+    namespace Vehicle
+    {
+        namespace V2
+        {
             const double PLAYER_SIZE = 90;
             const double PLAYER_FRONT_TO_CENTER = 80.0;
             const double PLAYER_CENTER_TO_BALL_CENTER = 93;
-            const double KICK_ANGLE = PARAM::Math::PI*30/180; // 可以击球的最大相对身体角度
-            const double DRIBBLE_ANGLE = PARAM::Math::PI*17/180; // 可以带球的最大相对身体角度
-            const double HEAD_ANGLE = 57*PARAM::Math::PI/180; // 前面的开口角度
+            const double KICK_ANGLE = PARAM::Math::PI * 30 / 180;    // 可以击球的最大相对身体角度
+            const double DRIBBLE_ANGLE = PARAM::Math::PI * 17 / 180; // 可以带球的最大相对身体角度
+            const double HEAD_ANGLE = 57 * PARAM::Math::PI / 180;    // 前面的开口角度
         }
     }
-    namespace AvoidDist{
-        //避障所用参数
-        const double TEAMMATE_AVOID_DIST = PARAM::Vehicle::V2::PLAYER_SIZE*3;
-        const double OPP_AVOID_DIST = PARAM::Field::MAX_PLAYER_SIZE; // 厘米 18
-        const double BALL_AVOID_DIST = PARAM::Field::BALL_SIZE/2+20.0; // 厘米3
+    namespace AvoidDist
+    {
+        // 避障所用参数
+        const double TEAMMATE_AVOID_DIST = PARAM::Vehicle::V2::PLAYER_SIZE * 3;
+        const double OPP_AVOID_DIST = PARAM::Field::MAX_PLAYER_SIZE;       // 厘米 18
+        const double BALL_AVOID_DIST = PARAM::Field::BALL_SIZE / 2 + 20.0; // 厘米3
     }
 }
-namespace ZSS {
+namespace ZSS
+{
     const QString ZSS_ADDRESS = "233.233.233.233";
     const QString SSL_ADDRESS = "224.5.23.2";
     const QString REF_ADDRESS = "224.5.23.1";
     const QString LOCAL_ADDRESS = "127.0.0.1";
-    namespace Jupyter {
+    namespace Jupyter
+    {
         const int CONTROL_BACK_SEND = 10002;
         const int CONTROL_RECEIVE = 10001;
     }
-    namespace Medusa {
+    namespace Medusa
+    {
         const int DEBUG_MSG_SEND[2] = {20001, 20002};
         const int DEBUG_SCORE_SEND[2] = {20003, 20004};
     }
-    namespace Sim {
+    namespace Sim
+    {
         const int SIM_RECEIVE = 30001;
         const double G = 9.8;
         const double PI = 3.14159265358979323846;
@@ -119,7 +144,8 @@ namespace ZSS {
         const int BLUE_STATUS_PORT = 30011;
         const int YELLOW_STATUS_PORT = 30012;
     }
-    namespace Athena {
+    namespace Athena
+    {
         const int CONTROL_SEND[PARAM::TEAMS] = {50011, 50012};
         const int CONTROL_BACK_RECEIVE[PARAM::TEAMS] = {60001, 60002};
         const int VISION_SEND[PARAM::TEAMS] = {23333, 23334};
@@ -135,7 +161,8 @@ namespace ZSS {
         const double BALL_DELC_CHANGE_POINT = 2500;
         const double BALL_FAST_DEC = 360;
         const double BALL_SLOW_DEC = 27.5;
-        namespace Vision {
+        namespace Vision
+        {
             const int BALL_STORE_BUFFER = 100;
             const int ROBOT_STORE_BUFFER = 100;
             const int MAINTAIN_STORE_BUFFER = 1000;
