@@ -161,7 +161,7 @@ local UpdataTickMessage = function (our_goalie_num,defend_num1,defend_num2)
         end
         param.shootPos = shoot_pos  
     end
-    
+    param.goalieTargetPos = SpecialRUNPos
     debugEngine:gui_debug_x(shoot_pos,0)
     debugEngine:gui_debug_msg(shoot_pos,"resShootPos",0)
     debugEngine:gui_debug_msg(CGeoPoint(0,3000),"ballVel:" .. ball.velMod())
@@ -233,6 +233,7 @@ firstState = "Init",
             gSubPlay.new("ShootPoint", "Nor_Shoot",{pos = function() return shoot_pos end})
             gSubPlay.new("ShowDribbling", "Nor_Dribbling",{pos = function() return shoot_pos end})
             gSubPlay.new("Defender", "Nor_Defend")
+            gSubPlay.new("Goalie", "Nor_Goalie")
         end
         return "GetGlobalMessage"
     end,
@@ -241,7 +242,7 @@ firstState = "Init",
     Special = task.stop(),
     Tier = task.stop(),
     Defender = task.stop(),
-    Goalie = task.goalie("Goalie"),
+    Goalie = gSubPlay.roleTask("Goalie", "Goalie"),
     match = "[A][KS]{TDG}"
 },
 
@@ -258,7 +259,7 @@ firstState = "Init",
     Special = task.goCmuRush(function() return SpecialRUNPos end ,closures_dir_ball("Special"),_,DSS_FLAG),
     Tier = gSubPlay.roleTask("Defender", "Tier"),
     Defender = gSubPlay.roleTask("Defender", "Defender"),
-    Goalie = task.goalie("Goalie"),
+    Goalie = gSubPlay.roleTask("Goalie", "Goalie"),
     match = "{AKSTDG}"
 },
 
@@ -279,7 +280,7 @@ firstState = "Init",
     Special = task.goCmuRush(function() return SpecialRUNPos end,closures_dir_ball("Special"),_,DSS_FLAG),
     Tier = gSubPlay.roleTask("Defender", "Tier"),
     Defender = gSubPlay.roleTask("Defender", "Defender"),
-    Goalie = task.goalie("Goalie"),
+    Goalie = gSubPlay.roleTask("Goalie", "Goalie"),
     match = "{AKSTDG}"
 },
 
@@ -300,7 +301,7 @@ firstState = "Init",
     Special = task.goCmuRush(function() return SpecialRUNPos end,closures_dir_ball("Special"),_,DSS_FLAG),
     Tier = gSubPlay.roleTask("Defender", "Tier"),
     Defender = gSubPlay.roleTask("Defender", "Defender"),
-    Goalie = task.goalie("Goalie"),
+    Goalie = gSubPlay.roleTask("Goalie", "Goalie"),
     match = "{AKSTDG}"
 },
 -- 接球
@@ -325,7 +326,7 @@ firstState = "Init",
     Special = task.goCmuRush(function() return SpecialRUNPos end,closures_dir_ball("Special"),_,DSS_FLAG),
     Tier = gSubPlay.roleTask("Defender", "Tier"),
     Defender = gSubPlay.roleTask("Defender", "Defender"),
-    Goalie = task.goalie("Goalie"),
+    Goalie = gSubPlay.roleTask("Goalie", "Goalie"),
     match = "[A][KS]{TDG}"
 },
 
@@ -347,7 +348,7 @@ firstState = "Init",
     Special = task.goCmuRush(function() return SpecialRUNPos end,closures_dir_ball("Special"),_,DSS_FLAG),
     Tier = gSubPlay.roleTask("Defender", "Tier"),
     Defender = gSubPlay.roleTask("Defender", "Defender"),
-    Goalie = task.goalie("Goalie"),
+    Goalie = gSubPlay.roleTask("Goalie", "Goalie"),
     match = "{AKSTDG}"
 },
 -- 防守 盯防
@@ -363,7 +364,7 @@ firstState = "Init",
     Special = function() return task.defender_marking("Special",function() return SpecialRUNPos end) end ,--task.goCmuRush(function() return SpecialRUNPos end,closures_dir_ball("Special"),_,DSS_FLAG),--
     Tier = gSubPlay.roleTask("Defender", "Tier"),
     Defender = gSubPlay.roleTask("Defender", "Defender"),
-    Goalie = task.goalie("Goalie"),
+    Goalie = gSubPlay.roleTask("Goalie", "Goalie"),
     match = "[A][KS]{TDG}"
 },
 name = "NORMALPLAY",
