@@ -33,7 +33,6 @@ firstState = "ready1",
 	switch = function()
 		debugEngine:gui_debug_msg(CGeoPoint(500,1000),"EnemyPos 1:  (" .. enemy.posX(1) .. "," .. enemy.posY(1) .. ")",3)
 		debugEngine:gui_debug_msg(CGeoPoint(500,800),"PlayerTargetPos:  (2000 , -48)",3)
-		GlobalMessage.Tick = Utils.UpdataTickMessage(vision,0,1,2)
 		-- debugEngine:gui_debug_msg(CGeoPoint(0,0),task.angleDiff((ball.pos() - player.pos("Assister")):dir(),(player.pos("Assister") - CGeoPoint(0,0)):dir()))
 		-- if(player.infraredCount("Assister") > 5) then
 		-- 	return "shoot"
@@ -41,7 +40,7 @@ firstState = "ready1",
 		
 	end,
 
-	Assister = task.goCmuRush(CGeoPoint(2000,-48)), 
+	Assister = task.goSimplePos(CGeoPoint(2000,-48)), 
 	-- Assister = task.getballV2("Assister", param.playerVel, 1, CGeoPoint(0, 0), 0),
 	-- Kicker = task.getball("Assister",param.playerVel,param.getballMode,CGeoPoint:new_local(0,0)), 
 	-- Kicker = function() return task.defender_marking("Kicker",CGeoPoint(0,0)) end,
