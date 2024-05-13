@@ -30,7 +30,7 @@ ourButtomGoalPos = CGeoPoint:new_local(-pitchLength/2, -goalRadius)
 
 
 -- 是否为真实场地
-isReality = false
+isReality = true
 
 -----------------------------------------------|
 --                Getball参数                 --|

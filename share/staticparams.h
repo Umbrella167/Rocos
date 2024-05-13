@@ -25,7 +25,7 @@ namespace PARAM {
 
         /* Player */
         const double MAX_PLAYER_SIZE = 180;
-
+        const double BALL_DECAY = 0.2928; // 场地对球的衰减因子(越小线越短)
         extern const double PITCH_LENGTH;                 // 场地长
         extern const double PITCH_WIDTH;                  // 场地宽
         extern const double PENALTY_AREA_WIDTH;           // rectangle禁区宽度
