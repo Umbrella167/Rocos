@@ -911,8 +911,6 @@ function goalie_getBall(role)
 		goaliePoint = rolePos
 	end
 
-
-
 	local mexe, mpos = GoCmuRush { pos = goaliePoint, dir = idir, acc = a, flag = flag.dribbling, rec = r, vel = endVelController(role, goaliePoint), speed = s, force_manual = force_manual }
 	return { mexe, mpos }
 end
@@ -927,7 +925,13 @@ function goalie_kick(role)
 	local roleToBallTargetDir = math.abs((ballPos - rolePos):dir())
 	local ballToTargetDir = math.abs((fungoalieTargetPos() - ballPos):dir())
 
-	local kp = 9999
+	local kp = shootKp
+	if param.goalieShootMode() == 1 then
+		kp = shootKp
+	elseif param.goalieShootMode() == 2 then
+		kp = 9999
+	end
+
 	local idir = function(runner)
 		return (fungoalieTargetPos() - rolePos):dir()
 	end
@@ -945,8 +949,8 @@ function goalie_kick(role)
 
 	local mexe, mpos = GoCmuRush { pos = goaliePoint, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
 	-- return { mexe, mpos, kick.chip, idir, pre.low, power(param.goalieTargetPos, kp), power(param.goalieTargetPos, kp), 0x00000000 }
-	-- return { mexe, mpos, param.goalieShootMode, idir, pre.low, power(fungoalieTargetPos(), kp,player.num(role)), power(fungoalieTargetPos(), kp,player.num(role)), 0x00000000 }
-		return { mexe, mpos, param.goalieShootMode, idir, pre.low, cp.specified(8000), cp.specified(8000), 0x00000000 }
+	-- return { mexe, mpos, param.goalieShootMode, idir, pre.low, power(fungoalieTargetPos(), kp, player.num(role)), power(fungoalieTargetPos(), kp, player.num(role)), 0x00000000 }
+	return { mexe, mpos, param.goalieShootMode, idir, pre.low, cp.specified(8000), cp.specified(8000), 0x00000000 }
 end
 
 

@@ -125,15 +125,13 @@ goalieStablePoint = CGeoPoint(-pitchLength / 2 + penaltyDepth / 2, 0)
 -- goalie 带球的最大帧数
 goalieDribblingFrame = 200
 -- goalie 带球的加速度
-goalieDribblingA = 1200
-
-
+goalieDribblingA = 1000
 -- goalie 要踢向的点
 goalieTargetPos = CGeoPoint(param.pitchLength / 2, param.pitchWidth / 2)
-
-
 -- 对齐的准确度
 alignRate = 0.8
+
+
 
 --~ -------------------------------------------
 --~ used for debug
