@@ -721,7 +721,7 @@ function getDefenderCount()
 	defenderCount = 0
 	for i=0, param.maxPlayer-1 do
 		playerName = player.name(i)
-		if player.valid(i) and (playerName == "Tier" or playerName == "Defender") then
+		if player.valid(i) and (playerName == "Breaker" or playerName == "Fronter") then
 			defenderNums[defenderCount] = i
 			defenderCount = defenderCount + 1
 		end
@@ -742,6 +742,134 @@ function isClosestPointDefender(role, p)
 	end
 	return player.num(role)==roleNum and true or false
 end
+
+function getLineCrossDefenderPos(pos_, posOrDir_)
+	local resPos = CGeoPoint(param.INF, param.INF)
+	local minDist = param.INF
+	local line_ = CGeoSegment(pos_, pos_)
+	if type(posOrDir_) == 'number' then
+		line_ = CGeoSegment(pos_, pos_+Utils.Polar2Vector(param.INF, posOrDir_))
+		debugEngine:gui_debug_line(pos_, pos_+Utils.Polar2Vector(param.INF, posOrDir_))
+	elseif type(posOrDir_) == 'userdata' then
+		line_ = CGeoSegment(pos_, posOrDir_)
+		debugEngine:gui_debug_line(pos_, posOrDir_)
+	end
+	-- 打印defender行走的框
+	debugEngine:gui_debug_line(param.defenderTopRightPos, param.defenderButtomRightPos)
+	debugEngine:gui_debug_line(param.defenderTopPos, param.defenderTopRightPos)
+	debugEngine:gui_debug_line(param.defenderButtomPos, param.defenderButtomRightPos)
+
+	local defenderTopLine = CGeoSegment(param.defenderTopPos, param.defenderTopRightPos)
+	local defenderMiddleLine = CGeoSegment(param.defenderTopRightPos, param.defenderButtomRightPos)
+	local defenderButtomLine = CGeoSegment(param.defenderButtomPos, param.defenderButtomRightPos)
+	local tPos = line_:segmentsIntersectPoint(defenderTopLine)
+	if pos_:dist(tPos) < minDist then
+		resPos = tPos
+		minDist = pos_:dist(tPos)
+	end
+	-- debugEngine:gui_debug_x(tPos, 0)
+	local tPos = line_:segmentsIntersectPoint(defenderMiddleLine)
+	if pos_:dist(tPos) < minDist then
+		resPos = tPos
+		minDist = pos_:dist(tPos)
+	end
+	-- debugEngine:gui_debug_x(tPos, 0)
+	local tPos = line_:segmentsIntersectPoint(defenderButtomLine)
+	if pos_:dist(tPos) < minDist then
+		resPos = tPos
+		minDist = pos_:dist(tPos)
+	end
+	-- debugEngine:gui_debug_x(tPos, 0)
+	return resPos
+end
+
+function isCrossPenalty(rolePos, targetPos)
+	local line_ = CGeoSegment(rolePos, targetPos)
+	local tPos = line_:segmentsIntersectPoint(param.penaltyMiddleLine)
+	debugEngine:gui_debug_x(tPos)
+	debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), tPos:x().."  "..tPos:y())
+	if tPos == CGeoPoint(9999, 9999) then
+		return false
+	end
+	return true
+end
+
+function simpleMoveTargetPos(rolePos, targetPos)
+	local tPosX = targetPos:x()
+	local tPosY = targetPos:y()
+	debugEngine:gui_debug_msg(CGeoPoint(-2000, 2000), "x: "..math.abs(rolePos:x() - targetPos:x()))
+	debugEngine:gui_debug_msg(CGeoPoint(-2000, 2200), "y: "..math.abs(rolePos:y() - targetPos:y()))
+
+	debugEngine:gui_debug_msg(CGeoPoint(0,0), tostring(isCrossPenalty(rolePos, targetPos)))
+	
+	if math.abs(rolePos:x() - targetPos:x()) > 100 and math.abs(rolePos:y() - targetPos:y()) > 100 or isCrossPenalty(rolePos, targetPos) then
+		tPosX = param.defenderTopRightPos:x()
+		if math.abs(rolePos:y() - param.defenderTopRightPos:y()) < 100 and math.abs(rolePos:x() - param.defenderTopRightPos:x()) > param.defenderBuf then
+			tPosY = param.defenderTopRightPos:y()
+			-- tPosY = rolePos:y()
+		end
+		if math.abs(rolePos:y() - param.defenderButtomRightPos:y()) < 100 and math.abs(rolePos:x() - param.defenderButtomRightPos:x()) > param.defenderBuf  then
+			tPosY = param.defenderButtomRightPos:y()
+			-- tPosY = rolePos:y()
+		end
+	end
+
+	return CGeoPoint(tPosX, tPosY)
+end
+
+
+-- defender_norm script 
+-- mode: 0 upper area, 1 down area, 2 middle
+-- flag: 0 aim the ball, 1 aim the enemy
+function defend_normV2(role, mode, flag)
+	debugEngine:gui_debug_x(getLineCrossDefenderPos(ball.pos(), ball.velDir()), 3)
+	debugEngine:gui_debug_x(getLineCrossDefenderPos(ball.pos(), param.ourGoalPos), 3)
+
+
+	getDefenderCount()
+	if defenderCount == 1 then
+		mode = 2
+	end
+	if flag == nil then
+		flag = 0
+	end
+	local enemyNum = getManMarkEnemy()
+	local enemyPos = CGeoPoint:new_local(enemy.posX(enemyNum), enemy.posY(enemyNum))
+	local goalieToEnemyDir = (enemy.pos(enemyNum) - player.rawPos("Goalie")):dir()
+	local rolePos = CGeoPoint:new_local(player.rawPos(role):x(), player.rawPos(role):y())
+	local ballPos = CGeoPoint:new_local(ball.rawPos():x(), ball.rawPos():y())
+	local basePos = param.ourGoalPos
+	local targetPos = ballPos
+
+	if mode == 0 then
+		basePos = param.ourTopGoalPos
+	elseif mode == 1 then
+		basePos = param.ourButtomGoalPos
+	elseif mode == 2 then
+		basePos = param.ourGoalPos
+	end
+
+	if flag == 0 then
+		targetPos = ballPos
+	elseif flag == 1 then
+		targetPos = enemyPos
+	end
+	
+	local defenderPoint = getLineCrossDefenderPos(targetPos, basePos)
+
+	if defenderPoint == CGeoPoint(9999, 9999) then
+		defenderPoint = rolePos
+	end
+	defenderPoint = simpleMoveTargetPos(rolePos, defenderPoint)
+	debugEngine:gui_debug_x(defenderPoint, 0)
+
+	local idir = player.toPointDir(enemyPos, role)
+	local mexe, mpos = SimpleGoto { pos = defenderPoint, dir = idir, acc = a, flag = 0x00000100, rec = r, vel = endVelController(role, defenderPoint) }
+	-- local mexe, mpos = GoCmuRush { pos = defenderPoint, dir = idir, acc = a, flag = 0x00000100, rec = r, vel = endVelController(role, defenderPoint) }
+	return { mexe, mpos }
+end
+
+
 
 -- defender_norm script 
 -- mode: 0 upper area, 1 down area, 2 middle
