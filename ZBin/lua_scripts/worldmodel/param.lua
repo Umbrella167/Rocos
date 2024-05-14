@@ -38,7 +38,7 @@ ourGoalLine               = CGeoSegment(CGeoPoint:new_local(-pitchLength / 2, -I
 ourGoalPos                = CGeoPoint:new_local(-pitchLength / 2, 0)
 ourTopGoalPos             = CGeoPoint:new_local(-pitchLength / 2, goalRadius)
 ourButtomGoalPos          = CGeoPoint:new_local(-pitchLength / 2, -goalRadius)
-
+penaltyMiddleLine         = CGeoSegment(ourGoalPos, ourGoalPos + Utils.Polar2Vector(penaltyDepth, 0))
 
 -- 是否为真实场地
 isReality = true

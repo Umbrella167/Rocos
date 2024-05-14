@@ -5,6 +5,12 @@ return {
     firstState = "defend_norm",
     ["defend_norm"] = {
         switch = function()
+            local rolePos = CGeoPoint:new_local(player.rawPos("Goalie"):x(), player.rawPos("Goalie"):y())
+            local getBallPos = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1,param.V_DECAY_RATE)
+
+            
+
+
             -- local ballToCloestEnemyDist = ball.rawPos():dist(enemy.pos(enemy.closestBall()))
             -- for i=0, param.maxPlayer-1 do
             --     if enemy.valid(i) then
@@ -25,8 +31,8 @@ return {
             --     end
             -- end
         end,
-        Breaker = function() return task.defend_normV2("Breaker", 0) end,
-        Fronter = function() return task.defend_normV2("Fronter", 1) end,
+        Breaker = function() return task.defend_normV2("Breaker", 0, 1) end,
+        Fronter = function() return task.defend_normV2("Fronter", 1, 1) end,
         match = "[BF]"
     },
     ["defend_front"] = {

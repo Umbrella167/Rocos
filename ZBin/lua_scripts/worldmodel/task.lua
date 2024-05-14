@@ -741,7 +741,6 @@ function isClosestPointDefender(role, p)
 	return player.num(role)==roleNum and true or false
 end
 
-
 function getLineCrossDefenderPos(pos_, posOrDir_)
 	local resPos = CGeoPoint(param.INF, param.INF)
 	local minDist = param.INF
@@ -782,21 +781,37 @@ function getLineCrossDefenderPos(pos_, posOrDir_)
 	return resPos
 end
 
+function isCrossPenalty(rolePos, targetPos)
+	local line_ = CGeoSegment(rolePos, targetPos)
+	local tPos = line_:segmentsIntersectPoint(param.penaltyMiddleLine)
+	debugEngine:gui_debug_x(tPos)
+	debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), tPos:x().."  "..tPos:y())
+	if tPos == CGeoPoint(9999, 9999) then
+		return false
+	end
+	return true
+end
 
 function simpleMoveTargetPos(rolePos, targetPos)
 	local tPosX = targetPos:x()
 	local tPosY = targetPos:y()
 	debugEngine:gui_debug_msg(CGeoPoint(-2000, 2000), "x: "..math.abs(rolePos:x() - targetPos:x()))
 	debugEngine:gui_debug_msg(CGeoPoint(-2000, 2200), "y: "..math.abs(rolePos:y() - targetPos:y()))
-	if math.abs(rolePos:x() - targetPos:x()) > 100 and math.abs(rolePos:y() - targetPos:y()) > 100 then
+
+	debugEngine:gui_debug_msg(CGeoPoint(0,0), tostring(isCrossPenalty(rolePos, targetPos)))
+	
+	if math.abs(rolePos:x() - targetPos:x()) > 100 and math.abs(rolePos:y() - targetPos:y()) > 100 or isCrossPenalty(rolePos, targetPos) then
 		tPosX = param.defenderTopRightPos:x()
-		if math.abs(rolePos:y() - param.defenderTopRightPos:y()) < 100 then
+		if math.abs(rolePos:y() - param.defenderTopRightPos:y()) < 100 and math.abs(rolePos:x() - param.defenderTopRightPos:x()) > param.defenderBuf then
 			tPosY = param.defenderTopRightPos:y()
+			-- tPosY = rolePos:y()
 		end
-		if math.abs(rolePos:y() - param.defenderButtomRightPos:y()) < 100 then
+		if math.abs(rolePos:y() - param.defenderButtomRightPos:y()) < 100 and math.abs(rolePos:x() - param.defenderButtomRightPos:x()) > param.defenderBuf  then
 			tPosY = param.defenderButtomRightPos:y()
+			-- tPosY = rolePos:y()
 		end
 	end
+
 	return CGeoPoint(tPosX, tPosY)
 end
 
@@ -805,7 +820,6 @@ end
 -- mode: 0 upper area, 1 down area, 2 middle
 -- flag: 0 aim the ball, 1 aim the enemy
 function defend_normV2(role, mode, flag)
-
 	debugEngine:gui_debug_x(getLineCrossDefenderPos(ball.pos(), ball.velDir()), 3)
 	debugEngine:gui_debug_x(getLineCrossDefenderPos(ball.pos(), param.ourGoalPos), 3)
 
@@ -838,16 +852,7 @@ function defend_normV2(role, mode, flag)
 	elseif flag == 1 then
 		targetPos = enemyPos
 	end
-
-	-- local baseDir = (targetPos - basePos):dir()
-	-- -- use the math formula to calc the run pos
-	-- local distX = basePos:x() - param.ourGoalPos:x()
-	-- local distY = basePos:y() - param.ourGoalPos:y()
-	-- local dist = math.sqrt(distX*distX + distY*distY)
-	-- local angle = math.atan2(distY, distX)
-	-- local dist = dist * math.cos(baseDir - angle) - param.defenderRadius
-	-- debugEngine:gui_debug_msg(CGeoPoint(2000, 2000+(150*mode)), role.."  mode:"..mode)
-	-- debugEngine:gui_debug_arc(param.ourGoalPos, param.defenderRadius, 0, 360)
+	
 	local defenderPoint = getLineCrossDefenderPos(targetPos, basePos)
 
 	if defenderPoint == CGeoPoint(9999, 9999) then
