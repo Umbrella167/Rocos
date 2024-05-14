@@ -60,8 +60,8 @@ function Getball(task)
 			[-1] = {0,1}, -- Other
 			[0] = {0,1},
 			[1] = {0,1},
-			[2] = {0,1},
-			[3] = {0,1}, -- 吸球强
+			[2] = {0,50},
+			[3] = {0,1},
 			[4] = {0,1},	
 			[5] = {0,1},
 			[6] = {0,1},
@@ -69,7 +69,7 @@ function Getball(task)
 			[8] = {0,1},
 			[9] = {0,1},
 			[10] = {0,1},
-			[11] = {0,1},
+			[11] = {0,50},
 			[12] = {0,1},
 			[13] = {0,1},
 			[14] = {0,1},
@@ -77,6 +77,7 @@ function Getball(task)
 			[16] = {0,1}, -- Other
 		}
 		--获取常用数据
+		local endVelMod = 0
 		local playerPos = CGeoPoint:new_local(player.pos(runner):x(),player.pos(runner):y()) 
 		local mouthPos = playerPos + Utils.Polar2Vector(param.playerFrontToCenter-50,player.dir(runner))
 		debugEngine:gui_debug_x(mouthPos,4)
@@ -91,7 +92,7 @@ function Getball(task)
 		local iflag = flag.dribbling + flag.allow_dss
 		local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
 		local iacc
-		local endVel = Utils.Polar2Vector(0,idir)
+		local endVel = Utils.Polar2Vector(endVelMod,idir)
 		-- 特殊情况 一：当拿球的角度不对的时候调整角度
 		if Subdir > 15 and player.toBallDist(runner) < 250 then 
 			iflag =  DSS_FLAG
@@ -105,7 +106,7 @@ function Getball(task)
 		if (isOnBallLine) and ball.velMod() > 200 then
 			-- if GlobalMessage.Tick().ball.pos_move_befor then
 			if GlobalMessage.Tick().ball.pos_move_befor:dist(player.pos(runner)) < 2000 then
-				endVel = Utils.Polar2Vector(0 ,idir)
+				endVelMod = 0
 			end
 			idir = (ball.pos() - inter_pos):dir()
 			debugError = debugError .. "  InterceptBall "
@@ -120,20 +121,20 @@ function Getball(task)
 			idir = player.toBallDir(runner)
 			inter_pos = ball.pos() + Utils.Polar2Vector(-50,idir)
 			if Subdir > 15 and player.toBallDist(runner) < 250 then 
-				iflag =  DSS_FLAG
+				iflag =  flag.dodge_ball + flag.dribbling
 				debugError = debugError .. "  DSS_FLAG "
 				inter_pos = ball.pos() + Utils.Polar2Vector(-130,idir)
 			else
 				iflag = flag.dribbling + flag.allow_dss
 				debugError = debugError .. "  DRIBLE_FLAG "
 			end
-
 			debugError = debugError .."  RushToBall "
-			endVel = Utils.Polar2Vector((ball.velMod() * playerEndVel[runner][2]) + playerEndVel[runner][1],idir)
+			endVelMod = (ball.velMod() * playerEndVel[runner][2]) + playerEndVel[runner][1]
+			endVelMod = endVelMod > 300 and 300 or endVelMod
 		end
 
 		
-		-- --  除去抖动
+		-- --  除去抖动		
 		-- if (inter_pos - param.lastInterPos):mod() < 10 then
 		-- 	inter_pos = param.lastInterPos
 		-- end 
@@ -149,43 +150,22 @@ function Getball(task)
 			for i = 0 ,param.maxPlayer -1 do 
 				if enemy.valid(i) then
 					if enemy.pos(i):dist(ball.pos()) < 300 then
-						-- print(i)
 						table.insert(minEnemyDistNum,i)
 					end
-					if #minEnemyDistNum == 2 then
-						break
-					end
 				end
 			end
-			if (#minEnemyDistNum == 2) then
-				local dist_ = param.playerFrontToCenter + 20
-
-				
+			if (#minEnemyDistNum > 0 ) then
+				local toballDir = (ball.pos() - enemy.pos(GlobalMessage.Tick().their.dribbling_num)):dir()
+				local playerDir = player.dir(runner)
+				local Subdir =Utils.angleDiff(toballDir,playerDir) * 180/math.pi
+				local dist_ = param.playerFrontToCenter + 150
 				local theirDribblingPlayerPos = enemy.pos(GlobalMessage.Tick().their.dribbling_num)
-				local middlePos = enemy.pos(minEnemyDistNum[1]):midPoint(enemy.pos(minEnemyDistNum[2]))
-
-				theirDribblingPlayerPos = middlePos
-				if player.pos(runner):dist(ball.pos() + Utils.Polar2Vector(param.playerFrontToCenter + 80,(ball.pos() - theirDribblingPlayerPos):dir())) < 50 then
-					dist_ = param.playerFrontToCenter
-
-				end
-				inter_pos = ball.pos() + Utils.Polar2Vector(dist_,(ball.pos() - theirDribblingPlayerPos):dir())
-
-				debugEngine:gui_debug_msg(inter_pos,"middlePos",9)
-				debugEngine:gui_debug_x(inter_pos,9)
-				debugError = debugError ..  "  TwoEnemy "
-
-			elseif (#minEnemyDistNum == 1) then
-				local dist_ = param.playerFrontToCenter + 80
-
-				local theirDribblingPlayerPos = enemy.pos(GlobalMessage.Tick().their.dribbling_num)
-				if player.pos(runner):dist(ball.pos() + Utils.Polar2Vector(param.playerFrontToCenter + 80,(ball.pos() - theirDribblingPlayerPos):dir())) < 50 then
-					dist_ = param.playerFrontToCenter
-				end
-				inter_pos = ball.pos() + Utils.Polar2Vector(dist_,(ball.pos() - theirDribblingPlayerPos):dir())
-				debugError = debugError ..   "  OneEnemy "
+				inter_pos = ball.pos() + Utils.Polar2Vector(dist_,(player.pos(runner) - theirDribblingPlayerPos):dir())
+				debugError = debugError ..  Subdir .."Enemy "
 			end
 		end
+		endVel = Utils.Polar2Vector(endVelMod,idir)
+
 		param.lastInterPos = inter_pos
 		mvel = _c(endVel) or CVector:new_local(0,0)
 		mpos = _c(inter_pos,runner)

@@ -147,6 +147,37 @@ end
 
 function getball(shootPos_,playerVel, inter_flag, permissions)
 	return function()
+		-- 解决敌人过近的问题
+		if GlobalMessage.Tick().ball.rights == -1 or GlobalMessage.Tick().ball.rights == 2 then
+			local minEnemyDistNum1 = {}
+			for i = 0 ,param.maxPlayer -1 do 
+				if enemy.valid(i) then
+					if enemy.pos(i):dist(ball.pos()) < 300 then
+						table.insert(minEnemyDistNum1,i)
+					end
+					if #minEnemyDistNum1 == 2 then
+						break
+					end
+				end
+			end
+			print("minEnemyDistNum1:" .. #minEnemyDistNum1)
+			if (#minEnemyDistNum1 > 0 ) then
+				local toballDir = (ball.pos() - enemy.pos(GlobalMessage.Tick().their.dribbling_num)):dir()
+				local playerDir = (enemy.pos(GlobalMessage.Tick().their.dribbling_num) - player.pos("Assister") ):dir()
+				local Subdir = Utils.angleDiff(toballDir,playerDir) * 180/math.pi
+				local dist_ = param.playerFrontToCenter - 10
+				local theirDribblingPlayerPos = enemy.pos(GlobalMessage.Tick().their.dribbling_num)
+				if math.abs(Subdir) > 165 then
+					local inter_pos = ball.pos() + Utils.Polar2Vector(dist_,(ball.pos() - theirDribblingPlayerPos):dir())
+					local idir = 0
+					local mexe, mpos = SimpleGoto { pos = inter_pos, dir = idir, flag = iflag }
+					return { mexe, mpos }
+				end
+			end
+		end
+
+
+
 		local ishootpos
 		if type(shootPos_) == "function" then
 			ishootpos = shootPos_()
@@ -222,62 +253,47 @@ function getballV2(role, playerVel, inter_flag, target_point, permissions)
 		end
 	end
 end
+minDist_Power = 0
+maxDist_Power = 7000
 playerPowerONE = 
 {
-		-- [0] = {230,310,0},
-	-- [1] = {230,310,0},
-	-- [2] = {230,310,0},
-	-- [3] = {230,310,0}, -- 吸球强
-	-- [4] = {500,750,0.5},
-	-- [5] = {180,310,-0.01},
-	-- [6] = {180,310,-0.01},
-	-- [7] = {230,310,0},
-	-- [8] = {230,310,0},
-	-- [9] = {230,310,0},
-	-- [10] = {230,310,0},
-	-- [11] = {230,310,0},
-	-- [12] = {230,310,0},
-	-- [13] = {230,310,0},
-	-- [14] = {230,310,0},
-	-- [15] = {230,310,0},
-	-- [16] = {230,310,0}, -- Other
 	-- [num] = {minist,maxDist,minPower, maxPower, ShootPower,chipPower} 
-	[0] = {0,7500,200,330,400,7000},
-	[1] = {0,7500,120,330,315,7000},
-	[2] = {0,7500,120,330,315,7000},
-	[3] = {0,7500,120,330,315,7000},
-	[4] = {0,7500,120,330,315,7000},
-	[5] = {0,7500,120,330,315,7000},
-	[6] = {0,7500,120,330,315,7000},
-	[7] = {0,7500,120,330,315,7000},
-	[8] = {0,7500,120,330,315,7000},
-	[9] = {0,7500,120,330,315,7000},
-	[10] = {0,7500,120,330,315,7000},
-	[11] = {0,7500,120,330,315,7000},
-	[12] = {0,7500,120,330,315,7000},
-	[14] = {0,7500,120,330,315,7000},
-	[15] = {0,7500,120,330,315,7000},
-	[16] = {0,7500,120,330,315,7000},
+	[0] = {minDist_Power,maxDist_Power,200,330,400,7000},
+	[1] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[2] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[3] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[4] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[5] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[6] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[7] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[8] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[9] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[10] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[11] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[12] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[14] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[15] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[16] = {minDist_Power,maxDist_Power,120,330,315,7000},
 
 }
 playerPowerTWO = {
 	-- [num] = {minist,maxDist,minPower, maxPower, ShootPower,chipPower} 
-	[0] = {0,7500,200,330,400,7000},
-	[1] = {0,7500,120,330,315,7000},
-	[2] = {0,7500,120,330,315,7000},
-	[3] = {0,7500,120,330,315,7000},
-	[4] = {0,7500,120,330,315,7000},
-	[5] = {0,7500,120,330,315,7000},
-	[6] = {0,7500,120,330,315,7000},
-	[7] = {0,7500,120,330,315,7000},
-	[8] = {0,7500,120,330,315,7000},
-	[9] = {0,7500,120,330,315,7000},
-	[10] = {0,7500,120,330,315,7000},
-	[11] = {0,7500,120,330,315,7000},
-	[12] = {0,7500,120,330,315,7000},
-	[14] = {0,7500,120,330,315,7000},
-	[15] = {0,7500,120,330,315,7000},
-	[16] = {0,7500,120,330,315,7000},
+	[0] = {minDist_Power,maxDist_Power,200,330,400,7000},
+	[1] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[2] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[3] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[4] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[5] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[6] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[7] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[8] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[9] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[10] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[11] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[12] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[14] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[15] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[16] = {minDist_Power,maxDist_Power,120,330,315,7000},
 }
 
 playerPower = (param.Team == "ONE") and playerPowerONE or playerPowerTWO
@@ -297,7 +313,6 @@ function power(p, num,shootFlag)
 		end
 		local shootPos = function()return param.shootPos end
 		local isShoot = shootPos():x() == param.pitchLength / 2 and true or false
-		
 		local playerNum
 		if type(num) == 'function' then
 			playerNum = num()
@@ -306,7 +321,7 @@ function power(p, num,shootFlag)
 		end
 		local dist = (p1 - ball.pos()):mod()
 		if playerNum == -1 or playerNum == nil then
-			playerNum = 16	
+			playerNum = 16
 		end
 		local res = Utils.map(dist,playerPower[playerNum][1],playerPower[playerNum][2],playerPower[playerNum][3],playerPower[playerNum][4])
 
@@ -316,6 +331,7 @@ function power(p, num,shootFlag)
 			res = playerPower[playerNum][5]
 		end
 		---仿真的力度
+		
 		if not param.isReality then
 			local SimulationRate = 15
 			res = res * SimulationRate

@@ -173,7 +173,7 @@ namespace Utils
             Tick[now].their.dribbling_num = -1;
         }
         // 球权一定是敌方的情况
-        else if (Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_off_count > 5 && our_min_dist > PARAM::Player::playerBallRightsBuffer && their_min_dist < PARAM::Player::playerBallRightsBuffer)
+        else if (Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_off_count > 5 && our_min_dist > PARAM::Player::playerBallRightsBuffer && their_min_dist < PARAM::Player::playerBallRightsBuffer + 10)
         {
             Tick[now].ball.rights = -1;
             Tick[now].their.dribbling_num = Tick[now].their.to_balldist_min_num;
@@ -199,7 +199,7 @@ namespace Utils
 
         // 获取第一次带球的位置
         // 如果远离球一定距离就一直更新
-        if (our_min_dist > PARAM::Player::playerBallRightsBuffer + 15)
+        if (our_min_dist > PARAM::Player::playerBallRightsBuffer + 25)
         {
             Tick[now].ball.first_dribbling_pos = Tick[now].ball.pos;
         }
@@ -372,7 +372,7 @@ namespace Utils
         GDebugEngine::Instance()->gui_debug_x(max_grade_point, 3);
         GDebugEngine::Instance()->gui_debug_msg(max_grade_point,"goDribblingPos", 3);
 
-        GDebugEngine::Instance()->gui_debug_arc(Tick[now].ball.first_dribbling_pos, 1000, 0, 360, 8);
+//        GDebugEngine::Instance()->gui_debug_arc(Tick[now].ball.first_dribbling_pos, 1000, 0, 360, 8);
         return max_grade_point;
     }
 
@@ -856,7 +856,7 @@ namespace Utils
 
         for (int i = 0; i < PARAM::Field::MAX_PLAYER; ++i)
         {
-            printf("i:  %d , goalie_num:   %d", i, Tick[now].our.goalie_num);
+            // printf("i:  %d , goalie_num:   %d", i, Tick[now].our.goalie_num);
             if (pVision->ourPlayer(i).Valid() && i != Tick[now].our.goalie_num && i != Tick[now].our.defend_player_num1 && i != Tick[now].our.defend_player_num2)
             {
 
