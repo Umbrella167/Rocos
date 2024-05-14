@@ -288,13 +288,9 @@ firstState = "Init",
     switch = function()
         UpdataTickMessage(our_goalie_num,defend_num1,defend_num2)    -- 更新帧信息
         local State = getState()
-        if param.shootPos:x() == param.pitchLength / 2 then
-			shoot_kp = 10000
-		else
-			shoot_kp = param.shootKp
-		end
-
-        return State
+        if(GlobalMessage.Tick().ball.rights == -1 or not player.canTouch(player.pos("Assister"),shoot_pos,param.canTouchAngle)) then
+            return State
+        end
     end,
     Assister = task.touchKick(function() return shoot_pos end, false, function() return shoot_kp end, kick.flat),
     Kicker = task.goCmuRush(function() return KickerRUNPos end,closures_dir_ball("Kicker"),_,DSS_FLAG),
@@ -302,7 +298,7 @@ firstState = "Init",
     Tier = gSubPlay.roleTask("Defender", "Tier"),
     Defender = gSubPlay.roleTask("Defender", "Defender"),
     Goalie = gSubPlay.roleTask("Goalie", "Goalie"),
-    match = "{AKSTDG}"
+    match = "[AKS]{TDG}"
 },
 -- 接球
 ["Getball"] = {
@@ -313,13 +309,13 @@ firstState = "Init",
         if State ~= "Getball" then
             return State
         end
-        -- local AssisterPos = CGeoPoint(player.posX("Assister"),player.posY("Assister"))
-        -- local ballLine = CGeoSegment(ball.pos(),ball.pos() + Utils.Polar2Vector(9999,ball.velDir()))
-        -- local playerPrjPos = ballLine:projection(player.pos("Assister"))
-        -- local onBallLine = ballLine:IsPointOnLineOnSegment(playerPrjPos)
-        -- if Utils.isValidPass(vision,AssisterPos,shoot_pos,param.enemy_buffer) and player.canTouch(AssisterPos,shoot_pos,param.canTouchAngle)  and Utils.isValidPass(vision,AssisterPos,CGeoPoint(ball.posX(),ball.posY()),param.enemy_buffer) and ball.velMod() > 500 and onBallLine then
-        --     return "Touch"
-        -- end
+        local AssisterPos = CGeoPoint(player.posX("Assister"),player.posY("Assister"))
+        local ballLine = CGeoSegment(ball.pos(),ball.pos() + Utils.Polar2Vector(9999,ball.velDir()))
+        local playerPrjPos = ballLine:projection(player.pos("Assister"))
+        local onBallLine = ballLine:IsPointOnLineOnSegment(playerPrjPos)
+        if Utils.isValidPass(vision,AssisterPos,shoot_pos,param.enemy_buffer) and player.canTouch(AssisterPos,shoot_pos,param.canTouchAngle)  and Utils.isValidPass(vision,AssisterPos,CGeoPoint(ball.posX(),ball.posY()),param.enemy_buffer)then
+            return "Touch"
+        end
     end,
     Assister = task.getball(function() return shoot_pos end,playerVel,getballMode),
     Kicker = task.goCmuRush(function() return KickerRUNPos end,closures_dir_ball("Kicker"),_,DSS_FLAG),

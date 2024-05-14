@@ -80,7 +80,8 @@ end
 
 
 function pos(role)
-	return instance(role):Pos()
+	local p = instance(role):Pos()
+	return CGeoPoint(p:x(),p:y())
 end
 
 function posX(role)

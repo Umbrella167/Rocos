@@ -148,11 +148,11 @@ end
 function getball(shootPos_,playerVel, inter_flag, permissions)
 	return function()
 		-- 解决敌人过近的问题
-		if GlobalMessage.Tick().ball.rights == -1 or GlobalMessage.Tick().ball.rights == 2 then
+		-- if GlobalMessage.Tick().ball.rights == -1 or GlobalMessage.Tick().ball.rights == 2 then
 			local minEnemyDistNum1 = {}
 			for i = 0 ,param.maxPlayer -1 do 
 				if enemy.valid(i) then
-					if enemy.pos(i):dist(ball.pos()) < 300 then
+					if enemy.pos(i):dist(ball.pos()) < 200 then
 						table.insert(minEnemyDistNum1,i)
 					end
 					if #minEnemyDistNum1 == 2 then
@@ -167,14 +167,16 @@ function getball(shootPos_,playerVel, inter_flag, permissions)
 				local Subdir = Utils.angleDiff(toballDir,playerDir) * 180/math.pi
 				local dist_ = param.playerFrontToCenter - 10
 				local theirDribblingPlayerPos = enemy.pos(GlobalMessage.Tick().their.dribbling_num)
+
 				if math.abs(Subdir) > 165 then
-					local inter_pos = ball.pos() + Utils.Polar2Vector(dist_,(ball.pos() - theirDribblingPlayerPos):dir())
-					local idir = 0
+					local inter_pos = ball.pos() + Utils.Polar2Vector(dist_,(theirDribblingPlayerPos - ball.pos()):dir())
+					local idir = (theirDribblingPlayerPos - ball.pos()):dir()
+					local iflag = flag.dribbling
 					local mexe, mpos = SimpleGoto { pos = inter_pos, dir = idir, flag = iflag }
 					return { mexe, mpos }
 				end
 			end
-		end
+		-- end
 
 
 

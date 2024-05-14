@@ -16,11 +16,11 @@ function Getball(task)
 		local qflag = inter_flag or 0
 		local playerPos = CGeoPoint:new_local(player.pos(runner):x(),player.pos(runner):y())
 		local inter_pos = Utils.GetBestInterPos(vision,playerPos,param.playerVel,minter_flag,0,param.V_DECAY_RATE,param.distRate)
-		debugEngine:gui_debug_msg(CGeoPoint(0,0),minter_flag)
-		local ballLine = CGeoSegment(ball.pos(),ball.pos() + Utils.Polar2Vector(-param.INF,ball.velDir()))
-		local playerPrj = ballLine:projection(player.pos(runner))
-		local canGetBall = ballLine:IsPointOnLineOnSegment(playerPrj)
-		local toballdist = player.toBallDist(runner) 
+		-- debugEngine:gui_debug_msg(CGeoPoint(0,0),minter_flag)
+		-- local ballLine = CGeoSegment(ball.pos(),ball.pos() + Utils.Polar2Vector(-param.INF,ball.velDir()))
+		-- local playerPrj = ballLine:projection(player.pos(runner))
+		-- local canGetBall = ballLine:IsPointOnLineOnSegment(playerPrj)
+		-- local toballdist = player.toBallDist(runner) 
 		
 		-- --  敌方球权的情况
 		-- if GlobalMessage.Tick().ball.rights == -1 or GlobalMessage.Tick().ball.rights == 2 then
@@ -145,11 +145,11 @@ function Getball(task)
 			debugError = debugError .. "  INF "
 		end
 		-- 解决敌人过近的问题
-		if GlobalMessage.Tick().ball.rights == -1 or GlobalMessage.Tick().ball.rights == 2 then
+		-- if GlobalMessage.Tick().ball.rights == -1 or GlobalMessage.Tick().ball.rights == 2 then
 			local minEnemyDistNum = {}
 			for i = 0 ,param.maxPlayer -1 do 
 				if enemy.valid(i) then
-					if enemy.pos(i):dist(ball.pos()) < 300 then
+					if enemy.pos(i):dist(ball.pos()) < 200 then
 						table.insert(minEnemyDistNum,i)
 					end
 				end
@@ -158,12 +158,12 @@ function Getball(task)
 				local toballDir = (ball.pos() - enemy.pos(GlobalMessage.Tick().their.dribbling_num)):dir()
 				local playerDir = player.dir(runner)
 				local Subdir =Utils.angleDiff(toballDir,playerDir) * 180/math.pi
-				local dist_ = param.playerFrontToCenter + 150
+				local dist_ = param.playerFrontToCenter + 100
 				local theirDribblingPlayerPos = enemy.pos(GlobalMessage.Tick().their.dribbling_num)
-				inter_pos = ball.pos() + Utils.Polar2Vector(dist_,(player.pos(runner) - theirDribblingPlayerPos):dir())
+				inter_pos = ball.pos() + Utils.Polar2Vector(dist_,(ball.pos() - theirDribblingPlayerPos):dir())
 				debugError = debugError ..  Subdir .."Enemy "
 			end
-		end
+		-- end
 		endVel = Utils.Polar2Vector(endVelMod,idir)
 
 		param.lastInterPos = inter_pos

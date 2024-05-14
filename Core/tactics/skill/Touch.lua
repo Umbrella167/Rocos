@@ -1,10 +1,10 @@
 function Touch(task)
 	local mpos
 	local useInter = task.useInter or false
-	matchPos = function()
-		return ball.pos()
+	matchPos = function(runner)
+		local inter_pos = Utils.GetBestInterPos(vision,player.pos(runner),param.playerVel,param.getballMode,0,param.V_DECAY_RATE,param.distRate)
+		return _c(inter_pos)
 	end
-
 	execute = function(runner)
 		mpos = _c(task.pos,runner)
 		task_param = TaskT:new_local()

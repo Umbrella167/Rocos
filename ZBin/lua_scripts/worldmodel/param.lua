@@ -40,13 +40,13 @@ ourButtomGoalPos          = CGeoPoint:new_local(-pitchLength / 2, -goalRadius)
 
 
 -- 是否为真实场地
-isReality = true
+isReality = false
 Team = "ONE"
 -- Team = "TWO"
 -----------------------------------------------|
 --                Getball参数                 --|
 -----------------------------------------------|
-playerVel = 2.5                                 -- 机器人速度
+playerVel = 1.5                                 -- 机器人速度
 getballMode = 1                               -- [0[激进模式], 1[保守模式], 2[middle]]
 -- local V_DECAY_RATE_Reality = 700              -- 场地摩擦
 local V_DECAY_RATE_Reality = 800              -- 场地摩擦
