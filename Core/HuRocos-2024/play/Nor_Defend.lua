@@ -27,7 +27,7 @@ return {
         end,
         Tier = function() return task.defend_norm("Tier", 0) end,
         Defender = function() return task.defend_norm("Defender", 1) end,
-        match = "(TD)"
+        match = "{TD}"
     },
     ["defend_front"] = {
         switch = function()
@@ -48,7 +48,7 @@ return {
         end,
         Tier = function() return task.defend_front("Tier") end,
         Defender = function() return task.defend_front("Defender") end,
-        match = "(TD)"
+        match = "{TD}"
     },
     ["defend_kick"] = {
         switch = function()
@@ -58,7 +58,7 @@ return {
         end,
         Tier = function() return task.defend_kick("Tier") end,
         Defender = function() return task.defend_kick("Defender") end,
-        match = "(TD)"
+        match = "{TD}"
     },
 
     name = "Nor_Defend",

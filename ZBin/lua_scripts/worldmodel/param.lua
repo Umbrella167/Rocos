@@ -27,6 +27,7 @@ penaltyDepth              = CGetSettings("field/penaltyWidth", "Int")
 penaltyRadius             = penaltyWidth / 2
 penaltySegment            = 500
 ourTopRightPenaltyPos     = CGeoPoint:new_local(-pitchLength / 2 + penaltyDepth, penaltyRadius)
+ourButtomRightPenaltyPos  = CGeoPoint:new_local(-pitchLength / 2 + penaltyDepth, -penaltyRadius)
 ourTopPenaltyPos          = CGeoPoint:new_local(-pitchLength / 2, penaltyRadius)
 ourButtomPenaltyPos       = CGeoPoint:new_local(-pitchLength / 2, -penaltyRadius)
 -- 球门参数
@@ -100,7 +101,13 @@ markingPosRate2 = 1 / 10
 --             defend参数             --|
 -----------------------------------------------|
 defenderShootMode = function() return 1 end -- 1 flat  2 chip
-defenderBuf = playerRadius * 3
+defenderBuf = playerRadius * 1.5
+
+defenderTopRightPos     = CGeoPoint:new_local(-pitchLength / 2 + penaltyDepth + defenderBuf, penaltyRadius + defenderBuf)
+defenderButtomRightPos  = CGeoPoint:new_local(-pitchLength / 2 + penaltyDepth + defenderBuf, -penaltyRadius - defenderBuf)
+defenderTopPos          = CGeoPoint:new_local(-pitchLength / 2, penaltyRadius + defenderBuf)
+defenderButtomPos       = CGeoPoint:new_local(-pitchLength / 2, -penaltyRadius - defenderBuf)
+
 defenderRadius = ourGoalPos:dist(ourTopRightPenaltyPos) + defenderBuf
 defenderAimX = -pitchLength / 4
 -----------------------------------------------|
