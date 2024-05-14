@@ -232,7 +232,7 @@ firstState = "Init",
         if not subScript then
             gSubPlay.new("ShootPoint", "Nor_Shoot",{pos = function() return shoot_pos end})
             gSubPlay.new("ShowDribbling", "Nor_Dribbling",{pos = function() return shoot_pos end})
-            gSubPlay.new("Defender", "Nor_Defend")
+            gSubPlay.new("Defender", "Nor_DefendV2")
             gSubPlay.new("Goalie", "Nor_Goalie")
         end
         return "GetGlobalMessage"
