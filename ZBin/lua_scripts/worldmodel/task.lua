@@ -884,6 +884,7 @@ function goalie_getBall(role)
 	local goaliePoint = CGeoPoint:new_local(getBallPos:x(), getBallPos:y())
 	local a = 4000
 	if ball.velMod() < 800 and player.myinfraredCount(role) < 10 then
+		debugEngine:gui_debug_msg(CGeoPoint(0, 0), 1)
 		-- goaliePoint = CGeoPoint:new_local(getBallPos:x(), getBallPos:y()) + Utils.Polar2Vector(param.playerRadius-30, ballToRoleDir)
 		goaliePoint = ballPos + Utils.Polar2Vector(param.playerFrontToCenter, ballToRoleDir)
 	elseif 10 <= player.myinfraredCount(role) and player.myinfraredCount(role) <= param.goalieDribblingFrame then
@@ -900,7 +901,8 @@ function goalie_getBall(role)
 		-- goaliePoint = ballPos + Utils.Polar2Vector(param.playerRadius, ballToRoleDir)
 		goaliePoint = rolePos
 	end
-	local mexe, mpos = GoCmuRush { pos = goaliePoint, dir = idir, acc = a, flag = flag.dribbling, rec = r, vel = endVelController(role, goaliePoint), speed = s, force_manual = force_manual }
+	-- local mexe, mpos = GoCmuRush { pos = goaliePoint, dir = idir, acc = a, flag = flag.dribbling, rec = r, vel = endVelController(role, goaliePoint), speed = s, force_manual = force_manual }
+	local mexe, mpos = SimpleGoto { pos = goaliePoint, dir = idir, acc = a, flag = flag.dribbling, rec = r, vel = endVelController(role, goaliePoint), speed = s, force_manual = force_manual }
 	return { mexe, mpos }
 end
 
