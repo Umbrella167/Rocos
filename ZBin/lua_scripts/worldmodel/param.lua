@@ -41,7 +41,7 @@ ourButtomGoalPos          = CGeoPoint:new_local(-pitchLength / 2, -goalRadius)
 penaltyMiddleLine         = CGeoSegment(ourGoalPos, ourGoalPos + Utils.Polar2Vector(penaltyDepth, 0))
 
 -- 是否为真实场地
-isReality = false
+isReality = true
 Team = "ONE"
 -- Team = "TWO"
 -----------------------------------------------|

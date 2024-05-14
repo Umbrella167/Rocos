@@ -749,10 +749,10 @@ function getLineCrossDefenderPos(pos_, posOrDir_)
 	local line_ = CGeoSegment(pos_, pos_)
 	if type(posOrDir_) == 'number' then
 		line_ = CGeoSegment(pos_, pos_+Utils.Polar2Vector(param.INF, posOrDir_))
-		debugEngine:gui_debug_line(pos_, pos_+Utils.Polar2Vector(param.INF, posOrDir_))
+		-- debugEngine:gui_debug_line(pos_, pos_+Utils.Polar2Vector(param.INF, posOrDir_))
 	elseif type(posOrDir_) == 'userdata' then
 		line_ = CGeoSegment(pos_, posOrDir_)
-		debugEngine:gui_debug_line(pos_, posOrDir_)
+		-- debugEngine:gui_debug_line(pos_, posOrDir_)
 	end
 	-- 打印defender行走的框
 	debugEngine:gui_debug_line(param.defenderTopRightPos, param.defenderButtomRightPos)
@@ -786,8 +786,8 @@ end
 function isCrossPenalty(rolePos, targetPos)
 	local line_ = CGeoSegment(rolePos, targetPos)
 	local tPos = line_:segmentsIntersectPoint(param.penaltyMiddleLine)
-	debugEngine:gui_debug_x(tPos)
-	debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), tPos:x().."  "..tPos:y())
+	-- debugEngine:gui_debug_x(tPos)
+	-- debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), tPos:x().."  "..tPos:y())
 	if tPos == CGeoPoint(9999, 9999) then
 		return false
 	end
@@ -797,10 +797,10 @@ end
 function simpleMoveTargetPos(rolePos, targetPos)
 	local tPosX = targetPos:x()
 	local tPosY = targetPos:y()
-	debugEngine:gui_debug_msg(CGeoPoint(-2000, 2000), "x: "..math.abs(rolePos:x() - targetPos:x()))
-	debugEngine:gui_debug_msg(CGeoPoint(-2000, 2200), "y: "..math.abs(rolePos:y() - targetPos:y()))
+	-- debugEngine:gui_debug_msg(CGeoPoint(-2000, 2000), "x: "..math.abs(rolePos:x() - targetPos:x()))
+	-- debugEngine:gui_debug_msg(CGeoPoint(-2000, 2200), "y: "..math.abs(rolePos:y() - targetPos:y()))
 
-	debugEngine:gui_debug_msg(CGeoPoint(0,0), tostring(isCrossPenalty(rolePos, targetPos)))
+	-- debugEngine:gui_debug_msg(CGeoPoint(0,0), tostring(isCrossPenalty(rolePos, targetPos)))
 	
 	if math.abs(rolePos:x() - targetPos:x()) > 100 and math.abs(rolePos:y() - targetPos:y()) > 100 or isCrossPenalty(rolePos, targetPos) then
 		tPosX = param.defenderTopRightPos:x()
@@ -822,8 +822,8 @@ end
 -- mode: 0 upper area, 1 down area, 2 middle
 -- flag: 0 aim the ball, 1 aim the enemy
 function defend_normV2(role, mode, flag)
-	debugEngine:gui_debug_x(getLineCrossDefenderPos(ball.pos(), ball.velDir()), 3)
-	debugEngine:gui_debug_x(getLineCrossDefenderPos(ball.pos(), param.ourGoalPos), 3)
+	-- debugEngine:gui_debug_x(getLineCrossDefenderPos(ball.pos(), ball.velDir()), 3)
+	-- debugEngine:gui_debug_x(getLineCrossDefenderPos(ball.pos(), param.ourGoalPos), 3)
 
 
 	getDefenderCount()
