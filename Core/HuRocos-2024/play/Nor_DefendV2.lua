@@ -8,7 +8,9 @@ return {
             local rolePos = CGeoPoint:new_local(player.rawPos("Goalie"):x(), player.rawPos("Goalie"):y())
             local getBallPos = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1,param.V_DECAY_RATE)
 
-            
+            -- if rolePos:dist(getBallPos)<param.defenderCatchBuf then
+            --     return "defend_kick"
+            -- end
 
 
             -- local ballToCloestEnemyDist = ball.rawPos():dist(enemy.pos(enemy.closestBall()))

@@ -112,6 +112,7 @@ defenderButtomPos       = CGeoPoint:new_local(-pitchLength / 2, -penaltyRadius -
 
 defenderRadius = ourGoalPos:dist(ourTopRightPenaltyPos) + defenderBuf
 defenderAimX = -pitchLength / 4
+defenderCatchBuf = param.playerRadius * 6
 -----------------------------------------------|
 --             goalie参数             --|
 -----------------------------------------------|
