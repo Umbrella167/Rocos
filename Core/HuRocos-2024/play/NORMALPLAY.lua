@@ -327,9 +327,6 @@ firstState = "Init",
         if bufcnt(true,30) then
             return State
         end
-        -- if bufcnt(true,30) then 
-        --     return "GetGlobalMessage"
-        -- end
     end,
     --dribbling_target_pos
     Assister = gSubPlay.roleTask("ShowDribbling", "Assister"),

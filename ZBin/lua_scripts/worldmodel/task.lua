@@ -474,7 +474,7 @@ function ShootdotV2(p, error_, flag_,role)
 end
 
 
-function ShootdotDribbling(error_, flag_)
+function ShootdotDribbling(error_, flag_,power)
 	return function()
 		local irole = role or "Assister"
 		local p1
@@ -492,7 +492,7 @@ function ShootdotDribbling(error_, flag_)
 		local error__ = function()
 			return error_ * math.pi / 180.0
 		end
-		local iPower = param.isReality and kp.specified(110) or kp.specified(1300)
+		local iPower = param.isReality and kp.specified(power) or kp.specified(1300)
 		local mexe, mpos = GoCmuRush { pos = shootpos, dir = idir, acc = a, flag = flag.dribbling, rec = r, vel = v }
 		return { mexe, mpos, flag_, idir, error__,iPower , iPower, flag.dribbling }
 	end
@@ -1276,7 +1276,7 @@ function defender_marking(role,pos)
 		-- 初始化 获取需要盯防的对象 <= 2
 	-- if markingTableLen == 0 and ball.rawPos():x() > param.markingThreshold then 
 		for i=0,param.maxPlayer-1 do
-			if enemy.valid(i) and i ~= enemyDribblingNum and enemy.posX(i) < param.markingThreshold then
+			if enemy.valid(i) and i ~= enemyDribblingNum and enemy.posX(i) < param.markingThreshold  then
 				markingTable[markingTableLen] = i
 				markingTableLen = markingTableLen + 1
 				if markingTableLen > 1 then

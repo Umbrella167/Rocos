@@ -1,19 +1,18 @@
 module(..., package.seeall)
 
 function pos()
-    local ballPos = vision:ball():Pos()
-    if not vision:ball():Valid() then
-        ballPos = GlobalMessage.Tick().ball.pos
-    end
+    local ballPos = GlobalMessage.Tick().ball.pos
     return CGeoPoint(ballPos:x(),ballPos:y()) 
 end
 
 function posX()
-    return vision:ball():X()
+    local ballPos = GlobalMessage.Tick().ball.pos
+    return ballPos:x()
 end
 
 function posY()
-    return vision:ball():Y()
+    local ballPos = GlobalMessage.Tick().ball.pos
+    return ballPos:y()
 end
 
 function rawPos()

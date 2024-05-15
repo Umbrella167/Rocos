@@ -15,7 +15,7 @@ playerInfraredCountBuffer = CGetSettings("ZJHU/playerInfraredCountBuffer", "Int"
 our_goalie_num            = CGetSettings("ZJHU/our_goalie_num", "Int")
 defend_num1               = CGetSettings("ZJHU/defend_num1", "Int")
 defend_num2               = CGetSettings("ZJHU/defend_num2", "Int")
-
+LeaderNum = 3
 -----------------------------------------------|
 --                feild参数                  --|
 -----------------------------------------------|

@@ -27,16 +27,12 @@ gRefConfig = {
             return "our_FrontKick"
         end
     end,
-    
-    
-    
-
     TheirKickOff = "their_KickOff",
     OurKickOff = "our_KickOff",
     TheirBallPlacement = "theirBallPlacement",
     OurBallPlacement = "our_BallPlacement",
     TheirPenaltyKick = "STOP",
-    OurPenaltyKick = "STOP",
-    NormalPlay = "NORMALPLAY",
+    OurPenaltyKick = "our_Penalty",
+    NormalPlay = "NORMALPLAY" -- {"NORMALPLAY", "NORMALPLAYV2"},
 }
 --]]

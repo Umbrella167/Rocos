@@ -96,8 +96,12 @@ namespace Utils
             {
 
                 Tick[now].task[i].player_num = i;
-                if (Tick[now].task[i].infrared_count == 0)
+                if (i != Tick[now].our.dribbling_num)
+                    Tick[now].task[i].infrared_count = 0;
+                if (Tick[now].task[i].infrared_count == 0 )
                     Tick[now].task[i].infrared_off_count += 1;
+
+
                 // 如果球的视野消失，但是有红外信息，认为球的位置在触发红外的机器人上
                 if(!pVision ->ball().Valid())
                     if(RobotSensor.InfraredOnCount(i)>5)
@@ -195,7 +199,7 @@ namespace Utils
             Tick[now].ball.rights = 0;
         // 顶牛 或 抢球对抗
 //        printf("our minTob%f,their %f", our_min_dist, their_min_dist);
-        if((RobotSensor.InfraredOnCount(Tick[now].our.to_balldist_min_num) > 5 || our_min_dist < playerBallRightsBuffer) && their_min_dist < playerBallRightsBuffer - 15)
+        if((RobotSensor.InfraredOnCount(Tick[now].our.to_balldist_min_num) > 5 || our_min_dist < playerBallRightsBuffer + 5) && their_min_dist < playerBallRightsBuffer +5)
         {
             Tick[now].ball.rights = 2;
         }
@@ -900,7 +904,7 @@ namespace Utils
             // 红外报错系统
             double dribblePlayerToBallAngleDebug = abs(angleDiff(pVision->ourPlayer(i).RawDir(), (pVision->ball().Pos() - pVision->ourPlayer(i).Pos()).dir()) * PARAM::Math::PI);
             double minJudgeAngleDebug = 1.28;
-            bool myInfraredCount = (pVision->ourPlayer(i).Pos().dist(Tick[now].ball.pos) < playerInfraredCountBuffer && dribblePlayerToBallAngleDebug < minJudgeAngleDebug);
+            bool myInfraredCount = (pVision->ourPlayer(i).Pos().dist(Tick[now].ball.pos) < 230 && dribblePlayerToBallAngleDebug < minJudgeAngleDebug);
             bool officialInfraredCount = RobotSensor.InfraredOnCount(i) > 1 ;
             if (officialInfraredCount && !myInfraredCount && pVision->ball().Valid() && !havePlayer(pVision,i,130))
             {
