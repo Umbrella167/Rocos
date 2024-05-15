@@ -104,6 +104,9 @@ markingPosRate2 = 1 / 10
 -----------------------------------------------|
 --             defend参数             --|
 -----------------------------------------------|
+-- defender 模式, 0-盯球，1-盯人
+defenderMode = 1
+
 defenderShootMode = function() return 1 end -- 1 flat  2 chip
 defenderBuf = playerRadius * 1.5
 
