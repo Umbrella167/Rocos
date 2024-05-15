@@ -138,7 +138,6 @@ shootPosKicker = CGeoPoint(0,0)
 shootPosAssister = CGeoPoint(0,0)
 
 local UpdataTickMessage = function()
-	Utils.UpdataTickMessage(vision,param.our_goalie_num,param.defend_num1,param.defend_num2)
 	--GetAttackPos(const CVisionModule *pVision,int num ,CGeoPoint shootPos,CGeoPoint startPoint,CGeoPoint endPoint,double step,double ballDist)
 	shootPosKicker = Utils.GetShootPoint(vision,player.num("Kicker"))
 	shootPosAssister = Utils.GetShootPoint(vision,player.num("Assister"))

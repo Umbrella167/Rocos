@@ -23,14 +23,6 @@ local shootPosFun = function()
 end
 
 
-local shoot_kp = param.shootKp
--- local resShootPos = CGeoPoint(param.pitchLength / 2,0)
-local shootKPFun = function()
-	return function()
-		return shoot_kp
-	end
-end
-
 local dribblingDir = function(role)
     return function()
         local playerPos = CGeoPoint(player.posX(role),player.posY(role))
@@ -71,7 +63,7 @@ firstState = "Init",
 			return "dribbling"
 		end
 	end,
-	Assister = task.getball_dribbling("Assister"),--task.getball(function() return shoot_pos end,param.playerVel,param.getballMode),
+	Assister = task.getball(function() return shoot_pos end,playerVel,getballMode),
 	match = "[A]"
 },
 
@@ -107,36 +99,6 @@ firstState = "Init",
 
     match = "[A]"
 },
--- ["turnToPoint"] = {
--- 	switch = function()
-		 
--- 		-- if(not bufcnt(player.infraredOn("Assister"),1)) then
--- 		-- 	return "ready1"
--- 		-- end
--- 		-- debugEngine:gui_debug_msg(CGeoPoint:new_local(0,0),player.rotVel("Assister"))
--- 		debugMesg()
--- 		if shootPosFun():x() == param.pitchLength / 2 then
--- 			shoot_kp = 10000
--- 		else
--- 			shoot_kp = param.shootKp
--- 		end
-
--- 		if(bufcnt(player.myinfraredCount("Assister") < 1,4)) then
--- 			return "getball"
--- 		end
--- 		local Vy = player.rotVel("Assister")
--- 		local ToTargetDist = player.toPointDist("Assister",param.shootPos)
--- 		resShootPos = task.compensateAngle("Assister",Vy,param.shootPos,ToTargetDist * param.rotCompensate)
--- 		debugEngine:gui_debug_msg(CGeoPoint(0,-3000),shoot_kp)
--- 		if(task.playerDirToPointDirSub("Assister",resShootPos) < param.shootError) then 
--- 			return "shoot"
--- 		end
-
--- 	end,
--- 	Assister = function() return task.TurnToPointV2("Assister", function() return resShootPos end,param.rotVel) end,
--- 	match = "{A}"
--- },
-
 ["shoot"] = {
 	switch = function()
 		 
