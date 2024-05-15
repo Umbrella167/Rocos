@@ -25,7 +25,7 @@ return {
             if ball.velMod() < 1000 and Utils.InExclusionZone(getBallPos, param.goalieBuf, "our") then
                 return "goalie_getBall"
             end
-            if rolePos:dist(getBallPos)<param.goalieCatchBuf then
+            if rolePos:dist(getBallPos)<param.goalieCatchBuf and Utils.InExclusionZone(getBallPos, param.goalieBuf, "our") then
                 return "goalie_getBall"
             end
         end,

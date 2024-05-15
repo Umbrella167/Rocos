@@ -337,6 +337,9 @@ function power(p, num,shootFlag)
 		if not param.isReality then
 			local SimulationRate = 15
 			res = res * SimulationRate
+			if iflag == kick.chip() then
+				res = 3500
+			end
 		end	
 		return res
 	end
@@ -721,7 +724,7 @@ function getDefenderCount()
 	defenderCount = 0
 	for i=0, param.maxPlayer-1 do
 		playerName = player.name(i)
-		if player.valid(i) and (playerName == "Breaker" or playerName == "Fronter") then
+		if player.valid(i) and (playerName == "Tier" or playerName == "Defender") then
 			defenderNums[defenderCount] = i
 			defenderCount = defenderCount + 1
 		end
@@ -1118,7 +1121,7 @@ function goalie_kick(role)
 	local mexe, mpos = GoCmuRush { pos = goaliePoint, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
 	-- return { mexe, mpos, kick.chip, idir, pre.low, power(param.goalieTargetPos, kp), power(param.goalieTargetPos, kp), 0x00000000 }
 	-- return { mexe, mpos, param.goalieShootMode, idir, pre.low, power(fungoalieTargetPos(), kp, player.num(role)), power(fungoalieTargetPos(), kp, player.num(role)), 0x00000000 }
-	return { mexe, mpos, param.goalieShootMode, idir, pre.low, cp.specified(8000), cp.specified(8000), 0x00000000 }
+	return { mexe, mpos, param.goalieShootMode, idir, pre.low, power(fungoalieTargetPos(),player.num(role),param.goalieShootMode), power(fungoalieTargetPos(),player.num(role),param.goalieShootMode), 0x00000000 }
 end
 
 
