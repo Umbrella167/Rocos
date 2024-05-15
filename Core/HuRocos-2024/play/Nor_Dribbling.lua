@@ -56,9 +56,7 @@ firstState = "Init",
 	
 ["getball"] = {
 	switch = function()
-		--  
-		-- shoot_pos = shootPosFun()
-		-- debugEngine:gui_debug_msg(CGeoPoint(0,0),player.num("Assister"))
+		
 		if(player.myinfraredCount("Assister") > 5) then
 			return "dribbling"
 		end
