@@ -817,6 +817,38 @@ function simpleMoveTargetPos(rolePos, targetPos)
 	return CGeoPoint(tPosX, tPosY)
 end
 
+-- 避免干扰己方车辆
+function eschewingOurCar(role, targetPos, buf)
+	if buf == nil then
+		buf = param.playerRadius*3
+	end
+
+	for i=0, param.maxPlayer-1 do
+		-- debugEngine:gui_debug_msg(CGeoPoint(0, 150*player.num(role)), player.num(role))
+        if player.valid(i) and i ~= player.num(role) then
+        	if player.pos(i):dist(targetPos) < buf then
+        		local tPos = player.pos(i)+Utils.Polar2Vector(buf, (player.pos(role)-player.pos(i)):dir())
+        		debugEngine:gui_debug_x(tPos, 2)
+        		return tPos
+        	end
+        end
+    end
+    return targetPos
+end
+
+-- 检查周围是否有敌人
+function isCloseEnemy(role, buf)
+	if buf == nil then
+		buf = param.playerRadius * 4
+	end
+	for i=0, param.maxPlayer-1 do
+		if enemy.valid(i) and enemy.pos(i):dist(player.pos(role)) <= buf then
+	    	return true
+	    end
+	end
+	return false
+end
+
 
 -- defender_norm script 
 -- mode: 0 upper area, 1 down area, 2 middle
@@ -824,7 +856,6 @@ end
 function defend_normV2(role, mode, flag)
 	-- debugEngine:gui_debug_x(getLineCrossDefenderPos(ball.pos(), ball.velDir()), 3)
 	-- debugEngine:gui_debug_x(getLineCrossDefenderPos(ball.pos(), param.ourGoalPos), 3)
-
 
 	getDefenderCount()
 	if defenderCount == 1 then
@@ -861,11 +892,14 @@ function defend_normV2(role, mode, flag)
 		defenderPoint = rolePos
 	end
 	defenderPoint = simpleMoveTargetPos(rolePos, defenderPoint)
+
 	debugEngine:gui_debug_x(defenderPoint, 0)
 
 	local idir = player.toPointDir(enemyPos, role)
-	local mexe, mpos = SimpleGoto { pos = defenderPoint, dir = idir, acc = a, flag = 0x00000100, rec = r, vel = endVelController(role, defenderPoint) }
-	-- local mexe, mpos = GoCmuRush { pos = defenderPoint, dir = idir, acc = a, flag = 0x00000100, rec = r, vel = endVelController(role, defenderPoint) }
+	local mexe, mpos = SimpleGoto { pos = eschewingOurCar(role, defenderPoint, param.playerRadius*2), dir = idir, acc = a, flag = 0x00000100, rec = r, vel = endVelController(role, defenderPoint) }
+	if not isCloseEnemy(role) then
+		mexe, mpos = GoCmuRush { pos = eschewingOurCar(role, defenderPoint), dir = idir, acc = a, flag = 0x00000100, rec = r, vel = v }
+	end
 	return { mexe, mpos }
 end
 

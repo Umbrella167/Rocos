@@ -8,7 +8,9 @@ return {
             local rolePos = CGeoPoint:new_local(player.rawPos("Goalie"):x(), player.rawPos("Goalie"):y())
             local getBallPos = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1,param.V_DECAY_RATE)
 
-            
+            -- if rolePos:dist(getBallPos)<param.defenderCatchBuf then
+            --     return "defend_kick"
+            -- end
 
 
             -- local ballToCloestEnemyDist = ball.rawPos():dist(enemy.pos(enemy.closestBall()))
@@ -31,9 +33,9 @@ return {
             --     end
             -- end
         end,
-        Breaker = function() return task.defend_normV2("Breaker", 0, 1) end,
-        Fronter = function() return task.defend_normV2("Fronter", 1, 1) end,
-        match = "[BF]"
+        Breaker = function() return task.defend_normV2("Tier", 0, 1) end,
+        Fronter = function() return task.defend_normV2("Defender", 1, 1) end,
+        match = "[TD]"
     },
     ["defend_front"] = {
         switch = function()
@@ -52,8 +54,8 @@ return {
                 return "defend_norm"
             end
         end,
-        Breaker = function() return task.defend_front("Breaker") end,
-        Fronter = function() return task.defend_front("Fronter") end,
+        Breaker = function() return task.defend_front("Tier") end,
+        Fronter = function() return task.defend_front("Defender") end,
         match = "[TD]"
     },
     ["defend_kick"] = {
@@ -62,8 +64,8 @@ return {
                 return "defend_norm"
             end
         end,
-        Breaker = function() return task.defend_kick("Breaker") end,
-        Fronter = function() return task.defend_kick("Fronter") end,
+        Breaker = function() return task.defend_kick("Tier") end,
+        Fronter = function() return task.defend_kick("Defender") end,
         match = "[TD]"
     },
 
