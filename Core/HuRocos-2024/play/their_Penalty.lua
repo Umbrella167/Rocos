@@ -1,21 +1,31 @@
 local playerCount = {'', '', '', '', '', ''}
 local DSS_FLAG = flag.allow_dss + flag.dodge_ball
+
+local readyPosX = param.pitchLength / 2 - 300
+
 local stopPos = function(role)
     for i=1, #playerCount do
     	-- debugEngine:gui_debug_msg(CGeoPoint(1000, 1000+150*i), playerCount[i])
     	if playerCount[i] == role then
     		if i<#playerCount/2 then
-	    		return CGeoPoint(- param.pitchLength / 2 + 300,-param.pitchWidth / 2 + 300 * i)
+	    		return CGeoPoint(readyPosX,-param.pitchWidth / 2 + 300 * i)
     		end
-    		return CGeoPoint(- param.pitchLength / 2 + 300,param.pitchWidth / 2 - 300 * (#playerCount-i))
+    		return CGeoPoint(readyPosX,param.pitchWidth / 2 - 300 * (#playerCount-i))
     	end
     	if playerCount[i] == '' then
     		playerCount[i] = role
-    		return CGeoPoint(- param.pitchLength / 2 + 300,-param.pitchWidth / 2 + 300 * i)
+    		return CGeoPoint(readyPosX,-param.pitchWidth / 2 + 300 * i)
     	end
     end
-    return CGeoPoint(-param.pitchLength / 2 + 300,-param.pitchWidth / 2 + 300)
+    return CGeoPoint(readyPosX,-param.pitchWidth / 2 + 300)
 end
+
+local getBallPos = function(role)
+	local rolePos = player.pos(role)
+    local tPos = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1,param.V_DECAY_RATE)
+    return tPos
+end
+
 
 local subScript = false
 
@@ -62,11 +72,15 @@ firstState = "Init",
 ["Getball"] = {
 	switch = function()
 		-- debugEngine:gui_debug_msg(CGeoPoint(0,0),ball.posX())
-		if ball.pos():dist(enemy.pos(enemy.closestBall())) > param.playerRadius * 1.5 then
+		-- if ball.pos():dist(enemy.pos(enemy.closestBall())) > param.playerRadius * 1.5 then
+		-- 	return "Defend"
+		-- end
+		if ball.posX() < player.posX("Goalie") then
 			return "Defend"
 		end
+
 	end,
-	Goalie = function() return task.goSimplePos(ball.pos(), player.toBallDir("Goalie"), flag.dribbling) end,
+	Goalie = function() return task.goSimplePos(getBallPos, player.toBallDir("Goalie"), flag.dribbling) end,
     match = "{G}"
 },
 name = "their_Penalty",
