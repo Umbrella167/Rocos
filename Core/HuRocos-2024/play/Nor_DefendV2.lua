@@ -7,8 +7,8 @@ return {
         switch = function()
             
         end,
-        Breaker = function() return task.defend_normV2("Tier", 0, 1) end,
-        Fronter = function() return task.defend_normV2("Defender", 1, 1) end,
+        Breaker = function() return task.defend_normV2("Tier", 0, 0) end,
+        Fronter = function() return task.defend_normV2("Defender", 1, 0) end,
         match = "[TD]"
     },
     ["defend_front"] = {
