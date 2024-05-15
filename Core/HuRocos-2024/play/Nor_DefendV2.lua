@@ -34,7 +34,6 @@ return {
         Breaker = function() return task.defend_front("Tier") end,
         Fronter = function() return task.defend_front("Defender") end,
         match = "[TD]"
->>>>>>> 626720c31dfe1dca989bae5faab978db675d946d
     },
     ["defend_kick"] = {
         switch = function()
