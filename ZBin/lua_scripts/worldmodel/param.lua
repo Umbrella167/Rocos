@@ -43,7 +43,7 @@ penaltyMiddleLine         = CGeoSegment(ourGoalPos, ourGoalPos + Utils.Polar2Vec
 -- 是否为真实场地
 isReality = false
 Team = "ONE" -- Team = "TWO"
-allowTouch = true              -- 是否开启touch
+allowTouch = false              -- 是否开启touch
 canTouchAngle = 45           -- 可以touch的角度
 dribblingExclusionDist = 135 -- 距离禁区多少距离开启带球
 debugSize = 100

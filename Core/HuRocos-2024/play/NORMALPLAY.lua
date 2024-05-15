@@ -279,7 +279,8 @@ firstState = "Init",
     switch = function()
         UpdataTickMessage(our_goalie_num,defend_num1,defend_num2)    -- 更新帧信息
         local State = getState()
-        if(GlobalMessage.Tick().ball.rights == -1 or not player.canTouch(player.pos("Assister"),shoot_pos,param.canTouchAngle)) then
+        if(GlobalMessage.Tick().ball.rights == -1 or not player.canTouch(player.pos("Assister"),shoot_pos,param.canTouchAngle)) and State ~= "dribbling" then
+            
             return State
         end
     end,
