@@ -27,10 +27,6 @@ gRefConfig = {
             return "our_FrontKick"
         end
     end,
-    
-    
-    
-
     TheirKickOff = "their_KickOff",
     OurKickOff = "our_KickOff",
     TheirBallPlacement = "theirBallPlacement",

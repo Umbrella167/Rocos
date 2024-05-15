@@ -900,7 +900,7 @@ namespace Utils
             // 红外报错系统
             double dribblePlayerToBallAngleDebug = abs(angleDiff(pVision->ourPlayer(i).RawDir(), (pVision->ball().Pos() - pVision->ourPlayer(i).Pos()).dir()) * PARAM::Math::PI);
             double minJudgeAngleDebug = 1.28;
-            bool myInfraredCount = (pVision->ourPlayer(i).Pos().dist(Tick[now].ball.pos) < playerInfraredCountBuffer && dribblePlayerToBallAngleDebug < minJudgeAngleDebug);
+            bool myInfraredCount = (pVision->ourPlayer(i).Pos().dist(Tick[now].ball.pos) < 230 && dribblePlayerToBallAngleDebug < minJudgeAngleDebug);
             bool officialInfraredCount = RobotSensor.InfraredOnCount(i) > 1 ;
             if (officialInfraredCount && !myInfraredCount && pVision->ball().Valid() && !havePlayer(pVision,i,130))
             {
