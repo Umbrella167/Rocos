@@ -256,26 +256,26 @@ function getballV2(role, playerVel, inter_flag, target_point, permissions)
 	end
 end
 minDist_Power = 0
-maxDist_Power = 7000
+maxDist_Power = 6000
 playerPowerONE = 
 {
 	-- [num] = {minist,maxDist,minPower, maxPower, ShootPower,chipPower} 
 	[0] = {minDist_Power,maxDist_Power,200,330,400,7000},
-	[1] = {minDist_Power,maxDist_Power,120,330,315,7000},
-	[2] = {minDist_Power,maxDist_Power,120,330,315,7000},
-	[3] = {minDist_Power,maxDist_Power,120,330,315,7000},
-	[4] = {minDist_Power,maxDist_Power,120,330,315,7000},
-	[5] = {minDist_Power,maxDist_Power,120,330,315,7000},
-	[6] = {minDist_Power,maxDist_Power,120,330,315,7000},
-	[7] = {minDist_Power,maxDist_Power,120,330,315,7000},
-	[8] = {minDist_Power,maxDist_Power,120,330,315,7000},
-	[9] = {minDist_Power,maxDist_Power,120,330,315,7000},
-	[10] = {minDist_Power,maxDist_Power,120,330,315,7000},
-	[11] = {minDist_Power,maxDist_Power,120,330,315,7000},
-	[12] = {minDist_Power,maxDist_Power,120,330,315,7000},
-	[14] = {minDist_Power,maxDist_Power,120,330,315,7000},
-	[15] = {minDist_Power,maxDist_Power,120,330,315,7000},
-	[16] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[1] = {minDist_Power,maxDist_Power,120,330,350,7000},
+	[2] = {minDist_Power,maxDist_Power,135,330,350,7000},
+	[3] = {minDist_Power,maxDist_Power,135,330,350,7000},
+	[4] = {minDist_Power,maxDist_Power,135,330,350,7000},
+	[5] = {minDist_Power,maxDist_Power,135,330,350,7000},
+	[6] = {minDist_Power,9000,135,330,350,7000},
+	[7] = {minDist_Power,maxDist_Power,135,330,350,7000},
+	[8] = {minDist_Power,maxDist_Power,135,330,350,7000},
+	[9] = {minDist_Power,maxDist_Power,135,330,350,7000},
+	[10] = {minDist_Power,maxDist_Power,135,330,350,7000},
+	[11] = {minDist_Power,maxDist_Power,135,330,350,7000},
+	[12] = {minDist_Power,maxDist_Power,135,330,350,7000},
+	[14] = {minDist_Power,maxDist_Power,135,330,350,7000},
+	[15] = {minDist_Power,maxDist_Power,135,330,350,7000},
+	[16] = {minDist_Power,maxDist_Power,135,330,350,7000},
 
 }
 playerPowerTWO = {
@@ -337,6 +337,9 @@ function power(p, num,shootFlag)
 		if not param.isReality then
 			local SimulationRate = 15
 			res = res * SimulationRate
+			if iflag == kick.chip() then
+				res = 3500
+			end
 		end	
 		return res
 	end
@@ -414,12 +417,12 @@ function TurnToPointV2(role, p, speed)
 		local playerDir = player.dir(role)
 		local subPlayerBallToTargetDir = Utils.angleDiff(toballDir,playerDir) * 180/math.pi
 		-- local Subdir = math.abs(toballDir-playerDir)
-		debugEngine:gui_debug_msg(CGeoPoint:new_local(1000,380),toballDir .. "                     " .. playerDir,4)
-		debugEngine:gui_debug_msg(CGeoPoint:new_local(1000,220),math.abs(toballDir-playerDir) .. "                     " .. subPlayerBallToTargetDir,3)
+		-- debugEngine:gui_debug_msg(CGeoPoint:new_local(1000,380),toballDir .. "                     " .. playerDir,4)
+		-- debugEngine:gui_debug_msg(CGeoPoint:new_local(1000,220),math.abs(toballDir-playerDir) .. "                     " .. subPlayerBallToTargetDir,3)
 	if math.abs(subPlayerBallToTargetDir) > 4 then
 		if subPlayerBallToTargetDir > 0 then
 			-- 顺时针旋转
-		debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "顺时针".. subPlayerBallToTargetDir)
+		-- debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "顺时针".. subPlayerBallToTargetDir)
 
 			local ipos = CGeoPoint(param.rotPos:x(), param.rotPos:y() * -1)  --自身相对坐标 旋转
 			local ivel = speed * -1
@@ -428,7 +431,7 @@ function TurnToPointV2(role, p, speed)
 		else
 			-- 逆时针旋转
 			-- debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "逆时针")
-		debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "逆时针".. subPlayerBallToTargetDir)
+		-- debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "逆时针".. subPlayerBallToTargetDir)
 
 			local ipos = param.rotPos  --自身相对坐标 旋转
 			local ivel = speed
@@ -1118,7 +1121,7 @@ function goalie_kick(role)
 	local mexe, mpos = GoCmuRush { pos = goaliePoint, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
 	-- return { mexe, mpos, kick.chip, idir, pre.low, power(param.goalieTargetPos, kp), power(param.goalieTargetPos, kp), 0x00000000 }
 	-- return { mexe, mpos, param.goalieShootMode, idir, pre.low, power(fungoalieTargetPos(), kp, player.num(role)), power(fungoalieTargetPos(), kp, player.num(role)), 0x00000000 }
-	return { mexe, mpos, param.goalieShootMode, idir, pre.low, cp.specified(8000), cp.specified(8000), 0x00000000 }
+	return { mexe, mpos, param.goalieShootMode, idir, pre.low, power(fungoalieTargetPos(),player.num(role),param.goalieShootMode), power(fungoalieTargetPos(),player.num(role),param.goalieShootMode), 0x00000000 }
 end
 
 
@@ -1244,7 +1247,6 @@ markingTableLen = 0
 function defender_marking(role,pos)
 	local enemyDribblingNum = GlobalMessage.Tick().their.dribbling_num
 	local p
-
 	markingTable = {}
 	markingTableLen = 0
 	if type(pos) == "function" then
@@ -1267,7 +1269,7 @@ function defender_marking(role,pos)
 	-- end
 	-- 如果 敌人在前场 ,我方正常跑位
 	if markingTableLen == 0 or (markingTableLen == 1 and role == "Special" )  then 
-		local mexe, mpos = GoCmuRush { pos = p, dir = idir, acc = a, flag = 0x00000000, rec = r, vel = v }
+		local mexe, mpos = GoCmuRush { pos = p, dir = idir, acc = a, flag = flag.allow_dss + flag.dodge_ball, rec = r, vel = v }
 		return { mexe, mpos }
 	else
 
@@ -1289,7 +1291,7 @@ function defender_marking(role,pos)
 				markingPos = CGeoPoint (player.posX(role),player.posY(role))
 			end
 
-			local mexe, mpos = GoCmuRush { pos = markingPos, dir = idir, acc = a, flag = 0x00000000, rec = r, vel = v }
+			local mexe, mpos = GoCmuRush { pos = markingPos, dir = idir, acc = a, flag = flag.allow_dss, rec = r, vel = v }
 			return { mexe, mpos }
 		end
 

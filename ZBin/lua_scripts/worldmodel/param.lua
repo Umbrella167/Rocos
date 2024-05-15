@@ -41,9 +41,12 @@ ourButtomGoalPos          = CGeoPoint:new_local(-pitchLength / 2, -goalRadius)
 penaltyMiddleLine         = CGeoSegment(ourGoalPos, ourGoalPos + Utils.Polar2Vector(penaltyDepth, 0))
 
 -- 是否为真实场地
-isReality = true
-Team = "ONE"
--- Team = "TWO"
+isReality = false
+Team = "ONE" -- Team = "TWO"
+allowTouch = true              -- 是否开启touch
+canTouchAngle = 45           -- 可以touch的角度
+dribblingExclusionDist = 135 -- 距离禁区多少距离开启带球
+debugSize = 100
 -----------------------------------------------|
 --                Getball参数                 --|
 -----------------------------------------------|
@@ -53,7 +56,7 @@ getballMode = 1                               -- [0[激进模式], 1[保守模�
 local V_DECAY_RATE_Reality = 800              -- 场地摩擦
 
 lastInterPos = CGeoPoint:new_local(-INF, -INF) -- 上一次算点结果
-rushToBallCount = 0
+rushToBallCount = 0                            -- 
 distRate = 0.2                                --
 
 -----------------------------------------------|
@@ -79,7 +82,6 @@ shootKp = 0.1                -- 射击力度比例
 -- shootPos = CGeoPoint(0, 0)
 shootPos = CGeoPoint(pitchLength / 2, 0)
 
-canTouchAngle = 45           -- 可以touch的角度
 -----------------------------------------------|
 --               rot参数                      --|
 -----------------------------------------------|

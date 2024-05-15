@@ -52,6 +52,7 @@ namespace Utils
     extern double PosToPosTime(CGeoPoint start_pos, CGeoPoint end_pos, double velocity);
 
     /* =============== 小工具 =============== */
+    extern bool havePlayer(const CVisionModule *pVision,int playerNum,double dist);
     extern double NumberNormalize(double data, double max_data, double min_data); // [0,1] 标准化
     extern CGeoPoint GetBallMaxPos(const CVisionModule *pVision,double a);
     extern double angleDiff(double angle1, double angle2); // 返回两个dir的差

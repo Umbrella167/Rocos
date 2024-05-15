@@ -14,7 +14,7 @@ local runPos = function()
 	end
 end
 
-local shoot_kp = param.shootKp
+
 local resShootPos = CGeoPoint(param.pitchLength / 2,0)
 
 local debugMesg = function ()
@@ -23,20 +23,15 @@ local debugMesg = function ()
 	else
 		debugEngine:gui_debug_line(player.pos("Assister"),player.pos("Assister") + Utils.Polar2Vector(9999,player.dir("Assister")),4)
 	end
-		debugEngine:gui_debug_msg(CGeoPoint(0,-2800),"ballRights: " .. GlobalMessage.Tick().ball.rights)
-		if player.myinfraredCount("Assister") > 0 then
-			debugEngine:gui_debug_msg(CGeoPoint(0,-2600),"myInfraredCount: " .. player.myinfraredCount("Assister").. "    InfraredCount: " .. player.infraredCount("Assister") .. "    InfraredOffCount:" .. player.myinfraredOffCount("Assister") ,2)
-		end
-		debugEngine:gui_debug_msg(CGeoPoint(0,-2400),"RawBallPos: " .. ball.rawPos():x() .. "    " .. ball.rawPos():y() ,3)
-		debugEngine:gui_debug_msg(CGeoPoint(0,-2200),"BallPos: " .. GlobalMessage.Tick().ball.pos:x() .. "    " .. GlobalMessage.Tick().ball.pos:y() ,4)
-		debugEngine:gui_debug_msg(CGeoPoint(0,-2000),"BallVel: " .. ball.velMod() ,4)
-		debugEngine:gui_debug_msg(CGeoPoint(0,-1600),"BallValid: " .. tostring(ball.valid()) ,4)
-		debugEngine:gui_debug_msg(CGeoPoint(0,-1400),"shoot_kp: " .. shoot_kp ,4)
+		debugEngine:gui_debug_msg(CGeoPoint(0,-2400),"RawBallPos: " .. ball.rawPos():x() .. "    " .. ball.rawPos():y() ,3,0,param.debugSize)
+		debugEngine:gui_debug_msg(CGeoPoint(0,-2200),"BallPos: " .. GlobalMessage.Tick().ball.pos:x() .. "    " .. GlobalMessage.Tick().ball.pos:y() ,4,0,param.debugSize)
+		debugEngine:gui_debug_msg(CGeoPoint(0,-2000),"BallVel: " .. ball.velMod() ,4,0,param.debugSize)
+		debugEngine:gui_debug_msg(CGeoPoint(0,-1600),"BallValid: " .. tostring(ball.valid()) ,4,0,param.debugSize)
 		
-		debugEngine:gui_debug_x(resShootPos,6,0,65)
-		debugEngine:gui_debug_msg(resShootPos,"rotCompensatePos",6,0,65)
-		debugEngine:gui_debug_x(param.shootPos,6,0,65)
-		debugEngine:gui_debug_msg(param.shootPos,"ShootPos",6,0,65)
+		debugEngine:gui_debug_x(resShootPos,6,0,param.debugSize)
+		debugEngine:gui_debug_msg(resShootPos,"rotCompensatePos",6,0,param.debugSize)
+		debugEngine:gui_debug_x(param.shootPos,6,0,param.debugSize)
+		debugEngine:gui_debug_msg(param.shootPos,"ShootPos",6,0,param.debugSize)
 
 end
 return {
@@ -68,14 +63,14 @@ firstState = "Init",
 		local toballDir = (param.shootPos - ball.pos()):dir()
 		local playerDir = player.dir("Assister")
 		local subDir = math.abs(Utils.angleDiff(toballDir,playerDir) * 180/math.pi)
-		local drbblingRate = math.ceil((15 * Utils.NumberNormalize(subDir,120,30)))
+		local drbblingRate = math.ceil((7 * Utils.NumberNormalize(subDir,120,30)))
 		if(player.myinfraredCount("Assister") > 15 + drbblingRate) then
 			return "turnToPoint"
 		end
 		local Vy = player.rotVel("Assister")
 		local ToTargetDist = player.toPointDist("Assister",param.shootPos)
 		resShootPos = task.compensateAngle("Assister",Vy,param.shootPos,ToTargetDist * param.rotCompensate)
-		-- debugEngine:gui_debug_msg(CGeoPoint(0,-3000),shoot_kp)
+
 		-- if(task.playerDirToPointDirSub("Assister",resShootPos) < param.shootError) then 
 		-- 	return "shoot"
 		-- end
@@ -93,11 +88,7 @@ firstState = "Init",
 		-- end
 		-- debugEngine:gui_debug_msg(CGeoPoint:new_local(0,0),player.rotVel("Assister"))
 		debugMesg()
-		if param.shootPos:x() == param.pitchLength / 2 then
-			shoot_kp = 10000
-		else
-			shoot_kp = param.shootKp
-		end
+
 
 		if(bufcnt(player.myinfraredCount("Assister") < 1,4)) then
 			return "getball"
@@ -105,7 +96,7 @@ firstState = "Init",
 		local Vy = player.rotVel("Assister")
 		local ToTargetDist = player.toPointDist("Assister",param.shootPos)
 		resShootPos = task.compensateAngle("Assister",Vy,param.shootPos,ToTargetDist * param.rotCompensate)
-		debugEngine:gui_debug_msg(CGeoPoint(0,-3000),shoot_kp)
+
 		if(task.playerDirToPointDirSub("Assister",resShootPos) < param.shootError) then 
 			return "shoot"
 		end
@@ -135,7 +126,7 @@ firstState = "Init",
 	switch = function()
 		--  
 	end,
-	Assister = task.touch(),--task.touchKick(function() return resShootPos end, true, function() return shoot_kp end, kick.flat),
+	Assister = task.touch(),
 	match = "[A]"
 },
 
