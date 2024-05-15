@@ -1023,7 +1023,7 @@ end
 -- 守门员skill
 -- 守门员的预备状态
 -- mode 防守模式选择, 0-goalie路线为球门前直线, 1-goalie的路线为球门半径画圆, 默认为1
-function goalie_norm(role, target, mode)
+function goalie_norm(role, mode)
 	if mode==nil then
 		mode = 0
 	end

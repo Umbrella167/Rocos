@@ -31,7 +31,7 @@ gRefConfig = {
     OurKickOff = "our_KickOff",
     TheirBallPlacement = "theirBallPlacement",
     OurBallPlacement = "our_BallPlacement",
-    TheirPenaltyKick = "STOP",
+    TheirPenaltyKick = "their_Penalty",
     OurPenaltyKick = "our_Penalty",
     NormalPlay = "NORMALPLAY" -- {"NORMALPLAY", "NORMALPLAYV2"},
 }
