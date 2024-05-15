@@ -746,6 +746,9 @@ function isClosestPointDefender(role, p)
 	return player.num(role)==roleNum and true or false
 end
 
+
+-- 得到目标线与defender框相交的点
+-- 第一个是要盯的点，第二个为基准点（基准角度）
 function getLineCrossDefenderPos(pos_, posOrDir_)
 	local resPos = CGeoPoint(param.INF, param.INF)
 	local minDist = param.INF
@@ -754,8 +757,10 @@ function getLineCrossDefenderPos(pos_, posOrDir_)
 		line_ = CGeoSegment(pos_, pos_+Utils.Polar2Vector(param.INF, posOrDir_))
 		-- debugEngine:gui_debug_line(pos_, pos_+Utils.Polar2Vector(param.INF, posOrDir_))
 	elseif type(posOrDir_) == 'userdata' then
-		line_ = CGeoSegment(pos_, posOrDir_)
-		-- debugEngine:gui_debug_line(pos_, posOrDir_)
+		local idir = (pos_ - posOrDir_):dir()
+		local tPos = posOrDir_ + Utils.Polar2Vector(param.INF, idir)
+		line_ = CGeoSegment(tPos, posOrDir_)
+		-- debugEngine:gui_debug_line(tPos, posOrDir_)
 	end
 	-- 打印defender行走的框
 	debugEngine:gui_debug_line(param.defenderTopRightPos, param.defenderButtomRightPos)
@@ -899,7 +904,6 @@ function defend_normV2(role, mode, flag)
 	elseif mode == 2 then
 		basePos = param.ourGoalPos
 	end
-
 	if flag == 0 then
 		targetPos = ballPos
 	elseif flag == 1 then
@@ -907,16 +911,14 @@ function defend_normV2(role, mode, flag)
 	end
 	
 	local defenderPoint = getLineCrossDefenderPos(targetPos, basePos)
-
 	if defenderPoint == CGeoPoint(9999, 9999) then
 		defenderPoint = rolePos
 	end
 	defenderPoint = simpleMoveTargetPos(rolePos, defenderPoint)
-
 	debugEngine:gui_debug_x(defenderPoint, 0)
 
 	local idir = player.toPointDir(enemyPos, role)
-	local mexe, mpos = SimpleGoto { pos = eschewingOurCar(role, defenderPoint, param.playerRadius*2), dir = idir, acc = a, flag = 0x00000100, rec = r, vel = endVelController(role, defenderPoint) }
+	local mexe, mpos = SimpleGoto { pos = eschewingOurCar(role, defenderPoint, param.playerRadius*2), dir = idir, acc = a, flag = 0x00000100, rec = r, vel = v }
 	if not isCloseEnemy(role) then
 		mexe, mpos = GoCmuRush { pos = eschewingOurCar(role, defenderPoint), dir = idir, acc = a, flag = 0x00000100, rec = r, vel = v }
 	end
@@ -1021,7 +1023,7 @@ end
 -- 守门员skill
 -- 守门员的预备状态
 -- mode 防守模式选择, 0-goalie路线为球门前直线, 1-goalie的路线为球门半径画圆, 默认为1
-function goalie_norm(role, target, mode)
+function goalie_norm(role, mode)
 	if mode==nil then
 		mode = 0
 	end

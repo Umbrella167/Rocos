@@ -215,7 +215,6 @@ return {
 
     __init__ = function(name, args)
         print("in __init__ func : ",name, args)
-
     end,
 firstState = "Init",
 ["Init"] = {

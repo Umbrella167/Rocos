@@ -5,11 +5,14 @@ return {
     firstState = "defend_norm",
     ["defend_norm"] = {
         switch = function()
-            
+            -- local tierPos = CGeoPoint:new_local(player.rawPos("Tier"):x(), player.rawPos("Tier"):y())
+            -- local defenderPos = CGeoPoint:new_local(player.rawPos("Defender"):x(), player.rawPos("Defender"):y())
+            -- local getBallPos = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1,param.V_DECAY_RATE)
+
         end,
-        Breaker = function() return task.defend_normV2("Tier", 0, 0) end,
-        Fronter = function() return task.defend_normV2("Defender", 1, 0) end,
-        match = "[TD]"
+        Breaker = function() return task.defend_normV2("Tier", 0, param.defenderMode) end,
+        Fronter = function() return task.defend_normV2("Defender", 1, param.defenderMode) end,
+        match = "[BF]"
     },
     ["defend_front"] = {
         switch = function()
