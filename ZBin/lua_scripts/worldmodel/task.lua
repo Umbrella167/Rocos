@@ -484,7 +484,7 @@ function ShootdotDribbling(error_, flag_,power)
 			p1 = p
 		end
 		local shootpos = function(runner)
-			return ball.pos() + Utils.Polar2Vector(50, player.toBallDir(runner))
+			return ball.pos() + Utils.Polar2Vector(-50, player.toBallDir(runner))
 		end
 		local idir = function(runner)
 			return player.toBallDir(runner)

@@ -25,7 +25,6 @@ gRoleFixNum = {
         ["Goalie"]   = { param.our_goalie_num },
         ["Defender"] = { param.defend_num1 },
         ["Tier"]     = { param.defend_num2 },
-        ["Leader"]     = { param.LeaderNum },
 }
 
 -- 用来进行定位球的保持
