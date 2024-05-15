@@ -721,7 +721,7 @@ function getDefenderCount()
 	defenderCount = 0
 	for i=0, param.maxPlayer-1 do
 		playerName = player.name(i)
-		if player.valid(i) and (playerName == "Breaker" or playerName == "Fronter") then
+		if player.valid(i) and (playerName == "Tier" or playerName == "Defender") then
 			defenderNums[defenderCount] = i
 			defenderCount = defenderCount + 1
 		end
