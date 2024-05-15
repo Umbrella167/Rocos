@@ -797,12 +797,12 @@ function isCrossPenalty(rolePos, targetPos)
 	return true
 end
 
+-- 用于禁区前快速运动
 function simpleMoveTargetPos(rolePos, targetPos)
 	local tPosX = targetPos:x()
 	local tPosY = targetPos:y()
 	-- debugEngine:gui_debug_msg(CGeoPoint(-2000, 2000), "x: "..math.abs(rolePos:x() - targetPos:x()))
 	-- debugEngine:gui_debug_msg(CGeoPoint(-2000, 2200), "y: "..math.abs(rolePos:y() - targetPos:y()))
-
 	-- debugEngine:gui_debug_msg(CGeoPoint(0,0), tostring(isCrossPenalty(rolePos, targetPos)))
 	
 	if math.abs(rolePos:x() - targetPos:x()) > 100 and math.abs(rolePos:y() - targetPos:y()) > 100 or isCrossPenalty(rolePos, targetPos) then
@@ -820,22 +820,40 @@ function simpleMoveTargetPos(rolePos, targetPos)
 	return CGeoPoint(tPosX, tPosY)
 end
 
--- 避免干扰己方车辆
-function eschewingOurCar(role, targetPos, buf)
-	if buf == nil then
-		buf = param.playerRadius*3
+-- 尽量避免撞车
+function eschewingOurCar(role, targetPos, ourBuf, enemyBuf)
+	if ourBuf == nil then
+		ourBuf = param.playerRadius*3
 	end
 
+	if enemyBuf == nil then
+		enemyBuf = param.playerRadius*2
+	end
+
+	-- 避免干扰己方车辆
 	for i=0, param.maxPlayer-1 do
 		-- debugEngine:gui_debug_msg(CGeoPoint(0, 150*player.num(role)), player.num(role))
         if player.valid(i) and i ~= player.num(role) then
-        	if player.pos(i):dist(targetPos) < buf then
-        		local tPos = player.pos(i)+Utils.Polar2Vector(buf, (player.pos(role)-player.pos(i)):dir())
+        	if player.pos(i):dist(targetPos) < ourBuf then
+        		local tPos = player.pos(i)+Utils.Polar2Vector(ourBuf, (player.pos(role)-player.pos(i)):dir())
         		debugEngine:gui_debug_x(tPos, 2)
         		return tPos
         	end
         end
     end
+
+    -- 避免顶撞敌方车辆
+	for i=0, param.maxPlayer-1 do
+		-- debugEngine:gui_debug_msg(CGeoPoint(0, 150*player.num(role)), player.num(role))
+        if enemy.valid(i) then
+        	if enemy.pos(i):dist(targetPos) < enemyBuf then
+        		local tPos = enemy.pos(i)+Utils.Polar2Vector(enemyBuf, (player.pos(role)-enemy.pos(i)):dir())
+        		debugEngine:gui_debug_x(tPos, 2)
+        		return tPos
+        	end
+        end
+    end
+
     return targetPos
 end
 
@@ -859,7 +877,6 @@ end
 function defend_normV2(role, mode, flag)
 	-- debugEngine:gui_debug_x(getLineCrossDefenderPos(ball.pos(), ball.velDir()), 3)
 	-- debugEngine:gui_debug_x(getLineCrossDefenderPos(ball.pos(), param.ourGoalPos), 3)
-
 	getDefenderCount()
 	if defenderCount == 1 then
 		mode = 2
@@ -1066,11 +1083,10 @@ function goalie_getBall(role)
 	-- debugEngine:gui_debug_x(param.goalieStablePoint)
 	local goaliePoint = CGeoPoint:new_local(getBallPos:x(), getBallPos:y())
 	local a = 4000
-	if ball.velMod() < 800 and player.myinfraredCount(role) < 10 then
-		debugEngine:gui_debug_msg(CGeoPoint(0, 0), 1)
+	if ball.velMod() < 800 and player.myinfraredCount(role) < param.goalieReadyFrame then
 		-- goaliePoint = CGeoPoint:new_local(getBallPos:x(), getBallPos:y()) + Utils.Polar2Vector(param.playerRadius-30, ballToRoleDir)
 		goaliePoint = ballPos + Utils.Polar2Vector(param.playerFrontToCenter, ballToRoleDir)
-	elseif 10 <= player.myinfraredCount(role) and player.myinfraredCount(role) <= param.goalieDribblingFrame then
+	elseif param.goalieReadyFrame <= player.myinfraredCount(role) and player.myinfraredCount(role) <= param.goalieDribblingFrame then
 		-- local playerToStablePointDir = (param.goalieStablePoint-rolePos):dir()
 		-- goaliePoint = ballPos + Utils.Polar2Vector(param.playerRadius, ballToRoleDir) + Utils.Polar2Vector(50, playerToStablePointDir)
 		a = param.goalieDribblingA

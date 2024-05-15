@@ -37,7 +37,7 @@ return {
         switch = function()
             local rolePos = CGeoPoint:new_local(player.rawPos("Goalie"):x(), player.rawPos("Goalie"):y())
             local getBallPos = task.stabilizePoint(Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1,param.V_DECAY_RATE))
-            if not Utils.InExclusionZone(getBallPos, param.goalieBuf, "our") then
+            if player.myinfraredCount("Goalie") < 10 and not Utils.InExclusionZone(getBallPos, param.goalieBuf, "our") then
                 return "goalie_norm"
             end
 

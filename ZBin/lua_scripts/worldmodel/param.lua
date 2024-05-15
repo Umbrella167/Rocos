@@ -119,7 +119,7 @@ defenderCatchBuf = param.playerRadius * 6
 --             goalie参数             --|
 -----------------------------------------------|
 goalieShootMode = function() return 2 end -- 1 flat  2 chip
-goalieBuf = playerRadius
+goalieBuf = 0
 -- goalie 需要考虑敌人朝向的距离，一般为半场的一半
 goalieAimDirRadius = pitchLength / 4
 -- goalie 在考虑敌人朝向时会走出的最远距离， 一般为球门半径
@@ -131,6 +131,8 @@ goalieMoveLine = CGeoSegment(CGeoPoint:new_local(-pitchLength / 2 + goalieBuf, -
 goalieMoveX = -pitchLength / 2 + goalieBuf
 -- goalie 移动的半径（mode-1）
 goalieRadius = goalRadius - goalieBuf
+-- goalie 刚吸到球后准备的时间
+goalieReadyFrame = 20
 -- goalie 吸到球后往稳定点缓慢移动一段距离
 goalieStablePoint = CGeoPoint(-pitchLength / 2 + penaltyDepth / 2, 0)
 -- goalie 带球的最大帧数
