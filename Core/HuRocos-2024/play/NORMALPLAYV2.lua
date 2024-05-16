@@ -202,7 +202,7 @@ local getState = function ()
             resultState =  "Getball"
         end
 
-        if Utils.InExclusionZone(ball.pos(), param.dribblingExclusionDist, "all") and ball_rights ~= 0  and resultState ~= "ShootPoint" then
+        if Utils.InExclusionZone(ball.pos(), param.dribblingExclusionDist, "all") and ball_rights ~= 0  then
             resultState =  "dribbling"
         end
 
@@ -326,7 +326,7 @@ firstState = "Init",
     switch = function()
         UpdataTickMessage(our_goalie_num,defend_num1,defend_num2)
         local State = getState()
-        if bufcnt(true,30) or State == "Getball" then
+        if bufcnt(true,35)then -- or State == "Getball" 
             return State
         end
 

@@ -42,7 +42,7 @@ ourButtomGoalPos          = CGeoPoint:new_local(-pitchLength / 2, -goalRadius)
 penaltyMiddleLine         = CGeoSegment(ourGoalPos, ourGoalPos + Utils.Polar2Vector(penaltyDepth, 0))
 
 -- 是否为真实场地
-isReality = true
+isReality = false
 Team = "TWO" -- Team = "TWO"
 allowTouch = false              -- 是否开启touch
 canTouchAngle = 45           -- 可以touch的角度f
@@ -129,7 +129,7 @@ rotTable = Team == "ONE" and rotTableONE or rotTableTWO
 rotVel = function(num)
     local turnVel = rotTable[num][2]
     if shootPos:x() == pitchLength / 2 then
-        return turnVel + 0.8
+        return turnVel + 0.2
     else
         return turnVel
     end
@@ -146,9 +146,9 @@ rotCompensateTable = {
 	[0] =  {-0.015}, 
 	[1] =  {-0.015}, 
 	[2] =  {-0.015}, 
-	[3] =  {-0.015}, 
-	[4] =  {-0.015}, 
-	[5] =  {-0.015}, 
+	[3] =  {0}, 
+	[4] =  {0}, 
+	[5] =  {0}, 
 	[6] =  {-0.015}, 
 	[7] =  {-0.015}, 
 	[8] =  {-0.015}, 

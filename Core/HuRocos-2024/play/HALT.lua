@@ -6,15 +6,13 @@ switch = function()
 end,
 ["halt"] = {
 	
-	["Leader"]   = task.stop(),
+	["Kicker"]   = task.stop(),
 	["Special"]  = task.stop(),
 	["Assister"] = task.stop(),
-	["Defender"] = task.stop(),
-	["Middle"]   = task.stop(),
-	["Center"]   = task.stop(),
-	["Breaker"]  = task.stop(),
+	["Center"] = task.stop(),
+	["Defender"]   = task.stop(),
 	["Goalie"]   = task.stop(),
-	match = "[LSADMCB]"
+	match = "[AKSC]{DG}"
 },
 
 name = "HALT",

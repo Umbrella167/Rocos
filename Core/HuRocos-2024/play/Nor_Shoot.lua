@@ -106,13 +106,14 @@ firstState = "Init",
 		debugMesg()	
 		if(bufcnt(player.myinfraredCount("Assister") < 1,1)) then
 			return "getball"
-		end
+	end
 
 		if(task.playerDirToPointDirSub("Assister",resShootPos) > param.shootError) then 
 			return "getball"
 		end
+		
 	end,
-	Assister = task.ShootdotV2(function() return resShootPos end, param.shootError, kick.flat ),
+	Assister = task.ShootdotV2(function() return resShootPos end, param.shootError,function() return (player.num("Assister") == 3 and param.Team == "TWO") and kick.chip() or kick.flat() end),
 	match = "{A}"
 },
 	
