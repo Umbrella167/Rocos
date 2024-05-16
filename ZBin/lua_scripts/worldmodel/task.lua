@@ -129,16 +129,16 @@ function getball_dribbling(role)
 	return function()
 		local idir = player.toBallDir(role)
 		local p = ball.pos() + Utils.Polar2Vector(-10,idir)
-		local endVel = Utils.Polar2Vector(ball.velMod() + 100,idir)
+		local endVel = Utils.Polar2Vector(ball.velMod() + 300,idir)
 		local toballDir = math.abs((ball.pos() - player.rawPos(role)):dir())
 		local playerDir = math.abs(player.dir(role))
 		local Subdir = math.abs(Utils.angleDiff(toballDir,playerDir) * 180/math.pi)
 		local iflag = flag.dribbling + flag.allow_dss
 		local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
-		if Subdir > 15 and player.toBallDist(role) < 150 then 
+		if Subdir > 30  then 
 			iflag =  DSS_FLAG
 		else
-			iflag = flag.dribbling + flag.allow_dss
+			iflag = flag.dribbling
 		end
 		local mexe, mpos = GoCmuRush { pos = p, dir = idir, acc = a, flag = iflag, rec = r, vel = endVel, speed = s, force_manual = force_manual }
 		return { mexe, mpos }
@@ -260,7 +260,7 @@ playerPowerONE =
 	-- [num] = {minist,maxDist,minPower, maxPower, ShootPower,chipPower} 
 	[0] = {minDist_Power,maxDist_Power,200,330,400,7000},
 	[1] = {minDist_Power,maxDist_Power,120,330,350,7000},
-	[2] = {minDist_Power,maxDist_Power,135,330,350,7000},
+	[2] = {minDist_Power,maxDist_Power,135,330,350,7000}, -- 吸球弱，可以挑球
 	[3] = {minDist_Power,maxDist_Power,135,330,350,7000},
 	[4] = {minDist_Power,maxDist_Power,135,330,350,7000},
 	[5] = {minDist_Power,maxDist_Power,135,330,350,7000},
@@ -280,10 +280,10 @@ playerPowerTWO = {
 	-- [num] = {minist,maxDist,minPower, maxPower, ShootPower,chipPower} 
 	[0] = {minDist_Power,maxDist_Power,200,330,400,7000}, 
 	[1] = {minDist_Power,maxDist_Power,120,330,315,7000},-- 可以挑球 ，吸球还行
-	[2] = {minDist_Power,maxDist_Power,120,330,315,7000}, 
-	[3] = {minDist_Power,maxDist_Power,120,330,315,7000},
-	[4] = {minDist_Power,maxDist_Power,120,330,315,7000},
-	[5] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[2] = {minDist_Power,maxDist_Power,135,330,315,7000}, 
+	[3] = {minDist_Power,maxDist_Power,330,750,1000,5000},
+	[4] = {minDist_Power,maxDist_Power,330,750,1000,5000},
+	[5] = {minDist_Power,maxDist_Power,165,340,450,7000},
 	[6] = {minDist_Power,maxDist_Power,120,330,450,7000}, -- 带球超强 ,挑球一般
 	[7] = {minDist_Power,maxDist_Power,120,330,315,7000}, -- 红外偶尔有问题
 	[8] = {minDist_Power,maxDist_Power,120,330,315,7000},
@@ -331,7 +331,6 @@ function power(p, num,shootFlag)
 			res = playerPower[playerNum][5]
 		end
 		---仿真的力度
-		
 		if not param.isReality then
 			local SimulationRate = 15
 			res = res * SimulationRate
@@ -339,6 +338,7 @@ function power(p, num,shootFlag)
 				res = 3500
 			end
 		end	
+		debugEngine:gui_debug_msg(CGeoPoint(-param.pitchLength / 2,param.pitchWidth / 2), "POWER:"..res .."   TargetPos: " .. p1:x())
 		return res
 	end
 end
@@ -459,7 +459,7 @@ function TurnToPointV2(role, p, speed)
 	end
 
 	if speed == nil then
-		speed = param.rotVel
+		speed = param.rotVel(role)
 	end
 	debugEngine:gui_debug_x(p1,6)
 
@@ -479,7 +479,7 @@ function TurnToPointV2(role, p, speed)
 			-- 顺时针旋转
 		-- debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "顺时针".. subPlayerBallToTargetDir)
 
-			local ipos = CGeoPoint(param.rotPos:x(), param.rotPos:y() * -1)  --自身相对坐标 旋转
+			local ipos = CGeoPoint(param.rotPos(player.num(role)):x(), param.rotPos(player.num(role)):y() * -1)  --自身相对坐标 旋转
 			local ivel = speed * -1
 			local mexe, mpos = CircleRun {pos = ipos , vel = ivel}
 			return { mexe, mpos }
@@ -488,7 +488,7 @@ function TurnToPointV2(role, p, speed)
 			-- debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "逆时针")
 		-- debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "逆时针".. subPlayerBallToTargetDir)
 
-			local ipos = param.rotPos  --自身相对坐标 旋转
+			local ipos = param.rotPos(player.num(role))  --自身相对坐标 旋转
 			local ivel = speed
 
 			local mexe, mpos = CircleRun {pos = ipos , vel = ivel}
@@ -889,7 +889,7 @@ end
 -- 尽量避免撞车
 function eschewingOurCar(role, targetPos, ourBuf, enemyBuf)
 	if ourBuf == nil then
-		ourBuf = param.playerRadius*3
+		ourBuf = param.playerRadius*5
 	end
 
 	if enemyBuf == nil then

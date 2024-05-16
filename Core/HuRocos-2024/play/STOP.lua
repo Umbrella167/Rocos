@@ -26,6 +26,7 @@ local defendpos = {
   CGeoPoint(-3300,-850),
 
 }
+local a = 1800
 local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
 gPlayTable.CreatePlay {
 
@@ -38,13 +39,13 @@ firstState = "start",
       return "exit"
     end
   end,
-  Kicker   = task.goCmuRush(middlePos,dir.playerToBall,DSS_FLAG),
-  Assister = task.goCmuRush(leftPos,dir.playerToBall,DSS_FLAG),
-  Special  = task.goCmuRush(rightPos,dir.playerToBall,DSS_FLAG),
-  Tier = task.goCmuRush(defendpos[3],dir.playerToBall,DSS_FLAG),
-  Defender = task.goCmuRush(defendpos[2],dir.playerToBall,DSS_FLAG),
+  Kicker   = task.goCmuRush(middlePos,dir.playerToBall,a,DSS_FLAG),
+  Assister = task.goCmuRush(leftPos,dir.playerToBall,a,DSS_FLAG),
+  Special  = task.goCmuRush(rightPos,dir.playerToBall,a,DSS_FLAG),
+  Center = task.goCmuRush(defendpos[3],dir.playerToBall,a,DSS_FLAG),
+  Defender = task.goCmuRush(defendpos[2],dir.playerToBall,a,DSS_FLAG),
   Goalie = task.goCmuRush(defendpos[1],dir.playerToBall),
-  match = "[AKS]{TDG}"
+  match = "[AKSC]{DG}"
 },
 
 name = "STOP",
