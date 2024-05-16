@@ -25,10 +25,10 @@ gPlayTable.CreatePlay{
         Assister   = task.goCmuRush(CGeoPoint(-200,1000), Dir_ball("Assister")),
         Special  = task.goCmuRush(p3, Dir_ball("Special")),
         Kicker = task.goCmuRush(p2, Dir_ball("Kicker")),
-        Tier = task.goCmuRush(p1, Dir_ball("Tier")),
+        Center = task.goCmuRush(p1, Dir_ball("Center")),
         Defender = task.goCmuRush(p6, Dir_ball("Defender")),
         Goalie = task.goalie("Goalie"),
-        match = "[ASK]{TDG}"
+        match = "[ASKC]{DG}"
     },
     ["judge"] = {
         switch = function ()
@@ -39,10 +39,10 @@ gPlayTable.CreatePlay{
         Assister   = task.goCmuRush(CGeoPoint(-200,1000), Dir_ball("Assister")),
         Special  = task.goCmuRush(p3, Dir_ball("Special")),
         Kicker = task.goCmuRush(p2, Dir_ball("Kicker")),
-        Tier = task.goCmuRush(p1, Dir_ball("Tier")),
+        Center = task.goCmuRush(p1, Dir_ball("Center")),
         Defender = task.goCmuRush(p6, Dir_ball("Defender")),
         Goalie = task.goalie("Goalie"),
-        match = "[ASK]{TDG}"
+        match = "[ASKC]{DG}"
     },
 
 name = "their_KickOff",

@@ -333,7 +333,8 @@ function power(p, num,shootFlag)
 		---仿真的力度
 		if not param.isReality then
 			local SimulationRate = 15
-			res = res * SimulationRate
+			-- res = res * SimulationRate
+			res = 3500
 			if iflag == kick.chip() then
 				res = 3500
 			end

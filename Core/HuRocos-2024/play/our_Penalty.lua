@@ -44,11 +44,11 @@ local Power = function(role,shoot_flag,ishootThreshold)
 	end
 	if ball.posX() > ishootThreshold then
 		if (ishoot_falg == kick.chip()) then
-			ipower = 7000
+			ipower = 3000
 		end 
 	else
 		if (ishoot_falg == kick.chip()) then
-			ipower = 7000
+			ipower = 3000
 		end 
 	end
 	return ipower
@@ -71,10 +71,10 @@ firstState = "Init1",
 	Assister = task.goCmuRush(function() return player.pos(param.LeaderNum) end, player.toBallDir("Assister"), a, DSS_FLAG),
     Kicker = task.goCmuRush(function() return player.pos(param.LeaderNum) end, 0, a, DSS_FLAG, r, v, s, force_manual),
     Special = task.goCmuRush(function() return player.pos(param.LeaderNum) end, 0, a, DSS_FLAG, r, v, s, force_manual),
-    Tier = task.goCmuRush(p3, 0, a, DSS_FLAG, r, v, s, force_manual),
+    Center = task.goCmuRush(p3, 0, a, DSS_FLAG, r, v, s, force_manual),
     Defender = task.goCmuRush(p4, 0, a, DSS_FLAG, r, v, s, force_manual),
     Goalie = task.goCmuRush(p5, 0, a, DSS_FLAG, r, v, s, force_manual),
-    match = "[A][KS]{TDG}"
+    match = "[A][KSC]{DG}"
 },
 
 
@@ -82,18 +82,19 @@ firstState = "Init1",
 	switch = function()
 		shoot_flag = shootFlag("Assister")
 		param.shootPos = Utils.GetShootPoint(vision,player.num("Assister"))
-		-- debugEngine:gui_debug_msg(CGeoPoint(0,0),ball.posX())
 		if cond.isNormalStart() then
 			return "getball"
 		end
+		print(vision:gameState():gameOff())
 	end,
 	Assister = function() return task.goCmuRush(function() return ball.pos() + Utils.Polar2Vector(-180,0) end, player.toBallDir("Assister"), a, DSS_FLAG) end,
     Kicker = task.goCmuRush(p1, 0, a, DSS_FLAG, r, v, s, force_manual),
     Special = task.goCmuRush(p2, 0, a, DSS_FLAG, r, v, s, force_manual),
-    Tier = task.goCmuRush(p3, 0, a, DSS_FLAG, r, v, s, force_manual),
+    Center = task.goCmuRush(p3, 0, a, DSS_FLAG, r, v, s, force_manual),
     Defender = task.goCmuRush(p4, 0, a, DSS_FLAG, r, v, s, force_manual),
     Goalie = task.goCmuRush(p5, 0, a, DSS_FLAG, r, v, s, force_manual),
-    match = "{AKSTDG}"
+    match = "{AKSCDG}"
+
 },
 
 ["getball"] = {

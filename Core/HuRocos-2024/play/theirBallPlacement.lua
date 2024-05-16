@@ -95,10 +95,10 @@ firstState = "start",
   Assister = task.stop(),
   Kicker   = task.stop(),
   Special  = task.stop(),
-  Tier = task.stop(),
+  Center = task.stop(),
   Defender = task.stop(),
   Goalie = task.stop(),
-  match = "(AKS){TDG}"
+  match = "(AKSC){DG}"
 },
 
 ["getball"] = {
@@ -108,10 +108,10 @@ firstState = "start",
   Assister = task.goCmuRush(avoidPlacementPos("Assister"),function() return player.toBallDir("Assister") end,_,DSS_FLAG),
   Kicker   = task.goCmuRush(avoidPlacementPos("Kicker"),function() return player.toBallDir("Kicker") end,_,DSS_FLAG),
   Special  = task.goCmuRush(avoidPlacementPos("Special"),function() return player.toBallDir("Special") end,_,DSS_FLAG),
-  Tier = task.goCmuRush(avoidPlacementPos("Tier"),function() return player.toBallDir("Tier") end,_,DSS_FLAG),
+  Center = task.goCmuRush(avoidPlacementPos("Center"),function() return player.toBallDir("Center") end,_,DSS_FLAG),
   Defender = task.goCmuRush(avoidPlacementPos("Defender"),function() return player.toBallDir("Defender") end,_,DSS_FLAG),
   Goalie = task.goCmuRush(avoidPlacementPos("Goalie"),function() return player.toBallDir("Goalie") end,_,DSS_FLAG),
-  match = "(AKS){TDG}"
+  match = "(AKSC){DG}"
 },
 
 name = "theirBallPlacement",
