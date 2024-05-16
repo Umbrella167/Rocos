@@ -70,11 +70,6 @@ firstState = "Init",
 		local Vy = player.rotVel("Assister")
 		local ToTargetDist = player.toPointDist("Assister",param.shootPos)
 		resShootPos = task.compensateAngle("Assister",Vy,param.shootPos,ToTargetDist * param.rotCompensate)
-
-		-- if(task.playerDirToPointDirSub("Assister",resShootPos) < param.shootError) then 
-		-- 	return "shoot"
-		-- end
-
 	end,
 	Assister = task.getball(function() return shoot_pos end,param.playerVel,param.getballMode),
 	match = "[A]"

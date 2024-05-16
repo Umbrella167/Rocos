@@ -169,7 +169,7 @@ local lastState = "GetGlobalMessage"
 local dribbleCount = 0
 local getState = function ()
         local resultState = "GetGlobalMessage"
-        if task.ball_rights == 1 then   -- 我方球权的情况 获取进攻状态
+        if ball_rights == 1 then   -- 我方球权的情况 获取进攻状态
             -- 防止为定义状态转跳
             if dribblingStatus == "NOTHING"  or dribblingStatus == "Run" or  dribblingStatus == "Getball" then
             else
@@ -193,14 +193,7 @@ local getState = function ()
             resultState =  "Getball"
         end
 
-
-        param.dribblingExclusionDist = 120
-        if Utils.isValidPass(vision,ball.pos(),param.shootPos,130) then
-            param.dribblingExclusionDist = 0
-        else
-            param.dribblingExclusionDist = 120
-        end
-        if Utils.InExclusionZone(ball.pos(), param.dribblingExclusionDist, "all") and resultState ~=  "ShootPoint" then
+        if Utils.InExclusionZone(ball.pos(), param.dribblingExclusionDist, "all") and ball_rights ~= 0  and resultState ~= "ShootPoint" then
             resultState =  "dribbling"
         end
         debugEngine:gui_debug_msg(CGeoPoint(0,param.pitchWidth / 2 - (1000 + param.debugSize)),"NextState:" .. resultState,3,0,param.debugSize)

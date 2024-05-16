@@ -147,7 +147,6 @@ local UpdataTickMessage = function (our_goalie_num,defend_num1,defend_num2)
             else
                 pass_pos = CenterRUNPos
             end
-        
         end
         shoot_pos = GlobalMessage.Tick().task[dribbling_player_num].shoot_pos
         shoot_pos = CGeoPoint:new_local(shoot_pos:x(),shoot_pos:y())
@@ -179,7 +178,7 @@ local lastState = "GetGlobalMessage"
 local dribbleCount = 0
 local getState = function ()
         local resultState = "GetGlobalMessage"
-        if task.ball_rights == 1 then   -- 我方球权的情况 获取进攻状态
+        if ball_rights == 1 then   -- 我方球权的情况 获取进攻状态
             -- 防止为定义状态转跳
             if dribblingStatus == "NOTHING"  or dribblingStatus == "Run" or  dribblingStatus == "Getball" then
             else
@@ -203,16 +202,10 @@ local getState = function ()
             resultState =  "Getball"
         end
 
-
-        param.dribblingExclusionDist = 130
-        if Utils.isValidPass(vision,ball.pos(),param.shootPos,130) then
-            param.dribblingExclusionDist = 0
-        else
-            param.dribblingExclusionDist = 120
-        end
-        if Utils.InExclusionZone(ball.pos(), param.dribblingExclusionDist, "all") and resultState ~= "ShootPoint" then
+        if Utils.InExclusionZone(ball.pos(), param.dribblingExclusionDist, "all") and ball_rights ~= 0  and resultState ~= "ShootPoint" then
             resultState =  "dribbling"
         end
+
         debugEngine:gui_debug_msg(CGeoPoint(0,param.pitchWidth / 2 - (1000 + param.debugSize)),"NextState:" .. resultState,3,0,param.debugSize)
         lastState = resultState
         return resultState
@@ -333,12 +326,10 @@ firstState = "Init",
     switch = function()
         UpdataTickMessage(our_goalie_num,defend_num1,defend_num2)
         local State = getState()
-        if bufcnt(true,30) then
+        if bufcnt(true,30) or State == "Getball" then
             return State
         end
-        -- if bufcnt(true,30) then 
-        --     return "GetGlobalMessage"
-        -- end
+
     end,
     --dribbling_target_pos
     Assister = gSubPlay.roleTask("ShowDribbling", "Assister"),

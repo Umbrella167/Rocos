@@ -46,7 +46,7 @@ isReality = false
 Team = "TWO" -- Team = "TWO"
 allowTouch = false              -- 是否开启touch
 canTouchAngle = 45           -- 可以touch的角度f
-dribblingExclusionDist = 135 -- 距离禁区多少距离开启带球
+dribblingExclusionDist = 130 -- 距离禁区多少距离开启带球
 debugSize = 100
 -----------------------------------------------|
 --                Getball参数                 --|
@@ -121,7 +121,6 @@ defenderTopRightPos     = CGeoPoint:new_local(-pitchLength / 2 + penaltyDepth + 
 defenderButtomRightPos  = CGeoPoint:new_local(-pitchLength / 2 + penaltyDepth + defenderBuf, -penaltyRadius - defenderBuf)
 defenderTopPos          = CGeoPoint:new_local(-pitchLength / 2, penaltyRadius + defenderBuf)
 defenderButtomPos       = CGeoPoint:new_local(-pitchLength / 2, -penaltyRadius - defenderBuf)
-
 defenderRadius = ourGoalPos:dist(ourTopRightPenaltyPos) + defenderBuf
 defenderAimX = -pitchLength / 4
 defenderCatchBuf = param.playerRadius * 6
