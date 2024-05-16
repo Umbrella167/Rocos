@@ -53,7 +53,9 @@ CPlayerCommand* CCircleRun::execute(const CVisionModule* pVision){
     GDebugEngine::instance()->gui_debug_line(me.RawPos(), me.RawPos() + targetVel.rotate(me.Dir()), COLOR_RED);
     GDebugEngine::instance()->gui_debug_line(me.RawPos(), me.RawPos() + localVel.rotate(me.Dir()), COLOR_BLUE);
     GDebugEngine::instance()->gui_debug_line(me.RawPos(), me.RawPos() + me2center.rotate(me.Dir()), COLOR_GREEN);
-    // GDebugEngine::instance()->gui_debug_x(me.RawPos() + me2center.rotate(me.Dir()), COLOR_GREEN);
-    // GDebugEngine::instance()->gui_debug_msg(me.RawPos() + me2center.rotate(me.Dir()), fmt::format("v:{:.1f},tv:{:.1f}",meVel.mod(),localVel.mod()),COLOR_GREEN);
+    
+    GDebugEngine::instance()->gui_debug_x(me.RawPos() + me2center.rotate(me.Dir()), COLOR_GREEN);
+    GDebugEngine::instance()->gui_debug_msg(me.RawPos() + me2center.rotate(me.Dir()), fmt::format("v:{:.1f},tv:{:.1f}",meVel.mod(),localVel.mod()),COLOR_GREEN);
+    
     return CmdFactory::Instance()->newCommand(CPlayerSpeedV2(vecNumber, localVel.x(), localVel.y(), rotVel, dribblePower));
 }

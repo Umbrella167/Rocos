@@ -178,8 +178,6 @@ function getball(shootPos_,playerVel, inter_flag, permissions)
 			end
 		-- end
 
-
-
 		local ishootpos
 		if type(shootPos_) == "function" then
 			ishootpos = shootPos_()
@@ -388,6 +386,63 @@ function GetBallV2(role, p, dist1, speed1) -------dist开始减速的距离   sp
 			local mexe, mpos = GoCmuRush { pos = pp, dir = idir, acc = 50, flag = 0x00000100 + 0x04000000, rec = 1, vel = v }
 			return { mexe, mpos }
 		end
+	end
+end
+
+function TurnToPointV1(role, p, speed)
+	--参数说明
+	-- role 	 使用这个函数的角色
+	-- p	     指向坐标
+	-- speed	 旋转速度
+	local p1 = p
+	if type(p) == 'function' then
+		p1 = p()
+	else
+		p1 = p
+	end
+	if speed == nil then
+		speed = 800
+	end
+	local playerPos = player.pos(role)
+	local playerDir = player.dir(role)
+	local playerToBallDist = player.toBallDist(role)
+	local playerToBallDir = (ball.pos() - player.pos(role)):dir()
+	local playerToTargetDir = (p1 - player.pos(role)):dir()
+	local ballPos = CGeoPoint:new_local (ball.posX(),ball.posY())
+	local ballToTargetDir = (p1 - ball.pos()):dir()
+	local subPlayerBallToTargetDir = playerToTargetDir - ballToTargetDir
+	-- 逆时针旋转
+	local idirLeft = (playerDir+param.PI/2)>param.PI and playerDir-(3/2)*param.PI or playerDir+param.PI/2 
+	-- 顺时针旋转
+	local idirRight = (playerDir-param.PI/2)>param.PI and playerDir+(3/2)*param.PI or playerDir-param.PI/2
+	
+	local Subdir = math.abs(Utils.angleDiff(playerToTargetDir,playerDir))
+
+	if Subdir > 0.14 then
+		if subPlayerBallToTargetDir > 0 then
+			-- 逆时针旋转
+			-- debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "0")
+			local target_pos = playerPos+Utils.Polar2Vector(speed, idirLeft)+Utils.Polar2Vector(2*playerToBallDist, playerToBallDir)
+			debugEngine:gui_debug_x(target_pos)
+			local mexe, mpos = GoCmuRush { pos = target_pos, dir = playerToBallDir, acc = a, flag = 0x00000100, rec = r, vel = v }
+			return { mexe, mpos }
+		end
+		-- 顺时针旋转
+		-- debugEngine:gui_debug_msg(CGeoPoint(1000, 1000), "1")
+		local target_pos = playerPos+Utils.Polar2Vector(speed, idirRight)+Utils.Polar2Vector(2*playerToBallDist, playerToBallDir)
+		debugEngine:gui_debug_x(target_pos)
+		local mexe, mpos = GoCmuRush { pos = target_pos, dir = playerToBallDir, acc = a, flag = 0x00000100, rec = r, vel = v }
+		return { mexe, mpos }
+	-- else
+	-- elseif playerToBallDist > 1 then
+	-- 	-- debugEngine:gui_debug_msg(CGeoPoint:new_local(1000, 1000), "2")
+	-- 	local mexe, mpos = GoCmuRush { pos = ballPos, dir = playerToTargetDir, acc = a, flag = 0x00000100, rec = r, vel = v }
+	-- 	return { mexe, mpos }
+	-- else
+	-- 	local idir = (p1 - player.pos(role)):dir()
+	-- 	local pp = player.pos(role) + Utils.Polar2Vector(0 + 10, idir)
+	-- 	local mexe, mpos = GoCmuRush { pos = pp, dir = idir, acc = 50, flag = 0x00000100 + 0x04000000, rec = 1, vel = v }
+	-- 	return { mexe, mpos }  
 	end
 end
 
@@ -1143,7 +1198,24 @@ function goalie_kick(role)
 end
 
 
--- 守门员skill
+function goalie_catchBall(role)
+	local rolePos = player.pos(role)
+	local playerToBallDir = (ball.pos()-rolePos):dir()
+	local getBallPos = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1,param.V_DECAY_RATE)
+
+
+	local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
+	local iflag =  DSS_FLAG
+
+
+
+	local mexe, mpos = GoCmuRush { pos = getBallPos, dir = playerToBallDir, acc = a, flag = iflag, rec = r, vel = v }
+	return { mexe, mpos }
+end
+
+
+
+-- 守门员skill(目前已弃用)
 -- 当球进禁区时要踢到的目标点
 -- TODO：
 -- 这个mode的用法不对，在更换到新的goalie子脚本中会修复
@@ -1254,6 +1326,8 @@ function goalie(role, target, mode)
 		end
 	end
 end
+
+
 
 
 
