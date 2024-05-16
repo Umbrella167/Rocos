@@ -17,7 +17,7 @@ gRefConfig = {
     GameHalt = "HALT",
     GameStop = "STOP",
     OurTimeout = "HALT",
-    TheirIndirectKick = "NORMALPLAY",
+    TheirIndirectKick = "NORMALPLAYV2",
     OurIndirectKick = function()
         if ball.posX() > 3000 then 
             return "our_CornerKick"
@@ -33,6 +33,6 @@ gRefConfig = {
     OurBallPlacement = "our_BallPlacement",
     TheirPenaltyKick = "their_Penalty",
     OurPenaltyKick = "our_Penalty",
-    NormalPlay = "NORMALPLAY" -- {"NORMALPLAY", "NORMALPLAYV2"},
+    NormalPlay = "NORMALPLAYV2" -- {"NORMALPLAY", "NORMALPLAYV2"},
 }
 --]]

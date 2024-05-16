@@ -112,7 +112,6 @@ ballRights = -1
 shoot_pos = CGeoPoint:new_local(param.pitchLength / 2,0)
 -- 被传球机器人
 pass_player_num = 0
-
 -- touch power
 touchPower = 4000
 
@@ -188,19 +187,17 @@ firstState = "ready",
 	Assister   = task.goCmuRush(p1, Dir_ball("Assister"),_,DSS_FLAG),
 	Special  = task.goCmuRush(p3, Dir_ball("Special"),_,DSS_FLAG),
 	Kicker = task.goCmuRush(p2, Dir_ball("Kicker"),_,DSS_FLAG),
-	Tier = task.goCmuRush(p7, Dir_ball("Tier"),_,DSS_FLAG),
+	Center = task.goCmuRush(p7, Dir_ball("Center"),_,DSS_FLAG),
 	Defender = task.goCmuRush(p6, Dir_ball("Defender"),_,DSS_FLAG),
     Goalie = task.goalie("Goalie"),
-    match = "[ASK]{TDG}"
+    match = "[ASKC]{DG}"
 },
 
 ["OtherRunPos"] = {
 	switch = function ()
-		  
-		if   GlobalMessage.Tick().ball.rights == -1 then 
+		if GlobalMessage.Tick().ball.rights == -1 then 
 			return "exit"
 		end
-
 		if(player.kickBall("Assister")) then
 			return "SpecialTouch"
 		end
@@ -208,14 +205,13 @@ firstState = "ready",
 	Assister = task.Shootdot("Assister",runPos_Special(-400), 5, kick.flat),
 	Special = task.goCmuRush(runPos_Special(-400), Dir_ball("Special"), a, f, r, v),
 	Kicker = task.goCmuRush(runPos_Kicker(-400), Dir_ball("Kicker"), a, f, r, v),
-	-- Tier = task.Shootdot("Tier",playerPos("Special"), shootKp, 5, kick.flat),
-	-- Defender = task.defender_defence("Defender"),
     Goalie = task.goalie("Goalie"),
-	match = "{ASKTDG}"
+    match = "[ASKC]{DG}"
+
 },
 ["SpecialTouch"] = {
 	switch = function ()
-		if   GlobalMessage.Tick().ball.rights == -1 then 
+		if GlobalMessage.Tick().ball.rights == -1 then 
 			return "exit"
 		end
 		if(player.kickBall("Special")) then
@@ -225,8 +221,6 @@ firstState = "ready",
 	Assister = task.goCmuRush(runPos_Assister(-400), Dir_ball("Assister"), a, DSS_FLAG, r, v),
 	Special = task.touchKick(runPos_Kicker(0), false, param.shootKp, kick.flat),
 	Kicker = task.goCmuRush(runPos_Kicker(-400), Dir_ball("Kicker"), a, f, r, v),
-	-- Tier = task.defender_defence("Tier"),
-	-- Defender = task.defender_defence("Defender"),
     Goalie = task.goalie("Goalie"),
 	match = "{ASKTDG}"
 },
@@ -234,7 +228,6 @@ firstState = "ready",
 
 ["KickerTouch"] = {
 	switch = function ()
-		  
 		if   GlobalMessage.Tick().ball.rights == -1 then 
 			return "exit"
 		end

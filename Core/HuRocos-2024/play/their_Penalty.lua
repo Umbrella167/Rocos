@@ -20,18 +20,39 @@ local stopPos = function(role)
     return CGeoPoint(readyPosX,-param.pitchWidth / 2 + 300)
 end
 
-local getBallPos = function()
+local getBallPos = function(role)
 	local idir = (ball.pos() - param.ourGoalPos):dir()
 	local getBallPos = ball.pos() + Utils.Polar2Vector(-param.playerFrontToCenter*2, idir)
+	if Utils.InExclusionZone(getBallPos, 0, "our") and  ball.velMod() < 200 then
+		return player.pos(role)
+	end
 	return getBallPos
 end
 
-
-local getBestInterBallPos = function()
-
-
+local getBestInterBallPos = function(role)
+    local getBallPos = Utils.GetBestInterPos(vision, player.pos(role), param.playerVel, 2, 1, param.V_DECAY_RATE)
+    if getBallPos == CGeoPoint(param.INF, param.INF) then
+		return player.pos(role)
+	end
+	-- local getBallPos = getBallPos + Utils.Polar2Vector(-param.playerFrontToCenter*4, ball.velDir())
+	local getBallPos = getBallPos + Utils.Polar2Vector(ball.velMod()/10, ball.velDir())
+	if Utils.InExclusionZone(getBallPos, 0, "our") and  ball.velMod() < 200 then
+		return player.pos(role)
+	end
+    return getBallPos
 end
 
+local getPlayerFlag = function(role)
+	local idir = math.abs(player.toBallDir(role))
+	return (idir < math.pi/2) and flag.allow_dss or flag.dodge_ball
+end
+
+local getShootPoint = function(role)
+	local enemyNum = enemy.closestBall()
+	local idir = (enemy.pos(enemyNum) - player.pos(role)):dir()
+	local targetPos = idir < 0 and CGeoPoint(player.posX(role), param.INF) or CGeoPoint(player.posX(role), -param.INF)
+	return targetPos
+end
 
 local subScript = false
 
@@ -40,7 +61,6 @@ return {
 	__init__ = function(name, args)
         print("in __init__ func : ",name, args)
     end,
-
 
 firstState = "Init",
 
@@ -76,35 +96,49 @@ firstState = "Init",
 ["Getball"] = {
 	switch = function()
 		local enemyNum = enemy.closestBall()
-
 		if ball.velMod() < 100 then
 			maxBallVel = 0
 		end
-
 		if enemy.toBallDist(enemyNum)>param.playerRadius*4 or ball.velMod()>1000  then
 			return "CatchBall"
+		end
+
+		if player.myinfraredCount("Goalie") > 10 then
+			return "KickBall"
 		end
 	end,
 	-- Goalie = task.stop(),
 	Goalie = function() return task.goSimplePos(getBallPos("Goalie"), player.toBallDir("Goalie"), flag.dribbling) end,
     match = "{G}"
 },
-
-
 ["CatchBall"] = {
 	switch = function()
 		local enemyNum = enemy.closestBall()
-		if enemy.toBallDist(enemyNum)<param.playerRadius*2 then
+
+		if bufcnt(enemy.toBallDist(enemyNum)<param.playerRadius*2, 50) then
 			return "Getball"
 		end
-		-- if enemy.toBallDist(enmeyNum) < param.playerRadius*2 then
-		-- 	return "Getball"
-		-- end
+
+		if player.myinfraredCount("Goalie") > 10 then
+			return "KickBall"
+		end
 	end,
-	Goalie = task.stop(),
-	-- Goalie = function() return task.goalie_catchBall("Goalie") end,
+	-- Goalie = task.stop(),
+	Goalie = function() return task.goCmuRush(getBestInterBallPos("Goalie"),  player.toBallDir("Goalie"), a, getPlayerFlag("Goalie")) end,
     match = "{G}"
 },
+
+["KickBall"] = {
+	switch = function()
+		if player.toBallDist("Goalie") > param.playerRadius*2 then
+			return "CatchBall"
+		end
+	end,
+	-- Goalie = task.stop(),
+	Goalie = task.ShootdotV3("Goalie", function() return getShootPoint("Goalie") end, 45, kick.flat),
+    match = "{G}"
+},
+
 
 name = "their_Penalty",
 applicable ={
