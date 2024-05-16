@@ -103,7 +103,11 @@ firstState = "start",
 
 ["getball"] = {
   switch = function()
-
+    if cond.isNormalStart() then
+        return "exit"
+    elseif cond.isGameOn() then
+         return "exit"
+    end
   end,
   Assister = task.goCmuRush(avoidPlacementPos("Assister"),function() return player.toBallDir("Assister") end,_,DSS_FLAG),
   Kicker   = task.goCmuRush(avoidPlacementPos("Kicker"),function() return player.toBallDir("Kicker") end,_,DSS_FLAG),

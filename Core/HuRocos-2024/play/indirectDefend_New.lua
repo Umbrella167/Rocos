@@ -199,7 +199,7 @@ firstState = "Init",
 } ,
 
 
-name = "IndirectDefend_New",
+name = "indirectDefend_New",
     applicable = {
         exp = "a",
         a = true
