@@ -17,7 +17,7 @@ gRefConfig = {
     GameHalt = "HALT",
     GameStop = "STOP",
     OurTimeout = "HALT",
-    TheirIndirectKick = "NORMALPLAYV2",
+    TheirIndirectKick = "their_IndirectKick",
     OurIndirectKick = function()
         if ball.posX() > 3000 then 
             return "our_CornerKick"

@@ -1394,7 +1394,7 @@ function defender_marking(role,pos)
 		end
 	-- end
 	-- 如果 敌人在前场 ,我方正常跑位
-	if markingTableLen == 0 or (markingTableLen == 1 and role == "Special" ) and pos:x() ~= param.INF then 
+	if markingTableLen == 0 or (markingTableLen == 1 and role == "Special" ) and p:x() ~= param.INF then 
 		local mexe, mpos = GoCmuRush { pos = p, dir = idir, acc = a, flag = flag.allow_dss + flag.dodge_ball, rec = r, vel = v }
 		return { mexe, mpos }
 	else
