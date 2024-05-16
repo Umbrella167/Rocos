@@ -19,42 +19,79 @@ local toBallDir = function(role)
         return player.toBallDir(role)
     end
 end
+local ikkflag = 1
+local kickFalg = function(startPos,endPos) 
+    local istartPos
+    if type(startPos) == 'function' then
+      istartPos = startPos()
+    else
+      istartPos = startPos
+    end
+
+    local iendPos
+    if type(endPos) == 'function' then
+      iendPos = endPos()
+    else
+      iendPos = endPos
+    end
+  if Utils.isValidPass(vision,istartPos,iendPos,param.enemy_buffer+30) then
+    ikkflag = kick.flat()
+  else
+    ikkflag = kick.chip()
+  end
+end
 gPlayTable.CreatePlay {
-firstState = "start",
+firstState = "Init1",
+
+
+["Init1"] = {
+	switch = function()
+		return "start"
+	end,
+	Assister = task.goCmuRush(function() return player.pos(param.LeaderNum) end, player.toBallDir("Assister"), a, DSS_FLAG),
+    Kicker = task.goCmuRush(function() return player.pos(param.LeaderNum) end, 0, a, DSS_FLAG, r, v, s, force_manual),
+    Special = task.goCmuRush(function() return player.pos(param.LeaderNum) end, 0, a, DSS_FLAG, r, v, s, force_manual),
+    Center = task.stop(),
+    Defender = task.stop(),
+    Goalie = task.stop(),
+    match = "[A][KSC]{DG}"
+},
+
 ["start"] = {
   switch = function()
+    kickFalg(ball.pos(),function() return param.KickerWaitPlacementPos() end)
+
     debugEngine:gui_debug_arc(ball.pos(),500,0,360,1)
     return "ready"
   end,
   Assister = task.goCmuRush(function() return ball.pos() end),
   Special  = task.stop(),
   Kicker   = task.stop(),
-  Tier = task.stop(),
+  Center = task.stop(),
   Defender = task.stop(),
   Goalie = task.stop(),
-  match = "(AK)(S){TDG}"
+  match = "{AKSCDG}"
+
 },
 
 
 
 ["ready"] = {
   switch = function()
+    kickFalg(ball.pos(),function() return param.KickerWaitPlacementPos() end)
 
         pass_pos = CGeoPoint (param.SpecialWaitPlacementPos():x(),param.SpecialWaitPlacementPos():y())
-        -- 如果有挑球，无脑传bugpass
-        if Utils.isValidPass(vision,CGeoPoint(ball.posX(),ball.posY()),pass_pos,param.enemy_buffer) then
-            return "BugPass"
-        elseif Utils.isValidPass(vision,CGeoPoint(ball.posX(),ball.posY()),pass_pos,param.enemy_buffer) then
-            
-        end
+        return "BugPass"
+
   end,
   Assister = task.stop(),
   Kicker   = task.goCmuRush(function() return param.KickerWaitPlacementPos() end,toBallDir("Kicker")),
   Special  = task.goCmuRush(function() return param.SpecialWaitPlacementPos() end,toBallDir("Special")),
-  Tier = task.stop(),
+  Center = task.stop(),
   Defender = task.stop(),
   Goalie = task.stop(),
-  match = "(AKS){TDG}"
+  match = "{AKSCDG}"
+
 },
 
 
@@ -62,6 +99,7 @@ firstState = "start",
 
 ["BugPass"] = {
   switch = function()
+    kickFalg(ball.pos(),function() return param.KickerWaitPlacementPos() end)
 
     pass_pos = CGeoPoint (param.KickerWaitPlacementPos():x(),param.KickerWaitPlacementPos():y())
 	
@@ -77,106 +115,27 @@ firstState = "start",
     if(GlobalMessage.Tick().ball.rights == -1) then
         return "exit"
     end
-	debugEngine:gui_debug_msg(CGeoPoint(-1000,-1000),player.num("Special"),4)
-    if(player.kickBall("Assister"))then
-		if player.num("Special") == -1 or player.num("Special") == nil then 
-			return "exit"
-		end
-        if(player.canTouch(pass_pos, shootPosKicker__, param.canTouchAngle) and 
-          Utils.isValidPass(vision,CGeoPoint(ball.posX(),ball.posY()),pass_pos,param.enemy_buffer)) then
-            return "KickerTouch"
-        elseif Utils.isValidPass(vision,CGeoPoint(ball.posX(),ball.posY()),pass_pos,param.enemy_buffer) then
-            return "KickerGetball"
-        else
-            return "exit"
-        end
+    shootPosKicker__ = Utils.PosGetShootPoint(vision, pass_pos:x(),pass_pos:y())
+    debugEngine:gui_debug_x(shootPosKicker__,3)
+    debugEngine:gui_debug_msg(CGeoPoint(0,0),GlobalMessage.Tick().ball.rights)
+    if(GlobalMessage.Tick().ball.rights == -1) then
+        return "exit"
+    end
+    if(player.kickBall("Assister") )then
+        return "exit"
     end
   end,
-  Assister = task.Shootdot("Assister",function() return pass_pos end,15,kick.flat),
+  Assister = task.Shootdot("Assister",function() return pass_pos end,param.shootError + 5,function() return ikkflag end),
   Kicker   = task.goCmuRush(function() return param.KickerWaitPlacementPos() end,function() return (player.pos("Special") - player.pos("Kicker") ):dir() end),
   Special  = task.goCmuRush(function() return param.SpecialWaitPlacementPos() end,function() return (shootPosSpecial__ - player.pos("Special")):dir() end),
-  Tier = task.stop(),
+  Center = task.stop(),
   Defender = task.stop(),
   Goalie = task.stop(),
-  match = "(AKS){TDG}"
+  match = "{AKSCDG}"
+
 },
 
 
-["KickerTouch"] = {
-  switch = function()
-
-        if(GlobalMessage.Tick().ball.rights == -1) then
-            return "exit"
-        end
-      	debugEngine:gui_debug_msg(CGeoPoint(-1000,-1000),tostring(player.canTouch(ball.pos(), shootPosSpecial__, param.canTouchAngle)))
-        if (player.kickBall("Kicker")) then
-            return "SpecialTouch"
-            -- if(player.canTouch(ball.pos(), shootPosSpecial__, param.canTouchAngle) and 
-			-- 	  Utils.isValidPass(vision,CGeoPoint(ball.posX(),ball.posY()),shootPosSpecial__,param.enemy_buffer)) then
-			-- 	return "SpecialTouch"
-
-			-- elseif Utils.isValidPass(vision,CGeoPoint(ball.posX(),ball.posY()),shootPosSpecial__,param.enemy_buffer) then
-			-- 	-- return "SpecialGetball"
-			-- else
-            -- 	return "exit"
-        	-- end
-        end
-        debugEngine:gui_debug_x(shootPosKicker__,3)
-  end,
-  Assister = task.stop(),
-  Kicker   = task.touchKick(function() return CGeoPoint(player.posX("Special"),player.posY("Special")) end, false, param.shootKp, kick.flat),
-  Special  = task.goCmuRush(function() return CGeoPoint(player.posX("Special"),player.posY("Special")) end,function() return (shootPosSpecial__ - player.pos("Special")):dir() end,_,DSS_FLAG),
-
-  Tier = task.stop(),
-  Defender = task.stop(),
-  Goalie = task.stop(),
-  match = "{ASKTDG}"
-},
-
-["KickerGetball"] = {
-    switch = function()
-
-        if(GlobalMessage.Tick().ball.rights == -1 or player.toBallDist("Kicker") < 500) then
-            return "exit"
-        end
-    end,
-    Assister = task.stop(),
-	Special  =task.getball(function() return pass_pos end,param.playerVel,param.getballMode),
-    Kicker   = task.goCmuRush(function() return param.KickerWaitPlacementPos() end,toBallDir("Kicker")),
-    Tier = task.stop(),
-    Defender = task.stop(),
-    Goalie = task.stop(),
-	match = "{ASKTDG}"
-},
-
-
-["SpecialTouch"] = {
-	switch = function()
-
-		  if(GlobalMessage.Tick().ball.rights == -1) then
-			  return "exit"
-		  end
-		  if (player.kickBall("Kicker")) then
-			  if(player.canTouch(ball.pos(), shootPosSpecial__, param.canTouchAngle) and 
-				  Utils.isValidPass(vision,CGeoPoint(ball.posX(),ball.posY()),shootPosSpecial__,param.enemy_buffer)) then
-				  return "SpecialTouch"
-			  elseif Utils.isValidPass(vision,CGeoPoint(ball.posX(),ball.posY()),shootPosSpecial__,param.enemy_buffer) then
-				  -- return "SpecialGetball"
-			  else
-			  return "exit"
-		  end
-		  end
-		  debugEngine:gui_debug_x(shootPosKicker__,3)
-	end,
-	Assister = task.stop(),
-	Kicker   = task.stop(),
-	Special  = task.touchKick(function() return shootPosSpecial__ end, false, 999, kick.flat),
-  
-	Tier = task.stop(),
-	Defender = task.stop(),
-	Goalie = task.stop(),
-	match = "{ASKTDG}"
-  },
 
 name = "our_CenterKick",
 applicable = {

@@ -50,7 +50,7 @@ local waitPosKicker = function()
         local startPos
         local endPos
         local KickerShootPos = Utils.PosGetShootPoint(vision, player.posX("Kicker"),player.posY("Kicker"))
-        -- 角球
+
         if ball.placementPos():x() > 3000 then
             if ball.posY() > 0 then
                 startPos = CGeoPoint(2600,-1250)
@@ -59,8 +59,9 @@ local waitPosKicker = function()
                 startPos = CGeoPoint(2600,1250)
                 endPos = CGeoPoint(3000,850)
             end
-        -- 中场球
+
         elseif ball.placementPos():x() < 3000 and ball.placementPos():x() > 0 then
+
             if ball.posY() < 0 then 
                 startPos = CGeoPoint(4050,1500)
                 endPos = CGeoPoint(4400,800)
@@ -68,10 +69,10 @@ local waitPosKicker = function()
                 startPos = CGeoPoint(4050,-1500)
                 endPos = CGeoPoint(4400,-800)
             end
+
         else
-        -- 前场球
-            startPos = CGeoPoint(ball.placementPos():x()+3000,1000)
-            endPos = CGeoPoint(ball.placementPos():x()+4000,-1000)
+            startPos = CGeoPoint(ball.placementPos():x()+1000,0)
+            endPos = CGeoPoint(ball.placementPos():x()+2500,-1700)
         end
         local attackPos = Utils.GetAttackPos(vision, player.num("Kicker"),KickerShootPos,startPos,endPos,130,500)
         if attackPos:x() == 0 and attackPos:y() == 0 then
@@ -93,6 +94,8 @@ local waitPosSpecial = function()
         local startPos
         local endPos
         local SpecialShootPos = Utils.PosGetShootPoint(vision, player.posX("Special"),player.posY("Special"))
+
+        -- 角球
         if ball.placementPos():x() > 3000 then
             if ball.posY() < 0 then
                 startPos = CGeoPoint(2400,-1100)
@@ -101,6 +104,7 @@ local waitPosSpecial = function()
                 startPos = CGeoPoint(2400,1100)
                 endPos = CGeoPoint(2900,700)
             end
+        -- 中场球
         elseif ball.placementPos():x() < 3000 and ball.placementPos():x() > 0 then
             if ball.posY() < 0 then 
                 startPos = CGeoPoint(3000,-750)
@@ -110,8 +114,9 @@ local waitPosSpecial = function()
                 endPos = CGeoPoint(3500,1300)
             end
         else
-            startPos = CGeoPoint(ball.placementPos():x()+1000,0)
-            endPos = CGeoPoint(ball.placementPos():x()+2500,-1700)
+        -- 前场球
+            startPos = CGeoPoint(ball.placementPos():x()+3000,1000)
+            endPos = CGeoPoint(ball.placementPos():x()+4000,-1000)
         end
         local attackPos = Utils.GetAttackPos(vision, player.num("Special"),SpecialShootPos,startPos,endPos,130,500)
         if attackPos:x() == 0 and attackPos:y() == 0 then
@@ -130,8 +135,20 @@ local count = 0
 local DSS_FLAG = flag.allow_dss + flag.dodge_ball + flag.our_ball_placement
 gPlayTable.CreatePlay {
 
-firstState = "start",
+firstState = "Init1",
 
+["Init1"] = {
+	switch = function()
+		return "start"
+	end,
+	Assister = task.goCmuRush(function() return player.pos(param.LeaderNum) end, player.toBallDir("Assister"), a, DSS_FLAG),
+    Kicker = task.goCmuRush(function() return player.pos(param.LeaderNum) end, 0, a, DSS_FLAG, r, v, s, force_manual),
+    Special = task.goCmuRush(function() return player.pos(param.LeaderNum) end, 0, a, DSS_FLAG, r, v, s, force_manual),
+    Center = task.stop(),
+    Defender = task.stop(),
+    Goalie = task.stop(),
+    match = "[A][KSC]{DG}"
+},
 ["start"] = {
   switch = function()
     debugEngine:gui_debug_arc(ball.pos(),500,0,360,1)
@@ -140,10 +157,11 @@ firstState = "start",
   Assister = task.stop(),
   Kicker   = task.stop(),
   Special  = task.stop(),
-  Tier = task.stop(),
+  Center = task.stop(),
   Defender = task.stop(),
   Goalie = task.stop(),
-  match = "(AKS){TDG}"
+  match = "{AKSCDG}"
+
 },
 
 ["getball"] = {
@@ -164,10 +182,12 @@ firstState = "start",
   Assister = task.getBall_BallPlacement("Assister"),
   Kicker   = task.goCmuRush(avoidPlacementPos("Kicker",waitPosKicker()),function() return player.toBallDir("Kicker") end,_,DSS_FLAG),
   Special  = task.goCmuRush(avoidPlacementPos("Special",waitPosSpecial()),function() return player.toBallDir("Special") end,_,DSS_FLAG),
-  Tier = task.goCmuRush(avoidPlacementPos("Tier"),function() return player.toBallDir("Tier") end,_,DSS_FLAG),
+  Center = task.goCmuRush(avoidPlacementPos("Center"),function() return player.toBallDir("Center") end,_,DSS_FLAG),
   Defender = task.goCmuRush(avoidPlacementPos("Defender"),function() return player.toBallDir("Defender") end,_,DSS_FLAG),
-  Goalie = task.goCmuRush(avoidPlacementPos("Goalie"),function() return player.toBallDir("Goalie") end,_,DSS_FLAG),
-  match = "(AKS){TDG}"
+  Goalie = task.goCmuRush(avoidPlacementPos("Goalie"),function() return player.toBallDir("Goalie") end),
+  match = "{AKSCDG}"
+
+
 },
 ["getball1"] = {
     switch = function()
@@ -179,7 +199,7 @@ firstState = "start",
       else
           count = 0
       end
-      if count > 100 then
+      if count > 50 then
             count = 0
           return "avoid"
       end
@@ -187,10 +207,12 @@ firstState = "start",
     Assister = task.stop(),
     Kicker   = task.goCmuRush(avoidPlacementPos("Kicker",waitPosKicker()),function() return player.toBallDir("Kicker") end,_,DSS_FLAG),
     Special  = task.goCmuRush(avoidPlacementPos("Special",waitPosSpecial()),function() return player.toBallDir("Special") end,_,DSS_FLAG),
-    Tier = task.goCmuRush(avoidPlacementPos("Tier"),function() return player.toBallDir("Tier") end,_,DSS_FLAG),
+    Center = task.goCmuRush(avoidPlacementPos("Center"),function() return player.toBallDir("Center") end,_,DSS_FLAG),
     Defender = task.goCmuRush(avoidPlacementPos("Defender"),function() return player.toBallDir("Defender") end,_,DSS_FLAG),
-    Goalie = task.goCmuRush(avoidPlacementPos("Goalie"),function() return player.toBallDir("Goalie") end,_,DSS_FLAG),
-    match = "(AKS){TDG}"
+    Goalie = task.goCmuRush(avoidPlacementPos("Goalie"),function() return player.toBallDir("Goalie") end),
+    match = "{AKSCDG}"
+
+
   },
 ["avoid"] = {
   switch = function()
@@ -205,10 +227,12 @@ firstState = "start",
   Assister = task.goCmuRush(function() return ball.pos() + Utils.Polar2Vector(-220,AssisterDir())end,function() return player.toBallDir("Assister") end,_,DSS_FLAG),
   Kicker   = task.goCmuRush(avoidPlacementPos("Kicker",waitPosKicker()),function() return player.toBallDir("Kicker") end,_,DSS_FLAG),
   Special  = task.goCmuRush(avoidPlacementPos("Special",waitPosSpecial()),function() return player.toBallDir("Special") end,_,DSS_FLAG),
-  Tier = task.goCmuRush(avoidPlacementPos("Tier"),function() return player.toBallDir("Tier") end,_,DSS_FLAG),
+  Center = task.goCmuRush(avoidPlacementPos("Center"),function() return player.toBallDir("Center") end,_,DSS_FLAG),
   Defender = task.goCmuRush(avoidPlacementPos("Defender"),function() return player.toBallDir("Defender") end,_,DSS_FLAG),
-  Goalie = task.goCmuRush(avoidPlacementPos("Goalie"),function() return player.toBallDir("Goalie") end,_,DSS_FLAG),
-  match = "(AKS){TDG}"
+  Goalie = task.goCmuRush(avoidPlacementPos("Goalie"),function() return player.toBallDir("Goalie") end),
+  match = "{AKSCDG}"
+
+
 },
 
 

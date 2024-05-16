@@ -4,7 +4,9 @@ module(..., package.seeall)
 --~ -----------------------------------------------
 --~ referee box condition
 --~ -----------------------------------------------
-
+function gameStop ()
+	return vision:getCurrentRefereeMsg() == "GameStop"
+end
 function ourBallPlace()
 	return vision:getCurrentRefereeMsg() == "OurBallPlacement"
 end

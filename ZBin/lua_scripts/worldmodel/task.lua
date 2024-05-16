@@ -333,7 +333,8 @@ function power(p, num,shootFlag)
 		---仿真的力度
 		if not param.isReality then
 			local SimulationRate = 15
-			res = 3000
+			-- res = res * SimulationRate
+			res = 3500
 			if iflag == kick.chip() then
 				res = 3000
 			end
@@ -1405,7 +1406,6 @@ end
 markingTable = {}
 markingTableLen = 0
 
-
 function defender_marking(role,pos)
 	local enemyDribblingNum = GlobalMessage.Tick().their.dribbling_num
 	local p
@@ -1430,7 +1430,7 @@ function defender_marking(role,pos)
 		end
 	-- end
 	-- 如果 敌人在前场 ,我方正常跑位
-	if markingTableLen == 0 or (markingTableLen == 1 and role == "Special" )  then 
+	if markingTableLen == 0 or (markingTableLen == 1 and role == "Special" ) and p:x() ~= param.INF then 
 		local mexe, mpos = GoCmuRush { pos = p, dir = idir, acc = a, flag = flag.allow_dss + flag.dodge_ball, rec = r, vel = v }
 		return { mexe, mpos }
 	else
@@ -1452,7 +1452,6 @@ function defender_marking(role,pos)
 			if(not Utils.InField(markingPos)) then
 				markingPos = CGeoPoint (player.posX(role),player.posY(role))
 			end
-
 			local mexe, mpos = GoCmuRush { pos = markingPos, dir = idir, acc = a, flag = flag.allow_dss, rec = r, vel = v }
 			return { mexe, mpos }
 		end

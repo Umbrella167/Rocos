@@ -19,48 +19,83 @@ local toBallDir = function(role)
         return player.toBallDir(role)
     end
 end
+
+local ikkflag = 1
+local kickFalg = function(startPos,endPos) 
+    local istartPos
+    if type(startPos) == 'function' then
+      istartPos = startPos()
+    else
+      istartPos = startPos
+    end
+
+    local iendPos
+    if type(endPos) == 'function' then
+      iendPos = endPos()
+    else
+      iendPos = endPos
+    end
+  if Utils.isValidPass(vision,istartPos,iendPos,param.enemy_buffer+30) then
+    ikkflag = kick.flat()
+  else
+    ikkflag = kick.chip()
+  end
+end
 gPlayTable.CreatePlay {
-firstState = "start",
+firstState = "Init1",
+
+["Init1"] = {
+	switch = function()
+		return "start"
+	end,
+	Assister = task.goCmuRush(function() return player.pos(param.LeaderNum) end, player.toBallDir("Assister"), a, DSS_FLAG),
+    Kicker = task.goCmuRush(function() return player.pos(param.LeaderNum) end, 0, a, DSS_FLAG, r, v, s, force_manual),
+    Special = task.goCmuRush(function() return player.pos(param.LeaderNum) end, 0, a, DSS_FLAG, r, v, s, force_manual),
+    Center = task.stop(),
+    Defender = task.stop(),
+    Goalie = task.stop(),
+    match = "[A][KSC]{DG}"
+},
+
 ["start"] = {
   switch = function()
-    debugEngine:gui_debug_arc(ball.pos(),500,0,360,1)
+    kickFalg(ball.pos(),function() return param.KickerWaitPlacementPos() end)
 
+    debugEngine:gui_debug_arc(ball.pos(),500,0,360,1)
     return "ready"
   end,
   Assister = task.goCmuRush(function() return ball.pos() end),
   Kicker   = task.stop(),
   Special  = task.stop(),
-  Tier = task.stop(),
+  Center = task.stop(),
   Defender = task.stop(),
   Goalie = task.stop(),
-  match = "(AKS){TDG}"
+  match = "{AKSCDG}"
 },
 
 ["ready"] = {
   switch = function()
+    kickFalg(ball.pos(),function() return param.KickerWaitPlacementPos() end)
 
         pass_pos = PassPos()
         debugEngine:gui_debug_x(pass_pos)
         debugEngine:gui_debug_msg(pass_pos,"PassPos")
         -- 如果有挑球，无脑传bugpass
-        if Utils.isValidPass(vision,CGeoPoint(ball.posX(),ball.posY()),pass_pos,130) then
             return "BugPass"
-        else
-            
-        end
-
   end,
   Assister = task.stop(),
   Kicker   = task.goCmuRush(function() return param.KickerWaitPlacementPos() end,toBallDir("Kicker")),
   Special  = task.goCmuRush(function() return param.SpecialWaitPlacementPos() end,toBallDir("Special")),
-  Tier = task.stop(),
+  Center = task.stop(),
   Defender = task.stop(),
   Goalie = task.stop(),
-  match = "(AKS){TDG}"
+  match = "{AKSCDG}"
+
 },
 
 ["BugPass"] = {
   switch = function()
+    kickFalg(ball.pos(),function() return param.KickerWaitPlacementPos() end)
 
     shootPosKicker__ = Utils.PosGetShootPoint(vision, pass_pos:x(),pass_pos:y())
     debugEngine:gui_debug_x(shootPosKicker__,3)
@@ -69,61 +104,19 @@ firstState = "start",
         return "exit"
     end
     if(player.kickBall("Assister") )then
-        if(player.canTouch(pass_pos, shootPosKicker__, param.canTouchAngle) and 
-          Utils.isValidPass(vision,CGeoPoint(ball.posX(),ball.posY()),pass_pos,param.enemy_buffer)) then
-            return "exit"
-        elseif Utils.isValidPass(vision,CGeoPoint(ball.posX(),ball.posY()),pass_pos,param.enemy_buffer) then
-            return "KickerGetball"
-        else
-            return "exit"
-        end
+        return "exit"
     end
   end,
-  Assister = task.Shootdot("Assister",function() return pass_pos end,param.shootError + 5,kick.chip),
+  Assister = task.Shootdot("Assister",function() return pass_pos end,param.shootError + 5,function() return ikkflag end),
   Kicker   = task.goCmuRush(function() return param.KickerWaitPlacementPos() end,toBallDir("Kicker")),
   Special  = task.goCmuRush(function() return param.SpecialWaitPlacementPos() end,toBallDir("Special")),
-  Tier = task.stop(),
+  Center = task.stop(),
   Defender = task.stop(),
   Goalie = task.stop(),
-  match = "{AKSTDG}"
+  match = "{AKSCDG}"
+
 },
 
-["KickerTouch"] = {
-  switch = function()
-
-        if(GlobalMessage.Tick().ball.rights == -1) then
-            return "exit"
-        end
-        if (player.kickBall("Kicker")) then
-            return "exit"
-        end
-        shootPosKicker__ = Utils.PosGetShootPoint(vision, pass_pos:x(),pass_pos:y())
-        debugEngine:gui_debug_x(shootPosKicker__,3)
-  end,
-  Assister = task.stop(),
-  Kicker   = task.touchKick(function() return shootPosKicker__ end, false, 9999, kick.flat),
-  Special  = task.stop(),
-  Tier = task.stop(),
-  Defender = task.stop(),
-  Goalie = task.stop(),
-  match = "{AKSTDG}"
-},
-
-["KickerGetball"] = {
-    switch = function()
-
-        if(GlobalMessage.Tick().ball.rights == -1 or player.toBallDist("Kicker") < 500) then
-            return "exit"
-        end
-    end,
-    Assister = task.stop(),
-    Kicker   = task.getball(function() return pass_pos end,param.playerVel,param.getballMode),
-    Special  = task.stop(),
-    Tier = task.stop(),
-    Defender = task.stop(),
-    Goalie = task.stop(),
-    match = "{AKSTDG}"
-},
 name = "our_CornerKick",
 applicable = {
     exp = "a",

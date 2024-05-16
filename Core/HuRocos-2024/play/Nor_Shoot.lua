@@ -113,7 +113,7 @@ firstState = "Init",
 		end
 		
 	end,
-	Assister = task.ShootdotV2(function() return resShootPos end, param.shootError,function() return (player.num("Assister") == 3 and param.Team == "TWO") and kick.chip() or kick.flat() end),
+	Assister = task.ShootdotV2(function() return resShootPos end, param.shootError, kick.flat ),
 	match = "{A}"
 },
 	
