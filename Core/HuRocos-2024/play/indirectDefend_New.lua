@@ -16,8 +16,9 @@ function Tdebug()
 	end
 end
 --获取球位置
-local ballpos = ball.pos()
-KeepDis = 100
+local KeepDis = 270
+
+
 
 --获取敌人车号
 -- local LockdefendNum = function()
@@ -37,7 +38,7 @@ local DenfendPosFront = function (role)
 	-- end
 
 	ballpos = ball.pos()
-	local denfendPosfront = enemy.pos(Match[player.num(role)]) + Utils.Polar2Vector(KeepDis, (enemy.pos(Match[player.num(role)]) - ballpos):dir() +  math.pi / 3)
+	local denfendPosfront = enemy.pos(Match[player.num(role)]) + Utils.Polar2Vector(KeepDis, (enemy.pos(Match[player.num(role)]) - ballpos):dir() +  math.pi *2/3)
 	return denfendPosfront
 end
 
@@ -48,10 +49,11 @@ local DenfendPosCenter = function (role)
 	-- end
 	
 	ballpos = ball.pos()
-	local denfendPoscenter = enemy.pos(Match[player.num(role)]) + Utils.Polar2Vector(KeepDis, (enemy.pos(Match[player.num(role)]) - ballpos):dir() +  math.pi / 3)
+	local denfendPoscenter = enemy.pos(Match[player.num(role)]) + Utils.Polar2Vector(KeepDis, (enemy.pos(Match[player.num(role)]) - ballpos):dir() +  math.pi *2/3)
 	return denfendPoscenter
-end
 
+end
+local DenfendPos = CGeoPoint(0,0)
 -------------------------------------------------------------------------------------------------
 return {
 
@@ -60,7 +62,38 @@ return {
     end,
 
 
-firstState = "Init",
+firstState = "Init1111",
+
+
+
+["Init1111"] = {
+	switch = function ()
+
+		local ballpos = ball.pos()
+		local StartEnemyPos = enemy.pos(enemy.closestBall()) 
+		DenfendPos = ballpos + Utils.Polar2Vector(KeepDis,(ball.pos() - StartEnemyPos ):dir())
+		debugEngine:gui_debug_msg(CGeoPoint(0,0),DenfendPos:x(),4)
+		debugEngine:gui_debug_msg(CGeoPoint(0,150),DenfendPos:y(),4)
+
+		if ball.velMod() > 500 then
+        	return "exit"
+        end
+	end,
+
+	Assister =task.goCmuRush( function()return DenfendPos end ,0,a,0),
+    Kicker = function() return task.defender_marking("Kicker",CGeoPoint(param.INF,param.INF)) end,
+    Special = function() return task.defender_marking("Special",CGeoPoint(param.INF,param.INF)) end,
+
+    -- Assister = task.stop(),
+    -- Kicker = task.stop(),
+    -- Special = task.stop(),
+
+    match = "[AKS]"
+},
+
+
+
+
 
 ["Init"] = {
 	switch = function ()
