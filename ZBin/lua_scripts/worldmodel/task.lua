@@ -165,7 +165,7 @@ function getball(shootPos_,playerVel, inter_flag, permissions)
 				local toballDir = (ball.pos() - enemy.pos(GlobalMessage.Tick().their.dribbling_num)):dir()
 				local playerDir = (enemy.pos(GlobalMessage.Tick().their.dribbling_num) - player.pos("Assister") ):dir()
 				local Subdir = Utils.angleDiff(toballDir,playerDir) * 180/math.pi
-				local dist_ = param.playerFrontToCenter - 10
+				local dist_ = -param.playerFrontToCenter + 40
 				local theirDribblingPlayerPos = enemy.pos(GlobalMessage.Tick().their.dribbling_num)
 
 				if math.abs(Subdir) > 165 then
@@ -186,8 +186,8 @@ function getball(shootPos_,playerVel, inter_flag, permissions)
 		else
 			ishootpos = shootPos_
 		end
-		ipermissions = permissions or 0
-		local mexe, mpos = Getball {shootPos = ishootpos,permissions = permissions ,inter_flag = inter_flag, pos = pp, dir = idir, acc = a, flag = iflag, rec = 1, vel = v }
+		local ipermissions = permissions or 0
+		local mexe, mpos = Getball {shootPos = ishootpos,permissions = ipermissions ,inter_flag = inter_flag, pos = pp, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
 		return { mexe, mpos }
 	end
 end
@@ -250,7 +250,7 @@ function getballV2(role, playerVel, inter_flag, target_point, permissions)
 			local idir = (p1 - player.pos(role)):dir()
 			local pp = player.pos(role) + Utils.Polar2Vector(0 + 10, idir)
 			local iflag = flag.dribbling
-			local mexe, mpos = GoCmuRush { pos = pp, dir = idir, acc = 50, flag = iflag, rec = 1, vel = v }
+			local mexe, mpos = GoCmuRush { pos = pp, dir = idir, acc = 50, flag = iflag, rec = r, vel = v }
 			return { mexe, mpos }
 		end
 	end
@@ -476,6 +476,12 @@ end
 
 function ShootdotDribbling(error_, flag_,power)
 	return function()
+		local ipower
+		if type(power) == 'function' then
+			ipower = power()
+		else
+			ipower = power
+		end
 		local irole = role or "Assister"
 		local p1
 		if type(p) == 'function' then
@@ -492,9 +498,9 @@ function ShootdotDribbling(error_, flag_,power)
 		local error__ = function()
 			return error_ * math.pi / 180.0
 		end
-		local iPower = param.isReality and kp.specified(power) or kp.specified(1500)
+		ipower = param.isReality and ipower or ipower * 15
 		local mexe, mpos = GoCmuRush { pos = shootpos, dir = idir, acc = a, flag = flag.dribbling, rec = r, vel = v }
-		return { mexe, mpos, flag_, idir, error__,iPower , iPower, flag.dribbling }
+		return { mexe, mpos, flag_, idir, error__,kp.specified(ipower) , kp.specified(ipower), flag.dribbling }
 	end
 end
 

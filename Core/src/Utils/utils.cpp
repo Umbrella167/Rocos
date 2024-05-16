@@ -96,8 +96,6 @@ namespace Utils
             {
 
                 Tick[now].task[i].player_num = i;
-//                if (i != Tick[now].our.dribbling_num)
-//                    Tick[now].task[i].infrared_count = 0;
                 if (Tick[now].task[i].infrared_count == 0 )
                     Tick[now].task[i].infrared_off_count += 1;
 
@@ -137,7 +135,7 @@ namespace Utils
             // 视觉判定红外
             bool myInfraredCount = (our_min_dist < playerInfraredCountBuffer && dribblePlayerToBallAngle < minJudgeAngle);
             // 机器人自带红外 ，后面的条件是防止机器人红外出问题然后误判
-            bool officialInfraredCount = RobotSensor.InfraredOnCount(Tick[now].our.to_balldist_min_num) > 1 && (our_min_dist < playerInfraredCountBuffer+15 && dribblePlayerToBallAngle < minJudgeAngle + 0.22);
+            bool officialInfraredCount = RobotSensor.InfraredOnCount(Tick[now].our.to_balldist_min_num) > 1 && (our_min_dist < playerInfraredCountBuffer+50 && dribblePlayerToBallAngle < minJudgeAngle + 0.22);
 
 
             if (myInfraredCount || officialInfraredCount)
@@ -556,14 +554,6 @@ namespace Utils
         double enemyToBallLineDist_min = inf;
         double enemyGetballNum_min = -1;
 
-//        if (!IsPlayerOnBallLine)
-//        {
-//            if(!InField(maxBallPos) || InExclusionZone(maxBallPos))
-//                return CGeoPoint(inf,inf);
-//            else
-//                return maxBallPos;
-//        }
-
         for(int i = 0; i<PARAM::Field::MAX_PLAYER; i++)
         {
             if(pVision ->theirPlayer(i).Valid())
@@ -591,7 +581,7 @@ namespace Utils
             double getBallTime = GetBallToDistTime(pVision, dist,acc) / 1000;
             double tolerance = getBallTime - t;
             // 判断是否在禁区
-            if (InExclusionZone(ballPrePos, 200) && permissions == 0)
+            if (InExclusionZone(ballPrePos, 0) && permissions == 0)
                 continue;
             // 判断是否在场外
             if (!InField(ballPrePos) && permissions < 2)

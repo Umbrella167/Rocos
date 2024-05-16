@@ -26,7 +26,8 @@ local theirGoalie = function()
 end
 local shoot_flag = 1
 local shootFlag = function(role)
-	if player.pos(role):dist(enemy.pos(theirGoalie())) < 800 then
+	print(player.pos(role):dist(enemy.pos(theirGoalie())))
+	if player.pos(role):dist(enemy.pos(theirGoalie())) < 1000 then
 		return kick.chip()
 	else
 		return kick.flat()
@@ -42,18 +43,15 @@ local Power = function(role,shoot_flag,ishootThreshold)
 		ishoot_falg = shoot_flag
 	end
 	if ball.posX() > ishootThreshold then
-		if (ishoot_falg == kick.flat()) then
-			ipower = 310 
-		else
-			ipower = 500 
+		if (ishoot_falg == kick.chip()) then
+			ipower = 130
 		end 
 	else
-		if (ishoot_falg == kick.flat()) then
+		if (ishoot_falg == kick.chip()) then
 			ipower = 110
-		else
-			ipower = 300
 		end 
 	end
+	return ipower
 end
 
 --射门阈值
@@ -66,6 +64,7 @@ firstState = "Init1",
 
 ["Init1"] = {
 	switch = function()
+		shoot_flag = shootFlag("Assister")
 		gSubPlay.new("ShootPoint", "Nor_Shoot",{pos = function() return shoot_pos end})
 		return "Init"
 	end,
@@ -81,8 +80,9 @@ firstState = "Init1",
 
 ["Init"] = {
 	switch = function()
+		shoot_flag = shootFlag("Assister")
 		param.shootPos = Utils.GetShootPoint(vision,player.num("Assister"))
-		debugEngine:gui_debug_msg(CGeoPoint(0,0),ball.posX())
+		-- debugEngine:gui_debug_msg(CGeoPoint(0,0),ball.posX())
 		if cond.isNormalStart() then
 			return "getball"
 		end
@@ -98,10 +98,29 @@ firstState = "Init1",
 
 ["getball"] = {
 	switch = function()
+		shoot_flag = shootFlag("Assister")
 		param.shootPos = Utils.GetShootPoint(vision,player.num("Assister"))
-
-		debugEngine:gui_debug_msg(CGeoPoint(0,0),ball.posX())
+		
 		if player.myinfraredCount("Assister") > 15 then
+			if shoot_flag == 2 then
+				return "shoot_dribbling"
+			else
+				return "turnToPoint"
+			end
+		end
+	end,
+	Assister = task.getball_dribbling("Assister"),
+    match = "{A}"
+},
+["turnToPoint"] = {
+	switch = function()
+		shoot_flag = shootFlag("Assister")
+		if(bufcnt(player.myinfraredCount("Assister") < 1,4)) then
+			return "getball"
+		end
+		local Vy = player.rotVel("Assister")
+		local ToTargetDist = player.toPointDist("Assister",param.shootPos)
+		if(task.playerDirToPointDirSub("Assister",param.shootPos) < param.shootError) then 
 			if canShoot("Assister",shootThreshold) then
 				return "shoot_point"
 			else
@@ -109,20 +128,19 @@ firstState = "Init1",
 			end
 		end
 	end,
-	Assister = task.getball_dribbling("Assister"),
-    match = "{A}"
+	Assister = function() return task.TurnToPointV2("Assister", function() return param.shootPos end,4) end,
+	match = "{A}"
 },
-
 ["shoot_dribbling"] = {
 	switch = function()
 		param.shootPos = Utils.GetShootPoint(vision,player.num("Assister"))
-
 		shoot_flag = shootFlag("Assister")
+		debugEngine:gui_debug_msg(CGeoPoint(0,0),shoot_flag)
 		if(bufcnt(player.myinfraredCount("Assister") < 1,1)) then
 			return "getball"
 		end
 	end,
-	Assister = task.ShootdotDribbling(param.shootError,function() return shoot_flag end,Power("Assister",function() return shoot_flag end,shootThreshold)),
+	Assister = task.ShootdotDribbling(param.shootError,function() return shoot_flag end ,function() return  Power("Assister",function() return shoot_flag end ,shootThreshold) end),
     match = "{A}"
 },
 

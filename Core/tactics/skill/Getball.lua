@@ -15,32 +15,7 @@ function Getball(task)
 	matchPos = function(runner)
 		local qflag = inter_flag or 0
 		local playerPos = CGeoPoint:new_local(player.pos(runner):x(),player.pos(runner):y())
-		local inter_pos = Utils.GetBestInterPos(vision,playerPos,param.playerVel,minter_flag,0,param.V_DECAY_RATE,param.distRate)
-		-- debugEngine:gui_debug_msg(CGeoPoint(0,0),minter_flag)
-		-- local ballLine = CGeoSegment(ball.pos(),ball.pos() + Utils.Polar2Vector(-param.INF,ball.velDir()))
-		-- local playerPrj = ballLine:projection(player.pos(runner))
-		-- local canGetBall = ballLine:IsPointOnLineOnSegment(playerPrj)
-		-- local toballdist = player.toBallDist(runner) 
-		
-		-- --  敌方球权的情况
-		-- if GlobalMessage.Tick().ball.rights == -1 or GlobalMessage.Tick().ball.rights == 2 then
-		-- 	local theirDribblingPlayerPos = enemy.pos(GlobalMessage.Tick().their.dribbling_num)
-		-- 	inter_pos = ball.pos() + Utils.Polar2Vector(80,(ball.pos() - theirDribblingPlayerPos):dir())
-		-- end
-		-- -- 接球的情况
-		-- if ((player.pos(runner) - mshootPos):mod() < 800 and canGetBall ) then
-		-- 	inter_pos = mshootPos
-		-- end
-		-- -- 踢了一脚
-		-- if(player.kickBall(runner) or( GlobalMessage.Tick().ball.rights == 0 and not canGetBall and player.myinfraredOffCount(runner)  < 20) and ball.velMod() > 1500)then
-		-- 	inter_pos = CGeoPoint(-99999,-99999)
-		-- end
-		-- if(player.myinfraredOffCount(runner)  > 1) then
-		-- 	inter_pos = CGeoPoint(ball.posX(),ball.posY())
-		-- end
-		
-		
-		
+		local inter_pos = Utils.GetBestInterPos(vision,playerPos,param.playerVel,minter_flag,1,param.V_DECAY_RATE,param.distRate)
 		debugEngine:gui_debug_x(inter_pos,9)
 		debugEngine:gui_debug_msg(inter_pos,runner .. "getBallPos",9)
 		return _c(inter_pos)

@@ -105,7 +105,7 @@ firstState = "Init",
 		end
 	end,
 	Assister = task.ShootdotDribbling(100, kick.flat),
-	match = "{A}"
+	match = "[A]"
 },
 
 name = "Nor_Dribbling",
