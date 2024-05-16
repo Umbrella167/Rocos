@@ -1217,34 +1217,47 @@ function goalie_catchBall(role)
 	local playerToBallDir = (ball.pos()-rolePos):dir()
 	local ballPos = ball.pos()
 
-
-	local getBallPos =  ballPos + Utils.Polar2Vector(param.playerFrontToCenter, playerToBallDir)
+	local getBallPos =  ballPos + Utils.Polar2Vector(-param.playerFrontToCenter, playerToBallDir)
 	local idir = playerToBallDir
 	local iflag = flag.dribbling
 
 
-	local ballLine = CGeoSegment(ballPos, ballPos+Utils.Polar2Vector(param.INF, ball.velDir()))
-	local tdist = (ballLine:projection(rolePos)-rolePos):mod()
-	if tdist > 500 then
-		idir = ball.velDir() + math.pi
-		iflag =  flag.dodge_ball
-		getBallPos = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1,param.V_DECAY_RATE)
-	end
-
-	
-
-
-
+	-- local ballLine = CGeoSegment(ballPos, ballPos+Utils.Polar2Vector(param.INF, ball.velDir()))
+	-- local tdist = (ballLine:projection(rolePos)-rolePos):mod()
+	-- if tdist > 100 then
+	-- 	idir = ball.velDir() + math.pi
+	-- 	iflag =  flag.dodge_ball
+	-- 	getBallPos = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1, param.V_DECAY_RATE)
+	-- end
 
 	-- if rolePos:dist(ballPos) < 300 then
-		-- iflag = flag.dribbling
+		-- iflag = flag.dribbling.abs(player.dir(role)-playerToBallDir)
+	-- -- local iflag = bit:_or(flag.allow_dss, flag.dodge_ball)
+	-- if Subdir > 0.14 then 
+	-- 	return TurnToPointV2(role, ballPos, 4.8)
+	-- else
+	-- 	local mexe, mpos = GoCmuRush { pos = getBallPos, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
+	-- 	return { mexe, mpos }
+	-- end
+
 		-- idir = playerToBallDir
 		-- getBallPos = ballPos + Utils.Polar2Vector(param.playerFrontToCenter, playerToBallDir)
 	-- end
 
 
+	-- local Subdir = math.abs(player.dir(role)-playerToBallDir)
+	-- -- local iflag = bit:_or(flag.allow_dss, flag.dodge_ball)
+	-- if Subdir > 0.14 then 
+	-- 	return TurnToPointV2(role, ballPos, 4.8)
+	-- else
+	-- 	local mexe, mpos = GoCmuRush { pos = getBallPos, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
+	-- 	return { mexe, mpos }
+	-- end
 
-	local mexe, mpos = GoCmuRush { pos = getBallPos, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
+
+	-- local mexe, mpos = GoCmuRush { pos = getBallPos, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
+	local mexe, mpos = SimpleGoto { pos = getBallPos, dir = idir, flag = iflag }
+
 	return { mexe, mpos }
 end
 

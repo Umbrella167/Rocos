@@ -149,8 +149,8 @@ goalieDribblingFrame = 200
 -- goalie 带球的加速度
 goalieDribblingA = 1000
 -- goalie 要踢向的点
--- goalieTargetPos = CGeoPoint(param.pitchLength / 2, param.pitchWidth / 2) -- 对面的点
-goalieTargetPos = CGeoPoint(-3300, -3000) -- 己方点（测试用）
+goalieTargetPos = CGeoPoint(param.pitchLength / 2, param.pitchWidth / 2) -- 对面的点
+-- goalieTargetPos = CGeoPoint(-0, -0) -- 己方点（测试用）
 -- 当截球点离goalie非常近的时候就会直接拦球
 goalieCatchBuf = goalieBuf*2
 

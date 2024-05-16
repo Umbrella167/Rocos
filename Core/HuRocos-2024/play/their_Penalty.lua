@@ -20,21 +20,23 @@ local stopPos = function(role)
     return CGeoPoint(readyPosX,-param.pitchWidth / 2 + 300)
 end
 
-local getBallPos = function(role)
-	local enemyNum = enemy.closestBall()
-	local rolePos = player.pos(role)
-	local enemyPos = enemy.pos(enemyNum)
-    local tPos = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1,param.V_DECAY_RATE)
-    if enemyPos:dist(tPos) < param.playerRadius then
-    	tPos = tPos + Utils.Polar2Vector(param.playerRadius, (param.ourGoalPos-enemyPos):dir())
-    end
-    return tPos
+local getBallPos = function()
+	local idir = (ball.pos() - param.ourGoalPos):dir()
+	local getBallPos = ball.pos() + Utils.Polar2Vector(-param.playerFrontToCenter*2, idir)
+	return getBallPos
+end
+
+
+local getBestInterBallPos = function()
+
+
 end
 
 
 local subScript = false
 
 return {
+
 	__init__ = function(name, args)
         print("in __init__ func : ",name, args)
     end,
@@ -48,7 +50,7 @@ firstState = "Init",
             gSubPlay.new("Goalie", "Nor_Goalie")
         end
 		if cond.isNormalStart() then
-			return "Defend"
+			return "Wait"
 		end
 	end,
     Assister = function() return task.goCmuRush(stopPos("Assister"), 0, a, DSS_FLAG, r, v, s, force_manual) end,
@@ -56,53 +58,54 @@ firstState = "Init",
     Special = function() return task.goCmuRush(stopPos("Special"), 0, a, DSS_FLAG, r, v, s, force_manual) end,
     Defender = function() return task.goCmuRush(stopPos("Defender"), 0, a, DSS_FLAG, r, v, s, force_manual) end,
     Tier = function() return task.goCmuRush(stopPos("Tier"), 0, a, DSS_FLAG, r, v, s, force_manual) end,
-	Goalie = task.goCmuRush(param.ourGoalPos, player.toBallDir("Goalie"), a, DSS_FLAG),
+	Goalie = function() return task.goCmuRush(param.ourGoalPos, player.toBallDir("Goalie"), a, DSS_FLAG) end,
     match = "[AKS]{TDG}"
 },
 
-["Defend"] = {
+["Wait"] = {
 	switch = function()
-		-- debugEngine:gui_debug_msg(CGeoPoint(0,0),ball.posX())
-		-- if bufcnt(ball.pos():dist(enemy.pos(enemy.closestBall())) < param.playerRadius * 1.5, 20) then
-		-- 	return "Getball"
-		-- end
-		return "CatchBall"
-
-		-- if bufcnt(ball.pos():dist(enemy.pos(enemy.closestBall())) < param.playerRadius * 1.5, 20) then
-		-- 	return "Getball"
-		-- end
+		local enemyNum = enemy.closestBall()
+		if enemy.toBallDist(enemyNum)<param.playerRadius*1.5 then
+			return "Getball"
+		end
 	end,
-	Goalie = gSubPlay.roleTask("Goalie", "Goalie"),
-	-- Leader = task.getball(function() return shoot_pos end,playerVel,getballMode),
+	Goalie = function() return task.goCmuRush(param.ourGoalPos, player.toBallDir("Goalie"), a, DSS_FLAG) end,
+    match = "{G}"
+},
+
+["Getball"] = {
+	switch = function()
+		local enemyNum = enemy.closestBall()
+
+		if ball.velMod() < 100 then
+			maxBallVel = 0
+		end
+
+		if enemy.toBallDist(enemyNum)>param.playerRadius*4 or ball.velMod()>1000  then
+			return "CatchBall"
+		end
+	end,
+	-- Goalie = task.stop(),
+	Goalie = function() return task.goSimplePos(getBallPos("Goalie"), player.toBallDir("Goalie"), flag.dribbling) end,
     match = "{G}"
 },
 
 
 ["CatchBall"] = {
 	switch = function()
-		-- debugEngine:gui_debug_msg(CGeoPoint(0,0),ball.posX())
-		-- if ball.pos():dist(enemy.pos(enemy.closestBall())) > param.playerRadius * 1.5 then
-		-- 	return "Defend"
+		local enemyNum = enemy.closestBall()
+		if enemy.toBallDist(enemyNum)<param.playerRadius*2 then
+			return "Getball"
+		end
+		-- if enemy.toBallDist(enmeyNum) < param.playerRadius*2 then
+		-- 	return "Getball"
 		-- end
-		-- if ball.posX() < player.posX("Goalie") then
-		-- 	return "CatchBall"
-		-- end
-
 	end,
-	Goalie = function() return task.goalie_catchBall("Goalie") end,
+	Goalie = task.stop(),
+	-- Goalie = function() return task.goalie_catchBall("Goalie") end,
     match = "{G}"
 },
 
--- ["CatchBall"] = {
--- 	switch = function()
--- 		-- debugEngine:gui_debug_msg(CGeoPoint(0,0),ball.posX())
--- 		-- if ball.pos():dist(enemy.pos(enemy.closestBall())) > param.playerRadius * 1.5 then
--- 		-- 	return "Defend"
--- 		-- end
--- 	end,
--- 	Goalie = function() return task.goalie_catchBall("Goalie") end,
---     match = "{G}"
--- },
 name = "their_Penalty",
 applicable ={
 	exp = "a",
