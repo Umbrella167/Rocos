@@ -1215,15 +1215,36 @@ end
 function goalie_catchBall(role)
 	local rolePos = player.pos(role)
 	local playerToBallDir = (ball.pos()-rolePos):dir()
-	local getBallPos = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1,param.V_DECAY_RATE)
+	local ballPos = ball.pos()
 
 
-	local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
-	local iflag =  DSS_FLAG
+	local getBallPos =  ballPos + Utils.Polar2Vector(param.playerFrontToCenter, playerToBallDir)
+	local idir = playerToBallDir
+	local iflag = flag.dribbling
+
+
+	local ballLine = CGeoSegment(ballPos, ballPos+Utils.Polar2Vector(param.INF, ball.velDir()))
+	local tdist = (ballLine:projection(rolePos)-rolePos):mod()
+	if tdist > 500 then
+		idir = ball.velDir() + math.pi
+		iflag =  flag.dodge_ball
+		getBallPos = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1,param.V_DECAY_RATE)
+	end
+
+	
 
 
 
-	local mexe, mpos = GoCmuRush { pos = getBallPos, dir = playerToBallDir, acc = a, flag = iflag, rec = r, vel = v }
+
+	-- if rolePos:dist(ballPos) < 300 then
+		-- iflag = flag.dribbling
+		-- idir = playerToBallDir
+		-- getBallPos = ballPos + Utils.Polar2Vector(param.playerFrontToCenter, playerToBallDir)
+	-- end
+
+
+
+	local mexe, mpos = GoCmuRush { pos = getBallPos, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
 	return { mexe, mpos }
 end
 
