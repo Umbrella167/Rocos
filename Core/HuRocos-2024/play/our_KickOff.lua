@@ -174,14 +174,28 @@ local KickerShootPos = function()
 end
 local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
 gPlayTable.CreatePlay{
-firstState = "ready",
+firstState = "Init1",
+
+["Init1"] = {
+	switch = function()
+		return "ready"
+	end,
+	Assister = task.goCmuRush(function() return player.pos(param.LeaderNum) end, player.toBallDir("Assister"), a, DSS_FLAG),
+    Kicker = task.goCmuRush(function() return player.pos(param.LeaderNum) end, 0, a, DSS_FLAG, r, v, s, force_manual),
+    Special = task.goCmuRush(function() return player.pos(param.LeaderNum) end, 0, a, DSS_FLAG, r, v, s, force_manual),
+    Center = task.goCmuRush(p3, 0, a, DSS_FLAG, r, v, s, force_manual),
+    Defender = task.goCmuRush(p4, 0, a, DSS_FLAG, r, v, s, force_manual),
+    Goalie = task.goCmuRush(p5, 0, a, DSS_FLAG, r, v, s, force_manual),
+    match = "[A][KSC]{DG}"
+},
+
 ["ready"] = {
 	switch = function ()
 		UpdataTickMessage()
 		if cond.isNormalStart() then
-			return "OtherRunPos"
+			return "wti"
 		elseif cond.isGameOn() then
-		 	return "OtherRunPos"
+		 	return "wti"
 		end
 	end,
 	Assister   = task.goCmuRush(p1, Dir_ball("Assister"),_,DSS_FLAG),
@@ -190,7 +204,21 @@ firstState = "ready",
 	Center = task.goCmuRush(p7, Dir_ball("Center"),_,DSS_FLAG),
 	Defender = task.goCmuRush(p6, Dir_ball("Defender"),_,DSS_FLAG),
     Goalie = task.goalie("Goalie"),
-    match = "[ASKC]{DG}"
+    match = "[SKC]{ADG}"
+},
+
+["wti"] = {
+	switch = function ()
+		if bufcnt(true,20) then
+			return "OtherRunPos"
+		end
+	end,
+	Assister = task.stop(),
+	Special = task.goCmuRush(runPos_Special(-400), Dir_ball("Special"), a, f, r, v),
+	Kicker = task.goCmuRush(runPos_Kicker(-400), Dir_ball("Kicker"), a, f, r, v),
+    Goalie = task.goalie("Goalie"),
+    match = "[SKC]{ADG}"
+
 },
 
 ["OtherRunPos"] = {
@@ -199,67 +227,18 @@ firstState = "ready",
 			return "exit"
 		end
 		if(player.kickBall("Assister")) then
-			return "SpecialTouch"
+			return "exit"
+		end
+		if(player.kickBall("Assister")) then
+			return "exit"
 		end
 	end,
-	Assister = task.Shootdot("Assister",runPos_Special(-400), 5, kick.flat),
+	Assister = task.Shootdot("Assister",runPos_Special(-400), param.shootError, kick.flat),
 	Special = task.goCmuRush(runPos_Special(-400), Dir_ball("Special"), a, f, r, v),
 	Kicker = task.goCmuRush(runPos_Kicker(-400), Dir_ball("Kicker"), a, f, r, v),
     Goalie = task.goalie("Goalie"),
-    match = "[ASKC]{DG}"
+    match = "[SKC]{ADG}"
 
-},
-["SpecialTouch"] = {
-	switch = function ()
-		if GlobalMessage.Tick().ball.rights == -1 then 
-			return "exit"
-		end
-		if(player.kickBall("Special")) then
-			return "KickerTouch"
-		end
-	end,
-	Assister = task.goCmuRush(runPos_Assister(-400), Dir_ball("Assister"), a, DSS_FLAG, r, v),
-	Special = task.touchKick(runPos_Kicker(0), false, param.shootKp, kick.flat),
-	Kicker = task.goCmuRush(runPos_Kicker(-400), Dir_ball("Kicker"), a, f, r, v),
-    Goalie = task.goalie("Goalie"),
-	match = "{ASKTDG}"
-},
-
-
-["KickerTouch"] = {
-	switch = function ()
-		if   GlobalMessage.Tick().ball.rights == -1 then 
-			return "exit"
-		end
-		if(player.toBallDist("Kicker") < 300) then
-			return "exit"
-		end
-	end,
-	Assister = task.goCmuRush(runPos_Assister(-400), Dir_ball("Assister"), a, DSS_FLAG, r, v),
-	Special = task.goCmuRush(runPos_Special(-400), Dir_ball("Special"), a, f, r, v),
-	Kicker = task.getball(_, param.playerVel, param.getballMode, KickerShootPos()),
-	-- Tier = task.defender_defence("Tier"),
-	-- Defender = task.defender_defence("Defender"),
-    Goalie = task.goalie("Goalie"),
-	match = "{ASKTDG}"
-},
-
-
-
-["shoot"] = {
-	switch = function ()
-		  
-		if   GlobalMessage.Tick().ball.rights == -1 then 
-			return "exit"
-		end
-	end,
-	Assister = task.goCmuRush(runPos_Assister(-400), Dir_ball("Assister"), a, DSS_FLAG, r, v),
-	Special = task.goCmuRush(runPos_Special(-400), Dir_ball("Special"), a, f, r, v),
-	Kicker = task.getball("Kicker", param.playerVel, param.getballMode, KickerShootPos()),
-	-- Tier = task.defender_defence("Tier"),
-	-- Defender = task.defender_defence("Defender"),
-    Goalie = task.goalie("Goalie"),
-	match = "{ASKTDG}"
 },
 
 

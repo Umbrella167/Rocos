@@ -55,9 +55,9 @@ firstState = "Init",
     Kicker = function() return task.goCmuRush(stopPos("Kicker"), 0, a, DSS_FLAG, r, v, s, force_manual) end,
     Special = function() return task.goCmuRush(stopPos("Special"), 0, a, DSS_FLAG, r, v, s, force_manual) end,
     Defender = function() return task.goCmuRush(stopPos("Defender"), 0, a, DSS_FLAG, r, v, s, force_manual) end,
-    Tier = function() return task.goCmuRush(stopPos("Tier"), 0, a, DSS_FLAG, r, v, s, force_manual) end,
+    Center = function() return task.goCmuRush(stopPos("Tier"), 0, a, DSS_FLAG, r, v, s, force_manual) end,
 	Goalie = task.goCmuRush(param.ourGoalPos, player.toBallDir("Goalie"), a, DSS_FLAG),
-    match = "[AKS]{TDG}"
+    match = "[AKSC]{DG}"
 },
 
 ["Defend"] = {
@@ -93,16 +93,7 @@ firstState = "Init",
     match = "{G}"
 },
 
--- ["CatchBall"] = {
--- 	switch = function()
--- 		-- debugEngine:gui_debug_msg(CGeoPoint(0,0),ball.posX())
--- 		-- if ball.pos():dist(enemy.pos(enemy.closestBall())) > param.playerRadius * 1.5 then
--- 		-- 	return "Defend"
--- 		-- end
--- 	end,
--- 	Goalie = function() return task.goalie_catchBall("Goalie") end,
---     match = "{G}"
--- },
+
 name = "their_Penalty",
 applicable ={
 	exp = "a",

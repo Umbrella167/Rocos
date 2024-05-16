@@ -6,72 +6,93 @@ local toBallDir = function(role)
         return player.toBallDir(role)
     end
 end
+local ikkflag = 1
+local kickFalg = function(startPos,endPos) 
+    local istartPos
+    if type(startPos) == 'function' then
+      istartPos = startPos()
+    else
+      istartPos = startPos
+    end
+
+    local iendPos
+    if type(endPos) == 'function' then
+      iendPos = endPos()
+    else
+      iendPos = endPos
+    end
+  if Utils.isValidPass(vision,istartPos,iendPos,param.enemy_buffer+30) then
+    ikkflag = kick.flat()
+  else
+    ikkflag = kick.chip()
+  end
+end
 gPlayTable.CreatePlay {
-firstState = "start",
+firstState = "Init1",
+
+["Init1"] = {
+	switch = function()
+    
+		return "start"
+	end,
+	Assister = task.goCmuRush(function() return player.pos(param.LeaderNum) end, player.toBallDir("Assister"), a, DSS_FLAG),
+    Kicker = task.goCmuRush(function() return player.pos(param.LeaderNum) end, 0, a, DSS_FLAG, r, v, s, force_manual),
+    Special = task.goCmuRush(function() return player.pos(param.LeaderNum) end, 0, a, DSS_FLAG, r, v, s, force_manual),
+    Center = task.stop(),
+    Defender = task.stop(),
+    Goalie = task.stop(),
+    match = "[A][KSC]{DG}"
+},
 ["start"] = {
   	switch = function()
+      kickFalg(ball.pos(),function() return param.KickerWaitPlacementPos() end)
     	debugEngine:gui_debug_arc(ball.pos(),500,0,360,1)
 		return "ready"
 	end,
 	Assister = task.goCmuRush(function() return ball.pos() end),
 	Kicker   = task.stop(),
 	Special  = task.stop(),
-	Tier = task.stop(),
+	Center = task.stop(),
 	Defender = task.stop(),
 	Goalie = task.stop(),
-	match = "(AKS){TDG}"
+  match = "{AKSCDG}"
+
 },
 
 ["ready"] = {
   	switch = function()
-
-        if Utils.isValidPass(vision,CGeoPoint(ball.posX(),ball.posY()),CGeoPoint(player.posX("Kicker"),player.posY("Kicker")),param.enemy_buffer) then
+      kickFalg(ball.pos(),function() return param.KickerWaitPlacementPos() end)
 			return "passToKicker"
-        elseif Utils.isValidPass(vision,CGeoPoint(ball.posX(),ball.posY()),CGeoPoint(player.posX("Special"),player.posY("Special")),param.enemy_buffer) then
-			return "passToSpecial"
-        end
+
 	end,
 	Assister = task.stop(),
 	Kicker   = task.goCmuRush(function() return param.KickerWaitPlacementPos() end,toBallDir("Kicker")),
 	Special  = task.goCmuRush(function() return param.SpecialWaitPlacementPos() end,toBallDir("Special")),
-	Tier = task.stop(),
+	Center = task.stop(),
 	Defender = task.stop(),
 	Goalie = task.stop(),
-	match = "(AKS){TDG}"
-},
+  match = "{AKSCDG}"
 
+},
 
 
 ["passToKicker"] = {
 	switch = function()
-
-        if(GlobalMessage.Tick().ball.rights == -1 or player.toBallDist("Kicker") > 500) then
+    kickFalg(ball.pos(), param.KickerWaitPlacementPos())
+        if(GlobalMessage.Tick().ball.rights == -1 or player.kickBall("Assister")) then
             return "exit"
         end
   end,
-  Assister = task.Shootdot("Assister",function() return player.pos("Kicker") end,kick.flat),
+  Assister = task.Shootdot("Assister",function() return param.KickerWaitPlacementPos() end,param.shootError + 5,function() return ikkflag end),
   Kicker   = task.goCmuRush(function() return param.KickerWaitPlacementPos() end,toBallDir("Kicker")),
   Special  = task.goCmuRush(function() return param.SpecialWaitPlacementPos() end,toBallDir("Special")),
-  Tier = task.stop(),
+  Center = task.stop(),
   Defender = task.stop(),
   Goalie = task.stop(),
-  match = "(AKS){TDG}"
-},
-["passToSpecial"] = {
-	switch = function()
+  match = "{AKSCDG}"
 
-        if(GlobalMessage.Tick().ball.rights == -1 or player.toBallDist("Special") > 500) then
-            return "exit"
-        end
-  end,
-  Assister = task.Shootdot("Assister",function() return player.pos("Special") end,kick.flat),
-  Kicker   = task.goCmuRush(function() return param.KickerWaitPlacementPos() end,toBallDir("Kicker")),
-  Special  = task.goCmuRush(function() return param.SpecialWaitPlacementPos() end,toBallDir("Special")),
-  Tier = task.stop(),
-  Defender = task.stop(),
-  Goalie = task.stop(),
-  match = "(AKS){TDG}"
 },
+
 
 
 name = "our_FrontKick",

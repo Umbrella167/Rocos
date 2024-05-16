@@ -26,7 +26,7 @@ local defendpos = {
   CGeoPoint(-3300,-850),
 
 }
-local a = 1800
+local a = 2500
 local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
 gPlayTable.CreatePlay {
 
