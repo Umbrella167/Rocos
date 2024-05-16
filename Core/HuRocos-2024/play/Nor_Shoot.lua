@@ -32,7 +32,6 @@ local debugMesg = function ()
 		debugEngine:gui_debug_msg(resShootPos,"rotCompensatePos",6,0,param.debugSize)
 		debugEngine:gui_debug_x(param.shootPos,6,0,param.debugSize)
 		debugEngine:gui_debug_msg(param.shootPos,"ShootPos",6,0,param.debugSize)
-
 end
 return {
 
@@ -69,7 +68,7 @@ firstState = "Init",
 		end
 		local Vy = player.rotVel("Assister")
 		local ToTargetDist = player.toPointDist("Assister",param.shootPos)
-		resShootPos = task.compensateAngle("Assister",Vy,param.shootPos,ToTargetDist * param.rotCompensate)
+		resShootPos = task.compensateAngle("Assister",Vy,param.shootPos,ToTargetDist * param.rotCompensate(player.num("Assister")))
 	end,
 	Assister = task.getball(function() return shoot_pos end,param.playerVel,param.getballMode),
 	match = "[A]"
@@ -90,14 +89,14 @@ firstState = "Init",
 		end
 		local Vy = player.rotVel("Assister")
 		local ToTargetDist = player.toPointDist("Assister",param.shootPos)
-		resShootPos = task.compensateAngle("Assister",Vy,param.shootPos,ToTargetDist * param.rotCompensate)
+		resShootPos = task.compensateAngle("Assister",Vy,param.shootPos,ToTargetDist * param.rotCompensate(player.num("Assister")))
 
 		if(task.playerDirToPointDirSub("Assister",resShootPos) < param.shootError) then 
 			return "shoot"
 		end
 
 	end,
-	Assister = function() return task.TurnToPointV2("Assister", function() return resShootPos end,param.rotVel()) end,
+	Assister = function() return task.TurnToPointV2("Assister", function() return resShootPos end,param.rotVel(player.num("Assister"))) end,
 	match = "{A}"
 },
 

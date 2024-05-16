@@ -4,7 +4,7 @@ local p2 = CGeoPoint(- param.pitchLength / 2 + 300,param.pitchWidth / 2 - 600)
 local p3 = CGeoPoint(- param.pitchLength / 2 + 300, -param.pitchWidth / 2 + 300)
 local p4 = CGeoPoint(- param.pitchLength / 2 + 300,-param.pitchWidth / 2 + 600)
 local p5 = CGeoPoint(- param.pitchLength / 2 , 0)
-local shootThreshold = 3000
+local shootThreshold = 2500
 
 local canShoot = function(role,ishootThreshold)
 	if ball.posX() > ishootThreshold then
@@ -35,7 +35,7 @@ local shootFlag = function(role)
 end
 
 local Power = function(role,shoot_flag,ishootThreshold)
-	local ipower = 100
+	local ipower = 110
 	local ishoot_falg
 	if type(shoot_flag) == 'function' then
 		ishoot_falg = shoot_flag()
@@ -44,11 +44,11 @@ local Power = function(role,shoot_flag,ishootThreshold)
 	end
 	if ball.posX() > ishootThreshold then
 		if (ishoot_falg == kick.chip()) then
-			ipower = 130
+			ipower = 7000
 		end 
 	else
 		if (ishoot_falg == kick.chip()) then
-			ipower = 110
+			ipower = 7000
 		end 
 	end
 	return ipower
@@ -98,10 +98,10 @@ firstState = "Init1",
 
 ["getball"] = {
 	switch = function()
+
 		shoot_flag = shootFlag("Assister")
 		param.shootPos = Utils.GetShootPoint(vision,player.num("Assister"))
-		
-		if player.myinfraredCount("Assister") > 15 then
+		if player.myinfraredCount("Assister") > 5 then
 			if shoot_flag == 2 then
 				return "shoot_dribbling"
 			else
@@ -115,6 +115,9 @@ firstState = "Init1",
 ["turnToPoint"] = {
 	switch = function()
 		shoot_flag = shootFlag("Assister")
+		if ball.posX() > shootThreshold then
+			return "shoot_point"
+		end
 		if(bufcnt(player.myinfraredCount("Assister") < 1,4)) then
 			return "getball"
 		end
@@ -133,14 +136,17 @@ firstState = "Init1",
 },
 ["shoot_dribbling"] = {
 	switch = function()
+		if ball.posX() > shootThreshold then
+			return "shoot_point"
+		end
 		param.shootPos = Utils.GetShootPoint(vision,player.num("Assister"))
 		shoot_flag = shootFlag("Assister")
 		debugEngine:gui_debug_msg(CGeoPoint(0,0),shoot_flag)
-		if(bufcnt(player.myinfraredCount("Assister") < 1,1)) then
+		if player.myinfraredCount("Assister") < 1 then
 			return "getball"
 		end
 	end,
-	Assister = task.ShootdotDribbling(param.shootError,function() return shoot_flag end ,function() return  Power("Assister",function() return shoot_flag end ,shootThreshold) end),
+	Assister = task.ShootdotDribbling(param.shootError + 10,function() return shoot_flag end ,function() return  Power("Assister",function() return shoot_flag end ,shootThreshold) end),
     match = "{A}"
 },
 

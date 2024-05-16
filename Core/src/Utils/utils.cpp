@@ -24,7 +24,8 @@ GlobalTick Tick[PARAM::Tick::TickLength];
 int now = PARAM::Tick::TickLength - 1;
 int last = PARAM::Tick::TickLength - 2;
 CGeoPoint lastMovePoint = CGeoPoint(inf, inf);
-double playerInfraredCountBuffer = 100;// 红外判断缓冲值
+double playerInfraredCountBuffer = 95; //场地 3 红外判断缓冲值
+//double playerInfraredCountBuffer = 100;  //场地 2 红外判断缓冲值
 double playerBallRightsBuffer = 110;// 球权判断缓冲值
 double pass_threshold = 0.1; //射门阈值
 namespace Utils
@@ -102,8 +103,8 @@ namespace Utils
 
                 // 如果球的视野消失，但是有红外信息，认为球的位置在触发红外的机器人上
                 if(!pVision ->ball().Valid())
-                    if(RobotSensor.InfraredOnCount(i)>5)
-                        Tick[now].ball.pos = pVision->ourPlayer(i).Pos()+Polar2Vector(120,pVision->ourPlayer(i).Dir());
+                    if(RobotSensor.InfraredOnCount(i)>5 && pVision->ourPlayer(i).Pos().dist(Tick[now].ball.pos) < 1000)
+                        Tick[now].ball.pos = pVision->ourPlayer(i).Pos()+Polar2Vector(85,pVision->ourPlayer(i).Dir());
                 // 我方距离球最近的车号
                 double to_ball_dist = pVision->ourPlayer(i).Pos().dist(Tick[now].ball.pos);
                 if (our_min_dist > to_ball_dist)

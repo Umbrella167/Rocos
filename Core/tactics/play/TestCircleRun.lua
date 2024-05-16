@@ -23,7 +23,7 @@ firstState = "ready1",
 		debugEngine:gui_debug_msg(CGeoPoint:new_local(0,0),player.rotVel("Assister"))
 	end,
 
-	Assister = task.TurnRun(CGeoPoint(300,0),5),
+	Assister = task.TurnRun(CGeoPoint(120,60),6),
 	match = "[A]"
 },
 
