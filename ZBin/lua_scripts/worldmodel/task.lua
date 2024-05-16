@@ -278,14 +278,14 @@ playerPowerONE =
 }
 playerPowerTWO = {
 	-- [num] = {minist,maxDist,minPower, maxPower, ShootPower,chipPower} 
-	[0] = {minDist_Power,maxDist_Power,200,330,400,7000},
-	[1] = {minDist_Power,maxDist_Power,120,330,315,7000},
-	[2] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[0] = {minDist_Power,maxDist_Power,200,330,400,7000}, 
+	[1] = {minDist_Power,maxDist_Power,120,330,315,7000},-- 可以挑球 ，吸球还行
+	[2] = {minDist_Power,maxDist_Power,120,330,315,7000}, 
 	[3] = {minDist_Power,maxDist_Power,120,330,315,7000},
 	[4] = {minDist_Power,maxDist_Power,120,330,315,7000},
 	[5] = {minDist_Power,maxDist_Power,120,330,315,7000},
-	[6] = {minDist_Power,maxDist_Power,120,330,315,7000},
-	[7] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[6] = {minDist_Power,maxDist_Power,120,330,450,7000}, -- 带球超强 ,挑球一般
+	[7] = {minDist_Power,maxDist_Power,120,330,315,7000}, -- 红外偶尔有问题
 	[8] = {minDist_Power,maxDist_Power,120,330,315,7000},
 	[9] = {minDist_Power,maxDist_Power,120,330,315,7000},
 	[10] = {minDist_Power,maxDist_Power,120,330,315,7000},
@@ -539,7 +539,7 @@ function ShootdotDribbling(error_, flag_,power)
 			p1 = p
 		end
 		local shootpos = function(runner)
-			return ball.pos() + Utils.Polar2Vector(50, player.toBallDir(runner))
+			return ball.pos() + Utils.Polar2Vector(-50, player.toBallDir(runner))
 		end
 		local idir = function(runner)
 			return player.toBallDir(runner)
@@ -547,7 +547,7 @@ function ShootdotDribbling(error_, flag_,power)
 		local error__ = function()
 			return error_ * math.pi / 180.0
 		end
-		local iPower = param.isReality and kp.specified(power) or kp.specified(1300)
+		local iPower = param.isReality and kp.specified(power) or kp.specified(1500)
 		local mexe, mpos = GoCmuRush { pos = shootpos, dir = idir, acc = a, flag = flag.dribbling, rec = r, vel = v }
 		return { mexe, mpos, flag_, idir, error__,iPower , iPower, flag.dribbling }
 	end
@@ -818,9 +818,9 @@ function getLineCrossDefenderPos(pos_, posOrDir_)
 		-- debugEngine:gui_debug_line(tPos, posOrDir_)
 	end
 	-- 打印defender行走的框
-	debugEngine:gui_debug_line(param.defenderTopRightPos, param.defenderButtomRightPos)
-	debugEngine:gui_debug_line(param.defenderTopPos, param.defenderTopRightPos)
-	debugEngine:gui_debug_line(param.defenderButtomPos, param.defenderButtomRightPos)
+	debugEngine:gui_debug_line(param.defenderTopRightPos, param.defenderButtomRightPos,8)
+	debugEngine:gui_debug_line(param.defenderTopPos, param.defenderTopRightPos,8)
+	debugEngine:gui_debug_line(param.defenderButtomPos, param.defenderButtomRightPos,8)
 
 	local defenderTopLine = CGeoSegment(param.defenderTopPos, param.defenderTopRightPos)
 	local defenderMiddleLine = CGeoSegment(param.defenderTopRightPos, param.defenderButtomRightPos)
@@ -959,6 +959,7 @@ function defend_normV2(role, mode, flag)
 	elseif mode == 2 then
 		basePos = param.ourGoalPos
 	end
+
 	if flag == 0 then
 		targetPos = ballPos
 	elseif flag == 1 then
@@ -1085,7 +1086,10 @@ function goalie_norm(role, mode)
 	local rolePos = CGeoPoint:new_local(player.rawPos(role):x(), player.rawPos(role):y())
 	local enemyNum = getManMarkEnemy()
 	if enemyNum == -1 then
-		return Stop { }
+		-- return Stop {}
+		local mexe, mpos = SimpleGoto { pos = param.ourGoalPos, dir = (param.theirGoalPos - param.ourGoalPos):dir(), flag = 0x00000100 }
+		return {mexe, mpos}
+		-- return GoCmuRush { pos = param.ourGoalPos, dir = (param.theirGoalPos - param.ourGoalPos):dir(), acc = a, flag = 0x00000100, rec = r, vel = v }
 	end
 	local enemyDir = enemy.dir(enemyNum)
 	local enemyPos = CGeoPoint:new_local(enemy.posX(enemyNum), enemy.posY(enemyNum))
@@ -1158,7 +1162,11 @@ function goalie_getBall(role)
 		goaliePoint = rolePos
 	end
 	-- local mexe, mpos = GoCmuRush { pos = goaliePoint, dir = idir, acc = a, flag = flag.dribbling, rec = r, vel = endVelController(role, goaliePoint), speed = s, force_manual = force_manual }
+	
 	local mexe, mpos = SimpleGoto { pos = goaliePoint, dir = idir, acc = a, flag = flag.dribbling, rec = r, vel = endVelController(role, goaliePoint), speed = s, force_manual = force_manual }
+	if a ~= 4000 then
+		mexe, mpos = GoCmuRush { pos = goaliePoint, dir = idir, acc = a, flag = flag.dribbling, rec = r, vel = endVelController(role, goaliePoint), speed = s, force_manual = force_manual }
+	end
 	return { mexe, mpos }
 end
 
@@ -1181,7 +1189,7 @@ function goalie_kick(role)
 	local idir = function(runner)
 		return (fungoalieTargetPos() - rolePos):dir()
 	end
-	local goaliePoint = CGeoPoint:new_local(getBallPos:x(), getBallPos:y()) + Utils.Polar2Vector(-param.playerRadius+10, ballToTargetDir)
+	local goaliePoint = CGeoPoint:new_local(getBallPos:x(), getBallPos:y()) + Utils.Polar2Vector(param.playerFrontToCenter, ballToTargetDir)
 	local Subdir = math.abs(Utils.angleDiff(ballToTargetDir,roleToBallTargetDir))
 	local iflag = bit:_or(flag.allow_dss, flag.dodge_ball)
 	if Subdir > 0.14 then 

@@ -49,7 +49,7 @@ gRolePos = {
 
 }
 
-gRolePriority = { "Goalie","Tier","Defender","Leader"}--
+gRolePriority = { "Goalie","Tier","Defender"}--
 
 gOurExistNum = {} --为了使车号统一从0开始，强行给gOurExistNum[0]赋值，但table自身接口全都无法使用了
 

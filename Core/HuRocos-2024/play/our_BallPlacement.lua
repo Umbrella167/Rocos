@@ -157,7 +157,8 @@ firstState = "start",
         count = 0
     end
     if count > 60 then
-        return "avoid"
+        count = 0
+        return "getball1"
     end
   end,
   Assister = task.getBall_BallPlacement("Assister"),
@@ -168,7 +169,29 @@ firstState = "start",
   Goalie = task.goCmuRush(avoidPlacementPos("Goalie"),function() return player.toBallDir("Goalie") end,_,DSS_FLAG),
   match = "(AKS){TDG}"
 },
-
+["getball1"] = {
+    switch = function()
+  
+      debugEngine:gui_debug_msg(CGeoPoint(0,2800),"ballRights: " .. GlobalMessage.Tick().ball.rights,2)
+      debugEngine:gui_debug_msg(CGeoPoint(0,2600),"InfraredCount: " .. player.myinfraredCount("Assister"),3)
+      if ball.pos():dist(ball.placementPos()) < 130 then
+          count = count + 1
+      else
+          count = 0
+      end
+      if count > 100 then
+            count = 0
+          return "avoid"
+      end
+    end,
+    Assister = task.stop(),
+    Kicker   = task.goCmuRush(avoidPlacementPos("Kicker",waitPosKicker()),function() return player.toBallDir("Kicker") end,_,DSS_FLAG),
+    Special  = task.goCmuRush(avoidPlacementPos("Special",waitPosSpecial()),function() return player.toBallDir("Special") end,_,DSS_FLAG),
+    Tier = task.goCmuRush(avoidPlacementPos("Tier"),function() return player.toBallDir("Tier") end,_,DSS_FLAG),
+    Defender = task.goCmuRush(avoidPlacementPos("Defender"),function() return player.toBallDir("Defender") end,_,DSS_FLAG),
+    Goalie = task.goCmuRush(avoidPlacementPos("Goalie"),function() return player.toBallDir("Goalie") end,_,DSS_FLAG),
+    match = "(AKS){TDG}"
+  },
 ["avoid"] = {
   switch = function()
 

@@ -71,7 +71,7 @@ firstState = "start",
     if(player.kickBall("Assister") )then
         if(player.canTouch(pass_pos, shootPosKicker__, param.canTouchAngle) and 
           Utils.isValidPass(vision,CGeoPoint(ball.posX(),ball.posY()),pass_pos,param.enemy_buffer)) then
-            return "KickerTouch"
+            return "exit"
         elseif Utils.isValidPass(vision,CGeoPoint(ball.posX(),ball.posY()),pass_pos,param.enemy_buffer) then
             return "KickerGetball"
         else
@@ -79,7 +79,7 @@ firstState = "start",
         end
     end
   end,
-  Assister = task.Shootdot("Assister",function() return pass_pos end,param.shootError + 5,kick.flat),
+  Assister = task.Shootdot("Assister",function() return pass_pos end,param.shootError + 5,kick.chip),
   Kicker   = task.goCmuRush(function() return param.KickerWaitPlacementPos() end,toBallDir("Kicker")),
   Special  = task.goCmuRush(function() return param.SpecialWaitPlacementPos() end,toBallDir("Special")),
   Tier = task.stop(),
