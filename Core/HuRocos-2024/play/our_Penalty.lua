@@ -4,7 +4,7 @@ local p2 = CGeoPoint(- param.pitchLength / 2 + 300,param.pitchWidth / 2 - 600)
 local p3 = CGeoPoint(- param.pitchLength / 2 + 300, -param.pitchWidth / 2 + 300)
 local p4 = CGeoPoint(- param.pitchLength / 2 + 300,-param.pitchWidth / 2 + 600)
 local p5 = CGeoPoint(- param.pitchLength / 2 , 0)
-local shootThreshold = 2500
+local shootThreshold = 2000
 
 local canShoot = function(role,ishootThreshold)
 	if ball.posX() > ishootThreshold then

@@ -540,6 +540,7 @@ namespace Utils
             ball_pos = pVision->rawBall().Pos();
         double maxDist = GetBallMaxDist(pVision,acc) * (1 - rate);
         CGeoPoint maxBallPos = ball_pos + Polar2Vector(maxDist, pVision->ball().Vel().dir());
+        GDebugEngine::Instance()->gui_debug_x(maxBallPos, 3);
         CGeoPoint maxAllowedBallPos = CGeoPoint(inf, inf);
         CGeoPoint maxTolerancePos = CGeoPoint(inf, inf);
         CGeoPoint minGetBallPos = CGeoPoint(inf, inf);
