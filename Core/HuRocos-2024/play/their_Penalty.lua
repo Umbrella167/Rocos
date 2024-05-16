@@ -21,8 +21,13 @@ local stopPos = function(role)
 end
 
 local getBallPos = function(role)
+	local enemyNum = enemy.closestBall()
 	local rolePos = player.pos(role)
+	local enemyPos = enemy.pos(enemyNum)
     local tPos = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1,param.V_DECAY_RATE)
+    if enemyPos:dist(tPos) < param.playerRadius then
+    	tPos = tPos + Utils.Polar2Vector(param.playerRadius, (param.ourGoalPos-enemyPos):dir())
+    end
     return tPos
 end
 
@@ -32,7 +37,6 @@ local subScript = false
 return {
 	__init__ = function(name, args)
         print("in __init__ func : ",name, args)
-
     end,
 
 
@@ -59,9 +63,14 @@ firstState = "Init",
 ["Defend"] = {
 	switch = function()
 		-- debugEngine:gui_debug_msg(CGeoPoint(0,0),ball.posX())
-		if bufcnt(ball.pos():dist(enemy.pos(enemy.closestBall())) < param.playerRadius * 1.5, 20) then
-			return "Getball"
-		end
+		-- if bufcnt(ball.pos():dist(enemy.pos(enemy.closestBall())) < param.playerRadius * 1.5, 20) then
+		-- 	return "Getball"
+		-- end
+		return "Getball"
+
+		-- if bufcnt(ball.pos():dist(enemy.pos(enemy.closestBall())) < param.playerRadius * 1.5, 20) then
+		-- 	return "Getball"
+		-- end
 	end,
 	Goalie = gSubPlay.roleTask("Goalie", "Goalie"),
 	-- Leader = task.getball(function() return shoot_pos end,playerVel,getballMode),
@@ -76,11 +85,22 @@ firstState = "Init",
 		-- 	return "Defend"
 		-- end
 		if ball.posX() < player.posX("Goalie") then
-			return "Defend"
+			return "CatchBall"
 		end
 
 	end,
 	Goalie = function() return task.goSimplePos(getBallPos, player.toBallDir("Goalie"), flag.dribbling) end,
+    match = "{G}"
+},
+
+["CatchBall"] = {
+	switch = function()
+		-- debugEngine:gui_debug_msg(CGeoPoint(0,0),ball.posX())
+		-- if ball.pos():dist(enemy.pos(enemy.closestBall())) > param.playerRadius * 1.5 then
+		-- 	return "Defend"
+		-- end
+	end,
+	Goalie = function() return task.goalie_catchBall("Goalie") end,
     match = "{G}"
 },
 name = "their_Penalty",
