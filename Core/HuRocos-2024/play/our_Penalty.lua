@@ -4,8 +4,10 @@ local p2 = CGeoPoint(- param.pitchLength / 2 + 300,param.pitchWidth / 2 - 600)
 local p3 = CGeoPoint(- param.pitchLength / 2 + 300, -param.pitchWidth / 2 + 300)
 local p4 = CGeoPoint(- param.pitchLength / 2 + 300,-param.pitchWidth / 2 + 600)
 local p5 = CGeoPoint(- param.pitchLength / 2 , 0)
-local canShoot = function(role,shootThreshold)
-	if ball.posX() > shootThreshold then
+local shootThreshold = 3000
+
+local canShoot = function(role,ishootThreshold)
+	if ball.posX() > ishootThreshold then
 		return true
 	else
 		return false
@@ -24,14 +26,14 @@ local theirGoalie = function()
 end
 local shoot_flag = 1
 local shootFlag = function(role)
-	if player.pos(role):dist(enemy.pos(theirGoalie())) < 500 then
+	if player.pos(role):dist(enemy.pos(theirGoalie())) < 800 then
 		return kick.chip()
 	else
 		return kick.flat()
 	end
 end
 
-local Power = function(role,shoot_flag,shootThreshold)
+local Power = function(role,shoot_flag,ishootThreshold)
 	local ipower = 100
 	local ishoot_falg
 	if type(shoot_flag) == 'function' then
@@ -39,37 +41,32 @@ local Power = function(role,shoot_flag,shootThreshold)
 	else
 		ishoot_falg = shoot_flag
 	end
-	local realRate = 15
-	if param.isReality then
-		realRate = 1
-	end
-	if ball.posX() > shootThreshold then
+	if ball.posX() > ishootThreshold then
 		if (ishoot_falg == kick.flat()) then
-			ipower = 310 * realRate
+			ipower = 310 
 		else
-			ipower = 500 * realRate
+			ipower = 500 
 		end 
 	else
 		if (ishoot_falg == kick.flat()) then
-			ipower = 110 * realRate
+			ipower = 110
 		else
-			ipower = 300 * realRate
+			ipower = 300
 		end 
 	end
 end
 
-local match_pos = function(role)
-	return function()
-		return 
-	end
-end 
 --射门阈值
-local shootThreshold = 3000
-gPlayTable.CreatePlay{
+return {
+
+    __init__ = function(name, args)
+        print("in __init__ func : ",name, args)
+    end,
 firstState = "Init1",
 
 ["Init1"] = {
 	switch = function()
+		gSubPlay.new("ShootPoint", "Nor_Shoot",{pos = function() return shoot_pos end})
 		return "Init"
 	end,
 	Assister = task.goCmuRush(function() return player.pos(param.LeaderNum) end, player.toBallDir("Assister"), a, DSS_FLAG),
@@ -82,9 +79,9 @@ firstState = "Init1",
 },
 
 
-
 ["Init"] = {
 	switch = function()
+		param.shootPos = Utils.GetShootPoint(vision,player.num("Assister"))
 		debugEngine:gui_debug_msg(CGeoPoint(0,0),ball.posX())
 		if cond.isNormalStart() then
 			return "getball"
@@ -101,23 +98,43 @@ firstState = "Init1",
 
 ["getball"] = {
 	switch = function()
+		param.shootPos = Utils.GetShootPoint(vision,player.num("Assister"))
+
 		debugEngine:gui_debug_msg(CGeoPoint(0,0),ball.posX())
-		if player.myinfraredCount("Assister") > 15 and (not canShoot("Assister",shootThreshold)) then
-			return "shoot_dribbling"
+		if player.myinfraredCount("Assister") > 15 then
+			if canShoot("Assister",shootThreshold) then
+				return "shoot_point"
+			else
+				return "shoot_dribbling"
+			end
 		end
 	end,
-	Assister = task.getball(function() return shoot_pos end,playerVel,getballMode),
+	Assister = task.getball_dribbling("Assister"),
     match = "{A}"
 },
 
 ["shoot_dribbling"] = {
 	switch = function()
+		param.shootPos = Utils.GetShootPoint(vision,player.num("Assister"))
+
 		shoot_flag = shootFlag("Assister")
 		if(bufcnt(player.myinfraredCount("Assister") < 1,1)) then
 			return "getball"
 		end
 	end,
 	Assister = task.ShootdotDribbling(param.shootError,function() return shoot_flag end,Power("Assister",function() return shoot_flag end,shootThreshold)),
+    match = "{A}"
+},
+
+["shoot_point"] = {
+	switch = function()
+		param.shootPos = Utils.GetShootPoint(vision,player.num("Assister"))
+		shoot_flag = shootFlag("Assister")
+		if(bufcnt(player.myinfraredCount("Assister") < 1,1)) then
+			return "getball"
+		end
+	end,
+	Assister = gSubPlay.roleTask("ShootPoint", "Assister"),
     match = "{A}"
 },
 name = "our_Penalty",

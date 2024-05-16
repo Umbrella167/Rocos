@@ -212,7 +212,6 @@ end
 local subScript = false
 
 return {
-
     __init__ = function(name, args)
         print("in __init__ func : ",name, args)
     end,
@@ -226,13 +225,16 @@ firstState = "Init",
             gSubPlay.new("Goalie", "Nor_Goalie")
         end
         return "GetGlobalMessage"
+
+        -- UpdataTickMessage(our_goalie_num,defend_num1,defend_num2)    -- 更新帧信息
+        -- local State = getState()
     end,
     Assister = task.stop(),
     Kicker = task.stop(),
     Special = task.stop(),
     Tier = task.stop(),
     Defender = task.stop(),
-    Goalie = gSubPlay.roleTask("Goalie", "Goalie"),
+    Goalie = task.stop(),
     match = "[AKS]{TDG}"
 },
 

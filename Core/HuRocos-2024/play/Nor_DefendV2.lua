@@ -12,7 +12,7 @@ return {
         end,
         Breaker = function() return task.defend_normV2("Tier", 0, param.defenderMode) end,
         Fronter = function() return task.defend_normV2("Defender", 1, param.defenderMode) end,
-        match = "[BF]"
+        match = "{BF}"
     },
     ["defend_front"] = {
         switch = function()

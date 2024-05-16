@@ -63,8 +63,8 @@ firstState = "Init",
 		local toballDir = (param.shootPos - ball.pos()):dir()
 		local playerDir = player.dir("Assister")
 		local subDir = math.abs(Utils.angleDiff(toballDir,playerDir) * 180/math.pi)
-		local drbblingRate = math.ceil((7 * Utils.NumberNormalize(subDir,120,30)))
-		if(player.myinfraredCount("Assister") > 15 + drbblingRate) then
+		local drbblingRate = math.ceil((0 * Utils.NumberNormalize(subDir,120,30)))
+		if(player.myinfraredCount("Assister") > 5 + drbblingRate) then
 			return "turnToPoint"
 		end
 		local Vy = player.rotVel("Assister")
@@ -102,7 +102,7 @@ firstState = "Init",
 		end
 
 	end,
-	Assister = function() return task.TurnToPointV2("Assister", function() return resShootPos end,param.rotVel) end,
+	Assister = function() return task.TurnToPointV2("Assister", function() return resShootPos end,param.rotVel()) end,
 	match = "{A}"
 },
 
@@ -118,7 +118,7 @@ firstState = "Init",
 			return "getball"
 		end
 	end,
-	Assister = task.ShootdotV2(function() return resShootPos end, param.shootError, kick.flat),
+	Assister = task.ShootdotV2(function() return resShootPos end, param.shootError, kick.flat ),
 	match = "{A}"
 },
 	

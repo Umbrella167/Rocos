@@ -36,28 +36,29 @@ goalDepth                 = CGetSettings("field/goalDepth", "Int")
 goalRadius                = goalWidth / 2
 ourGoalLine               = CGeoSegment(CGeoPoint:new_local(-pitchLength / 2, -INF), CGeoPoint:new_local(-pitchLength / 2,INF))
 ourGoalPos                = CGeoPoint:new_local(-pitchLength / 2, 0)
+theirGoalPos              = CGeoPoint:new_local(pitchLength / 2, 0)
 ourTopGoalPos             = CGeoPoint:new_local(-pitchLength / 2, goalRadius)
 ourButtomGoalPos          = CGeoPoint:new_local(-pitchLength / 2, -goalRadius)
 penaltyMiddleLine         = CGeoSegment(ourGoalPos, ourGoalPos + Utils.Polar2Vector(penaltyDepth, 0))
 
 -- 是否为真实场地
 isReality = false
-Team = "ONE" -- Team = "TWO"
+Team = "TWO" -- Team = "TWO"
 allowTouch = false              -- 是否开启touch
-canTouchAngle = 45           -- 可以touch的角度
+canTouchAngle = 45           -- 可以touch的角度f
 dribblingExclusionDist = 135 -- 距离禁区多少距离开启带球
 debugSize = 100
 -----------------------------------------------|
 --                Getball参数                 --|
 -----------------------------------------------|
-playerVel = 1.5                                 -- 机器人速度
+playerVel = 1.88                                 -- 机器人速度
 getballMode = 1                               -- [0[激进模式], 1[保守模式], 2[middle]]
 -- local V_DECAY_RATE_Reality = 700              -- 场地摩擦
 local V_DECAY_RATE_Reality = 800              -- 场地摩擦
 
 lastInterPos = CGeoPoint:new_local(-INF, -INF) -- 上一次算点结果
 rushToBallCount = 0                            -- 
-distRate = 0.2                                --
+distRate = 0.2          --
 
 -----------------------------------------------|
 --                球权和红外参数                --|
@@ -79,14 +80,20 @@ playerRadius = 90 -- 机器人半径
 -----------------------------------------------|
 local shootError_Reality = 5 --1.8  -- 射击误差
 shootKp = 0.1                -- 射击力度比例
--- shootPos = CGeoPoint(0, 0)
+-- shootPos = CGeoPoint(0, 2300)
 shootPos = CGeoPoint(pitchLength / 2, 0)
 
 -----------------------------------------------|
 --               rot参数                      --|
 -----------------------------------------------|
 rotPos = CGeoPoint(60, 60)           --CGeoPoint(80,80)      --旋转坐标
-rotVel = 4.5                           --旋转速度
+rotVel = function()
+    if shootPos:x() == pitchLength / 2 then
+        return 6.5
+    else
+        return 4.5
+    end
+end                           --旋转速度
 local rotCompensate_Reality = -0.015 --旋转补偿
 -----------------------------------------------|
 --                Tick固定匹配参数             --|
@@ -105,7 +112,7 @@ markingPosRate2 = 1 / 10
 --             defend参数             --|
 -----------------------------------------------|
 -- defender 模式, 0-盯球，1-盯人
-defenderMode = 1
+defenderMode = 0
 
 defenderShootMode = function() return 1 end -- 1 flat  2 chip
 defenderBuf = playerRadius * 1.5
@@ -129,9 +136,9 @@ goalieAimDirRadius = pitchLength / 4
 -- enemyAimBuf = goalRadius
 enemyAimBuf = goalWidth
 -- goalie 移动的线（mode-0）
-goalieMoveLine = CGeoSegment(CGeoPoint:new_local(-pitchLength / 2 + goalieBuf, -INF),
-    CGeoPoint:new_local(-pitchLength / 2 + goalieBuf, INF))
-goalieMoveX = -pitchLength / 2 + goalieBuf
+goalieMoveLine = CGeoSegment(CGeoPoint:new_local(-pitchLength / 2 + playerRadius, -INF),
+    CGeoPoint:new_local(-pitchLength / 2 + playerRadius, INF))
+goalieMoveX = -pitchLength / 2 + playerRadius
 -- goalie 移动的半径（mode-1）
 goalieRadius = goalRadius - goalieBuf
 -- goalie 刚吸到球后准备的时间
@@ -143,7 +150,8 @@ goalieDribblingFrame = 200
 -- goalie 带球的加速度
 goalieDribblingA = 1000
 -- goalie 要踢向的点
-goalieTargetPos = CGeoPoint(param.pitchLength / 2, param.pitchWidth / 2)
+-- goalieTargetPos = CGeoPoint(param.pitchLength / 2, param.pitchWidth / 2) -- 对面的点
+goalieTargetPos = CGeoPoint(-3300, -3000) -- 己方点（测试用）
 -- 当截球点离goalie非常近的时候就会直接拦球
 goalieCatchBuf = goalieBuf*2
 

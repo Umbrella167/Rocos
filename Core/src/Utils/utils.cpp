@@ -24,9 +24,9 @@ GlobalTick Tick[PARAM::Tick::TickLength];
 int now = PARAM::Tick::TickLength - 1;
 int last = PARAM::Tick::TickLength - 2;
 CGeoPoint lastMovePoint = CGeoPoint(inf, inf);
-double playerInfraredCountBuffer = 105;// 红外判断缓冲值
+double playerInfraredCountBuffer = 100;// 红外判断缓冲值
 double playerBallRightsBuffer = 110;// 球权判断缓冲值
-double pass_threshold = 0.18; //射门阈值
+double pass_threshold = 0.1; //射门阈值
 namespace Utils
 {
     // 没写完 START
@@ -96,8 +96,8 @@ namespace Utils
             {
 
                 Tick[now].task[i].player_num = i;
-                if (i != Tick[now].our.dribbling_num)
-                    Tick[now].task[i].infrared_count = 0;
+//                if (i != Tick[now].our.dribbling_num)
+//                    Tick[now].task[i].infrared_count = 0;
                 if (Tick[now].task[i].infrared_count == 0 )
                     Tick[now].task[i].infrared_off_count += 1;
 
@@ -214,7 +214,7 @@ namespace Utils
 
         // 获取第一次带球的位置
         // 如果远离球一定距离就一直更新
-        if (our_min_dist > playerBallRightsBuffer + 25)
+        if (our_min_dist > 150)
         {
             Tick[now].ball.first_dribbling_pos = Tick[now].ball.pos;
         }

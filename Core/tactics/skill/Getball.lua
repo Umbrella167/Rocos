@@ -55,16 +55,17 @@ function Getball(task)
 		else
 			print("Error runner in getball", runner)
 		end
-		local playerEndVel = {
+
+		local playerEndVelONE = {
 			-- [num] = {endVel, ballVelRate} 
 			[-1] = {0,1}, -- Other
 			[0] = {0,1},
 			[1] = {0,1},
-			[2] = {0,50},
+			[2] = {0,1},
 			[3] = {0,1},
 			[4] = {0,1},	
 			[5] = {0,1},
-			[6] = {0,1},
+			[6] = {200,1},
 			[7] = {0,1},
 			[8] = {0,1},
 			[9] = {0,1},
@@ -76,6 +77,28 @@ function Getball(task)
 			[15] = {0,1},
 			[16] = {0,1}, -- Other
 		}
+		local playerEndVelTWO = {
+			-- [num] = {endVel, ballVelRate} 
+			[-1] = {0,1}, -- Other
+			[0] = {0,1},
+			[1] = {100,1},
+			[2] = {0,1},
+			[3] = {0,1},
+			[4] = {0,1},	
+			[5] = {0,1},
+			[6] = {200,1.2},
+			[7] = {0,1},
+			[8] = {0,1},
+			[9] = {0,1},
+			[10] = {0,1},
+			[11] = {0,50},
+			[12] = {0,1},
+			[13] = {0,1},
+			[14] = {0,1},
+			[15] = {0,1},
+			[16] = {0,1}, -- Other
+		}
+		local playerEndVel = (param.Team == "ONE") and playerEndVelONE or playerEndVelTWO
 		--获取常用数据
 		local endVelMod = 0
 		local playerPos = CGeoPoint:new_local(player.pos(runner):x(),player.pos(runner):y()) 
@@ -130,7 +153,7 @@ function Getball(task)
 			end
 			debugError = debugError .."  RushToBall "
 			endVelMod = (ball.velMod() * playerEndVel[runner][2]) + playerEndVel[runner][1]
-			endVelMod = endVelMod > 300 and 300 or endVelMod
+			endVelMod = endVelMod > 5000 and 5000 or endVelMod
 		end
 
 		

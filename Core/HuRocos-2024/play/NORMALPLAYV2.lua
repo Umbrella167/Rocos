@@ -204,13 +204,13 @@ local getState = function ()
         end
 
 
-        param.dribblingExclusionDist = 120
+        param.dribblingExclusionDist = 130
         if Utils.isValidPass(vision,ball.pos(),param.shootPos,130) then
             param.dribblingExclusionDist = 0
         else
             param.dribblingExclusionDist = 120
         end
-        if Utils.InExclusionZone(ball.pos(), param.dribblingExclusionDist, "all") and resultState ~=  "ShootPoint" then
+        if Utils.InExclusionZone(ball.pos(), param.dribblingExclusionDist, "all") and resultState ~= "ShootPoint" then
             resultState =  "dribbling"
         end
         debugEngine:gui_debug_msg(CGeoPoint(0,param.pitchWidth / 2 - (1000 + param.debugSize)),"NextState:" .. resultState,3,0,param.debugSize)
