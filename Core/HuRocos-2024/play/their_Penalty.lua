@@ -66,7 +66,7 @@ firstState = "Init",
 		-- if bufcnt(ball.pos():dist(enemy.pos(enemy.closestBall())) < param.playerRadius * 1.5, 20) then
 		-- 	return "Getball"
 		-- end
-		return "Getball"
+		return "CatchBall"
 
 		-- if bufcnt(ball.pos():dist(enemy.pos(enemy.closestBall())) < param.playerRadius * 1.5, 20) then
 		-- 	return "Getball"
@@ -78,31 +78,31 @@ firstState = "Init",
 },
 
 
-["Getball"] = {
-	switch = function()
-		-- debugEngine:gui_debug_msg(CGeoPoint(0,0),ball.posX())
-		-- if ball.pos():dist(enemy.pos(enemy.closestBall())) > param.playerRadius * 1.5 then
-		-- 	return "Defend"
-		-- end
-		if ball.posX() < player.posX("Goalie") then
-			return "CatchBall"
-		end
-
-	end,
-	Goalie = function() return task.goSimplePos(getBallPos, player.toBallDir("Goalie"), flag.dribbling) end,
-    match = "{G}"
-},
-
 ["CatchBall"] = {
 	switch = function()
 		-- debugEngine:gui_debug_msg(CGeoPoint(0,0),ball.posX())
 		-- if ball.pos():dist(enemy.pos(enemy.closestBall())) > param.playerRadius * 1.5 then
 		-- 	return "Defend"
 		-- end
+		-- if ball.posX() < player.posX("Goalie") then
+		-- 	return "CatchBall"
+		-- end
+
 	end,
 	Goalie = function() return task.goalie_catchBall("Goalie") end,
     match = "{G}"
 },
+
+-- ["CatchBall"] = {
+-- 	switch = function()
+-- 		-- debugEngine:gui_debug_msg(CGeoPoint(0,0),ball.posX())
+-- 		-- if ball.pos():dist(enemy.pos(enemy.closestBall())) > param.playerRadius * 1.5 then
+-- 		-- 	return "Defend"
+-- 		-- end
+-- 	end,
+-- 	Goalie = function() return task.goalie_catchBall("Goalie") end,
+--     match = "{G}"
+-- },
 name = "their_Penalty",
 applicable ={
 	exp = "a",
