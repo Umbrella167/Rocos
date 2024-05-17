@@ -22,7 +22,7 @@ end
 
 local getBallPos = function(role)
 	local idir = (ball.pos() - param.ourGoalPos):dir()
-	local getBallPos = ball.pos() + Utils.Polar2Vector(-param.playerFrontToCenter*2, idir)
+	local getBallPos = ball.pos() + Utils.Polar2Vector(-param.playerFrontToCenter*5, idir)
 	if Utils.InExclusionZone(getBallPos, 0, "our") and  ball.velMod() < 200 then
 		return player.pos(role)
 	end

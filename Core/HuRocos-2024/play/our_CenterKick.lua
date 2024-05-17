@@ -60,7 +60,6 @@ firstState = "Init1",
 ["start"] = {
   switch = function()
     kickFalg(ball.pos(),function() return param.KickerWaitPlacementPos() end)
-
     debugEngine:gui_debug_arc(ball.pos(),500,0,360,1)
     return "ready"
   end,
