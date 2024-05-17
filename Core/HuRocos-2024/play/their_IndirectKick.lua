@@ -16,7 +16,7 @@ Match = {}
 	end
 end--]]
 --获取球位置
-local KeepDis = 270
+local KeepDis = 800
 
 
 
@@ -62,7 +62,7 @@ return {
     end,
 
 
-firstState = "Init",
+firstState = "Init_marking",
 
 ["Init"] = {
 	switch = function ()
