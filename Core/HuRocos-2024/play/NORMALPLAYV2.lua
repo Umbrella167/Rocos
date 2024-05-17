@@ -350,7 +350,7 @@ firstState = "Init",
             return State
         end
     end,
-    Assister = task.getball(function() return shoot_pos end,playerVel,getballMode),
+    Assister = gSubPlay.roleTask("ShowDribbling", "Assister"),
     Kicker = function() return task.defender_marking("Kicker",function() return KickerRUNPos end) end,
     Special = function() return task.defender_marking("Special",function() return SpecialRUNPos end) end ,
     Center = task.goCmuRush(function() return CenterRUNPos end ,closures_dir_ball("Center"),_,DSS_FLAG),

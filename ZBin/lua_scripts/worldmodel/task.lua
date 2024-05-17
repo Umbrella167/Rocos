@@ -281,13 +281,13 @@ playerPowerTWO = {
 	[0] = {minDist_Power,maxDist_Power,200,330,400,7000}, 
 	[1] = {minDist_Power,maxDist_Power,120,330,315,7000},-- 可以挑球 ，吸球还行
 	[2] = {minDist_Power,maxDist_Power,135,330,315,7000}, 
-	[3] = {minDist_Power,maxDist_Power,330,750,1000,5000},
-	[4] = {minDist_Power,maxDist_Power,330,750,1000,5000},
+	[3] = {minDist_Power,maxDist_Power,330,750,1000,600},
+	[4] = {minDist_Power,maxDist_Power,330,750,1000,600},
 	[5] = {minDist_Power,maxDist_Power,165,340,450,7000},
 	[6] = {minDist_Power,maxDist_Power,120,330,450,7000}, -- 带球超强 ,挑球一般
 	[7] = {minDist_Power,maxDist_Power,120,330,315,7000}, -- 红外偶尔有问题
 	[8] = {minDist_Power,maxDist_Power,120,330,315,7000},
-	[9] = {minDist_Power,maxDist_Power,120,330,315,7000},
+	[9] = {minDist_Power,maxDist_Power,330,750,850,600},
 	[10] = {minDist_Power,maxDist_Power,120,330,315,7000},
 	[11] = {minDist_Power,maxDist_Power,120,330,315,7000},
 	[12] = {minDist_Power,maxDist_Power,120,330,315,7000},
@@ -1180,10 +1180,10 @@ function goalie_getBall(role)
 	-- debugEngine:gui_debug_x(param.goalieStablePoint)
 	local goaliePoint = CGeoPoint:new_local(getBallPos:x(), getBallPos:y())
 	local a = 4000
-	if ball.velMod() < 800 and player.infraredCount(role) < param.goalieReadyFrame then
+	if ball.velMod() < 800 and player.myinfraredCount(role) < param.goalieReadyFrame then
 		-- goaliePoint = CGeoPoint:new_local(getBallPos:x(), getBallPos:y()) + Utils.Polar2Vector(param.playerRadius-30, ballToRoleDir)
 		goaliePoint = ballPos + Utils.Polar2Vector(param.playerFrontToCenter, ballToRoleDir)
-	elseif param.goalieReadyFrame <= player.infraredCount(role) and player.infraredCount(role) <= param.goalieDribblingFrame-50 then
+	elseif param.goalieReadyFrame <= player.myinfraredCount(role) and player.myinfraredCount(role) <= param.goalieDribblingFrame-50 then
 		-- local playerToStablePointDir = (param.goalieStablePoint-rolePos):dir()
 		-- goaliePoint = ballPos + Utils.Polar2Vector(param.playerRadius, ballToRoleDir) + Utils.Polar2Vector(50, playerToStablePointDir)
 		a = param.goalieDribblingA
@@ -1192,7 +1192,7 @@ function goalie_getBall(role)
 			return param.goalieTargetPos
 		end
 		idir = (fungoalieTargetPos() - rolePos):dir()
-	elseif player.infraredCount(role) > param.goalieDribblingFrame-50 then
+	elseif player.myinfraredCount(role) > param.goalieDribblingFrame-50 then
 		-- 一般这个状态就跳到kick去了
 		-- goaliePoint = ballPos + Utils.Polar2Vector(param.playerRadius, ballToRoleDir)
 		goaliePoint = rolePos

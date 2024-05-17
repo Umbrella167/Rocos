@@ -25,7 +25,7 @@ return {
                 return "defend_getBall"
             end
 
-            if player.infraredCount("Fronter") > 5 or rolePos:dist(ball.pos())<param.playerFrontToCenter then
+            if player.myinfraredCount("Fronter") > 5 or rolePos:dist(ball.pos())<param.playerFrontToCenter then
                 return "defend_kick"
             end
 
@@ -43,7 +43,7 @@ return {
                 return "defend_norm"
             end
 
-            if player.infraredCount("Fronter") > 5 or rolePos:dist(ball.pos())<param.playerFrontToCenter then
+            if player.myinfraredCount("Fronter") > 5 or rolePos:dist(ball.pos())<param.playerFrontToCenter then
                 return "defend_kick"
             end
 
