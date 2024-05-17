@@ -15,7 +15,7 @@ playerInfraredCountBuffer = CGetSettings("ZJHU/playerInfraredCountBuffer", "Int"
 our_goalie_num            = CGetSettings("ZJHU/our_goalie_num", "Int")
 defend_num1               = CGetSettings("ZJHU/defend_num1", "Int")
 defend_num2               = CGetSettings("ZJHU/defend_num2", "Int")
-LeaderNum = 4
+LeaderNum = 9
 -----------------------------------------------|
 --                feild参数                  --|
 -----------------------------------------------|
@@ -42,7 +42,7 @@ ourButtomGoalPos          = CGeoPoint:new_local(-pitchLength / 2, -goalRadius)
 penaltyMiddleLine         = CGeoSegment(ourGoalPos, ourGoalPos + Utils.Polar2Vector(penaltyDepth, 0))
 
 -- 是否为真实场地
-isReality = false
+isReality = true
 Team = "TWO" -- Team = "TWO"
 allowTouch = false              -- 是否开启touch
 canTouchAngle = 45           -- 可以touch的角度f
@@ -117,7 +117,8 @@ rotTableTWO = {
 	[6] =  {CGeoPoint(60, 60),4.5}, 
 	[7] =  {CGeoPoint(60, 60),4.5}, 
 	[8] =  {CGeoPoint(60, 60),4.5}, 
-	[9] =  {CGeoPoint(60, 60),4.5}, 
+	[9] =  {CGeoPoint(120, 60),4.5}, 
+
 	[10] =  {CGeoPoint(60, 60),4.5}, 
 	[11] =  {CGeoPoint(60, 60),4.5}, 
 	[12] =  {CGeoPoint(60, 60),4.5}, 
@@ -143,6 +144,7 @@ end
 
 rotCompensateTable = {
 	-- [num] = {minist,maxDist,minPower, maxPower, ShootPower,chipPower} 
+    
 	[0] =  {-0.015}, 
 	[1] =  {-0.015}, 
 	[2] =  {-0.015}, 

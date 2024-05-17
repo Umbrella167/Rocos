@@ -46,7 +46,7 @@ return {
                 return "goalie_kick"
             end
 
-            if 10 <= player.infraredCount("Goalie") and bufcnt(param.goalieStablePoint:dist(rolePos) < param.playerRadius, 20) then
+            if 10 <= player.infraredCount("Goalie") and bufcnt(param.goalieStablePoint:dist(rolePos) < param.playerRadius, 50) then
                 return "goalie_kick"
             end
 
