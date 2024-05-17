@@ -180,7 +180,7 @@ markingPosRate2 = 1 / 10
 --             defend参数             --|
 -----------------------------------------------|
 -- defender 模式, 0-盯球，1-盯人
-defenderMode = 1
+defenderMode = 0
 
 defenderShootMode = function() return 1 end -- 1 flat  2 chip
 defenderBuf = playerRadius * 1.5
@@ -220,7 +220,7 @@ goalieDribblingA = 1000
 -- goalieTargetPos = CGeoPoint(param.pitchLength / 2, param.pitchWidth / 2) -- 对面的点
 goalieTargetPos = CGeoPoint(2000, 0) -- 己方点（测试用）
 -- 当截球点离goalie非常近的时候就会直接拦球
-goalieCatchBuf = goalieBuf*2
+goalieCatchBuf = playerRadius * 2
 
 
 -- 对齐的准确度

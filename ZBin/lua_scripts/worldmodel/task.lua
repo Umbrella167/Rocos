@@ -1003,9 +1003,9 @@ function defend_normV2(role, mode, flag)
 	debugEngine:gui_debug_x(defenderPoint, 0)
 
 	local idir = player.toPointDir(enemyPos, role)
-	local mexe, mpos = SimpleGoto { pos = eschewingOurCar(role, defenderPoint, param.playerRadius*2), dir = idir, acc = a, flag = 0x00000100, rec = r, vel = v }
+	local mexe, mpos = SimpleGoto { pos = eschewingOurCar(role, defenderPoint, param.playerRadius*2), dir = idir, acc = a, flag = 0x00000000, rec = r, vel = v }
 	if not isCloseEnemy(role) then
-		mexe, mpos = GoCmuRush { pos = eschewingOurCar(role, defenderPoint), dir = idir, acc = a, flag = 0x00000100, rec = r, vel = v }
+		mexe, mpos = GoCmuRush { pos = eschewingOurCar(role, defenderPoint), dir = idir, acc = a, flag = 0x00000000, rec = r, vel = v }
 	end
 	return { mexe, mpos }
 end
