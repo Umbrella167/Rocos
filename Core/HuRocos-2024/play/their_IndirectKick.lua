@@ -64,37 +64,6 @@ return {
 
 firstState = "Init",
 
-
-
-["Init1111"] = {
-	switch = function ()
-
-		local ballpos = ball.pos()
-		local StartEnemyPos = enemy.pos(enemy.closestBall()) 
-		DenfendPos = ballpos + Utils.Polar2Vector(KeepDis,(ball.pos() - StartEnemyPos ):dir())
-		debugEngine:gui_debug_msg(CGeoPoint(0,0),DenfendPos:x(),4)
-		debugEngine:gui_debug_msg(CGeoPoint(0,150),DenfendPos:y(),4)
-
-		if ball.velMod() > 500 then
-        	return "exit"
-        end
-	end,
-
-	Assister =task.goCmuRush( function()return DenfendPos end ,0,a,0),
-    Kicker = function() return task.defender_marking("Kicker",CGeoPoint(param.INF,param.INF)) end,
-    Special = function() return task.defender_marking("Special",CGeoPoint(param.INF,param.INF)) end,
-
-    -- Assister = task.stop(),
-    -- Kicker = task.stop(),
-    -- Special = task.stop(),
-
-    match = "[AKS]"
-},
-
-
-
-
-
 ["Init"] = {
 	switch = function ()
 		-- 预处理，导入所有车辆
@@ -133,12 +102,18 @@ firstState = "Init",
 		end
 
 		if(bufcnt(true, 5)) then
-			
-			if ball.posX() < depart then
-				return "front"
-			else 
-				return "center"
+			if  #Free_Enemy >  #Free_Player then
+				return"Init_marking"
+			else
+				if ball.posX() < depart then
+					return "front"
+				else 
+					return "center"
+				end
 			end
+			if ball.velMod() > 500 then
+	        		return "exit"
+	        end
 		end
 	end,
 
@@ -153,17 +128,38 @@ firstState = "Init",
     match = "[AKS]"
 },
 
-["N"] = {
+["Init_marking"] = {
 	switch = function ()
-		
+
+		local ballpos = ball.pos()
+		local StartEnemyPos = enemy.pos(enemy.closestBall()) 
+		DenfendPos = ballpos + Utils.Polar2Vector(KeepDis,(ball.pos() - StartEnemyPos ):dir())
+		debugEngine:gui_debug_msg(CGeoPoint(0,0),DenfendPos:x(),4)
+		debugEngine:gui_debug_msg(CGeoPoint(0,150),DenfendPos:y(),4)
+
+		if ball.velMod() > 500 then
+        	return "exit"
+        end
 	end,
 
-	Assister = function () return (task.goCmuRush(player.pos("Assister"),balldir("Assister"),DSS_FLAG)) end,
-    Kicker = function () return (task.goCmuRush(player.pos("Kicker"),balldir("Kicker"),DSS_FLAG)) end,
-    Special = function () return (task.goCmuRush(player.pos("Special"),balldir("Special"),DSS_FLAG)) end,
+	Assister =task.goCmuRush( function()return DenfendPos end ,0,a,0),
+    Kicker = function() return task.defender_marking("Kicker",CGeoPoint(param.INF,param.INF)) end,
+    Special = function() return task.defender_marking("Special",CGeoPoint(param.INF,param.INF)) end,
+
+    -- Assister = task.stop(),
+    -- Kicker = task.stop(),
+    -- Special = task.stop(),
 
     match = "[AKS]"
 },
+
+
+
+
+
+
+
+
 	
 ["front"] = {
  	switch = function()
@@ -199,7 +195,7 @@ firstState = "Init",
 } ,
 
 
-name = "indirectDefend_New",
+name = "their_IndirectKick",
     applicable = {
         exp = "a",
         a = true
