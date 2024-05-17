@@ -1176,7 +1176,7 @@ function goalie_getBall(role)
 	if ball.velMod() < 800 and player.myinfraredCount(role) < param.goalieReadyFrame then
 		-- goaliePoint = CGeoPoint:new_local(getBallPos:x(), getBallPos:y()) + Utils.Polar2Vector(param.playerRadius-30, ballToRoleDir)
 		goaliePoint = ballPos + Utils.Polar2Vector(param.playerFrontToCenter, ballToRoleDir)
-	elseif param.goalieReadyFrame <= player.myinfraredCount(role) and player.myinfraredCount(role) <= param.goalieDribblingFrame then
+	elseif param.goalieReadyFrame <= player.myinfraredCount(role) and player.myinfraredCount(role) <= param.goalieDribblingFrame-50 then
 		-- local playerToStablePointDir = (param.goalieStablePoint-rolePos):dir()
 		-- goaliePoint = ballPos + Utils.Polar2Vector(param.playerRadius, ballToRoleDir) + Utils.Polar2Vector(50, playerToStablePointDir)
 		a = param.goalieDribblingA
@@ -1185,7 +1185,7 @@ function goalie_getBall(role)
 			return param.goalieTargetPos
 		end
 		idir = (fungoalieTargetPos() - rolePos):dir()
-	elseif player.myinfraredCount(role) > param.goalieDribblingFrame then
+	elseif player.myinfraredCount(role) > param.goalieDribblingFrame-50 then
 		-- 一般这个状态就跳到kick去了
 		-- goaliePoint = ballPos + Utils.Polar2Vector(param.playerRadius, ballToRoleDir)
 		goaliePoint = rolePos

@@ -169,7 +169,7 @@ firstState = "Init1",
 
     debugEngine:gui_debug_msg(CGeoPoint(0,2800),"ballRights: " .. GlobalMessage.Tick().ball.rights,2)
     debugEngine:gui_debug_msg(CGeoPoint(0,2600),"InfraredCount: " .. player.myinfraredCount("Assister"),3)
-    if ball.pos():dist(ball.placementPos()) < 130 then
+    if ball.pos():dist(ball.placementPos()) < 80 then
         count = count + 1
     else
         count = 0
@@ -194,13 +194,16 @@ firstState = "Init1",
   
       debugEngine:gui_debug_msg(CGeoPoint(0,2800),"ballRights: " .. GlobalMessage.Tick().ball.rights,2)
       debugEngine:gui_debug_msg(CGeoPoint(0,2600),"InfraredCount: " .. player.myinfraredCount("Assister"),3)
-      if ball.pos():dist(ball.placementPos()) < 130 then
-          count = count + 1
-      else
-          count = 0
-      end
-      if count > 50 then
-            count = 0
+      -- if ball.pos():dist(ball.placementPos()) < 50 then
+      --     count = count + 1
+      -- else
+      --     count = 0
+      -- end
+      -- if count > 50 then
+      --       count = 0
+      --     return "avoid"
+      -- end
+      if bufcnt(true,50) then
           return "avoid"
       end
     end,
@@ -220,7 +223,7 @@ firstState = "Init1",
     if cond.isNormalStart() then
         return "exit"
     end
-        if ball.pos():dist(ball.placementPos()) > 130 then
+        if ball.pos():dist(ball.placementPos()) > 80 then
         return "getball"
     end
   end,
@@ -231,8 +234,6 @@ firstState = "Init1",
   Defender = task.goCmuRush(avoidPlacementPos("Defender"),function() return player.toBallDir("Defender") end,_,DSS_FLAG),
   Goalie = task.goCmuRush(avoidPlacementPos("Goalie"),function() return player.toBallDir("Goalie") end),
   match = "{AKSCDG}"
-
-
 },
 
 

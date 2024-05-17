@@ -15,7 +15,7 @@ playerInfraredCountBuffer = CGetSettings("ZJHU/playerInfraredCountBuffer", "Int"
 our_goalie_num            = CGetSettings("ZJHU/our_goalie_num", "Int")
 defend_num1               = CGetSettings("ZJHU/defend_num1", "Int")
 defend_num2               = CGetSettings("ZJHU/defend_num2", "Int")
-LeaderNum = 4
+LeaderNum = 7
 -----------------------------------------------|
 --                feild参数                  --|
 -----------------------------------------------|
@@ -42,19 +42,20 @@ ourButtomGoalPos          = CGeoPoint:new_local(-pitchLength / 2, -goalRadius)
 penaltyMiddleLine         = CGeoSegment(ourGoalPos, ourGoalPos + Utils.Polar2Vector(penaltyDepth, 0))
 
 -- 是否为真实场地
-isReality = false
-Team = "TWO" -- Team = "TWO"
+isReality = true
+Team = "ONE" -- Team = "TWO"
 allowTouch = false              -- 是否开启touch
 canTouchAngle = 45           -- 可以touch的角度f
-dribblingExclusionDist = 130 -- 距离禁区多少距离开启带球
+dribblingExclusionDist = -20 -- 距离禁区多少距离开启带球
 debugSize = 100
 -----------------------------------------------|
 --                Getball参数                 --|
 -----------------------------------------------|
 playerVel = 1.88                                 -- 机器人速度
 getballMode = 1                               -- [0[激进模式], 1[保守模式], 2[middle]]
+local V_DECAY_RATE_Reality = 900              -- 场地1摩擦
 -- local V_DECAY_RATE_Reality = 800              -- 场地2摩擦
-local V_DECAY_RATE_Reality = 900              -- 场地3摩擦
+-- local V_DECAY_RATE_Reality = 900              -- 场地3摩擦
 lastInterPos = CGeoPoint:new_local(-INF, -INF) -- 上一次算点结果
 rushToBallCount = 0                            -- 
 distRate = 0.2          --
@@ -218,7 +219,7 @@ goalieDribblingFrame = 200
 goalieDribblingA = 1000
 -- goalie 要踢向的点
 -- goalieTargetPos = CGeoPoint(param.pitchLength / 2, param.pitchWidth / 2) -- 对面的点
-goalieTargetPos = CGeoPoint(2000, 0) -- 己方点（测试用）
+goalieTargetPos = CGeoPoint(0, 0) -- 己方点（测试用）
 -- 当截球点离goalie非常近的时候就会直接拦球
 goalieCatchBuf = playerRadius * 2
 

@@ -233,7 +233,7 @@ firstState = "Init1",
 			return "exit"
 		end
 	end,
-	Assister = task.Shootdot("Assister",runPos_Special(-400), param.shootError, kick.flat),
+	Assister = task.Shootdot("Assister",runPos_Special(-400), param.shootError + 10, kick.flat),
 	Special = task.goCmuRush(runPos_Special(-400), Dir_ball("Special"), a, f, r, v),
 	Kicker = task.goCmuRush(runPos_Kicker(-400), Dir_ball("Kicker"), a, f, r, v),
     Goalie = task.goalie("Goalie"),
