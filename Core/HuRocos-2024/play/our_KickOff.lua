@@ -229,9 +229,7 @@ firstState = "Init1",
 		if(player.kickBall("Assister")) then
 			return "exit"
 		end
-		if(player.kickBall("Assister")) then
-			return "exit"
-		end
+
 	end,
 	Assister = task.Shootdot("Assister",runPos_Special(-400), param.shootError + 10, kick.flat),
 	Special = task.goCmuRush(runPos_Special(-400), Dir_ball("Special"), a, f, r, v),

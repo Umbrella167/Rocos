@@ -24,10 +24,10 @@ GlobalTick Tick[PARAM::Tick::TickLength];
 int now = PARAM::Tick::TickLength - 1;
 int last = PARAM::Tick::TickLength - 2;
 CGeoPoint lastMovePoint = CGeoPoint(inf, inf);
-double playerInfraredCountBuffer = 95; //场地 3 红外判断缓冲值
-//double playerInfraredCountBuffer = 100;  //场地 2 红外判断缓冲值
+//double playerInfraredCountBuffer = 95; //场地 3 红外判断缓冲值
+double playerInfraredCountBuffer = 100;  //场地 2 红外判断缓冲值
 double playerBallRightsBuffer = 110;// 球权判断缓冲值
-double pass_threshold = 0.1; //射门阈值
+double pass_threshold = 0.3; //射门阈值
 namespace Utils
 {
     // 没写完 START

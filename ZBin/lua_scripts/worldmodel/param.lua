@@ -1,5 +1,4 @@
 module(..., package.seeall)
-
 ---------------------------------
 INF                       = 1e9
 PI                        = 3.141592653589793238462643383279
@@ -15,7 +14,7 @@ playerInfraredCountBuffer = CGetSettings("ZJHU/playerInfraredCountBuffer", "Int"
 our_goalie_num            = CGetSettings("ZJHU/our_goalie_num", "Int")
 defend_num1               = CGetSettings("ZJHU/defend_num1", "Int")
 defend_num2               = CGetSettings("ZJHU/defend_num2", "Int")
-LeaderNum = 9
+LeaderNum = 6
 -----------------------------------------------|
 --                feild参数                  --|
 -----------------------------------------------|
@@ -53,13 +52,12 @@ debugSize = 100
 -----------------------------------------------|
 playerVel = 1.88                                 -- 机器人速度
 getballMode = 1                               -- [0[激进模式], 1[保守模式], 2[middle]]
-local V_DECAY_RATE_Reality = 900              -- 场地1摩擦
--- local V_DECAY_RATE_Reality = 800              -- 场地2摩擦
+-- local V_DECAY_RATE_Reality = 900              -- 场地1摩擦
+local V_DECAY_RATE_Reality = 800              -- 场地2摩擦
 -- local V_DECAY_RATE_Reality = 900              -- 场地3摩擦
 lastInterPos = CGeoPoint:new_local(-INF, -INF) -- 上一次算点结果
 rushToBallCount = 0                            -- 
 distRate = 0.2          --
-
 -----------------------------------------------|
 --                球权和红外参数                --|
 -----------------------------------------------|

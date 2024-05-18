@@ -129,17 +129,17 @@ function getball_dribbling(role)
 	return function()
 		local idir = player.toBallDir(role)
 		local p = ball.pos() + Utils.Polar2Vector(-10,idir)
-		local endVel = Utils.Polar2Vector(ball.velMod() + 300,idir)
+		local endVel = Utils.Polar2Vector(ball.velMod() * 2,idir)
 		local toballDir = math.abs((ball.pos() - player.rawPos(role)):dir())
 		local playerDir = math.abs(player.dir(role))
 		local Subdir = math.abs(Utils.angleDiff(toballDir,playerDir) * 180/math.pi)
-		local iflag = flag.dribbling + flag.allow_dss
-		local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
-		if Subdir > 30  then 
-			iflag =  DSS_FLAG
-		else
-			iflag = flag.dribbling
-		end
+		local iflag = flag.dribbling 
+		-- local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
+		-- if Subdir > 30  then 
+		-- 	iflag =  DSS_FLAG
+		-- else
+		-- 	iflag = flag.dribbling
+		-- end
 		local mexe, mpos = GoCmuRush { pos = p, dir = idir, acc = a, flag = iflag, rec = r, vel = endVel, speed = s, force_manual = force_manual }
 		return { mexe, mpos }
 	end
@@ -223,7 +223,6 @@ function getballV2(role, playerVel, inter_flag, target_point, permissions)
 			local iflag = bit:_or(flag.allow_dss, flag.dodge_ball)
 			if Subdir > 20 then 
 				  --自身相对坐标 旋转
-
 				if subPlayerBallToTargetDir < 0 then
 					local ipos = CGeoPoint(param.rotPos:x(), param.rotPos:y() * -1)  --自身相对坐标 旋转
 					local ivel = 10 * -1
@@ -254,7 +253,7 @@ function getballV2(role, playerVel, inter_flag, target_point, permissions)
 	end
 end
 minDist_Power = 0
-maxDist_Power = 6000
+maxDist_Power = 5500
 playerPowerONE = 
 {
 	-- [num] = {minist,maxDist,minPower, maxPower, ShootPower,chipPower} 
@@ -1173,10 +1172,10 @@ function goalie_getBall(role)
 	-- debugEngine:gui_debug_x(param.goalieStablePoint)
 	local goaliePoint = CGeoPoint:new_local(getBallPos:x(), getBallPos:y())
 	local a = 4000
-	if ball.velMod() < 800 and player.myinfraredCount(role) < param.goalieReadyFrame then
+	if ball.velMod() < 800 and player.infraredCount(role) < param.goalieReadyFrame then
 		-- goaliePoint = CGeoPoint:new_local(getBallPos:x(), getBallPos:y()) + Utils.Polar2Vector(param.playerRadius-30, ballToRoleDir)
 		goaliePoint = ballPos + Utils.Polar2Vector(param.playerFrontToCenter, ballToRoleDir)
-	elseif param.goalieReadyFrame <= player.myinfraredCount(role) and player.myinfraredCount(role) <= param.goalieDribblingFrame-50 then
+	elseif param.goalieReadyFrame <= player.infraredCount(role) and player.infraredCount(role) <= param.goalieDribblingFrame-50 then
 		-- local playerToStablePointDir = (param.goalieStablePoint-rolePos):dir()
 		-- goaliePoint = ballPos + Utils.Polar2Vector(param.playerRadius, ballToRoleDir) + Utils.Polar2Vector(50, playerToStablePointDir)
 		a = param.goalieDribblingA
@@ -1185,7 +1184,7 @@ function goalie_getBall(role)
 			return param.goalieTargetPos
 		end
 		idir = (fungoalieTargetPos() - rolePos):dir()
-	elseif player.myinfraredCount(role) > param.goalieDribblingFrame-50 then
+	elseif player.infraredCount(role) > param.goalieDribblingFrame-50 then
 		-- 一般这个状态就跳到kick去了
 		-- goaliePoint = ballPos + Utils.Polar2Vector(param.playerRadius, ballToRoleDir)
 		goaliePoint = rolePos

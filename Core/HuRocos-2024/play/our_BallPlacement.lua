@@ -126,10 +126,7 @@ local waitPosSpecial = function()
     end
 end
 local AssisterDir = function()
-    if player.valid(player.num("Kicker")) then
-        return (player.pos("Kicker") - player.pos("Assister")):dir()
-    end
-    return player.toBallDir("Assister")
+        return (ball.placementPos() - player.pos("Assister")):dir()
 end
 local count = 0
 local DSS_FLAG = flag.allow_dss + flag.dodge_ball + flag.our_ball_placement
@@ -220,14 +217,11 @@ firstState = "Init1",
 ["avoid"] = {
   switch = function()
 
-    if cond.isNormalStart() then
-        return "exit"
-    end
         if ball.pos():dist(ball.placementPos()) > 80 then
         return "getball"
     end
   end,
-  Assister = task.goCmuRush(function() return ball.pos() + Utils.Polar2Vector(-220,AssisterDir())end,function() return player.toBallDir("Assister") end,_,DSS_FLAG),
+  Assister = task.goCmuRush(function() return ball.placementPos() + Utils.Polar2Vector(-220,AssisterDir())end,function() return (ball.placementPos() - player.pos("Assister")):dir() end,_,DSS_FLAG),
   Kicker   = task.goCmuRush(avoidPlacementPos("Kicker",waitPosKicker()),function() return player.toBallDir("Kicker") end,_,DSS_FLAG),
   Special  = task.goCmuRush(avoidPlacementPos("Special",waitPosSpecial()),function() return player.toBallDir("Special") end,_,DSS_FLAG),
   Center = task.goCmuRush(avoidPlacementPos("Center"),function() return player.toBallDir("Center") end,_,DSS_FLAG),

@@ -27,7 +27,7 @@ end
 local shoot_flag = 1
 local shootFlag = function(role)
 	print(player.pos(role):dist(enemy.pos(theirGoalie())))
-	if player.pos(role):dist(enemy.pos(theirGoalie())) < 1000 then
+	if player.pos(role):dist(enemy.pos(theirGoalie())) < 1800 then
 		return kick.chip()
 	else
 		return kick.flat()

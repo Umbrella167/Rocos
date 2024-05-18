@@ -79,7 +79,6 @@ firstState = "Init1",
 ["ready"] = {
   switch = function()
     kickFalg(ball.pos(),function() return param.KickerWaitPlacementPos() end)
-
         pass_pos = CGeoPoint (param.SpecialWaitPlacementPos():x(),param.SpecialWaitPlacementPos():y())
         return "BugPass"
 
@@ -118,14 +117,14 @@ firstState = "Init1",
     shootPosKicker__ = Utils.PosGetShootPoint(vision, pass_pos:x(),pass_pos:y())
     debugEngine:gui_debug_x(shootPosKicker__,3)
     debugEngine:gui_debug_msg(CGeoPoint(0,0),GlobalMessage.Tick().ball.rights)
-    if(GlobalMessage.Tick().ball.rights == -1) then
+    if(GlobalMessage.Tick().ball.rights == -1 ) then
         return "exit"
     end
-    if(player.kickBall("Assister") )then
+    if(player.kickBall("Assister"))then
         return "exit"
     end
   end,
-  Assister = task.Shootdot("Assister",function() return pass_pos end,param.shootError + 5,function() return ikkflag end),
+  Assister = task.Shootdot("Assister",function() return pass_pos end,param.shootError + 2,function() return ikkflag end),
   Kicker   = task.goCmuRush(function() return param.KickerWaitPlacementPos() end,function() return (player.pos("Special") - player.pos("Kicker") ):dir() end),
   Special  = task.goCmuRush(function() return param.SpecialWaitPlacementPos() end,function() return (shootPosSpecial__ - player.pos("Special")):dir() end),
   Center = task.stop(),

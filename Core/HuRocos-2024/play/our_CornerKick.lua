@@ -60,7 +60,6 @@ firstState = "Init1",
 ["start"] = {
   switch = function()
     kickFalg(ball.pos(),function() return param.KickerWaitPlacementPos() end)
-
     debugEngine:gui_debug_arc(ball.pos(),500,0,360,1)
     return "ready"
   end,
@@ -103,11 +102,11 @@ firstState = "Init1",
     if(GlobalMessage.Tick().ball.rights == -1) then
         return "exit"
     end
-    if(player.kickBall("Assister") )then
+    if(player.kickBall("Assister") or player.pos("Assister"):dist(ball.pos()) > 300 or bufcnt(true,100) )then
         return "exit"
     end
   end,
-  Assister = task.Shootdot("Assister",function() return pass_pos end,param.shootError + 5,function() return ikkflag end),
+  Assister = task.Shootdot("Assister",function() return pass_pos end,param.shootError + 2,function() return ikkflag end),
   Kicker   = task.goCmuRush(function() return param.KickerWaitPlacementPos() end,toBallDir("Kicker")),
   Special  = task.goCmuRush(function() return param.SpecialWaitPlacementPos() end,toBallDir("Special")),
   Center = task.stop(),

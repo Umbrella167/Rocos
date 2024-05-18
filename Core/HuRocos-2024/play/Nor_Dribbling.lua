@@ -30,7 +30,7 @@ local dribblingDir = function(role)
     end
 end
 local dribblingCount = 0
-local dribblingVel = 1900
+local dribblingVel = 2000
 local canShootAngle = 30
 local showPassPos = param.shootPos
 return {

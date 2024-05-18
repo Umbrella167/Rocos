@@ -40,7 +40,7 @@ firstState = "ready1",
 		
 	end,
 
-	Assister = task.goSimplePos(CGeoPoint(2000,-48)), 
+	Assister = task.goCmuRush(CGeoPoint(2000,-48),0,500), 
 	-- Assister = task.getballV2("Assister", param.playerVel, 1, CGeoPoint(0, 0), 0),
 	-- Kicker = task.getball("Assister",param.playerVel,param.getballMode,CGeoPoint:new_local(0,0)), 
 	-- Kicker = function() return task.defender_marking("Kicker",CGeoPoint(0,0)) end,

@@ -111,19 +111,15 @@ firstState = "Init_marking",
 					return "center"
 				end
 			end
-			if ball.velMod() > 500 then
+			if ball.velMod() > 500  then
 	        		return "exit"
 	        end
 		end
 	end,
 
-	Assister = function () return (task.goCmuRush(player.pos("Assister"),balldir("Assister"),DSS_FLAG)) end,
-    Kicker = function () return (task.goCmuRush(player.pos("Kicker"),balldir("Kicker"),DSS_FLAG)) end,
-    Special = function () return (task.goCmuRush(player.pos("Special"),balldir("Special"),DSS_FLAG)) end,
-
-    -- Assister = task.stop(),
-    -- Kicker = task.stop(),
-    -- Special = task.stop(),
+	Assister = function () return (task.goCmuRush(ball.pos() + Utils.Polar2Vector(-300,(ball.pos() - GlobalMessage.Tick().their.dribbling_num):dir()),balldir("Assister"),DSS_FLAG)) end,
+    Kicker = task.stop(),
+    Special = task.stop(),
 
     match = "[AKS]"
 },

@@ -122,7 +122,7 @@ local UpdataTickMessage = function (our_goalie_num,defend_num1,defend_num2)
             local fixPassFardist = player.toPointDist("Kicker",KickerRUNPos)
             if fixPassFardist > 500 then
                 local passRate = Utils.NumberNormalize(player.velMod("Kicker"),1600,0)
-                pass_pos = player.pos("Kicker") + Utils.Polar2Vector(KickerRUNPos:dist(player.pos("Kicker")) * passRate, (KickerRUNPos - player.pos("Kicker")):dir())
+                pass_pos = player.pos("Kicker") + Utils.Polar2Vector(KickerRUNPos:dist(player.pos("Kicker")) * passRate, (player.pos("Kicker") - KickerRUNPos):dir())
                 -- pass_pos =CGeoPoint(player.posX("Kicker"),player.posY("Kicker"))
             else
                 pass_pos = KickerRUNPos
@@ -134,7 +134,7 @@ local UpdataTickMessage = function (our_goalie_num,defend_num1,defend_num2)
             if fixPassFardist > 500 then
                 --  pass_pos =CGeoPoint(player.posX("Special"),player.posY("Special"))
                 local passRate = 1 - Utils.NumberNormalize(player.velMod("Special"),1600,0)
-                pass_pos = player.pos("Special") + Utils.Polar2Vector(SpecialRUNPos:dist(player.pos("Special")) * passRate,(SpecialRUNPos - player.pos("Special")):dir())
+                pass_pos = player.pos("Special") + Utils.Polar2Vector(SpecialRUNPos:dist(player.pos("Special")) * passRate,(player.pos("Special") - SpecialRUNPos):dir())
             else
                 pass_pos = SpecialRUNPos
             end
@@ -143,7 +143,7 @@ local UpdataTickMessage = function (our_goalie_num,defend_num1,defend_num2)
             local fixPassFardist = player.toPointDist("Center",CenterRUNPos)
             if fixPassFardist > 500 then
                 local passRate = 1 - Utils.NumberNormalize(player.velMod("Center"),1600,0)
-                pass_pos = player.pos("Center") + Utils.Polar2Vector(CenterRUNPos:dist(player.pos("Center")) * passRate,(CenterRUNPos - player.pos("Center")):dir())
+                pass_pos = player.pos("Center") + Utils.Polar2Vector(CenterRUNPos:dist(player.pos("Center")) * passRate,(player.pos("Center") - CenterRUNPos):dir())
             else
                 pass_pos = CenterRUNPos
             end
@@ -326,10 +326,9 @@ firstState = "Init",
     switch = function()
         UpdataTickMessage(our_goalie_num,defend_num1,defend_num2)
         local State = getState()
-        if bufcnt(true,35)then -- or State == "Getball" 
+        if bufcnt(true,20)then -- or State == "Getball" 
             return State
         end
-
     end,
     --dribbling_target_pos
     Assister = gSubPlay.roleTask("ShowDribbling", "Assister"),
