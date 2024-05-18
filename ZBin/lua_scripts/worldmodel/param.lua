@@ -41,7 +41,7 @@ ourButtomGoalPos          = CGeoPoint:new_local(-pitchLength / 2, -goalRadius)
 penaltyMiddleLine         = CGeoSegment(ourGoalPos, ourGoalPos + Utils.Polar2Vector(penaltyDepth, 0))
 
 -- 是否为真实场地
-isReality = true
+isReality = false
 Team = "TWO" -- Team = "TWO"
 allowTouch = false              -- 是否开启touch
 canTouchAngle = 45           -- 可以touch的角度f
@@ -92,11 +92,11 @@ rotTableONE = {
 	[1] =  {CGeoPoint(60, 60),4.5}, 
 	[2] =  {CGeoPoint(60, 60),4.5}, 
 	[3] =  {CGeoPoint(60, 60),4.5}, 
-	[4] =  {CGeoPoint(120,60),6}, 
+	[4] =  {CGeoPoint(60,60),4.5}, 
 	[5] =  {CGeoPoint(60, 60),4.5}, 
 	[6] =  {CGeoPoint(60, 60),4.5}, 
 	[7] =  {CGeoPoint(60, 60),4.5}, 
-	[8] =  {CGeoPoint(60, 60),4.5}, 
+    [8] =  {CGeoPoint(120,60),6}, 
 	[9] =  {CGeoPoint(60, 60),4.5}, 
 	[10] =  {CGeoPoint(60, 60),4.5}, 
 	[11] =  {CGeoPoint(60, 60),4.5}, 
@@ -197,31 +197,30 @@ defenderCatchBuf = param.playerRadius * 6
 --             goalie参数             --|
 -----------------------------------------------|
 goalieShootMode = function() return 2 end -- 1 flat  2 chip
-goalieBuf = 0
+goalieBuf = playerRadius
 -- goalie 需要考虑敌人朝向的距离，一般为半场的一半
 goalieAimDirRadius = pitchLength / 4
 -- goalie 在考虑敌人朝向时会走出的最远距离， 一般为球门半径
 -- enemyAimBuf = goalRadius
 enemyAimBuf = goalWidth
 -- goalie 移动的线（mode-0）
-goalieMoveLine = CGeoSegment(CGeoPoint:new_local(-pitchLength / 2 + playerRadius*1, -INF),
-    CGeoPoint:new_local(-pitchLength / 2 + playerRadius, INF))
-goalieMoveX = -pitchLength / 2 + playerRadius*1
+goalieMoveLine = CGeoSegment(CGeoPoint:new_local(-pitchLength / 2 + goalieBuf, -INF),CGeoPoint:new_local(-pitchLength / 2 + playerRadius, INF))
+goalieMoveX = -pitchLength / 2 + goalieBuf
 -- goalie 移动的半径（mode-1）
 goalieRadius = goalRadius - goalieBuf
 -- goalie 刚吸到球后准备的时间
-goalieReadyFrame = 20
+goalieReadyFrame = 15
 -- goalie 吸到球后往稳定点缓慢移动一段距离
 goalieStablePoint = CGeoPoint(-pitchLength / 2 + penaltyDepth / 2, 0)
 -- goalie 带球的最大帧数
-goalieDribblingFrame = 200
+goalieDribblingFrame = 180
 -- goalie 带球的加速度
 goalieDribblingA = 1000
 -- goalie 要踢向的点
--- goalieTargetPos = CGeoPoint(param.pitchLength / 2, param.pitchWidth / 2) -- 对面的点
-goalieTargetPos = CGeoPoint(0, 0) -- 己方点（测试用）
+goalieTargetPos = CGeoPoint(param.pitchLength / 2, param.pitchWidth / 2) -- 对面的点
+-- goalieTargetPos = CGeoPoint(0, 0) -- 己方点（测试用）
 -- 当截球点离goalie非常近的时候就会直接拦球
-goalieCatchBuf = playerRadius * 2
+goalieCatchBuf = playerRadius * 3
 
 
 -- 对齐的准确度

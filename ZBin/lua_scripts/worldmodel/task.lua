@@ -265,7 +265,7 @@ playerPowerONE =
 	[5] = {minDist_Power,maxDist_Power,135,330,350,7000},
 	[6] = {minDist_Power,9000,135,330,350,7000},
 	[7] = {minDist_Power,maxDist_Power,135,330,350,7000},
-	[8] = {minDist_Power,maxDist_Power,135,330,350,7000},
+	[3] = {minDist_Power,maxDist_Power,330,500,650,5000},
 	[9] = {minDist_Power,maxDist_Power,135,330,350,7000},
 	[10] = {minDist_Power,maxDist_Power,135,330,350,7000},
 	[11] = {minDist_Power,maxDist_Power,135,330,350,7000},
@@ -333,7 +333,7 @@ function power(p, num,shootFlag)
 		if not param.isReality then
 			local SimulationRate = 15
 			-- res = res * SimulationRate
-			res = 3500
+			res = 4500
 			if iflag == kick.chip() then
 				res = 3000
 			end
@@ -980,6 +980,7 @@ function defend_normV2(role, mode, flag)
 	local basePos = param.ourGoalPos
 	local targetPos = ballPos
 
+	local idir = player.toPointDir(enemyPos, role)
 	if mode == 0 then
 		basePos = param.ourTopGoalPos
 	elseif mode == 1 then
@@ -990,8 +991,10 @@ function defend_normV2(role, mode, flag)
 
 	if flag == 0 then
 		targetPos = ballPos
+		idir = player.toPointDir(ballPos, role)
 	elseif flag == 1 then
 		targetPos = enemyPos
+		idir = player.toPointDir(enemyPos, role)
 	end
 	
 	local defenderPoint = getLineCrossDefenderPos(targetPos, basePos)
@@ -1001,7 +1004,6 @@ function defend_normV2(role, mode, flag)
 	defenderPoint = simpleMoveTargetPos(rolePos, defenderPoint)
 	debugEngine:gui_debug_x(defenderPoint, 0)
 
-	local idir = player.toPointDir(enemyPos, role)
 	local mexe, mpos = SimpleGoto { pos = eschewingOurCar(role, defenderPoint, param.playerRadius*2), dir = idir, acc = a, flag = 0x00000000, rec = r, vel = v }
 	if not isCloseEnemy(role) then
 		mexe, mpos = GoCmuRush { pos = eschewingOurCar(role, defenderPoint), dir = idir, acc = a, flag = 0x00000000, rec = r, vel = v }
@@ -1104,10 +1106,14 @@ function defend_kick(role)
 	end
 end
 
+
+local goalieTargetPos = param.goalieTargetPos
+local gtCount = 0
 -- 守门员skill
 -- 守门员的预备状态
 -- mode 防守模式选择, 0-goalie路线为球门前直线, 1-goalie的路线为球门半径画圆, 默认为1
 function goalie_norm(role, mode)
+	gtCount = 0
 	if mode==nil then
 		mode = 0
 	end
@@ -1162,6 +1168,7 @@ function goalie_norm(role, mode)
 end
 
 function goalie_getBall(role)
+	gtCount = 0
 	local rolePos = CGeoPoint:new_local(player.rawPos(role):x(), player.rawPos(role):y())
 	local getBallPos = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1,param.V_DECAY_RATE)
 	local ballPos = ball.pos()
@@ -1198,15 +1205,26 @@ function goalie_getBall(role)
 	return { mexe, mpos }
 end
 
+
 function goalie_kick(role)
 	local fungoalieTargetPos = function()
 		return param.goalieTargetPos
 	end
+
+	if goalieTargetPos ~= fungoalieTargetPos() then
+		gtCount=gtCount+1
+	end
+	goalieTargetPos = fungoalieTargetPos()
+	if gtCount>5 then
+		goalieTargetPos = CGeoPoint(param.pitchLength / 2, param.pitchWidth / 2)
+	end
+
 	local rolePos = CGeoPoint:new_local(player.rawPos(role):x(), player.rawPos(role):y())
 	local ballPos = ball.pos()
+
 	local getBallPos = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1,param.V_DECAY_RATE)
 	local roleToBallTargetDir = math.abs((ballPos - rolePos):dir())
-	local ballToTargetDir = math.abs((fungoalieTargetPos() - ballPos):dir())
+	local ballToTargetDir = math.abs((goalieTargetPos - ballPos):dir())
 
 	local kp = shootKp
 	if param.goalieShootMode() == 1 then
@@ -1215,9 +1233,10 @@ function goalie_kick(role)
 		kp = 9999
 	end
 	local idir = function(runner)
-		return (fungoalieTargetPos() - rolePos):dir()
+		return (goalieTargetPos - rolePos):dir()
 	end
-	local goaliePoint = CGeoPoint:new_local(getBallPos:x(), getBallPos:y()) + Utils.Polar2Vector(param.playerFrontToCenter, ballToTargetDir)
+	local goaliePoint = CGeoPoint:new_local(getBallPos:x(), getBallPos:y()) + Utils.Polar2Vector(-param.playerFrontToCenter, ballToTargetDir)
+
 	local Subdir = math.abs(Utils.angleDiff(ballToTargetDir,roleToBallTargetDir))
 	local iflag = bit:_or(flag.allow_dss, flag.dodge_ball)
 	if Subdir > 0.14 then 
@@ -1230,58 +1249,59 @@ function goalie_kick(role)
 	local mexe, mpos = GoCmuRush { pos = goaliePoint, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
 	-- return { mexe, mpos, kick.chip, idir, pre.low, power(param.goalieTargetPos, kp), power(param.goalieTargetPos, kp), 0x00000000 }
 	-- return { mexe, mpos, param.goalieShootMode, idir, pre.low, power(fungoalieTargetPos(), kp, player.num(role)), power(fungoalieTargetPos(), kp, player.num(role)), 0x00000000 }
-	return { mexe, mpos, param.goalieShootMode, idir, pre.low, power(fungoalieTargetPos(),player.num(role),param.goalieShootMode), power(fungoalieTargetPos(),player.num(role),param.goalieShootMode), 0x00000000 }
+	return { mexe, mpos, param.goalieShootMode, idir, pre.low, power(goalieTargetPos,player.num(role),param.goalieShootMode), power(goalieTargetPos,player.num(role),param.goalieShootMode), 0x00000000 }
 end
 
 
-function goalie_catchBall(role)
-	local rolePos = player.pos(role)
-	local playerToBallDir = (ball.pos()-rolePos):dir()
-	local ballPos = ball.pos()
+-- maybe not used
+-- function goalie_catchBall(role)
+-- 	local rolePos = player.pos(role)
+-- 	local playerToBallDir = (ball.pos()-rolePos):dir()
+-- 	local ballPos = ball.pos()
 
-	local getBallPos =  ballPos + Utils.Polar2Vector(-param.playerFrontToCenter, playerToBallDir)
-	local idir = playerToBallDir
-	local iflag = flag.dribbling
-
-
-	-- local ballLine = CGeoSegment(ballPos, ballPos+Utils.Polar2Vector(param.INF, ball.velDir()))
-	-- local tdist = (ballLine:projection(rolePos)-rolePos):mod()
-	-- if tdist > 100 then
-	-- 	idir = ball.velDir() + math.pi
-	-- 	iflag =  flag.dodge_ball
-	-- 	getBallPos = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1, param.V_DECAY_RATE)
-	-- end
-
-	-- if rolePos:dist(ballPos) < 300 then
-		-- iflag = flag.dribbling.abs(player.dir(role)-playerToBallDir)
-	-- -- local iflag = bit:_or(flag.allow_dss, flag.dodge_ball)
-	-- if Subdir > 0.14 then 
-	-- 	return TurnToPointV2(role, ballPos, 4.8)
-	-- else
-	-- 	local mexe, mpos = GoCmuRush { pos = getBallPos, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
-	-- 	return { mexe, mpos }
-	-- end
-
-		-- idir = playerToBallDir
-		-- getBallPos = ballPos + Utils.Polar2Vector(param.playerFrontToCenter, playerToBallDir)
-	-- end
+-- 	local getBallPos =  ballPos + Utils.Polar2Vector(-param.playerFrontToCenter, playerToBallDir)
+-- 	local idir = playerToBallDir
+-- 	local iflag = flag.dribbling
 
 
-	-- local Subdir = math.abs(player.dir(role)-playerToBallDir)
-	-- -- local iflag = bit:_or(flag.allow_dss, flag.dodge_ball)
-	-- if Subdir > 0.14 then 
-	-- 	return TurnToPointV2(role, ballPos, 4.8)
-	-- else
-	-- 	local mexe, mpos = GoCmuRush { pos = getBallPos, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
-	-- 	return { mexe, mpos }
-	-- end
+-- 	-- local ballLine = CGeoSegment(ballPos, ballPos+Utils.Polar2Vector(param.INF, ball.velDir()))
+-- 	-- local tdist = (ballLine:projection(rolePos)-rolePos):mod()
+-- 	-- if tdist > 100 then
+-- 	-- 	idir = ball.velDir() + math.pi
+-- 	-- 	iflag =  flag.dodge_ball
+-- 	-- 	getBallPos = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1, param.V_DECAY_RATE)
+-- 	-- end
+
+-- 	-- if rolePos:dist(ballPos) < 300 then
+-- 		-- iflag = flag.dribbling.abs(player.dir(role)-playerToBallDir)
+-- 	-- -- local iflag = bit:_or(flag.allow_dss, flag.dodge_ball)
+-- 	-- if Subdir > 0.14 then 
+-- 	-- 	return TurnToPointV2(role, ballPos, 4.8)
+-- 	-- else
+-- 	-- 	local mexe, mpos = GoCmuRush { pos = getBallPos, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
+-- 	-- 	return { mexe, mpos }
+-- 	-- end
+
+-- 		-- idir = playerToBallDir
+-- 		-- getBallPos = ballPos + Utils.Polar2Vector(param.playerFrontToCenter, playerToBallDir)
+-- 	-- end
 
 
-	-- local mexe, mpos = GoCmuRush { pos = getBallPos, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
-	local mexe, mpos = SimpleGoto { pos = getBallPos, dir = idir, flag = iflag }
+-- 	-- local Subdir = math.abs(player.dir(role)-playerToBallDir)
+-- 	-- -- local iflag = bit:_or(flag.allow_dss, flag.dodge_ball)
+-- 	-- if Subdir > 0.14 then 
+-- 	-- 	return TurnToPointV2(role, ballPos, 4.8)
+-- 	-- else
+-- 	-- 	local mexe, mpos = GoCmuRush { pos = getBallPos, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
+-- 	-- 	return { mexe, mpos }
+-- 	-- end
 
-	return { mexe, mpos }
-end
+
+-- 	-- local mexe, mpos = GoCmuRush { pos = getBallPos, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
+-- 	local mexe, mpos = SimpleGoto { pos = getBallPos, dir = idir, flag = iflag }
+
+-- 	return { mexe, mpos }
+-- end
 
 
 

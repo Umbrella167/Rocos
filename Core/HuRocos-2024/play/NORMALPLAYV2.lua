@@ -229,6 +229,7 @@ firstState = "Init",
             gSubPlay.new("Goalie", "Nor_Goalie")
         end
         return "GetGlobalMessage"
+        -- return "dribbling"
     end,
     Assister = task.stop(),
     Kicker = task.stop(),

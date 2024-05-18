@@ -16,7 +16,7 @@ Match = {}
 	end
 end--]]
 --获取球位置
-local KeepDis = 800
+local KeepDis = 1400
 
 
 
