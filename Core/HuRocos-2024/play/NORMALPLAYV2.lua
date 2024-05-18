@@ -122,7 +122,7 @@ local UpdataTickMessage = function (our_goalie_num,defend_num1,defend_num2)
             local fixPassFardist = player.toPointDist("Kicker",KickerRUNPos)
             if fixPassFardist > 500 then
                 local passRate = Utils.NumberNormalize(player.velMod("Kicker"),1600,0)
-                pass_pos = player.pos("Kicker") + Utils.Polar2Vector(KickerRUNPos:dist(player.pos("Kicker")) * passRate, (player.pos("Kicker") - KickerRUNPos):dir())
+                pass_pos = player.pos("Kicker") + Utils.Polar2Vector(-KickerRUNPos:dist(player.pos("Kicker")) * passRate, (player.pos("Kicker") - KickerRUNPos):dir())
                 -- pass_pos =CGeoPoint(player.posX("Kicker"),player.posY("Kicker"))
             else
                 pass_pos = KickerRUNPos

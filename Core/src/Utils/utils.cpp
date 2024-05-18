@@ -99,8 +99,6 @@ namespace Utils
                 Tick[now].task[i].player_num = i;
                 if (Tick[now].task[i].infrared_count == 0 )
                     Tick[now].task[i].infrared_off_count += 1;
-
-
                 // 如果球的视野消失，但是有红外信息，认为球的位置在触发红外的机器人上
                 if(!pVision ->ball().Valid())
                     if(RobotSensor.InfraredOnCount(i)>5 && pVision->ourPlayer(i).Pos().dist(Tick[now].ball.pos) < 1000)
@@ -110,6 +108,46 @@ namespace Utils
                 if (our_min_dist > to_ball_dist)
                     our_min_dist = to_ball_dist, Tick[now].our.to_balldist_min_num = i;
 
+
+                /// 处理红外无回包的情况 自定义红外
+
+                double dribblePlayerToBallAngle = abs(angleDiff(pVision->ourPlayer(i).RawDir(), (pVision->ball().Pos() - pVision->ourPlayer(i).Pos()).dir()) * PARAM::Math::PI);
+                double minJudgeAngle = 1.28;
+                if (pVision->ball().Valid())  // 如果球存在
+                {
+                    // 视觉判定红外
+                    bool myInfraredCount = (pVision ->ourPlayer(i).Pos().dist(pVision->ball().Pos()) < playerInfraredCountBuffer && dribblePlayerToBallAngle < minJudgeAngle);
+                    // 机器人自带红外 ，后面的条件是防止机器人红外出问题然后误判
+                    bool officialInfraredCount = RobotSensor.InfraredOnCount(i) > 1 && (pVision ->ourPlayer(i).Pos().dist(pVision->ball().Pos()) < playerInfraredCountBuffer+50 && dribblePlayerToBallAngle < minJudgeAngle + 0.1);
+                    if (myInfraredCount || officialInfraredCount)
+                    {
+                        Tick[now].task[i].infrared_off_count = 0;
+                        Tick[now].task[i].infrared_count += 1;
+                    }
+                    // 无红外的时候清零
+                    else
+                    {
+                        Tick[now].task[i].infrared_count = 0;
+                    }
+                }
+                else // 如果球不存在
+                {
+                    // 优先信任机器人
+                    if(RobotSensor.InfraredOnCount(i) > 0 && pVision->ourPlayer(i).Pos().dist(pVision->ball().Pos()) < 1000)
+                    {
+                        Tick[now].task[i].infrared_count = RobotSensor.InfraredOnCount(i);
+                        Tick[now].task[i].infrared_off_count = 0;
+                    }
+                    else
+                    {
+                        // 如果机器人红外无信息  且球距离机器人身体非常近
+                        if ((our_min_dist < playerInfraredCountBuffer - 35 && dribblePlayerToBallAngle < minJudgeAngle))
+                        {
+                            Tick[now].task[i].infrared_count += 1;
+                            Tick[now].task[i].infrared_off_count = 0;
+                        }
+                    }
+                }
             }
 
             if (pVision->theirPlayer(i).Valid())
@@ -128,56 +166,10 @@ namespace Utils
 
         Tick[now].our.player_num = num_count;
         Tick[now].their.player_num = num_count_their;
-        double dribblePlayerToBallAngle = abs(angleDiff(pVision->ourPlayer(Tick[now].our.to_balldist_min_num).RawDir(), (pVision->ball().Pos() - pVision->ourPlayer(Tick[now].our.to_balldist_min_num).Pos()).dir()) * PARAM::Math::PI);
-        double minJudgeAngle = 1.28;
-        // 处理红外无回包的情况 自定义红外
-        if (pVision->ball().Valid())  // 如果球存在
-        {
-            // 视觉判定红外
-            bool myInfraredCount = (our_min_dist < playerInfraredCountBuffer && dribblePlayerToBallAngle < minJudgeAngle);
-            // 机器人自带红外 ，后面的条件是防止机器人红外出问题然后误判
-            bool officialInfraredCount = RobotSensor.InfraredOnCount(Tick[now].our.to_balldist_min_num) > 1 && (our_min_dist < playerInfraredCountBuffer+50 && dribblePlayerToBallAngle < minJudgeAngle + 0.22);
 
 
-            if (myInfraredCount || officialInfraredCount)
-            {
-                Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_off_count = 0;
-                // 优先信任机器人
-                if (RobotSensor.InfraredOnCount(Tick[now].our.to_balldist_min_num) > 10)
-                {
-                    Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_count = RobotSensor.InfraredOnCount(Tick[now].our.to_balldist_min_num);
-                }
-                else
-                {
-                    Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_count += 1;
-                }
-            }
-            // 无红外的时候清零
-            else
-            {
-                Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_count = 0;
 
-            }
-        }
-        else // 如果球不存在
-        {
-            // 优先信任机器人
-            if(RobotSensor.InfraredOnCount(Tick[now].our.to_balldist_min_num) > 0)
-            {
-                Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_count = RobotSensor.InfraredOnCount(Tick[now].our.to_balldist_min_num);
-                Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_off_count = 0;
-            }
-            else
-            {
-                // 如果机器人红外无信息  且球距离机器人身体非常近
-                if ((our_min_dist < playerInfraredCountBuffer - 35 && dribblePlayerToBallAngle < minJudgeAngle))
-                {
-                    Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_count += 1;
-                    Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_off_count = 0;
-                }
-            }
 
-        }
         /// 球权判断
         // 球权一定是我方的情况
         if (RobotSensor.InfraredOnCount(Tick[now].our.to_balldist_min_num) > 1 || Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_count > 1)

@@ -213,7 +213,7 @@ goalieReadyFrame = 15
 -- goalie 吸到球后往稳定点缓慢移动一段距离
 goalieStablePoint = CGeoPoint(-pitchLength / 2 + penaltyDepth / 2, 0)
 -- goalie 带球的最大帧数
-goalieDribblingFrame = 180
+goalieDribblingFrame = 140
 -- goalie 带球的加速度
 goalieDribblingA = 1000
 -- goalie 要踢向的点
