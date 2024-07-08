@@ -26,7 +26,33 @@ require("Zeus")
 ```
 :::
 
-以`StartZeus.lua`作为入口，分别加载了`Config/RoleMatch/Zeus`三个模块。在旧版本中，`Config.lua`中使用table完成所有的脚本/cskill的设置工作并在`Zeus.lua`中完成初始化。在新版本中，脚本/cskill的设置工作被自动扫描的方式替代（战术包），`Config.lua`中只保留了一些全局变量的设置。`RoleMatch.lua`中完成了角色匹配的工作，`Zeus.lua`中完成了整个lua框架的初始化工作。
+以`StartZeus.lua`作为入口，分别加载了`Config/RoleMatch/Zeus`三个模块。在旧版本中，`Config.lua`中使用table完成所有的脚本/cskill的设置工作并在`Zeus.lua`中完成初始化。在新版本中，脚本/cskill的设置工作被自动扫描的方式替代（战术包），`Config.lua`中只保留了一些全局变量的设置。`RoleMatch.lua`中完成了角色匹配的工作，`Zeus.lua`中完成了整个lua框架的初始化工作，这其中值的一提的是对于所有play脚本的初始化。
+
+针对某个脚本的初始化工作，是通过lua的`dofile`函数完成的。`dofile`函数会加载并执行一个lua文件，这个文件中的代码会被执行。我们来分析一个play脚本的初始化工作：
+
+:::{card} TestScript.lua
+```{code-block} lua
+:linenos:
+local xxx = 1 -- 局部变量
+gPlayTable.CreatePlay{
+firstState = "...",
+-- 多个状态
+["stateName"] = {
+	switch = ...,
+    ..., -- 多个需要执行的task
+	match = ""
+},
+...
+name = "TestRun",
+}
+```
+:::
+
+在脚本的开始，会定义一些在接下来的脚本中用到的局部变量。然后上述代码的第2行到最末行，是一个`gPlayTable.CreatePlay`函数的调用，这个函数会在`gPlayTable`中创建一个play存储在全局的表中。调用函数时会传入一个table，这个table中包含了play的所有信息，例如`firstState`、`state`、`switch`、`match`等。这个函数会返回一个play的名字，这个名字会被用于后续的调用。
+
+:::{admonition} 提示
+调用`dofile`函数是为了将一个play脚本的信息存储在`gPlayTable`中，在后续的运行中，我们不会再直接运行这个脚本文件本身了，这也是为什么在`task.xxx()`中我们需要通过闭包的方式传递动态参数。
+:::
 
 ###### 每帧的具体策略执行
 
