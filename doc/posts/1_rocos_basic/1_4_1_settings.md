@@ -14,7 +14,8 @@
 
 我们以`CircleRun`中的代码为例，来讲解如何在c++中使用参数。
 
-```cpp
+```{code-block} c++
+:linenos:
 // 1. 引入头文件
 #include "parammanager.h"
 
@@ -36,8 +37,9 @@ CCircleRun::CCircleRun(){
 通过上述代码，我们可以在c++中使用参数。其中`loadParam`函数的参数依次为：参数变量、参数名、默认值。在构造函数中，我们通过`loadParam`函数读取参数的值，如果参数不存在，则使用默认值。
 
 类似的接口也可以在lua中使用，我们以`config.lua`中的代码为例：
-    
-```lua
+
+```{code-block} lua
+:linenos:
 IS_YELLOW = CGetSettings("ZAlert/IsYellow","Bool")
 local team = IS_YELLOW and "Yellow" or "Blue"
 IS_TEST_MODE = CGetSettings("ZAlert/"..team.."_IsTest","Bool")
@@ -57,7 +59,8 @@ IS_TEST_MODE = CGetSettings("ZAlert/"..team.."_IsTest","Bool")
 
 上述的`loadParam`完整接口如下：
     
-```cpp
+```{code-block} c++
+:linenos:
     bool loadParam(QChar&, const QString&, QChar d = 0);
     bool loadParam(int&, const QString&, int d = 0);
     bool loadParam(double&, const QString&, double d = 0);
@@ -67,7 +70,8 @@ IS_TEST_MODE = CGetSettings("ZAlert/"..team.."_IsTest","Bool")
 
 除了上面使用的`loadParam`，`parammanager`还有其他接口可以使用：
 
-```cpp
+```{code-block} c++
+:linenos:
     // 使用参数名直接修改参数
     bool changeParam(const QString&, const QVariant&);
     bool changeParam(const QString&, const QString&, const QVariant&);
