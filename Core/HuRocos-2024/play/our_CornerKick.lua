@@ -102,7 +102,7 @@ firstState = "Init1",
     if(GlobalMessage.Tick().ball.rights == -1) then
         return "exit"
     end
-    if(player.kickBall("Assister") or player.pos("Assister"):dist(ball.pos()) > 300 or bufcnt(true,100) )then
+    if(player.kickBall("Assister") )then
         return "exit"
     end
   end,

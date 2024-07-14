@@ -15,7 +15,7 @@ function getBall_BallPlacement(role)
 		local ballPlacementPos = CGeoPoint(ball.placementPos():x(),ball.placementPos():y())
 		local ipos = ballPos
 		local idir = player.toBallDir(role)
-		local ia = 1600
+		local ia = 800
 		--如果球在场地内，机器人就可以走到球后面然后推着球走
 		if Utils.InField(ballPos) then
 			bufcnt_Infield  = bufcnt_Infield + 1
@@ -253,7 +253,7 @@ function getballV2(role, playerVel, inter_flag, target_point, permissions)
 	end
 end
 minDist_Power = 0
-maxDist_Power = 5500
+maxDist_Power = 5600
 playerPowerONE = 
 {
 	-- [num] = {minist,maxDist,minPower, maxPower, ShootPower,chipPower} 
@@ -265,7 +265,6 @@ playerPowerONE =
 	[5] = {minDist_Power,maxDist_Power,135,330,350,7000},
 	[6] = {minDist_Power,9000,135,330,350,7000},
 	[7] = {minDist_Power,maxDist_Power,135,330,350,7000},
-	[3] = {minDist_Power,maxDist_Power,330,500,650,5000},
 	[9] = {minDist_Power,maxDist_Power,135,330,350,7000},
 	[10] = {minDist_Power,maxDist_Power,135,330,350,7000},
 	[11] = {minDist_Power,maxDist_Power,135,330,350,7000},
@@ -280,13 +279,13 @@ playerPowerTWO = {
 	[0] = {minDist_Power,maxDist_Power,200,330,400,7000}, 
 	[1] = {minDist_Power,maxDist_Power,120,330,315,7000},-- 可以挑球 ，吸球还行
 	[2] = {minDist_Power,maxDist_Power,135,330,315,7000}, 
-	[3] = {minDist_Power,maxDist_Power,330,750,1000,600},
-	[4] = {minDist_Power,maxDist_Power,330,750,1000,600},
+	[3] = {minDist_Power,maxDist_Power,330,700,800,600},
+	[4] = {minDist_Power,maxDist_Power,330,700,800,600},
 	[5] = {minDist_Power,maxDist_Power,165,340,450,7000},
 	[6] = {minDist_Power,maxDist_Power,120,330,450,7000}, -- 带球超强 ,挑球一般
 	[7] = {minDist_Power,maxDist_Power,120,330,315,7000}, -- 红外偶尔有问题
-	[8] = {minDist_Power,maxDist_Power,120,330,315,7000},
-	[9] = {minDist_Power,maxDist_Power,330,750,850,600},
+	[8] = {minDist_Power,maxDist_Power,330,700,800,600},
+	[9] = {minDist_Power,maxDist_Power,330,700,800,600},
 	[10] = {minDist_Power,maxDist_Power,120,330,315,7000},
 	[11] = {minDist_Power,maxDist_Power,120,330,315,7000},
 	[12] = {minDist_Power,maxDist_Power,120,330,315,7000},

@@ -35,7 +35,7 @@ local shootFlag = function(role)
 end
 
 local Power = function(role,shoot_flag,ishootThreshold)
-	local ipower = 110
+	local ipower = 130
 	local ishoot_falg
 	if type(shoot_flag) == 'function' then
 		ishoot_falg = shoot_flag()
@@ -44,11 +44,11 @@ local Power = function(role,shoot_flag,ishootThreshold)
 	end
 	if ball.posX() > ishootThreshold then
 		if (ishoot_falg == kick.chip()) then
-			ipower = 3000
+			ipower = 7000
 		end 
 	else
 		if (ishoot_falg == kick.chip()) then
-			ipower = 3000
+			ipower = 7000
 		end 
 	end
 	return ipower
@@ -147,7 +147,7 @@ firstState = "Init1",
 			return "getball"
 		end
 	end,
-	Assister = task.ShootdotDribbling(param.shootError + 10,function() return shoot_flag end ,function() return  Power("Assister",function() return shoot_flag end ,shootThreshold) end),
+	Assister = task.ShootdotDribbling(param.shootError + 20,function() return shoot_flag end ,function() return  Power("Assister",function() return shoot_flag end ,shootThreshold) end),
     match = "{A}"
 },
 

@@ -62,7 +62,7 @@ firstState = "Init",
 		local playerDir = player.dir("Assister")
 		local subDir = math.abs(Utils.angleDiff(toballDir,playerDir) * 180/math.pi)
 		local drbblingRate = math.ceil((0 * Utils.NumberNormalize(subDir,120,30)))
-		if(player.myinfraredCount("Assister") > 30 + drbblingRate) then
+		if(player.myinfraredCount("Assister") > 5 + drbblingRate) then
 			return "turnToPoint"
 		end
 		local Vy = player.rotVel("Assister")

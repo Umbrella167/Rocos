@@ -34,23 +34,23 @@ function Getball(task)
 		local playerEndVelONE = {
 			-- [num] = {endVel, ballVelRate} 
 			[-1] = {0,1}, -- Other
-			[0] = {0,1},
-			[1] = {0,1},
-			[2] = {0,1},
-			[3] = {0,1},
-			[4] = {0,1},	
-			[5] = {0,1},
+			[0] = {200,1},
+			[1] = {200,1},
+			[2] = {200,1},
+			[3] = {200,1},
+			[4] = {200,1},	
+			[5] = {200,1},
 			[6] = {200,1},
-			[7] = {0,1},
-			[8] = {0,1},
-			[9] = {0,1},
-			[10] = {0,1},
-			[11] = {0,50},
-			[12] = {0,1},
-			[13] = {0,1},
-			[14] = {0,1},
-			[15] = {0,1},
-			[16] = {0,1}, -- Other
+			[7] = {200,1},
+			[8] = {200,1},
+			[9] = {200,1},
+			[10] = {200,1},
+			[11] = {200,1},
+			[12] = {200,1},
+			[13] = {200,1},
+			[14] = {200,1},
+			[15] = {200,1},
+			[16] = {200,1}, -- Other
 		}
 		local playerEndVelTWO = {
 			-- [num] = {endVel, ballVelRate} 
@@ -163,7 +163,6 @@ function Getball(task)
 			end
 		-- end
 		endVel = Utils.Polar2Vector(endVelMod,idir)
-
 		param.lastInterPos = inter_pos
 		mvel = _c(endVel) or CVector:new_local(0,0)
 		mpos = _c(inter_pos,runner)

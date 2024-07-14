@@ -166,7 +166,7 @@ firstState = "Init1",
 
     debugEngine:gui_debug_msg(CGeoPoint(0,2800),"ballRights: " .. GlobalMessage.Tick().ball.rights,2)
     debugEngine:gui_debug_msg(CGeoPoint(0,2600),"InfraredCount: " .. player.myinfraredCount("Assister"),3)
-    if ball.pos():dist(ball.placementPos()) < 80 then
+    if ball.pos():dist(ball.placementPos()) < 200 then
         count = count + 1
     else
         count = 0
@@ -191,15 +191,7 @@ firstState = "Init1",
   
       debugEngine:gui_debug_msg(CGeoPoint(0,2800),"ballRights: " .. GlobalMessage.Tick().ball.rights,2)
       debugEngine:gui_debug_msg(CGeoPoint(0,2600),"InfraredCount: " .. player.myinfraredCount("Assister"),3)
-      -- if ball.pos():dist(ball.placementPos()) < 50 then
-      --     count = count + 1
-      -- else
-      --     count = 0
-      -- end
-      -- if count > 50 then
-      --       count = 0
-      --     return "avoid"
-      -- end
+
       if bufcnt(true,50) then
           return "avoid"
       end

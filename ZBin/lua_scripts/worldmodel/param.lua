@@ -14,7 +14,7 @@ playerInfraredCountBuffer = CGetSettings("ZJHU/playerInfraredCountBuffer", "Int"
 our_goalie_num            = CGetSettings("ZJHU/our_goalie_num", "Int")
 defend_num1               = CGetSettings("ZJHU/defend_num1", "Int")
 defend_num2               = CGetSettings("ZJHU/defend_num2", "Int")
-LeaderNum = 6
+LeaderNum = 3
 -----------------------------------------------|
 --                feild参数                  --|
 -----------------------------------------------|
@@ -42,16 +42,16 @@ penaltyMiddleLine         = CGeoSegment(ourGoalPos, ourGoalPos + Utils.Polar2Vec
 
 -- 是否为真实场地
 isReality = false
-Team = "TWO" -- Team = "TWO"
-allowTouch = false              -- 是否开启touch
-canTouchAngle = 45           -- 可以touch的角度f
+Team = "ONE" -- Team = "TWO"
+allowTouch = true              -- 是否开启touch
+canTouchAngle = 60           -- 可以touch的角度f
 dribblingExclusionDist = -20 -- 距离禁区多少距离开启带球
 debugSize = 100
 -----------------------------------------------|
 --                Getball参数                 --|
 -----------------------------------------------|
 playerVel = 1.88                                 -- 机器人速度
-getballMode = 1                               -- [0[激进模式], 1[保守模式], 2[middle]]
+getballMode = 2                               -- [0[激进模式], 1[保守模式], 2[middle]]
 -- local V_DECAY_RATE_Reality = 900              -- 场地1摩擦
 local V_DECAY_RATE_Reality = 800              -- 场地2摩擦
 -- local V_DECAY_RATE_Reality = 900              -- 场地3摩擦
@@ -115,9 +115,8 @@ rotTableTWO = {
 	[5] =  {CGeoPoint(60, 60),4.5}, 
 	[6] =  {CGeoPoint(60, 60),4.5}, 
 	[7] =  {CGeoPoint(60, 60),4.5}, 
-	[8] =  {CGeoPoint(60, 60),4.5}, 
-	[9] =  {CGeoPoint(120, 60),4.5}, 
-
+	[8] =  {CGeoPoint(120, 60),6}, 
+	[9] =  {CGeoPoint(120, 60),6}, 
 	[10] =  {CGeoPoint(60, 60),4.5}, 
 	[11] =  {CGeoPoint(60, 60),4.5}, 
 	[12] =  {CGeoPoint(60, 60),4.5}, 
@@ -140,29 +139,8 @@ rotPos = function(num)
     return rotTable[player.num(num)][1]
 end   
 
-
-rotCompensateTable = {
-	-- [num] = {minist,maxDist,minPower, maxPower, ShootPower,chipPower} 
-    
-	[0] =  {-0.015}, 
-	[1] =  {-0.015}, 
-	[2] =  {-0.015}, 
-	[3] =  {0}, 
-	[4] =  {0}, 
-	[5] =  {0}, 
-	[6] =  {-0.015}, 
-	[7] =  {-0.015}, 
-	[8] =  {-0.015}, 
-	[9] =  {-0.015}, 
-	[10] =  {-0.015}, 
-	[11] =  {-0.015}, 
-	[12] =  {-0.015}, 
-	[14] =  {-0.015}, 
-	[15] =  {-0.015}, 
-	[16] =  {-0.015}, 
-}
 local rotCompensate_Reality = function(num)
-    return rotCompensateTable[player.num(num)][1]
+    return rotTableTWO[player.num(num)][1]
 end-- -0.015 --旋转补偿
 -----------------------------------------------|
 --                Tick固定匹配参数             --|
@@ -202,7 +180,7 @@ goalieBuf = playerRadius
 goalieAimDirRadius = pitchLength / 4
 -- goalie 在考虑敌人朝向时会走出的最远距离， 一般为球门半径
 -- enemyAimBuf = goalRadius
-enemyAimBuf = goalWidth
+enemyAimBuf = goalRadius
 -- goalie 移动的线（mode-0）
 goalieMoveLine = CGeoSegment(CGeoPoint:new_local(-pitchLength / 2 + goalieBuf, -INF),CGeoPoint:new_local(-pitchLength / 2 + playerRadius, INF))
 goalieMoveX = -pitchLength / 2 + goalieBuf
@@ -252,7 +230,7 @@ FIT_PLAYER_POS_Y = pitchWidth / 2 - 200
 V_DECAY_RATE = isReality and V_DECAY_RATE_Reality or 2100
 rotCompensate = function(num)
 
-return isReality and rotCompensate_Reality(num) or 0.05
+return -0.01
 
 end
 shootError = isReality and shootError_Reality or 8

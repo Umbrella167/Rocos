@@ -16,7 +16,7 @@ return {
         switch = function()
             local rolePos = CGeoPoint:new_local(player.rawPos("Goalie"):x(), player.rawPos("Goalie"):y())
             local getBallPos = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1,param.V_DECAY_RATE)
-            if player.myinfraredCount("Goalie") > 10 and Utils.InExclusionZone(getBallPos, -param.ballDiameter/2, "our") then
+            if player.myinfraredCount("Goalie") > 10 and Utils.InExclusionZone(getBallPos, -param.ballDiameter/2, "our")  then
                 return "goalie_kick"
             end
             if isShooting() and Utils.InExclusionZone(getBallPos, -param.ballDiameter/2 , "our") then
@@ -37,7 +37,12 @@ return {
         switch = function()
             local rolePos = CGeoPoint:new_local(player.rawPos("Goalie"):x(), player.rawPos("Goalie"):y())
             local getBallPos = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1,param.V_DECAY_RATE)
+            -- if player.myinfraredCount("Goalie") < 10 and not isShooting() and ball.velMod() then
             if player.myinfraredCount("Goalie") < 10 and not Utils.InExclusionZone(getBallPos, param.goalieBuf, "our") then
+                return "goalie_norm"
+            end
+
+            if player.myinfraredCount("Goalie") < 10 and not isShooting() and ball.velMod()>4500 then
                 return "goalie_norm"
             end
 
