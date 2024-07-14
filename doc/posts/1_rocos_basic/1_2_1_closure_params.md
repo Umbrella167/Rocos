@@ -75,7 +75,7 @@ end
 实现的效果如下：
 
 ```{thumbnail} ../../img/1_2_1_run_circle.gif
-    :width: 70%
+    :width: 40%
     :align: center
 ```
 

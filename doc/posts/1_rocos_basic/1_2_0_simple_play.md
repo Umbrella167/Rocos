@@ -117,3 +117,14 @@ name = 'TestMyRun',
 `Client`的每次重启都会加载最新的战术包，如果不重启也可以手动刷新。你可以通过勾选设置是否进入测试模式，并在下拉框中选择你想要测试的Play，然后点击按钮来运行。
 
 现在你可以通过界面配置并执行刚刚书写的`TestMyRun`了。
+
+## 总结
+
+一个典型的play脚本，应该包含以下几个部分：
+- 整个play是一个`table`，通过`gPlayTable.CreatePlay`来创建。
+- `firstState`是play的初始状态。
+- `name`是play的名称。
+- 每个状态是一个KV键值对，key是状态名称，value是一个`table`
+    - `switch`是状态切换函数，用于返回下一个状态的名称。
+    - `match`是匹配规则，用于匹配对应的角色。
+    - 其他的key是角色名称，value是一个`task`。
