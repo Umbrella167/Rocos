@@ -166,6 +166,8 @@ Field::Field(QQuickItem *parent)
     pixmapPainter.begin(pixmap);
     score_pixmap = new QPixmap(QSize(canvasWidth, canvasHeight));
     scorePainter.begin(score_pixmap);
+    score_pixmap_buffer = new QPixmap(QSize(canvasWidth, canvasHeight));
+    scorebufferPainter.begin(score_pixmap_buffer);
     pixmapPainter.setRenderHint(QPainter::Antialiasing, true);
 //    pixmapPainter.setRenderHint(QPainter::TextAntialiasing, true);
 //    pixmapPainter.setRenderHint(QPainter::SmoothPixmapTransform, true);
@@ -542,10 +544,10 @@ void Field::repaint() {//change here!!!!!!!
         break;
     case 2:
         pixmap->fill(COLOR_DARKGREEN);
-        pixmapPainter.setOpacity(0.3);
-        score_mutex.lock();
-        pixmapPainter.drawPixmap(0, 0, *score_pixmap);
-        score_mutex.unlock();
+        pixmapPainter.setOpacity(0.4);
+        score_buffer_mutex.lock();
+        pixmapPainter.drawPixmap(0, 0, *score_pixmap_buffer);
+        score_buffer_mutex.unlock();
         pixmapPainter.setOpacity(1);
         paintInit();
         drawMaintainVision(0);
@@ -828,27 +830,6 @@ float Field::fieldYFromCoordinate(int y) {
     return ::ry(y);
 }
 
-//// draw score
-//Field::Score::Score(){
-//}
-//void Field::Score::init(){
-//    for(int i=0;i<COLOR_LEVEL;i++){
-//        this->size[i] = 0;
-//        for(int j=0;j<RECT_MAX_SUM;j++){
-//            this->area[i][j].setSize(QSizeF(::w(RECT_SIZE),::h(RECT_SIZE)));
-//        }
-//    }
-//    //test
-//    for(int i=-6000;i<6000;i+=RECT_SIZE){
-//        for(int j=-4500;j<4500;j+=RECT_SIZE){
-//            auto color = (abs(i/RECT_SIZE) + abs(j/RECT_SIZE))%COLOR_LEVEL;
-//            if(this->size[color] >= RECT_MAX_SUM)
-//                continue;
-//            this->area[color][this->size[color]].moveCenter(QPointF(::x(i),::y(j)));
-//            this->size[color]++;
-//        }
-//    }
-//}
 void Field::receiveScore() {
     socket_score = new QUdpSocket();
     socket_score->bind(QHostAddress(ZSS::LOCAL_ADDRESS), 20003);
@@ -856,60 +837,113 @@ void Field::receiveScore() {
     score_pixmap->fill(COLOR_DARKGREEN);
     score_mutex.unlock();
     scorePainter.setPen(Qt::NoPen);
-//    double c = 0;
-//    double step = 0.0000001;
     while(true) {
         std::this_thread::sleep_for(std::chrono::microseconds(500));
-
-//        QElapsedTimer timer;
-//        timer.start();
-//        for(int i=-6600;i<6600;i+=RECT_SIZE){
-//            for(int j=-5000;j<5000;j+=RECT_SIZE){
-//                c += step;
-//                if(c >= 1 || c <= 0) step = - step;
-//                c = limitRange(c,0.0,1.0);
-//                auto r = limitRange(4*c-2,0.0,1.0)*255;
-//                auto g = limitRange(c<0.5?2*c:4-4*c,0.0,1.0)*255;
-//                auto b = limitRange(-2*c+1,0.0,1.0)*255;
-//                scorePainter.setBrush(QColor(r,g,b));
-//                score_mutex.lock();
-//                scorePainter.drawRect(QRectF(::x(i),::y(j),::w(RECT_SIZE),::h(RECT_SIZE)));
-//                score_mutex.unlock();
-//            }
-//        }
-//        qDebug() << "mark fuck : " << timer.nsecsElapsed()/1000000.0 << "millisecond";
-
-
         parseScores(socket_score);
     }
 }
+
+QColor cmap(const QString& cm, const float _v);
 void Field::parseScores(QUdpSocket* const socket) {
     static QByteArray datagram;
     static Debug_Heatmap scores;
     while (socket->state() == QUdpSocket::BoundState && socket->hasPendingDatagrams()) {
+        score_mutex.lock();
+        score_pixmap->fill(COLOR_DARKGREEN);
+        score_mutex.unlock();
         datagram.resize(socket->pendingDatagramSize());
         socket->readDatagram(datagram.data(), datagram.size());
         scores.ParseFromArray(datagram.data(), datagram.size());
         auto size = scores.points_size();
+        score_mutex.lock();
         for(int i = 0; i < size; i++) {
             auto score = scores.points(i);
-            auto color = score.value();
-            if(color < 0 || color >= COLOR_LEVEL) {
-                std::cerr << "DEBUG_SCORE : not correct color : " << color << std::endl;
+            auto c = limitRange(score.value(), 0.0f, 1.0f);
+            auto size_x = score.x_size();
+            auto size_y = score.y_size();
+            auto width = score.size();
+            if(size_x != size_y) {
+                std::cerr << "DEBUG_SCORE : not correct size : " << size_x << " " << size_y << std::endl;
                 continue;
             }
-            auto size = score.p_size();
-            auto c = limitRange((double)(color) / COLOR_LEVEL, 0.0, 1.0);
-            auto r = limitRange(4 * c - 2, 0.0, 1.0) * 255;
-            auto g = limitRange(c < 0.5 ? 2 * c : 4 - 4 * c, 0.0, 1.0) * 255;
-            auto b = limitRange(-2 * c + 1, 0.0, 1.0) * 255;
-            scorePainter.setBrush(QColor(r, g, b));
-            for(int k = 0; k < size; k++) {
-                auto p = score.p(k);
-                score_mutex.lock();
-                scorePainter.drawRect(QRectF(::x(p.x()), ::y(-p.y()), ::w(RECT_SIZE), ::h(-RECT_SIZE)));
-                score_mutex.unlock();
+            scorePainter.setBrush(cmap(QString::fromStdString(scores.cmap()),c));
+            QVector<QRectF> rects;
+            for(int k = 0; k < size_x; k++) {
+                auto x = score.x(k);
+                auto y = score.y(k);
+                rects.push_back(QRectF(::x(x-width/2), ::y(y+width/2), ::w(width), ::h(-width)));
+            }
+            scorePainter.drawRects(rects);
+        }
+        score_mutex.unlock();
+
+        score_buffer_mutex.lock();
+        score_pixmap_buffer->fill(COLOR_DARKGREEN);
+        scorebufferPainter.drawPixmap(0, 0, *score_pixmap);
+        score_buffer_mutex.unlock();
+    }
+}
+
+QColor cmap(const QString& cm, const float _v){
+    static auto segValue = [](const float x,const std::map<float, float>& seg) {
+        float x1 = seg.begin()->first;
+        float y1 = seg.begin()->second;
+        float x2 = x1;
+        float y2 = y1;
+        for(auto& [k, v] : seg) {
+            if(k < x) {
+                x1 = k;
+                y1 = v;
+            } else {
+                x2 = k;
+                y2 = v;
+                break;
             }
         }
+        if(std::fabs(x2 - x1) <= 1e-9) return y1;
+        return y1 + (y2 - y1) / (x2 - x1) * (x - x1);
+    };
+
+    float v = std::clamp(_v,0.0f,1.0f);
+    float r = 0.0f;
+    float g = 0.0f;
+    float b = 0.0f;
+    if(cm == "jet"){
+        r = segValue(v, {{0.0f, 0.0f}, {0.35f, 0.0f}, {0.65f, 1.0f}, {0.95f, 1.0f}, {1.0f, 0.5f}});
+        g = segValue(v, {{0.0f, 0.0f}, {0.12f, 0.0f}, {0.37f, 1.0f}, {0.64f, 1.0f}, {0.90f, 0.0f}, {1.0f, 0.0f}});
+        b = segValue(v, {{0.0f, 0.5f}, {0.1f, 1.0f}, {0.35f, 1.0f}, {0.65f, 0.0f}, {1.0f, 0.0f}});
+    }else if(cm == "rainbow"){
+        r = segValue(v, {{0.0f, 0.5f}, {0.25f, 0.0f}, {0.75f, 1.0f}, {1.0f, 1.0f}});
+        g = -4*(v-0.5f)*(v-0.5) + 1.0f;
+        b = -v*v + 1.0f;
+    }else if(cm == "PiYG"){
+        r = segValue(v, {{ 0.0f, 0.56f},{ 0.1f, 0.78f},{ 0.2f, 0.89f},{ 0.3f, 0.96f},{ 0.4f, 0.98f},{ 0.6f, 0.93f},{ 0.7f, 0.78f},{ 0.8f, 0.54f},{ 0.9f, 0.32f},{ 1.0f, 0.15f},});
+        g = segValue(v, {{ 0.0f, 0.00f},{ 0.1f, 0.14f},{ 0.2f, 0.52f},{ 0.3f, 0.77f},{ 0.4f, 0.92f},{ 0.6f, 0.96f},{ 0.7f, 0.91f},{ 0.8f, 0.77f},{ 0.9f, 0.59f},{ 1.0f, 0.39f},});
+        b = segValue(v, {{ 0.0f, 0.32f},{ 0.1f, 0.51f},{ 0.2f, 0.72f},{ 0.3f, 0.88f},{ 0.4f, 0.95f},{ 0.6f, 0.88f},{ 0.7f, 0.62f},{ 0.8f, 0.31f},{ 0.9f, 0.14f},{ 1.0f, 0.10f},});
+    }else if(cm == "gray"){
+        r = v;
+        g = v;
+        b = v;
+    }else if(cm == "cool"){
+        r = v;
+        g = 1.0f - v;
+        b = 1.0f;
+    }else if(cm == "coolwarm"){
+        r = segValue(v, {{ 0.0f, 0.23f},{ 0.1f, 0.36f},{ 0.2f, 0.51f},{ 0.3f, 0.67f},{ 0.4f, 0.80f},{ 0.6f, 0.92f},{ 0.7f, 0.97f},{ 0.8f, 0.94f},{ 0.9f, 0.85f},{ 1.0f, 0.71f},});
+        g = segValue(v, {{ 0.0f, 0.30f},{ 0.1f, 0.48f},{ 0.2f, 0.65f},{ 0.3f, 0.78f},{ 0.4f, 0.85f},{ 0.6f, 0.83f},{ 0.7f, 0.72f},{ 0.8f, 0.55f},{ 0.9f, 0.35f},{ 1.0f, 0.02f},});
+        b = segValue(v, {{ 0.0f, 0.75f},{ 0.1f, 0.90f},{ 0.2f, 0.99f},{ 0.3f, 0.99f},{ 0.4f, 0.93f},{ 0.6f, 0.78f},{ 0.7f, 0.61f},{ 0.8f, 0.44f},{ 0.9f, 0.28f},{ 1.0f, 0.15f},});
+    }else if(cm == "seismic"){
+        r = segValue(v, {{ 0.0f, 0.00f},{ 0.2f, 0.00f},{ 0.5f, 1.00f},{ 0.8f, 0.99f},{ 1.0f, 0.50f},});
+        g = segValue(v, {{ 0.0f, 0.00f},{ 0.2f, 0.00f},{ 0.5f, 0.99f},{ 0.8f, 0.00f},{ 1.0f, 0.00f},});
+        b = segValue(v, {{ 0.0f, 0.30f},{ 0.2f, 1.00f},{ 0.5f, 0.99f},{ 0.8f, 0.00f},{ 1.0f, 0.00f},});
+    }else{
+        r = 4 * v - 2;
+        g = v < 0.5 ? 2 * v : 4 - 4 * v;
+        b = -2 * v + 1;
     }
+    return QColor(
+        std::clamp(r,0.0f,1.0f)*255,
+        std::clamp(g,0.0f,1.0f)*255,
+        std::clamp(b,0.0f,1.0f)*255
+    );
 }

@@ -108,23 +108,16 @@ private:
     int ballFocusCount = 0;
 // draw Score
 private:
-    const static int RECT_SIZE = 100;// mm
-    const static int RECT_MAX_SUM = 10000;
-    const static int COLOR_LEVEL = 256;
-//    struct Score{
-//        QRectF area[COLOR_LEVEL][RECT_MAX_SUM];
-//        int size[COLOR_LEVEL];
-//        Score();
-//        void init();
-//    };
-//    Score score;
     QUdpSocket * socket_score;
     void receiveScore();
     void parseScores(QUdpSocket* const);
 
     QMutex score_mutex;
+    QMutex score_buffer_mutex;
     QPixmap *score_pixmap;
     QPainter scorePainter;
+    QPixmap *score_pixmap_buffer;
+    QPainter scorebufferPainter;
 };
 
 #endif // __FIELD_H__

@@ -50,6 +50,13 @@ Rocos's Wiki!
 
 .. toctree::
    :maxdepth: 1
+   :glob:
+   :caption: 附录4-相关测试脚本:
+
+   posts/appendix/p4_*
+
+.. toctree::
+   :maxdepth: 1
    :caption: 其他:
 
    posts/z/CHANGELOG.md

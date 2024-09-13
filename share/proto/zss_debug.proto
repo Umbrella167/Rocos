@@ -75,8 +75,11 @@ message Debug_Msgs{
 }
 message Debug_Heatmap{
 	message Heat{
-		int32 value = 1;
-		repeated Point p = 2;
+		float value = 1; // 0 - 1
+		repeated float x = 2;
+		repeated float y = 3;
+		float size = 4; // mm
 	}
 	repeated Heat points = 1;
+	string cmap = 2;
 }
