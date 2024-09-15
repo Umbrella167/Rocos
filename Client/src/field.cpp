@@ -185,7 +185,7 @@ Field::Field(QQuickItem *parent)
     resetAfterMouseEvent();
 
     // draw Score
-    score_thread = new std::thread([ = ] {receiveScore();});
+    score_thread = new std::thread([&] {receiveScore();});
 
     //record
     ZRecRecorder::instance()->init();
@@ -854,29 +854,38 @@ void Field::parseScores(QUdpSocket* const socket) {
         datagram.resize(socket->pendingDatagramSize());
         socket->readDatagram(datagram.data(), datagram.size());
         scores.ParseFromArray(datagram.data(), datagram.size());
-        auto size = scores.points_size();
+        auto heat_size = scores.heat_size();
+        auto cm = QString::fromStdString(scores.cmap());
+        auto shape = scores.shape();
         score_mutex.lock();
-        for(int i = 0; i < size; i++) {
-            auto score = scores.points(i);
-            auto c = limitRange(score.value(), 0.0f, 1.0f);
+        for(int i = 0; i < heat_size; i++) {
+            auto score = scores.heat(i);
             auto size_x = score.x_size();
             auto size_y = score.y_size();
-            auto width = score.size();
-            if(size_x != size_y) {
-                std::cerr << "DEBUG_SCORE : not correct size : " << size_x << " " << size_y << std::endl;
+            auto size_v = score.value_size();
+            auto size_s = score.size_size();
+            if(size_x != size_y || (size_x != size_v && size_v != 1) || (size_x != size_s && size_s != 1)) {
+                std::cerr << "DEBUG_SCORE : not correct size : " << size_x << " " << size_y << " " << size_v << std::endl;
                 continue;
             }
-            scorePainter.setBrush(cmap(QString::fromStdString(scores.cmap()),c));
-            QVector<QRectF> rects;
             for(int k = 0; k < size_x; k++) {
                 auto x = score.x(k);
                 auto y = score.y(k);
-                rects.push_back(QRectF(::x(x-width/2), ::y(y+width/2), ::w(width), ::h(-width)));
+                auto v = size_v == 1 ? score.value(0) : score.value(k);
+                auto s = size_s == 1 ? score.size(0) : score.size(k);
+                scorePainter.setBrush(cmap(cm,v));
+                QRectF rect = QRectF(::x(x-s/2), ::y(y+s/2), ::w(s), ::h(-s));
+                switch (shape) {
+                case Debug_Heatmap_Shape_SQUARE:
+                    scorePainter.drawRect(rect);
+                    break;
+                case Debug_Heatmap_Shape_CIRCLE:
+                    scorePainter.drawEllipse(rect);
+                    break;
+                }
             }
-            scorePainter.drawRects(rects);
         }
         score_mutex.unlock();
-
         score_buffer_mutex.lock();
         score_pixmap_buffer->fill(COLOR_DARKGREEN);
         scorebufferPainter.drawPixmap(0, 0, *score_pixmap);

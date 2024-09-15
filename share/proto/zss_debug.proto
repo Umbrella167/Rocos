@@ -75,11 +75,16 @@ message Debug_Msgs{
 }
 message Debug_Heatmap{
 	message Heat{
-		float value = 1; // 0 - 1
-		repeated float x = 2;
-		repeated float y = 3;
-		float size = 4; // mm
+		repeated float x = 1;
+		repeated float y = 2;
+		repeated float size = 3; // only one size if all size are the same, otherwise size.size == x.size == y.size
+		repeated float value = 4; // only one value if all value are the same, otherwise value.size == x.size == y.size
 	}
-	repeated Heat points = 1;
+	repeated Heat heat = 1;
 	string cmap = 2;
+	enum Shape{
+		SQUARE = 0;
+		CIRCLE = 1;
+	}
+	Shape shape = 3;
 }
