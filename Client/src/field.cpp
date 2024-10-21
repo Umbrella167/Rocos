@@ -136,6 +136,7 @@ int robotAmount;
 int robotID[PARAM::ROBOTNUM];
 int robotTeam;
 auto originRobot = GlobalData::instance()->processRobot[0];
+auto _G = GlobalData::instance();
 }
 namespace LeftEvent {
 QPoint start;
@@ -189,6 +190,15 @@ Field::Field(QQuickItem *parent)
 
     //record
     ZRecRecorder::instance()->init();
+}
+
+void Field::setType(int t){
+    this->_type = t;
+    // check if type in selected_points(type:map<int, vector<pair<int, int>>>)
+    std::scoped_lock lock(_G->selected_points_mutex);
+    if(_G->selected_points.find(t) == _G->selected_points.end()) {
+        _G->selected_points[t] = std::vector<std::pair<int, int>>();
+    }
 }
 
 void Field::paint(QPainter* painter) {
@@ -313,7 +323,6 @@ void Field::leftReleaseEvent(QMouseEvent *e) {
         leftAltModifierReleaseEvent(e);
         break;
     }
-
 }
 void Field::leftCtrlModifierMoveEvent(QMouseEvent *e) {
     auto x1 = ::rx(e->x());
@@ -387,7 +396,7 @@ void Field::leftAltModifierReleaseEvent(QMouseEvent *e) {
     selectRobots = robotAmount > 0 ? true : false;
     GlobalSettings::instance()->resetSelectCarArea();
 }
-void Field::rightMoveEvent(QMouseEvent *e) {
+void Field::rightNoModifierMoveEvent(QMouseEvent *e) {
     QLineF line(start, end);
     if(pressedRobot) {
         displayData = -line.angle();
@@ -400,15 +409,84 @@ void Field::rightMoveEvent(QMouseEvent *e) {
         displayData = ballRatio * line.length() / 1000.0;
     }
 }
-void Field::rightPressEvent(QMouseEvent *e) {
-
+void Field::rightNoModifierPressEvent(QMouseEvent *e) {
 }
-void Field::rightReleaseEvent(QMouseEvent *e) {
+void Field::rightNoModifierReleaseEvent(QMouseEvent *e) {
     QLineF line(start, end);
     if(!pressedRobot) {
         Simulator::instance()->setBall(start.x() / 1000.0, start.y() / 1000.0, ballRatio * line.dx() / 1000.0, ballRatio * line.dy() / 1000.0);
     }
 }
+
+void Field::rightMoveEvent(QMouseEvent *e){
+    switch(mouse_modifiers) {
+    case Qt::NoModifier:
+        rightNoModifierMoveEvent(e);
+        break;
+    case Qt::ControlModifier:
+        rightCtrlModifierMoveEvent(e);
+        break;
+    case Qt::AltModifier:
+        rightAltModifierMoveEvent(e);
+        break;
+    default:
+        break;
+    }
+}
+void Field::rightPressEvent(QMouseEvent *e){
+    switch(mouse_modifiers) {
+    case Qt::NoModifier:
+        rightNoModifierPressEvent(e);
+        break;
+    case Qt::ControlModifier:
+        rightCtrlModifierPressEvent(e);
+        break;
+    case Qt::AltModifier:
+        rightAltModifierPressEvent(e);
+        break;
+    default:
+        break;
+    }
+}
+void Field::rightReleaseEvent(QMouseEvent *e){
+    switch(mouse_modifiers) {
+    case Qt::NoModifier:
+        rightNoModifierReleaseEvent(e);
+        break;
+    case Qt::ControlModifier:
+        rightCtrlModifierReleaseEvent(e);
+        break;
+    case Qt::AltModifier:
+        rightAltModifierReleaseEvent(e);
+        break;
+    default:
+        break;
+    }
+}
+void Field::rightCtrlModifierMoveEvent(QMouseEvent *e){
+}
+void Field::rightCtrlModifierPressEvent(QMouseEvent *e){
+}
+void Field::rightCtrlModifierReleaseEvent(QMouseEvent *e){
+    std::scoped_lock lock(_G->selected_points_mutex);
+    if(_G->selected_points.find(_type) == _G->selected_points.end()) {
+        _G->selected_points[_type] = std::vector<std::pair<int, int>>();
+    }
+    auto pos = rp(e->pos());
+    _G->selected_points[_type].push_back(std::pair<int, int>(pos.x(), pos.y()));
+}
+void Field::rightAltModifierMoveEvent(QMouseEvent *e){
+}
+void Field::rightAltModifierPressEvent(QMouseEvent *e){
+}
+void Field::rightAltModifierReleaseEvent(QMouseEvent *e){
+    std::scoped_lock lock(_G->selected_points_mutex);
+    if(_G->selected_points.find(_type) == _G->selected_points.end()) {
+        _G->selected_points[_type] = std::vector<std::pair<int, int>>();
+    }
+    _G->selected_points[_type].clear();
+}
+
 void Field::middleMoveEvent(QMouseEvent *e) {
     switch(mouse_modifiers) {
     case Qt::NoModifier:
@@ -552,6 +630,7 @@ void Field::repaint() {//change here!!!!!!!
         paintInit();
         drawMaintainVision(0);
         if (selectRobots) paintSelectedCar();
+        paintSelectedPoints();
         drawDebugMessages(PARAM::BLUE); //BLUE
         break;
     case 3:
@@ -561,6 +640,7 @@ void Field::repaint() {//change here!!!!!!!
         paintInit();
         drawMaintainVision(0);
         if (selectRobots) paintSelectedCar();
+        paintSelectedPoints();
         drawDebugMessages(PARAM::YELLOW); //YELLOW
         break;
     default:
@@ -580,7 +660,7 @@ void Field::draw() {
     repaint();
 }
 void Field::drawBallLine() {
-    if(pressed == Qt::RightButton) {
+    if(pressed == Qt::RightButton && mouse_modifiers == Qt::NoModifier) {
         pixmapPainter.setBrush(QBrush(FONT_COLOR[0]));
         pixmapPainter.setPen(QPen(FONT_COLOR[0], ::w(20), Qt::DashLine));
         pixmapPainter.drawLine(p(start), p(end));
@@ -684,6 +764,19 @@ void Field::paintSelectedCar() {
         pixmapPainter.setBrush(Qt::NoBrush);
         pixmapPainter.setPen(QPen(COLOR_GREEN, ::w(50)));
         pixmapPainter.drawChord(QRectF(::x(robot.pos.x() - radius), ::y(robot.pos.y() - radius), ::w(2 * radius), ::h(2 * radius)), ::a(90.0 - chordAngel + 180 / M_PI * robot.angle), ::r(180.0 + 2 * chordAngel));
+    }
+}
+void Field::paintSelectedPoints(){
+    pixmapPainter.setBrush(QBrush(COLOR_GREEN));
+    pixmapPainter.setPen(QPen(COLOR_GREEN, ::w(50)));
+    float size = 20;
+    std::scoped_lock lock(_G->selected_points_mutex);
+    if(_G->selected_points.find(_type) == _G->selected_points.end()) {
+        _G->selected_points[_type] = std::vector<std::pair<int, int>>();
+    }
+    auto points = _G->selected_points[_type];
+    for (auto& p : points) {
+        pixmapPainter.drawEllipse(QRectF(::x(p.first-size/2), ::y(p.second+size/2), ::w(size), ::h(-size)));
     }
 }
 void Field::paintCarShadow(const QColor& color,qreal x, qreal y, qreal radian) {

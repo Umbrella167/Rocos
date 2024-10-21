@@ -5,7 +5,7 @@
 #include "messageformat.h"
 #include "ballrecords.h"
 #include "zss_cmd.pb.h"
-#include <QMutex>
+#include <mutex>
 struct RobotInformation {
     bool infrared;
     bool flat;
@@ -41,7 +41,7 @@ class CGlobalData {
     int cameraID[PARAM::CAMERA];//show the mapping of cameras  id
     double robotPossible[2][PARAM::ROBOTMAXID];
     RobotInformation robotInformation[PARAM::TEAMS][PARAM::ROBOTMAXID];
-    QMutex robotInfoMutex;
+    std::mutex robotInfoMutex;
     DataQueue<RobotCommands> robotCommand[PARAM::TEAMS];
     int commandMissingFrame[PARAM::TEAMS];//team command VALID  --> commandMissingFrame<20
     CameraFix cameraFixMatrix[PARAM::CAMERA];
@@ -54,12 +54,14 @@ class CGlobalData {
     int lastTouch;//Be attention it's id!!!
     QByteArray debugBlueMessages;
     QByteArray debugYellowMessages;
-    QMutex debugMutex;// debugMessages;
+    std::mutex debugMutex;// debugMessages;
     bool ctrlC;
-    QMutex ctrlCMutex;
+    std::mutex ctrlCMutex;
 
     void CameraInit();
 
+    std::mutex selected_points_mutex;
+    std::map<int, std::vector<std::pair<int, int>>> selected_points;
 private:
     CGeoPoint saoConvert(CGeoPoint);
     void  saoConvertEdge();

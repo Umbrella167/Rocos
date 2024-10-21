@@ -54,7 +54,9 @@ class Robot:
         assert(speed.shape[-1] == 2)
         speed_wheel = (speed @ self.wheels_matrix.T)
         acc_wheel = np.stack([wheel.getAcc(speed_wheel[...,i]) for i, wheel in enumerate(self.wheels)],axis=-2)
+        print("acc_wheel", acc_wheel, acc_wheel.shape)
         self.acc_limit = acc_wheel[:2] * 2
+        print("acc_limit : ",self.acc_limit)
 
     def getAcc(self, _theta, speed = None): # return for polar coordinate
         theta = np.array(_theta) - 3*np.pi/4
@@ -143,7 +145,7 @@ if __name__ == "__main__":
         cood_lim = 26
         ax.set_xlim(-cood_lim,cood_lim)
         ax.set_ylim(-cood_lim,cood_lim)
-        acc, coods, others = getAcc(np.array([0.01,0.01]))
+        acc, coods, others = getAcc(np.array([-0.1,-0.1]))
         line, = ax.plot(acc[coods,0], acc[coods,1], 'g')
         # draw circle
 
