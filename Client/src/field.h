@@ -5,6 +5,7 @@
 #include <QPainter>
 #include <QPainterPath>
 #include <QRectF>
+#include <QVector>
 #include <QMutex>
 #include "messageformat.h"
 #include "staticparams.h"
@@ -17,7 +18,7 @@ public:
     void paint(QPainter* painter) override;
     Field(QQuickItem *parent = 0);
     inline int type() { return this->_type; }
-    inline void setType(int t) { this->_type = t; }
+    void setType(int t);
     inline bool ifDraw() { return this->_draw; }
     inline void setDraw(bool t) { this->_draw = t; }
     void mouseMoveEvent(QMouseEvent *event) override;
@@ -47,6 +48,7 @@ private:
     void paintCar(const QColor& color,quint8 num,qreal x,qreal y,qreal radian
                   ,bool ifDrawNum = true,const QColor& textColor = Qt::white,bool needCircle = false);
     void paintSelectedCar();
+    void paintSelectedPoints();
     void paintCarShadow(const QColor& color,qreal x, qreal y, qreal radian);
     void paintBall(const QColor& color,qreal x,qreal y);
     void paintShadow(const QColor& color,qreal x,qreal y);
@@ -66,6 +68,15 @@ private:
     void rightMoveEvent(QMouseEvent *);
     void rightPressEvent(QMouseEvent *);
     void rightReleaseEvent(QMouseEvent *);
+    void rightCtrlModifierMoveEvent(QMouseEvent *);
+    void rightCtrlModifierPressEvent(QMouseEvent *);
+    void rightCtrlModifierReleaseEvent(QMouseEvent *);
+    void rightAltModifierMoveEvent(QMouseEvent *);
+    void rightAltModifierPressEvent(QMouseEvent *);
+    void rightAltModifierReleaseEvent(QMouseEvent *);
+    void rightNoModifierMoveEvent(QMouseEvent *);
+    void rightNoModifierPressEvent(QMouseEvent *);
+    void rightNoModifierReleaseEvent(QMouseEvent *);
     void middleMoveEvent(QMouseEvent *);
     void middlePressEvent(QMouseEvent *);
     void middleReleaseEvent(QMouseEvent *);
@@ -86,6 +97,7 @@ private:
     int _type;
     bool _draw;
 
+    // QVector<QPointF> selected_points;
 private:
     int pressed;
     bool pressedRobot;
@@ -108,23 +120,16 @@ private:
     int ballFocusCount = 0;
 // draw Score
 private:
-    const static int RECT_SIZE = 100;// mm
-    const static int RECT_MAX_SUM = 10000;
-    const static int COLOR_LEVEL = 256;
-//    struct Score{
-//        QRectF area[COLOR_LEVEL][RECT_MAX_SUM];
-//        int size[COLOR_LEVEL];
-//        Score();
-//        void init();
-//    };
-//    Score score;
     QUdpSocket * socket_score;
     void receiveScore();
     void parseScores(QUdpSocket* const);
 
     QMutex score_mutex;
+    QMutex score_buffer_mutex;
     QPixmap *score_pixmap;
     QPainter scorePainter;
+    QPixmap *score_pixmap_buffer;
+    QPainter scorebufferPainter;
 };
 
 #endif // __FIELD_H__

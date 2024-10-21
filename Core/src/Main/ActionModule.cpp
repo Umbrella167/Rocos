@@ -16,7 +16,6 @@
 #include <DribbleStatus.h>
 #include <TaskMediator.h>
 #include <PlayerCommandV2.h>
-#include <PlayInterface.h>
 #include <CommandFactory.h>
 #include <PathPlanner.h>
 #include "Semaphore.h"
@@ -54,9 +53,7 @@ bool CActionModule::sendAction() {
 
         // 跑：有效的运动指令
         if (pCmd) {
-            dribble = pCmd->dribble() > 0;
-            // 下发运动 <vx vy w>
-            pCmd->execute(vecNum); //this by Wang
+            pCmd->execute(vecNum);
             // 记录指令
             _pVision->setPlayerCommand(pCmd->number(), pCmd);
         }

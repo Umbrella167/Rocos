@@ -3,9 +3,7 @@
 // change param for 2018 rule
 // wait for change camera number
 #include <QString>
-namespace PARAM
-{
-    const bool DEBUG = false;
+namespace PARAM {
     const int CAMERA = 8;
     const int ROBOTNUM = 16; // max allow robot on the playgroung
     const int ROBOTMAXID = 16;

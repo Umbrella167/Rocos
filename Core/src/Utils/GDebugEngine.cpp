@@ -1,12 +1,16 @@
 #include "GDebugEngine.h"
 #include "staticparams.h"
 #include <cstring>
+#include <fmt/core.h>
 #include "zss_debug.pb.h"
 #include "staticparams.h"
 #include "WorldModel.h"
 #include "parammanager.h"
+#include <atomic>
 namespace{
     ZSS::Protocol::Debug_Msgs guiDebugMsgs;
+    std::atomic<float> WARNING_X = -PARAM::Field::PITCH_LENGTH/2;
+    std::atomic<float> WARNING_Y = 0;
 }
 CGDebugEngine::CGDebugEngine(){
     ZSS::ZParamManager::instance()->loadParam(remote_debugger,"Alert/z_remoteADebugger",false);
@@ -87,19 +91,14 @@ void CGDebugEngine::gui_debug_arc(const CGeoPoint& p, double r, double start_ang
     ZSS::Protocol::Point
 		*p1 = rec->mutable_point1(),
 		*p2 = rec->mutable_point2();
-	PosT center;
+	CGeoPoint center(p);
 	if ( WorldModel::Instance()->option()->MySide() == PARAM::Field::POS_SIDE_RIGHT ){
-		center.x = -p.x();
-        center.y = -p.y();
+		center = center * -1;
 	}
-	else{
-		center.x = p.x();
-        center.y = p.y();
-	}
-	p1->set_x(center.x - r);
-    p1->set_y((center.y - r));
-	p2->set_x(center.x + r);
-    p2->set_y((center.y + r));
+	p1->set_x(center.x() - r);
+    p1->set_y((center.y() - r));
+	p2->set_x(center.x() + r);
+    p2->set_y((center.y() + r));
     debugMutex.unlock();
 }
 void CGDebugEngine::gui_debug_triangle(const CGeoPoint& p1, const CGeoPoint& p2, const CGeoPoint& p3, int debug_color,int RGB_value){
@@ -188,8 +187,21 @@ void CGDebugEngine::gui_debug_msg_fix(const CGeoPoint& p, const char* msgstr, in
     text->set_text(msgstr);
     debugMutex.unlock();
 }
+void CGDebugEngine::warning(const std::string& msgstr){
+    gui_debug_msg_fix(CGeoPoint(WARNING_X,WARNING_Y),fmt::format("WARNING: {}",msgstr),COLOR_RED);
+    WARNING_Y = WARNING_Y + 120.0f;
+    if (WARNING_Y > PARAM::Field::PITCH_WIDTH/2){
+        WARNING_Y = -PARAM::Field::PITCH_WIDTH/2;
+    }
+}
+void CGDebugEngine::keep_warning(const std::string& msgstr){
+    warning_msgs.push_back(msgstr);
+}
 void CGDebugEngine::send(bool teamIsBlue){
     static QByteArray data;
+    for (const auto& msg : warning_msgs){
+        warning(msg);
+    }
     debugMutex.lock();
     int size = guiDebugMsgs.ByteSizeLong();
     data.resize(size);
@@ -203,4 +215,5 @@ void CGDebugEngine::send(bool teamIsBlue){
 //    std::cout << "size: " << data.size() << ' ' << sent_size << std::endl;
     guiDebugMsgs.clear_msgs();
     debugMutex.unlock();
+    WARNING_Y = -PARAM::Field::PITCH_WIDTH/2;
 }

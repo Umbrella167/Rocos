@@ -4,7 +4,6 @@
 #include <WorldModel.h>
 #include <ServerInterface.h>
 #include "DecisionModule.h"
-#include <VisionReceiver.h>
 
 #include <GDebugEngine.h>
 #include "Global.h"
@@ -17,6 +16,11 @@
 #include "ActionModule.h"
 #include <QCoreApplication>
 #include "utils.h"
+
+#if USE_TBK
+#include "tbk/tbk.h"
+#endif
+
 /*! \mainpage Zeus - Run for number one
  *
  * \section Introduction
@@ -81,8 +85,11 @@ int runLoop()
         GDebugEngine::Instance()->send(option->MyColor() == PARAM::BLUE); // Show two teams debug messages
     }
 }
-int main(int argc, char *argv[])
-{
+int main(int argc, char* argv[]) {
+#if USE_TBK
+    std::cout << "Use TBK" << std::endl;
+    tbk::init("Rocos-Core");
+#endif
     QCoreApplication a(argc, argv);
     std::thread t(runLoop);
     t.detach();

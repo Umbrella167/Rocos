@@ -91,8 +91,6 @@ local UpdataTickMessage = function (our_goalie_num,defend_num1,defend_num2)
     dribbling_player_num = -1
     -- 获取球权
     ball_rights = GlobalMessage.Tick().ball.rights
-
-
     runCount = runCount + 1
 
     -- 每30帧算一次点

@@ -78,7 +78,7 @@ void CVisionModule::udpSocketConnect(bool real) {
         ZSS::SParamManager::instance()->loadParam(desired,"worldp_vars/DesiredFPS");
         if(desired > 500) desired = 500;
         connect(&sim_timer,SIGNAL(timeout()),this,SLOT(oneStepSimData()),Qt::DirectConnection);
-        dealThread = new std::thread([ = ] {readSimData();});
+        dealThread = new std::thread([&] {readSimData();});
         dealThread->detach();
         sim_timer.start(int(1000/desired));
     }
@@ -191,6 +191,11 @@ bool CVisionModule::dealWithData() {
     DealRobot::instance()->run();
     Maintain::instance()->run();
     return true;
+}
+void CVisionModule::reset(){
+    DealBall::instance()->reset();
+    DealRobot::instance()->reset();
+    Maintain::instance()->reset();
 }
 /**
  * @brief parse camera vision message
@@ -309,6 +314,15 @@ void  CVisionModule::udpSend() {
             robot->set_raw_rotate_vel(result.robot[team][i].rawRotateVel);
         }
     }
+    auto selected_points = GlobalData::instance()->selected_points;
+    for (auto& it : selected_points) {
+        auto selected_points_proto = detectionFrame.add_selected_points();
+        selected_points_proto->set_id(it.first);
+        for (auto& xy: it.second) {
+            selected_points_proto->add_x(xy.first);
+            selected_points_proto->add_y(xy.second);
+        }
+    }
     int size = detectionFrame.ByteSizeLong();
     QByteArray buffer(size, 0);
     detectionFrame.SerializeToArray(buffer.data(), buffer.size());
@@ -322,6 +336,7 @@ void  CVisionModule::udpSend() {
     }
     detectionFrame.clear_robots_blue();
     detectionFrame.clear_robots_yellow();
+    detectionFrame.clear_selected_points();
 }
 
 /**

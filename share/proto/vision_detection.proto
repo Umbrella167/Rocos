@@ -35,8 +35,15 @@ message Vision_DetectionRobot {
   optional float  raw_rotate_vel = 16;
 }
 
+message SelectedPoint{
+  repeated float x = 1;
+  repeated float y = 2;
+  required int32 id = 3;
+}
+
 message Vision_DetectionFrame {
   required Vision_DetectionBall  balls         = 1;
   repeated Vision_DetectionRobot robots_yellow = 2;
   repeated Vision_DetectionRobot robots_blue   = 3;
+  repeated SelectedPoint selected_points = 4;
 }

@@ -17,7 +17,6 @@
 #include "vector.h"
 #include "constants.h"
 #include "obstacle.h"
-#include "PlayInterface.h"
 #include <TaskMediator.h>
 #include "staticparams.h"
 #include <math.h>
@@ -205,6 +204,7 @@ bool obstacle::check(state s0, state s1) {
         }
 
 	}
+    return false;
 }
 
 // 返回障碍物像位置点s的排斥力方向
