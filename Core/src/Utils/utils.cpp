@@ -8,6 +8,8 @@
 #include <fstream>
 #include <fstream>
 #include "CMmotion.h"
+
+
 /*
     C++ 传数据到 Lua 总结
     1.utils.cpp        写好功能
@@ -18,6 +20,7 @@
     @ data   : 20240205
     @ author : Umbrella
 */
+
 
 const int inf = 1e9;
 GlobalTick Tick[PARAM::Tick::TickLength];
@@ -30,7 +33,7 @@ double playerBallRightsBuffer = 110;// 球权判断缓冲值
 double pass_threshold = 0.1; //射门阈值
 namespace Utils
 {
-    // 没写完 START
+    
 
     /**
      * 计算全局位置
@@ -55,8 +58,13 @@ namespace Utils
     GlobalTick GetTick(){
         return Tick[now];
     }
+    void UpdateBestPoint(double x,double y){
+        Tick[now].best_point.x = x;
+        Tick[now].best_point.y = y;
+    }
     GlobalTick UpdateTickMessage(const CVisionModule *pVision, int goalie_num, int defend_player_num1, int defend_player_num2)
     {
+
         CWorldModel RobotSensor;
         int oldest = 0;
         double our_min_dist = inf;

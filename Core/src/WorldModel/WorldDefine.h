@@ -208,9 +208,14 @@ struct golobalDatas{
         double confidence_shoot = 1; // 与上一帧的时间间隔
 
 };
-
+struct best_points{
+    public:
+        double x = 0; // 与上一帧的时间间隔
+        double y = 0; // 帧计数
+};
 struct GlobalTick{
     public:
+        best_points best_point;
         times time;
         balls ball;
         ours our;

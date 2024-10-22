@@ -8,49 +8,27 @@ local vel = CVector:new_local(0, 0)
 local maxvel=0
 local time = 120
 local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
+
+function get_best_point()
+	x = GlobalMessage.Tick().best_point.x
+	y = GlobalMessage.Tick().best_point.y
+	return CGeoPoint:new_local(x, y)
+end
+
 gPlayTable.CreatePlay{
 
 firstState = "run1",
 
 ["run1"] = {
+	
 	switch = function()
+		
+
 	end,
-	Assister = task.goCmuRush(testPos[1],0, nil, DSS_FLAG),
-	Leader = task.goCmuRush(testPos[2],0, nil, DSS_FLAG),
-	Defender = task.goCmuRush(testPos[3],0, nil, DSS_FLAG),
-	Middle = task.goCmuRush(testPos[4],0, nil, DSS_FLAG),
-	match = "[ALDM]"
+	Assister = task.goCmuRush(get_best_point(),0, nil, DSS_FLAG),
+	match = "[A]"
 },
-["run2"] = {
-	switch = function()
-		if bufcnt(player.toTargetDist("Kicker")<5,time) then
-			return "run"..1
-		end
-	end,
-	Kicker = task.goCmuRush(testPos[3],math.pi, _, DSS_FLAG),
-	-- Kicker = task.goBezierRush(testPos[4],math.pi, _, DSS_FLAG, _, vel),
-	match = ""
-},
-["run3"] = {
-	switch = function()
-		if bufcnt(player.toTargetDist("Kicker")<5,time) then
-			return "run"..4
-		end
-	end,
-	Kicker = task.goCmuRush(testPos[2],0, _, DSS_FLAG),
-	-- Kicker = task.goBezierRush(testPos[1],0, _, DSS_FLAG, _, vel),
-	match = ""
-},
-["run4"] = {
-	switch = function()
-		if bufcnt(player.toTargetDist("Kicker")<5,time) then
-			return "run"..1--math.random(4)
-		end
-	end,
-	Kicker = task.goCmuRush(testPos[4],math.pi, _, DSS_FLAG),
-	-- Kicker = task.goBezierRush(testPos[2],math.pi, _, DSS_FLAG, _, vel),
-	match = ""
-},
+
 
 name = "TestRun",
 applicable ={

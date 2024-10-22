@@ -7,6 +7,10 @@ from tzcp.ssl.rocos.zss_debug_pb2 import Debug_Heatmap, Debug_Msgs, Debug_Msg
 from tzcp.ssl.rocos.zss_geometry_pb2 import Point
 from threading import Event
 import time
+import tbkpy._core as tbkpy
+import pickle
+tbkpy.init("test_ping")
+puber = tbkpy.Publisher("messi_Puber","ping")
 HEATMAP_COLORS = ["gray", "rainbow", "jet", "PiYG", "cool", "coolwarm", "seismic", "default"]
 
 class DEF:
@@ -142,7 +146,6 @@ class Messi:
         ball = np.array([self.vision.balls.x, self.vision.balls.y])
 
         points, sizes = get_points_and_sizes(robot)
-
         value = np.zeros(len(points))
 
         # near to goal
@@ -156,11 +159,12 @@ class Messi:
         # intercept by enemy
         value += 0.7*calculate_interception(points, ball, robot, enemy)
         # value += 0.7*calculate_shoot_angle(points, ball, robot, enemy)
-
+        
+        best_point = list(points[np.argmax(value)])
+        puber.publish(f"{best_point[0]}, {best_point[1]}")
         self.send_heatmap(points, value, sizes)
         self.signal.clear()
-
-        print("time", time.time()-starttime)
+        # print("time", time.time()-starttime)
 
     def histogram_equalization(self, values):
         hist, bins = np.histogram(values, bins=256, range=(0,1))
@@ -198,7 +202,7 @@ def main():
     import threading
     # threading.Thread(target=changeCMAP).start()
     while True:
-        time.sleep(0.01)
+        time.sleep(0.0001)
         messi.calculate()
         # messi.test_heatmap()
 

@@ -6,6 +6,13 @@ module(..., package.seeall)
 
 --- ///  /// --- /// /// --- /// /// --- /// /// --- /// /// ---
 local bufcnt_Infield = 0
+function get_messi_point()
+	x = GlobalMessage.Tick().best_point.x
+	y = GlobalMessage.Tick().best_point.y
+	return CGeoPoint:new_local(x, y)
+end
+
+
 function getBall_BallPlacement(role)
 	return function()
 		local ballPos = GlobalMessage.Tick().ball.pos
@@ -278,8 +285,8 @@ playerPowerONE =
 }
 playerPowerTWO = {
 	-- [num] = {minist,maxDist,minPower, maxPower, ShootPower,chipPower} 
-	[0] = {minDist_Power,maxDist_Power,200,330,400,7000}, 
-	[1] = {minDist_Power,maxDist_Power,120,330,315,7000},-- 可以挑球 ，吸球还行
+	[0] = {minDist_Power,maxDist_Power,250,360,400,7000}, 
+	[1] = {minDist_Power,maxDist_Power,150,360,315,7000},-- 可以挑球 ，吸球还行
 	[2] = {minDist_Power,maxDist_Power,135,330,315,7000}, 
 	[3] = {minDist_Power,maxDist_Power,330,750,1000,5000},
 	[4] = {minDist_Power,maxDist_Power,330,750,1000,5000},
@@ -333,8 +340,7 @@ function power(p, num,shootFlag)
 		---仿真的力度
 		if not param.isReality then
 			local SimulationRate = 15
-			-- res = res * SimulationRate
-			res = 3500
+			res = res * SimulationRate
 			if iflag == kick.chip() then
 				res = 3000
 			end

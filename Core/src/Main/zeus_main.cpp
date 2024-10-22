@@ -19,6 +19,9 @@
 
 #if USE_TBK
 #include "tbk/tbk.h"
+#include <iostream>
+#include <sstream>
+#include <string>
 #endif
 
 /*! \mainpage Zeus - Run for number one
@@ -56,7 +59,6 @@ namespace
     CActionModule *action;
     CServerInterface::VisualInfo visionInfo;
 }
-
 int runLoop()
 {
     ZSS::ZParamManager::instance()->loadParam(IS_SIMULATION, "Alert/IsSimulation", false);
@@ -73,6 +75,7 @@ int runLoop()
     _best_visiondata_copy_mutex = new std::mutex();
     _value_getter_mutex = new std::mutex();
     RefereeBoxInterface::Instance();
+    
     /*
 
     */
@@ -89,6 +92,17 @@ int main(int argc, char* argv[]) {
 #if USE_TBK
     std::cout << "Use TBK" << std::endl;
     tbk::init("Rocos-Core");
+    auto callback = [&](const tbk::Data& data){
+        const char* rawData = static_cast<const char*>(data.data());
+        std::string dataStr(rawData, data.size());
+        std::stringstream ss(dataStr);
+        double x,y;
+        char comma;
+        ss >> x >> comma >> y;
+        Utils::UpdateBestPoint(x,y);
+    };
+    tbk::Subscriber<3> s("messi_Puber","ping",callback);
+
 #endif
     QCoreApplication a(argc, argv);
     std::thread t(runLoop);
