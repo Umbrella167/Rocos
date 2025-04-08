@@ -220,7 +220,7 @@ bool Interaction::controlSim(bool control, bool show) {
         }
     } else {
         simProcess = new QProcess();
-        QString name = "./grsim";
+        QString name = "./grSim";
         QStringList args;
         if(!show) args << "-H";
         simProcess->start(name, args);

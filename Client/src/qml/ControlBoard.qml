@@ -506,32 +506,32 @@ Page{
                 }
             }
 
-//            ZGroupBox{
-//                title: qsTr("ZSimulator")
-//                Grid{
-//                    width:parent.width;
-//                    verticalItemAlignment: Grid.AlignVCenter;
-//                    horizontalItemAlignment: Grid.AlignHCenter;
-//                    spacing: 0;
-//                    rowSpacing: 5;
-//                    columns:1;
-//                    property int itemWidth : width - 2*padding;
-//                    ZSwitch{
-//                        id:simGui;
-//                        width:parent.itemWidth;
-//                        leftText:qsTr("Hide");
-//                        rightText:qsTr("Show");
-//                        checked: false;
-//                    }
-//                    ZButton{
-//                        icon.source:control.simConnect ? "/source/stop.png" : "/source/start.png";
-//                        onClicked: {
-//                            control.simConnect = !control.simConnect;
-//                            interaction.controlSim(control.simConnect,simGui.checked);
-//                        }
-//                    }
-//                }
-//            }
+            ZGroupBox{
+                title: qsTr("ZSimulator")
+                Grid{
+                    width:parent.width;
+                    verticalItemAlignment: Grid.AlignVCenter;
+                    horizontalItemAlignment: Grid.AlignHCenter;
+                    spacing: 0;
+                    rowSpacing: 5;
+                    columns:1;
+                    property int itemWidth : width - 2*padding;
+                    ZSwitch{
+                        id:simGui;
+                        width:parent.itemWidth;
+                        leftText:qsTr("Hide");
+                        rightText:qsTr("Show");
+                        checked: false;
+                    }
+                    ZButton{
+                        icon.source:control.simConnect ? "/source/stop.png" : "/source/start.png";
+                        onClicked: {
+                            control.simConnect = !control.simConnect;
+                            interaction.controlSim(control.simConnect,simGui.checked);
+                        }
+                    }
+                }
+            }
             ZGroupBox{
                 title: qsTr("Kill")
                 Grid{

@@ -92,8 +92,10 @@ void Communicator::receiveCommand(int t) {
             }
             if(isSimulation) {
 //                qDebug() << "simulation";
-                if (grsimInterfaceIndex==0)
-                    ZSS::ZSimModule::instance()->sendSim(t, commands);
+                if (grsimInterfaceIndex==0 )
+                    // ZSS::ZSimModule::instance()->sendSim(t, commands);
+                    ZSS::ZRemoteSimModule::instance()->sendSim(t, commands);
+
                 else
                     ZSS::ZRemoteSimModule::instance()->sendSim(t, commands);
             } else {
