@@ -22,7 +22,7 @@ signals:
 public slots:
 
 private:
-//    QUdpSocket sendSocket;
+    QUdpSocket sendSocket;
     void send(grSim_Packet*);
 };
 typedef Singleton<CSimulator> Simulator;

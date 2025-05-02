@@ -67,16 +67,8 @@ void Interaction::updateInterfaces(){
 QStringList Interaction::getInterfaces(){
     return ZNetworkInterfaces::instance()->getInterfaces();
 }
-QStringList Interaction::getGrsimInterfaces(){
-    return ZNetworkInterfaces::instance()->getGrsimInterfaces();
-}
 void Interaction::changeVisionInterface(int index){
-//    if(portNum < ports.size() && portNum >= 0){
-//        serial.setPortName(ports[portNum]);
-//        return true;
-//    }
-    VisionModule::instance()->setInterfaceIndex(index);
-//    qDebug() << "vision interface : " << index;
+    ZNetworkInterfaces::instance()->setInterface("vision", index);
 }
 void Interaction::changeGrsimInterface(int index){
     ZCommunicator::instance()->setGrsimInterfaceIndex(index);
@@ -379,6 +371,12 @@ bool Interaction::changeSerialPort(int index){
 
 QStringList Interaction::getSerialPortsList(){
     return ZSS::NActionModule::instance()->updatePortsList();
+}
+QStringList Interaction::getAvailableIPs(){
+    return ZNetworkInterfaces::instance()->getAvailableIPs();
+}
+void Interaction::setIPIndex(QString key, int index){
+    ZNetworkInterfaces::instance()->setIP(key.toStdString(), index);
 }
 int Interaction::getFrequency(){
     return ZSS::NActionModule::instance()->getFrequency();

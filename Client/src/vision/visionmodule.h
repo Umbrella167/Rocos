@@ -25,7 +25,7 @@ class CVisionModule : public QObject,public ZSPlugin  {
     void needDraw();
   public slots:
     void storeData();
-    void oneStepSimData();
+    // void oneStepSimData();
   private:
     void readSimData();
     void readRemoteSimData();

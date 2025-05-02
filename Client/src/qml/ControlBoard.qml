@@ -123,19 +123,6 @@ Page{
                             interaction.getInterfaces();
                         }
                     }
-//                    ZComboBox{
-//                        id:grsimInterface;
-//                        model:interaction.getGrsimInterfaces();
-//                        onActivated: interaction.changeGrsimInterface(currentIndex);
-//                        function updateModel(){
-//                            model = interaction.getGrsimInterfaces();
-//                            if(currentIndex >= 0)
-//                                interaction.changeGrsimInterface(currentIndex);
-//                        }
-//                        Component.onCompleted: {
-//                            interaction.getGrsimInterfaces();
-//                        }
-//                    }
                     ZSwitch{
                         id:simulation;
                         width:parent.itemWidth;
@@ -172,6 +159,24 @@ Page{
                         onClicked: {
                             visionControls.ifConnected = !visionControls.ifConnected;
                             interaction.setVision(visionControls.ifConnected,simulation.checked);
+                        }
+                    }
+                    Row{
+                        spacing: 10
+                        width: parent.itemWidth;
+                        Button {
+                            id: grSimIP_Text
+                            text: "grSim IP"
+                        }
+                        ZComboBox{
+                            leftPadding:10
+                            height:parent.height;
+                            width:parent.width - 10 - grSimIP_Text.width
+                            model: interaction.getAvailableIPs();
+                            onActivated: interaction.setIPIndex("grSim", currentIndex);
+                            Component.onCompleted:{
+                                interaction.setIPIndex("grSim", 0);
+                            }
                         }
                     }
                 }

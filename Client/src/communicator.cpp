@@ -6,7 +6,6 @@
 #include "actionmodule.h"
 #include "simmodule.h"
 #include "parammanager.h"
-#include "remotesim.h"
 #include "globaldata.h"
 #include "globalsettings.h"
 #include <mutex>
@@ -36,12 +35,8 @@ Communicator::Communicator(QObject *parent) : QObject(parent) {
         qDebug() << "connect sim";
         QObject::connect(ZSS::ZSimModule::instance(), SIGNAL(receiveSimInfo(int, int)), this, SLOT(sendCommand(int, int)),Qt::DirectConnection);
     }
-//    QObject::connect(ZSS::ZRemoteSimModule::instance(), SIGNAL(receiveRemoteInfo(int, int)), this, SLOT(sendCommand(int, int)),Qt::DirectConnection);
     QObject::connect(ZSS::NActionModule::instance(), SIGNAL(receiveRobotInfo(int, int)), this, SLOT(sendCommand(int, int)),Qt::DirectConnection);
     for(int i = 0; i < PARAM::TEAMS; i++) {
-//        connect(&receiveSocket[i], &QUdpSocket::readyRead, [ = ]() {
-//            receiveCommand(i);
-//        });
         if(connectMedusa(i)) {
             receiveThread[i] = new std::thread([ = ] {receiveCommand(i);});
             receiveThread[i]->detach();
@@ -91,14 +86,8 @@ void Communicator::receiveCommand(int t) {
                 commandBuffer[t].robotSpeed[command.robot_id()] = rs;
             }
             if(isSimulation) {
-//                qDebug() << "simulation";
-                if (grsimInterfaceIndex==0)
-                    ZSS::ZSimModule::instance()->sendSim(t, commands);
-                else
-                    ZSS::ZRemoteSimModule::instance()->sendSim(t, commands);
+                ZSS::ZSimModule::instance()->sendSim(t, commands);
             } else {
-//                qDebug() << "realreal!";
-                // ZSS::ZActionModule::instance()->sendLegacy(t, commands);
                 ZSS::NActionModule::instance()->sendLegacy(commands);
             }
         }

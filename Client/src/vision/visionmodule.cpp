@@ -54,43 +54,29 @@ bool CVisionModule::showIfEdgeTest() {
     return IF_EDGE_TEST;
 }
 void CVisionModule::udpSocketConnect(bool real) {
-    int grsimInterface = ZCommunicator::instance()->getGrsimInterfaceIndex();
+    // int grsimInterface = ZCommunicator::instance()->getGrsimInterfaceIndex();
     if (real) {
         zpm->loadParam(vision_port, "AlertPorts/Vision4Real", 10005);
     }
-    else if(grsimInterface != 0) {
-        zpm->loadParam(vision_port, "AlertPorts/Vision4Remote", 10066);
-    }
+    // else if(grsimInterface != 0) {
+        // zpm->loadParam(vision_port, "AlertPorts/Vision4Remote", 10066);
+    // }
     else{
         zpm->loadParam(vision_port, "AlertPorts/Vision4Sim", 10020);
     }
     zpm->loadParam(saoAction, "Alert/SaoAction", 0);
     GlobalData::instance()->setCameraMatrix(real);
 
-    if(real || grsimInterface != 0){
-        qDebug() << "VisionPort : " << vision_port;
-        udpReceiveSocket.bind(QHostAddress::AnyIPv4, vision_port, QUdpSocket::ShareAddress);
-        udpReceiveSocket.joinMulticastGroup(QHostAddress(ZSS::SSL_ADDRESS),ZNetworkInterfaces::instance()->getFromIndex(_interface));
-        connect(&udpReceiveSocket, SIGNAL(readyRead()), this, SLOT(storeData()), Qt::DirectConnection);
-    }
-    else{
-        int desired = 65;
-        ZSS::SParamManager::instance()->loadParam(desired,"worldp_vars/DesiredFPS");
-        if(desired > 500) desired = 500;
-        connect(&sim_timer,SIGNAL(timeout()),this,SLOT(oneStepSimData()),Qt::DirectConnection);
-        dealThread = new std::thread([ = ] {readSimData();});
-        dealThread->detach();
-        sim_timer.start(int(1000/desired));
-    }
+    qDebug() << "VisionPort : " << vision_port;
+    udpReceiveSocket.bind(QHostAddress::AnyIPv4, vision_port, QUdpSocket::ShareAddress);
+    udpReceiveSocket.joinMulticastGroup(QHostAddress(ZSS::SSL_ADDRESS),ZNetworkInterfaces::instance()->getInterface("vision"));
+    connect(&udpReceiveSocket, SIGNAL(readyRead()), this, SLOT(storeData()), Qt::DirectConnection);
+
     ReceiveVisionMessage temp;
     for (int i = 0; i < PARAM::CAMERA; i++) {
         GlobalData::instance()->camera[i].push(temp);
     }
 }
-void CVisionModule::setInterfaceIndex(const int index){ _interface = index; }
-/**
- * @brief disconnect UDP
- */
 void CVisionModule::udpSocketDisconnect() {
     if (IF_EDGE_TEST) {
         for (int i = 0; i < PARAM::CAMERA; i++) {
@@ -165,21 +151,21 @@ void CVisionModule::storeData() {
         parse((void*)datagram.data(), datagram.size());
     }
 }
-void CVisionModule::oneStepSimData(){
-    publish("sim_signal");
-}
-void CVisionModule::readSimData(){
-    SetThreadName("VisionPluginThread");
-    static ZSData datagram;
-    while(true) {
-        receive("ssl_vision",datagram);
-        parse((void*)datagram.data(), datagram.size());
-    }
-}
+// void CVisionModule::oneStepSimData(){
+    // publish("sim_signal");
+// }
+// void CVisionModule::readSimData(){
+    // SetThreadName("VisionPluginThread");
+    // static ZSData datagram;
+    // while(true) {
+        // receive("ssl_vision",datagram);
+        // parse((void*)datagram.data(), datagram.size());
+    // }
+// }
 
-void CVisionModule::readRemoteSimData(){
-
-}
+// void CVisionModule::readRemoteSimData(){
+// 
+// }
 /**
  * @brief process data
  * @return

@@ -10,10 +10,9 @@ namespace{
 }
 CSimulator::CSimulator(QObject *parent) : QObject(parent),ZSPlugin("Simulator")
 {
-//    sendSocket.setSocketOption(QAbstractSocket::MulticastTtlOption, 1);
-    declare_publish("sim_packet");
-    this->link(SSLWorld::instance(),"sim_packet");
-
+    sendSocket.setSocketOption(QAbstractSocket::MulticastTtlOption, 1);
+    // declare_publish("sim_packet");
+    // this->link(SSLWorld::instance(),"sim_packet");
 }
 void CSimulator::setBall(double x,double y,double vx,double vy){
     grSim_Packet packet;
@@ -68,6 +67,5 @@ void CSimulator::send(grSim_Packet* packet){
     int size = packet->ByteSizeLong();
     data.resize(size);
     packet->SerializeToArray(data.ptr(), size);
-    publish("sim_packet",data);
-//    sendSocket.writeDatagram(buffer,size, QHostAddress(ZSS::LOCAL_ADDRESS),ZSS::Athena::SIM_SEND);
+    sendSocket.writeDatagram((const char*)data.data(), size, QHostAddress(ZSS::LOCAL_ADDRESS),ZSS::Athena::SIM_SEND);
 }
