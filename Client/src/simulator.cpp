@@ -1,5 +1,4 @@
 #include "simulator.h"
-#include "sim/sslworld.h"
 #include "staticparams.h"
 #include <QtDebug>
 namespace{

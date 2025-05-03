@@ -21,7 +21,7 @@ if (NOT UNIX AND NOT APPLE)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
 endif()
 
-add_subdirectory(plugins)
+# add_subdirectory(plugins)
 
 set(libs)
 
@@ -79,6 +79,7 @@ set(PROTO_LIST
     ssl_referee
     vision_detection
     zss_cmd
+    zss_cmd_type
     zss_debug
     zss_geometry
     zss_rec_old
@@ -112,7 +113,7 @@ set(SRC
     ${CPPFILES}
 )
 set(zss_libs
-    zss_simulator
+    # zss_simulator
 )
 add_executable(${TARGET_NAME} ${SRC} "Client.qrc" "Client.rc")
 target_compile_definitions(${TARGET_NAME} PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)

@@ -7,8 +7,7 @@
 #include "vision_detection.pb.h"
 #include "staticparams.h"
 #include "messageformat.h"
-#include "zsplugin.hpp"
-class CVisionModule : public QObject,public ZSPlugin  {
+class CVisionModule : public QObject{
     Q_OBJECT
   public:
     CVisionModule(QObject *parent = 0);

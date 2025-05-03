@@ -15,6 +15,7 @@ NetworkInterfaces::NetworkInterfaces(){
         if (Ping(test_ip))
             pingIPs.append(test_ip);
     }
+    pingIPs.append(QString("192.168.31.190"));
 }
 QString NetworkInterfaces::getLocalAddress()
 {

@@ -15,7 +15,6 @@
 #include <QTimer>
 #include <thread>
 #include "setthreadname.h"
-#include "sim/sslworld.h"
 namespace {
 auto zpm = ZSS::ZParamManager::instance();
 auto vpm = ZSS::VParamManager::instance();
@@ -28,7 +27,6 @@ std::thread* dealThread;
  */
 CVisionModule::CVisionModule(QObject *parent)
     : QObject(parent)
-    , ZSPlugin ("visionmodule")
     , udpReceiveSocket()
     , udpSendSocket()
     , IF_EDGE_TEST(false)
@@ -37,11 +35,6 @@ CVisionModule::CVisionModule(QObject *parent)
     std::fill_n(GlobalData::instance()->cameraUpdate, PARAM::CAMERA, false);
     std::fill_n(GlobalData::instance()->cameraControl, PARAM::CAMERA, true);
     std::fill_n(GlobalData::instance()->processControl, 3, true);
-    declare_receive("ssl_vision");
-    declare_publish("sim_signal");
-    SSLWorld::instance()->link(this,"ssl_vision");
-    this->link(SSLWorld::instance(),"sim_signal");
-    SSLWorld::instance()->start();
 }
 /**
  * @brief connect UDP for receive vision

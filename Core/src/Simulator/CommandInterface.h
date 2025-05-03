@@ -11,6 +11,7 @@
 #include "staticparams.h"
 #include <QObject>
 #include <OptionModule.h>
+#include "zss_cmd.pb.h"
 
 class QUdpSocket;
 
@@ -49,6 +50,7 @@ private:
     const COptionModule *pOption;
     QUdpSocket *command_socket;
     QUdpSocket *receiveSocket;
+    ZSS::New::Robot_Command::CommType ROBOT_COMM_TYPE[PARAM::Field::MAX_PLAYER];
 };
 
 #endif

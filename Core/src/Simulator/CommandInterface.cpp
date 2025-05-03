@@ -20,7 +20,7 @@ int SELF_PORT = 0;
 int CHIP_ANGLE = 1;
 int TEAM;
 bool DEBUG_CMD = false;
-ZSS::Protocol::Robots_Command robots_command;
+ZSS::New::Robots_Command robots_command;
 std::thread *_thread = nullptr;
 }
 
@@ -34,6 +34,11 @@ CCommandInterface::CCommandInterface(const COptionModule *pOption, QObject *pare
     ZSS::ZParamManager::instance()->loadParam(isYellow, "ZAlert/IsYellow", false);
 
     ZSS::ZParamManager::instance()->loadParam(DEBUG_CMD,"Debug/DeviceCmd",false);
+
+    for(int i=0;i<PARAM::Field::MAX_PLAYER;i++){
+        ROBOT_COMM_TYPE[i] = ZSS::New::Robot_Command_CommType_SERIAL;
+    }
+
     TEAM = isYellow ? PARAM::YELLOW : PARAM::BLUE;
     command_socket = new QUdpSocket();
     receiveSocket = new QUdpSocket();
@@ -53,8 +58,8 @@ void CCommandInterface::setSpeed(int num, double dribble, double vx, double vy, 
         return;
     }
     commands[number].dribble_spin = dribble;
-    commands[number].velocity_x = vx;
-    commands[number].velocity_y = vy;
+    commands[number].velocity_x = vx/1000.0;
+    commands[number].velocity_y = vy/1000.0;
     commands[number].velocity_r = vr;
 
 }
@@ -64,8 +69,8 @@ void CCommandInterface::setKick(int num, double kp, double cp, bool direct_kick_
         //std::cout << "Robot Number Error in Simulator setKick" << std::endl;
         return;
     }
-    commands[number].flat_kick = kp;
-    commands[number].chip_kick = cp;
+    commands[number].flat_kick = kp/1000.0;
+    commands[number].chip_kick = cp/1000.0;
     commands[number].direct_kick_no_calibration = direct_kick_no_calibration;
     commands[number].direct_kick_power = direct_kick_power;
 }
@@ -88,21 +93,32 @@ void CCommandInterface::sendCommands() {
         }
         auto robot_command = robots_command.add_command();
         robot_command->set_robot_id(i);
-        robot_command->set_velocity_x(commands[i].velocity_x);
-        robot_command->set_velocity_y(commands[i].velocity_y);
-        robot_command->set_velocity_r(commands[i].velocity_r);
-        robot_command->set_dribbler_spin(commands[i].dribble_spin);
-        robot_command->set_use_dir(commands[i].use_dir);
+        robot_command->set_comm_type(ROBOT_COMM_TYPE[i]);
+        robot_command->set_cmd_type(ZSS::New::Robot_Command::CmdType::Robot_Command_CmdType_CMD_VEL);
+        auto robot_cmd_vel = robot_command->mutable_cmd_vel();
+        robot_cmd_vel->set_velocity_x(commands[i].velocity_x);
+        robot_cmd_vel->set_velocity_y(commands[i].velocity_y);
+        robot_cmd_vel->set_velocity_r(commands[i].velocity_r);
+        robot_command->set_dribble_spin(commands[i].dribble_spin);
+        if(commands[i].use_dir){
+            qDebug() << "use_dir True, but not implemented";
+        }else{
+            robot_cmd_vel->set_use_imu(false);
+            robot_cmd_vel->set_velocity_r(commands[i].velocity_r);   
+        }
         robot_command->set_need_report(commands[i].need_report);
         if(commands[i].dribble_spin >=1){
             GDebugEngine::Instance()->gui_debug_arc(VisionModule::Instance()->ourPlayer(i).RawPos(),5,0,360,COLOR_BLACK);
         }
-        if(commands[i].chip_kick < 0.001) { //flat kick
-            robot_command->set_kick(false);
-            robot_command->set_power(commands[i].flat_kick);
-        } else {
-            robot_command->set_kick(true);
-            robot_command->set_power(commands[i].chip_kick);
+        if(commands[i].flat_kick > 0.001) { //flat kick
+            robot_command->set_kick_mode(ZSS::New::Robot_Command::KickMode::Robot_Command_KickMode_KICK);
+            robot_command->set_desire_power(commands[i].flat_kick);
+        }
+        else if(commands[i].chip_kick > 0.001) {
+            robot_command->set_kick_mode(ZSS::New::Robot_Command::KickMode::Robot_Command_KickMode_CHIP);
+            robot_command->set_desire_power(commands[i].chip_kick);
+        }else{
+            robot_command->set_kick_mode(ZSS::New::Robot_Command::KickMode::Robot_Command_KickMode_NONE);
         }
     }
     if(DEBUG_CMD){
@@ -123,14 +139,14 @@ void CCommandInterface::sendCommands() {
             auto&& cmd = robots_command.command(i);
             std::array<std::string,DATA_SIZE> info_str{
                 fmt::format("{:>7d}",cmd.robot_id()),
-                fmt::format("{:>7.0f}",cmd.velocity_x()),
-                fmt::format("{:>7.0f}",cmd.velocity_y()),
-                fmt::format("{:>7.2f}",cmd.velocity_r()),
-                fmt::format("{:>7.2f}",cmd.dribbler_spin()),
-                fmt::format("{:>7s}",cmd.kick() ? "✓" : "✕"),
-                fmt::format("{:>7.0f}",cmd.power())
+                fmt::format("{:>7.0f}",cmd.cmd_vel().velocity_x()),
+                fmt::format("{:>7.0f}",cmd.cmd_vel().velocity_y()),
+                fmt::format("{:>7.2f}",cmd.cmd_vel().velocity_r()),
+                fmt::format("{:>7.2f}",cmd.dribble_spin()),
+                fmt::format("{:>7s}",cmd.kick_mode()!=ZSS::New::Robot_Command::KickMode::Robot_Command_KickMode_NONE  ? "✓" : "✕"),
+                fmt::format("{:>7.0f}",cmd.desire_power())
             };
-            std::array<bool,DATA_SIZE> info_check{1, std::abs(cmd.velocity_x())>1, std::abs(cmd.velocity_y())>1, std::abs(cmd.velocity_r())>0.01, cmd.dribbler_spin()>0.1, cmd.kick(), cmd.power()>100};
+            std::array<bool,DATA_SIZE> info_check{1, std::abs(cmd.cmd_vel().velocity_x())>1, std::abs(cmd.cmd_vel().velocity_y())>1, std::abs(cmd.cmd_vel().velocity_r())>0.01, cmd.dribble_spin()>0.1, cmd.kick_mode()!=ZSS::New::Robot_Command::KickMode::Robot_Command_KickMode_NONE, cmd.desire_power()>100};
             std::string msg,msg_invalid;
             for(int j=0;j<info_str.size();j++){
                 msg += fmt::format("{:>7s}",info_check[j] ? info_str[j] : "");
@@ -149,7 +165,7 @@ void CCommandInterface::sendCommands() {
 }
 
 void CCommandInterface::receiveInformation() {
-    ZSS::Protocol::Robot_Status robot_status;
+    ZSS::New::Robot_Status robot_status;
     QByteArray datagram;
     QHostAddress address;
     quint16 udp_port;
