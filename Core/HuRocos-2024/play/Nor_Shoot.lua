@@ -71,6 +71,7 @@ firstState = "Init",
 		resShootPos = task.compensateAngle("Assister",Vy,param.shootPos,ToTargetDist * param.rotCompensate(player.num("Assister")))
 	end,
 	Assister = task.getball(function() return shoot_pos end,param.playerVel,param.getballMode),
+
 	match = "[A]"
 },
 

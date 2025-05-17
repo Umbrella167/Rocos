@@ -586,8 +586,8 @@ namespace Utils
             if (InExclusionZone(ballPrePos, 0) && permissions == 0)
                 continue;
             // 判断是否在场外
-            if (!InField(ballPrePos) && permissions < 2)
-                continue;
+            // if (!InField(ballPrePos) && permissions < 2)
+            //     continue;
             if (maxTolerance != -inf && tolerance < 0)
                 break;
 
@@ -653,7 +653,13 @@ namespace Utils
                 break;
             }
         }
-        else if (InField(maxBallPos) && !InExclusionZone(maxBallPos))
+//         else if (InField(maxBallPos) && !InExclusionZone(maxBallPos))
+//         {
+//             // 返回最远的球位置(场内)
+// //                        GDebugEngine::Instance()->gui_debug_line(playerPos, maxBallPos,5,1);
+//             return maxBallPos;
+//         }
+        else if (!InExclusionZone(maxBallPos))
         {
             // 返回最远的球位置(场内)
 //                        GDebugEngine::Instance()->gui_debug_line(playerPos, maxBallPos,5,1);

@@ -33,45 +33,45 @@ function Getball(task)
 
 		local playerEndVelONE = {
 			-- [num] = {endVel, ballVelRate} 
-			[-1] = {0,1}, -- Other
-			[0] = {0,1},
-			[1] = {0,1},
-			[2] = {0,1},
-			[3] = {0,1},
-			[4] = {0,1},	
-			[5] = {0,1},
-			[6] = {200,1},
-			[7] = {0,1},
-			[8] = {0,1},
-			[9] = {0,1},
-			[10] = {0,1},
-			[11] = {0,50},
-			[12] = {0,1},
-			[13] = {0,1},
-			[14] = {0,1},
-			[15] = {0,1},
-			[16] = {0,1}, -- Other
+			[-1] = {50,1}, -- Other
+			[0] = {50,1},
+			[1] = {50,1},
+			[2] = {50,1},
+			[3] = {50,1},
+			[4] = {50,1},	
+			[5] = {50,1},
+			[6] = {50,1},
+			[7] = {50,1},
+			[8] = {50,1},
+			[9] = {50,1},
+			[10] = {50,1},
+			[11] = {50,1},
+			[12] = {50,1},
+			[13] = {50,1},
+			[14] = {50,1},
+			[15] = {50,1},
+			[16] = {50,1}, -- Other
 		}
 		local playerEndVelTWO = {
 			-- [num] = {endVel, ballVelRate} 
-			[-1] = {0,1}, -- Other
-			[0] = {0,1},
-			[1] = {100,1},
-			[2] = {0,1},
-			[3] = {0,1},
-			[4] = {500,1},	
-			[5] = {0,1},
-			[6] = {200,1.2},
-			[7] = {0,1},
-			[8] = {0,1},
-			[9] = {0,1},
-			[10] = {0,1},
-			[11] = {0,50},
-			[12] = {0,1},
-			[13] = {0,1},
-			[14] = {0,1},
-			[15] = {0,1},
-			[16] = {0,1}, -- Other
+			[-1] = {50,1}, -- Other
+			[0] = {50,1},
+			[1] = {50,1},
+			[2] = {50,1},
+			[3] = {50,1},
+			[4] = {50,1},	
+			[5] = {50,1},
+			[6] = {50,1},
+			[7] = {50,1},
+			[8] = {50,1},
+			[9] = {50,1},
+			[10] = {50,1},
+			[11] = {50,1},
+			[12] = {50,1},
+			[13] = {50,1},
+			[14] = {50,1},
+			[15] = {50,1},
+			[16] = {50,1}, -- Other
 		}
 		local playerEndVel = (param.Team == "ONE") and playerEndVelONE or playerEndVelTWO
 		--获取常用数据
@@ -174,6 +174,9 @@ function Getball(task)
 			msender = player.num(task.sender)
 		end
 		debugError = mdir == player.toBallDir(runner) and debugError.."  ToBallDir " or debugError.. "  ToInterPosDir "
+		if not Utils.InExclusionZone(CGeoPoint(mpos),50,"all") then
+			iflag = iflag + flag.our_ball_placement
+		end
 		debugEngine:gui_debug_x(inter_pos,4)
 		debugEngine:gui_debug_msg(inter_pos,debugError,4,0,80)
 		task_param = TaskT:new_local()

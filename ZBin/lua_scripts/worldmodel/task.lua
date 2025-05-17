@@ -185,6 +185,7 @@ function getball(shootPos_,playerVel, inter_flag, permissions)
 			ishootpos = shootPos_
 		end
 		local ipermissions = permissions or 0
+
 		local mexe, mpos = Getball {shootPos = ishootpos,permissions = ipermissions ,inter_flag = inter_flag, pos = pp, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
 		return { mexe, mpos }
 	end
