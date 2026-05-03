@@ -39,17 +39,30 @@ bool CActionModule::sendAction() {
     /************************************************************************/
     /* 第一步：遍历小车，执行赋予的任务，生成动作指令                       */
     /************************************************************************/
+    int gpRobotId = GamepadCommand::Instance()->getRobotId();
+    bool gpActive = GamepadCommand::Instance()->isActive();
+    bool gpSkillActive = gpActive && (GamepadCommand::Instance()->getButton(0)
+                                   || GamepadCommand::Instance()->getButton(1)
+                                   || GamepadCommand::Instance()->getButton(3)
+                                   || GamepadCommand::Instance()->getButton(4));
+
     for (int vecNum = 0; vecNum < PARAM::Field::MAX_PLAYER; ++ vecNum) {
-        // 跳过被手柄直接控制的机器人（无技能按钮时由 ManualController 直接发命令）
-        int gpRobotId = GamepadCommand::Instance()->getRobotId();
-        if (gpRobotId >= 0 && gpRobotId < PARAM::Field::MAX_PLAYER && vecNum == gpRobotId) {
-            bool skillActive = GamepadCommand::Instance()->getButton(0)  // A
-                            || GamepadCommand::Instance()->getButton(1)  // B
-                            || GamepadCommand::Instance()->getButton(3)  // X
-                            || GamepadCommand::Instance()->getButton(4); // Y
-            if (!skillActive) {
-                continue;
+        // 手柄直接控制模式：无技能按钮时，将 ManualController 的速度/带球/踢注入 CommandInterface
+        if (gpActive && vecNum == gpRobotId && !gpSkillActive) {
+            float vx = GamepadCommand::Instance()->getVelX();
+            float vy = GamepadCommand::Instance()->getVelY();
+            float vr = GamepadCommand::Instance()->getVelR();
+            bool dribble = GamepadCommand::Instance()->getDribble();
+            bool kickActive = GamepadCommand::Instance()->getKickActive();
+            float kickPower = GamepadCommand::Instance()->getKickPower();
+            double dribbleVal = dribble ? 10.0 : 0.0;
+            CCommandInterface::instance()->setSpeed(vecNum, dribbleVal, vx, vy, vr);
+            if (kickActive && kickPower > 0) {
+                CCommandInterface::instance()->setKick(vecNum, kickPower, 0);
+            } else {
+                CCommandInterface::instance()->setKick(vecNum, 0, 0);
             }
+            continue;
         }
 
         // 获取当前小车任务

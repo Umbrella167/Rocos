@@ -10,17 +10,35 @@ pressed_map = {
     [10] = "W",
     [15] = "S",
     [11] = "M",
+    [13] = "LM",
+    [14] = "RM",
 }
 
 function pressed()
     local pressed_id = gamepadCmd:getFirstPressed()
-    return pressed_map[pressed_id]
+    key = pressed_map[pressed_id]
+    if key then 
+        return key
+    else
+        return pressed_id
+    end
 end
 
-
 skill_map = { 
-    ["X"] = task.getball(ball.pos,param.playerVel,param.getballMode),
+    ["X"] = task.getball(ball.pos, param.playerVel, param.getballMode),
+    ["Y"] = function()
+        local gpRobotId = gamepadCmd:getRobotId()
+        if gpRobotId < 0 then return task.stop() end
+        gRoleNum["Assister"] = gpRobotId
+        local rt = gSubPlay.roleTask("ShootPoint", "Assister")
+        if rt and rt.task then
+            gSubPlay.register("", "Assister", rt.args)
+            return rt.task()
+        end
+        return task.stop()
+    end,
 }
+
 function skill()
     return function()
         local key = pressed()

@@ -1,8 +1,6 @@
 #include "manualcontroller.h"
 #include "globaldata.h"
 #include "networkinterfaces.h"
-#include "grSim_Packet.pb.h"
-#include "grSim_Commands.pb.h"
 #include <QtMath>
 #include <QCoreApplication>
 #include <QKeyEvent>
@@ -131,40 +129,40 @@ void ManualController::setDeceleration(qreal v) { if (qFuzzyCompare(m_decelerati
 void ManualController::setRotKp(qreal v) { if (qFuzzyCompare(m_rotKp, v)) return; m_rotKp = v; emit rotKpChanged(); }
 void ManualController::setRotKd(qreal v) { if (qFuzzyCompare(m_rotKd, v)) return; m_rotKd = v; emit rotKdChanged(); }
 
-void ManualController::sendToGrSim(double vx, double vy, double vr,
-                                    bool kick, double kickPower, bool dribble) {
-    int index = 0;
-    QStringList ips = ZNetworkInterfaces::instance()->getGrsimInterfaces();
-    if (index >= 0 && index < ips.size()) {
-    } else {
-        return;
-    }
-    QString targetIP = ips[index];
+void ManualController::sendGamepadCmd(float vx, float vy, float vr,
+                                       bool kick, float kickPower, bool dribble) {
+    if (m_gamepadCmdFd < 0) return;
+    const int BTN_COUNT = 16;
+    const int PKT_SIZE = 35;
+    uint8_t buf[PKT_SIZE];
+    std::memset(buf, 0, PKT_SIZE);
 
-    grSim_Packet packet;
-    auto* commands = packet.mutable_commands();
-    commands->set_isteamyellow(m_team != 0);
-    commands->set_timestamp(0.0);
-    auto* robotCmd = commands->add_robot_commands();
-    robotCmd->set_id(m_robotId);
-    robotCmd->set_wheelsspeed(false);
-    robotCmd->set_veltangent(vx);
-    robotCmd->set_velnormal(vy);
-    robotCmd->set_velangular(vr);
-    robotCmd->set_spinner(dribble);
-
-    if (kick && kickPower > 0) {
-        robotCmd->set_kickspeedx(kickPower * 1000.0);
-        robotCmd->set_kickspeedz(0);
-    } else {
-        robotCmd->set_kickspeedx(0);
-        robotCmd->set_kickspeedz(0);
+    if (m_gamepad) {
+        SDL_Joystick* joy = SDL_GameControllerGetJoystick(m_gamepad);
+        if (joy) {
+            for (int i = 0; i < BTN_COUNT; ++i) {
+                buf[i] = SDL_JoystickGetButton(joy, i) ? 1 : 0;
+            }
+        }
     }
 
-    int size = packet.ByteSizeLong();
-    QByteArray data(size, 0);
-    packet.SerializeToArray(data.data(), size);
-    m_grsimSocket.writeDatagram(data, size, QHostAddress(targetIP), ZSS::Athena::SIM_SEND);
+    buf[BTN_COUNT] = dribble ? 1 : 0;
+    buf[BTN_COUNT + 1] = static_cast<uint8_t>(m_robotId);
+
+    float fvx = vx, fvy = vy, fvr = vr, fkp = kickPower;
+    std::memcpy(&buf[18], &fvx, 4);
+    std::memcpy(&buf[22], &fvy, 4);
+    std::memcpy(&buf[26], &fvr, 4);
+    std::memcpy(&buf[30], &fkp, 4);
+    buf[34] = kick ? 1 : 0;
+
+    struct sockaddr_in addr;
+    std::memset(&addr, 0, sizeof(addr));
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(ZSS::Athena::GAMEPAD_CMD_SEND[m_team]);
+    inet_pton(AF_INET, ZSS::LOCAL_ADDRESS.toLatin1().constData(), &addr.sin_addr);
+    sendto(m_gamepadCmdFd, buf, PKT_SIZE, 0,
+           (struct sockaddr*)&addr, sizeof(addr));
 }
 
 void ManualController::tick() {
@@ -195,7 +193,7 @@ void ManualController::tick() {
         m_cmdGlobalVy = 0;
         m_currentVx = m_currentVy = m_currentVr = 0;
         emit velocityChanged();
-        sendToGrSim(0, 0, 0, false, 0, false);
+        sendGamepadCmd(0, 0, 0, false, 0, false);
         return;
     }
 
@@ -205,7 +203,7 @@ void ManualController::tick() {
         m_cmdGlobalVy = 0;
         m_currentVx = m_currentVy = m_currentVr = 0;
         emit velocityChanged();
-        sendGamepadCmd();
+        sendGamepadCmd(0, 0, 0, false, 0, false);
         return;
     }
 
@@ -312,11 +310,17 @@ void ManualController::tick() {
     m_currentVr = cmdVr;
     emit velocityChanged();
 
-    sendToGrSim(cmdLocalVx, cmdLocalVy, cmdVr, doKick, kickPwr, doDribble);
-
-    if (m_useGamepad) {
-        sendGamepadCmd();
+    double sendVx = cmdLocalVx;
+    double sendVy = cmdLocalVy;
+    double sendMag = qSqrt(sendVx * sendVx + sendVy * sendVy);
+    if (sendMag < 0.15) {
+        sendVx = 0;
+        sendVy = 0;
     }
+
+    sendGamepadCmd(static_cast<float>(sendVx * 1000.0), static_cast<float>(sendVy * 1000.0),
+                   static_cast<float>(cmdVr), doKick, static_cast<float>(kickPwr * 1000.0),
+                   doDribble);
 }
 
 void ManualController::initSDL() {
@@ -390,6 +394,18 @@ void ManualController::pollGamepad() {
     bool btnBack = joy ? SDL_JoystickGetButton(joy, 4) : false;
     bool btnStart = joy ? SDL_JoystickGetButton(joy, 5) : false;
 
+    bool btnLStick = joy ? SDL_JoystickGetButton(joy, 13) : false;
+    if (btnLStick && !m_gpBtnLStick) {
+        m_savedMaxSpeed = m_maxSpeed;
+        m_savedAcceleration = m_acceleration;
+        setMaxSpeed(3.0);
+        setAcceleration(6.0);
+    } else if (!btnLStick && m_gpBtnLStick) {
+        setMaxSpeed(m_savedMaxSpeed);
+        setAcceleration(m_savedAcceleration);
+    }
+    m_gpBtnLStick = btnLStick;
+
     m_gpBtnLB = btnLB;
     m_gpBtnRBPrev = m_gpBtnRB;
     m_gpBtnRB = btnRB;
@@ -399,27 +415,6 @@ void ManualController::pollGamepad() {
     m_gpLeftY = -leftY;
     m_gpRightX = rightX;
     m_gpRightY = -rightY;
-}
-
-void ManualController::sendGamepadCmd() {
-    if (m_gamepadCmdFd < 0 || !m_gamepad) return;
-    SDL_Joystick* joy = SDL_GameControllerGetJoystick(m_gamepad);
-    if (!joy) return;
-    const int BTN_COUNT = 16;
-    const int PKT_SIZE = BTN_COUNT + 2;
-    uint8_t buf[PKT_SIZE];
-    for (int i = 0; i < BTN_COUNT; ++i) {
-        buf[i] = SDL_JoystickGetButton(joy, i) ? 1 : 0;
-    }
-    buf[BTN_COUNT] = m_dribble ? 1 : 0;
-    buf[BTN_COUNT + 1] = static_cast<uint8_t>(m_robotId);
-    struct sockaddr_in addr;
-    std::memset(&addr, 0, sizeof(addr));
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(ZSS::Athena::GAMEPAD_CMD_SEND[m_team]);
-    inet_pton(AF_INET, ZSS::LOCAL_ADDRESS.toLatin1().constData(), &addr.sin_addr);
-    sendto(m_gamepadCmdFd, buf, PKT_SIZE, 0,
-           (struct sockaddr*)&addr, sizeof(addr));
 }
 
 void ManualController::updateStatus() {

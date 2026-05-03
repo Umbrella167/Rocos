@@ -1,28 +1,17 @@
-local testPos = {
-    CGeoPoint:new_local(3000, 3100), 
-    CGeoPoint:new_local(-3000, 3100),
-    CGeoPoint:new_local(-3000,-3100),
-    CGeoPoint:new_local(3000,-3100)
-}
-local vel = CVector:new_local(0, 0)
-local maxvel = 0
-local time = 1
-local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
-
-local DIR = function()
-    return (player.pos('Assister') - ball.pos()):dir()
-end
 
 return {
     firstState = "init",
     ["init"] = {
         switch = function()
+            gSubPlay.new("ShootPoint", "Nor_Shoot",{pos = function() return shoot_pos end})
+            gSubPlay.new("Goalie", "Nor_Goalie")
             if bufcnt(true,50) then 
                 return "skill"
             end
         end,
         Leader = task.stop(),
-        match = "{L}"
+        Goalie = gSubPlay.roleTask("Goalie", "Goalie"),
+        match = "{LG}"
     },
     ["skill"] = {
         switch = function()
@@ -30,8 +19,11 @@ return {
             debugEngine:gui_debug_msg(CGeoPoint:new_local(0,0),key)
         end,
         Leader = gamepad.skill(),
+        Goalie = gSubPlay.roleTask("Goalie", "Goalie"),
+
         -- Leader = task.touch(CGeoPoint:new_local(0,0))
-        match = "{L}"
+        match = "{LG}"
+
     },
     name = "TestMyRun",
     applicable = {

@@ -6,7 +6,6 @@
 #include <QVector2D>
 #include <QTimer>
 #include <QElapsedTimer>
-#include <QUdpSocket>
 #include "staticparams.h"
 
 struct _SDL_GameController;
@@ -102,8 +101,7 @@ private:
     void processKey(int key, bool pressed);
     void tick();
     void updateStatus();
-    void sendToGrSim(double vx, double vy, double vr, bool kick, double kickPower, bool dribble);
-    void sendGamepadCmd();
+    void sendGamepadCmd(float vx, float vy, float vr, bool kick, float kickPower, bool dribble);
     void initSDL();
     void pollGamepad();
     void openGamepad(int deviceIndex);
@@ -153,8 +151,6 @@ private:
     double m_gpLeftY = 0;
     double m_gpRightX = 0;
     double m_gpRightY = 0;
-    double m_gpTriggerL = 0;
-    double m_gpTriggerR = 0;
     bool m_gpBtnA = false;
     bool m_gpBtnB = false;
     bool m_gpBtnX = false;
@@ -164,11 +160,13 @@ private:
     bool m_gpBtnRBPrev = false;
     bool m_gpBtnBack = false;
     bool m_gpBtnStart = false;
+    bool m_gpBtnLStick = false;
+    qreal m_savedMaxSpeed = 3.0;
+    qreal m_savedAcceleration = 6.0;
     int m_gamepadCmdFd = -1;
 
     QTimer *m_timer;
     QElapsedTimer m_lastMouseTime;
-    QUdpSocket m_grsimSocket;
     QString m_statusText;
 
     static ManualController* s_instance;
