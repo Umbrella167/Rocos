@@ -7,6 +7,7 @@ CGDebugEngine*  debugEngine;
 CWorldModel* world;
 CSkillAPI* skillapi;
 CBallSpeedModel *ballModel;
+CGamepadCommand* gamepadCmd;
 void initializeSingleton()
 {
 	vision        = VisionModule::Instance();
@@ -16,4 +17,5 @@ void initializeSingleton()
     world         = WorldModel::Instance();
 	skillapi	  = SkillAPI::Instance();
 	ballModel = BallSpeedModel::Instance();
+	gamepadCmd = GamepadCommand::Instance();
 }

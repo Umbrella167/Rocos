@@ -51,6 +51,10 @@ Page{
         id:interaction4field
     }
 
+    ZSS.ManualController{
+        id:manualController;
+    }
+
     property variant shortCutString:["`","1","2","3","4","5","6","7","8","9","0","-","=","i","o","p","[",
         "Ctrl+`","Ctrl+1","Ctrl+2","Ctrl+3","Ctrl+4","Ctrl+5","Ctrl+6","Ctrl+7","Ctrl+8","Ctrl+9","Ctrl+0","Ctrl+-","Ctrl+=","Ctrl+i","Ctrl+o","Ctrl+p","Ctrl+["];
     property variant recplayerShortCut: ["m", "Left", "Right", "Up", "Down"];
@@ -618,7 +622,152 @@ Page{
         //        }
         //    }
            ZGroupBox{
-               title: qsTr("Rec")
+               title: qsTr("Manual Control")
+               Column{
+                   width:parent.width;
+                   spacing: 5;
+                   padding: 0;
+                   property int itemWidth : width - 2*padding;
+                    ZSwitch{
+                        id: manualSwitch;
+                        width: parent.itemWidth;
+                        leftText: qsTr("OFF");
+                        rightText: qsTr("ON");
+                        checked: false;
+                        onCheckedChanged: {
+                            manualController.active = checked;
+                        }
+                    }
+                    Grid{
+                        width: parent.itemWidth;
+                        columns: 2;
+                        columnSpacing: 5;
+                        rowSpacing: 2;
+                        verticalItemAlignment: Grid.AlignVCenter;
+                        Label{ text: "Input:"; color: "white" }
+                        ZSwitch{
+                            id: inputModeSwitch;
+                            width: parent.width / 2;
+                            leftText: "Keyboard";
+                            rightText: "Gamepad";
+                            checked: manualController.useGamepad;
+                            onCheckedChanged: {
+                                manualController.useGamepad = checked;
+                            }
+                        }
+                        Label{ text: "Gamepad:"; color: "white" }
+                        Label{
+                            text: manualController.gamepadConnected ? "Connected" : "Not found";
+                            color: manualController.gamepadConnected ? "#00ff00" : "#ff4444";
+                        }
+                    }
+                   Grid{
+                       width: parent.itemWidth;
+                       columns: 2;
+                       columnSpacing: 5;
+                       rowSpacing: 2;
+                       verticalItemAlignment: Grid.AlignVCenter;
+                       Label{ text: "Robot ID:"; color: "white" }
+                       SpinBox{
+                           id: manualRobotId;
+                           from: 0; to: 15;
+                           value: manualController.robotId;
+                           onValueModified: manualController.robotId = value;
+                       }
+                       Label{ text: "Team:"; color: "white" }
+                       ZComboBox{
+                           id: manualTeamCombo;
+                           model: ["Blue", "Yellow"];
+                           currentIndex: manualController.team;
+                           onActivated: manualController.team = currentIndex;
+                       }
+                         Label{ text: "Max Speed:"; color: "white" }
+                         SpinBox{
+                             editable: true; from: 5; to: 60; stepSize: 1;
+                             value: manualController.maxSpeed * 10;
+                             textFromValue: function(v){ return (v/10).toFixed(1) }
+                             valueFromText: function(t){ return Math.round(parseFloat(t)*10) }
+                             onValueModified: manualController.maxSpeed = value / 10.0;
+                         }
+                        Label{ text: "Kick Pwr:"; color: "white" }
+                        SpinBox{
+                            editable: true; from: 1; to: 100; stepSize: 1;
+                            value: manualController.kickPower * 10;
+                            textFromValue: function(v){ return (v/10).toFixed(1) }
+                            valueFromText: function(t){ return Math.round(parseFloat(t)*10) }
+                            onValueModified: manualController.kickPower = value / 10.0;
+                        }
+                   }
+                   Grid{
+                       width: parent.itemWidth;
+                       columns: 2;
+                       columnSpacing: 5;
+                       rowSpacing: 2;
+                       verticalItemAlignment: Grid.AlignVCenter;
+                       Label{ text: "Slow Spd:"; color: "white" }
+                       SpinBox{
+                           editable: true; from: 1; to: 30; stepSize: 1;
+                           value: manualController.slowSpeed * 10;
+                           textFromValue: function(v){ return (v/10).toFixed(1) }
+                           valueFromText: function(t){ return Math.round(parseFloat(t)*10) }
+                           onValueModified: manualController.slowSpeed = value / 10.0;
+                       }
+                       Label{ text: "Accel:"; color: "white" }
+                       SpinBox{
+                           editable: true; from: 1; to: 30; stepSize: 1;
+                           value: manualController.acceleration;
+                           textFromValue: function(v){ return v.toFixed(1) }
+                           valueFromText: function(t){ return Math.round(parseFloat(t)*10)/10 }
+                           onValueModified: manualController.acceleration = value;
+                       }
+                       Label{ text: "Decel:"; color: "white" }
+                       SpinBox{
+                           editable: true; from: 1; to: 30; stepSize: 1;
+                           value: manualController.deceleration;
+                           textFromValue: function(v){ return v.toFixed(1) }
+                           valueFromText: function(t){ return Math.round(parseFloat(t)*10)/10 }
+                            onValueModified: manualController.deceleration = value;
+                        }
+                   }
+                   Grid{
+                       width: parent.itemWidth;
+                       columns: 2;
+                       columnSpacing: 5;
+                       rowSpacing: 2;
+                       verticalItemAlignment: Grid.AlignVCenter;
+                       Label{ text: "Rot Kp:"; color: "white" }
+                       SpinBox{
+                           editable: true; from: 1; to: 200; stepSize: 1;
+                           value: manualController.rotKp * 10;
+                           textFromValue: function(v){ return (v/10).toFixed(1) }
+                           valueFromText: function(t){ return Math.round(parseFloat(t)*10) }
+                           onValueModified: manualController.rotKp = value / 10.0;
+                       }
+                       Label{ text: "Rot Kd:"; color: "white" }
+                       SpinBox{
+                           editable: true; from: 1; to: 100; stepSize: 1;
+                           value: manualController.rotKd * 10;
+                           textFromValue: function(v){ return (v/10).toFixed(1) }
+                           valueFromText: function(t){ return Math.round(parseFloat(t)*10) }
+                           onValueModified: manualController.rotKd = value / 10.0;
+                       }
+                   }
+                    Label{
+                       width: parent.itemWidth;
+                       text: "Vx:" + manualController.currentVx.toFixed(2)
+                           + " Vy:" + manualController.currentVy.toFixed(2)
+                           + " Vr:" + manualController.currentVr.toFixed(2);
+                       color: "white";
+                   }
+                   Label{
+                       width: parent.itemWidth;
+                       text: manualController.statusText;
+                       color: "#00ff00";
+                   }
+               }
+           }
+            ZGroupBox{
+                title: qsTr("Rec")
                Grid{
                    width:parent.width;
                    property int itemWidth : width - 2*padding;

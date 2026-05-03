@@ -17,6 +17,7 @@
 #include "log/log_slider.h"
 #include "log/logeventlabel.h"
 #include "rec_slider.h"
+#include "manualcontroller.h"
 
 namespace ZSS {
 }
@@ -36,6 +37,7 @@ void qmlRegister() {
     //qmlRegisterType<Test>("ZSS", 1, 0, "Test");
     qmlRegisterSingletonType<MessageInfo>("ZSS", 1, 0, "MessageInfo", &MessageInfo::instance);
     qmlRegisterSingletonType<rec_slider>("ZSS", 1, 0, "RecSlider", &rec_slider::instance);
+    qmlRegisterType<ManualController>("ZSS", 1, 0, "ManualController");
     ZCommunicator::instance();
     Simulator::instance();
     ZDebugger::instance();

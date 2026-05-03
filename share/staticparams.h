@@ -164,6 +164,8 @@ namespace ZSS
         const double BALL_DELC_CHANGE_POINT = 2500;
         const double BALL_FAST_DEC = 360;
         const double BALL_SLOW_DEC = 27.5;
+        const int GAMEPAD_CMD_SEND[PARAM::TEAMS] = {50021, 50022};
+        const int GAMEPAD_CMD_RECEIVE[PARAM::TEAMS] = {50021, 50022};
         namespace Vision
         {
             const int BALL_STORE_BUFFER = 100;

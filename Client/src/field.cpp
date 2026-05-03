@@ -14,6 +14,7 @@
 #include "geometry.h"
 #include <QElapsedTimer>
 #include <thread>
+#include "manualcontroller.h"
 using namespace ZSS::Protocol;
 namespace
 {
@@ -234,6 +235,11 @@ void Field::paint(QPainter *painter)
 }
 void Field::mousePressEvent(QMouseEvent *e)
 {
+    if (ManualController::isManualControlActive()) {
+        if (e->button() == Qt::LeftButton) ManualController::s_instance->setKickActive(true);
+        if (e->button() == Qt::RightButton) ManualController::s_instance->setDribbleActive(true);
+        return;
+    }
     pressed = e->buttons();
     checkClosestRobot(rx(e->x()), ry(e->y()));
     start = end = rp(e->pos());
@@ -256,6 +262,11 @@ void Field::mousePressEvent(QMouseEvent *e)
 }
 void Field::mouseMoveEvent(QMouseEvent *e)
 {
+    if (ManualController::isManualControlActive()) {
+        ManualController::s_instance->setMouseFieldPos(rx(e->x()), ry(e->y()));
+        ManualController::s_instance->setMouseActive(true);
+        return;
+    }
     end = rp(e->pos());
     switch (pressed)
     {
@@ -275,6 +286,11 @@ void Field::mouseMoveEvent(QMouseEvent *e)
 }
 void Field::mouseReleaseEvent(QMouseEvent *e)
 {
+    if (ManualController::isManualControlActive()) {
+        if (e->button() == Qt::LeftButton) ManualController::s_instance->setKickActive(false);
+        if (e->button() == Qt::RightButton) ManualController::s_instance->setDribbleActive(false);
+        return;
+    }
     switch (pressed)
     {
     case Qt::LeftButton:

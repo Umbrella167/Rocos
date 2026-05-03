@@ -34,6 +34,7 @@ require("utils")
 require("learn")
 require("file")
 require("score")
+require("gamepad")
 
 --require("combo")
 

@@ -1,0 +1,13 @@
+$#include "staticparams.h"
+$#include <singleton.hpp>
+$#include "GamepadCommand.h"
+
+class CGamepadCommand {
+	CGamepadCommand();
+	void startReceive(int team);
+	bool getButton(int idx) const;
+	bool getDribble() const;
+	int getRobotId() const;
+	int getFirstPressed() const;
+	void clearAll();
+};

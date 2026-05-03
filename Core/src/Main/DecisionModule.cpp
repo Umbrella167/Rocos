@@ -16,6 +16,9 @@
 #include <PlayInterface.h>
 #include "LuaModule.h"
 #include "Semaphore.h"
+#include "GamepadCommand.h"
+#include "GDebugEngine.h"
+#include "VisionModule.h"
 extern Semaphore vision_to_decision;
 Semaphore decision_to_action(0);
 
@@ -33,6 +36,16 @@ void CDecisionModule::DoDecision()
 	/* 清空上一周期的历史任务                                               */
 	/************************************************************************/
 	TaskMediator::Instance()->cleanOldTasks();
+
+	int gpRobotId = GamepadCommand::Instance()->getRobotId();
+	if (gpRobotId >= 0 && gpRobotId < PARAM::Field::MAX_PLAYER && GamepadCommand::Instance()->getDribble()) {
+		if (!TaskMediator::Instance()->getPlayerTask(gpRobotId)) {
+			auto& p = _pVision->ourPlayer(gpRobotId);
+			if (p.Valid()) {
+				GDebugEngine::Instance()->gui_debug_arc(p.Pos(), 120, 0, 360, COLOR_GREEN);
+			}
+		}
+	}
 
 
     /************************************************************************/

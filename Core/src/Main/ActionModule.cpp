@@ -21,6 +21,7 @@
 #include <PathPlanner.h>
 #include "Semaphore.h"
 #include "CommandInterface.h"
+#include "GamepadCommand.h"
 extern Semaphore decision_to_action;
 
 CActionModule::CActionModule(CVisionModule* pVision, const CDecisionModule* pDecision)
@@ -39,6 +40,18 @@ bool CActionModule::sendAction() {
     /* 第一步：遍历小车，执行赋予的任务，生成动作指令                       */
     /************************************************************************/
     for (int vecNum = 0; vecNum < PARAM::Field::MAX_PLAYER; ++ vecNum) {
+        // 跳过被手柄直接控制的机器人（无技能按钮时由 ManualController 直接发命令）
+        int gpRobotId = GamepadCommand::Instance()->getRobotId();
+        if (gpRobotId >= 0 && gpRobotId < PARAM::Field::MAX_PLAYER && vecNum == gpRobotId) {
+            bool skillActive = GamepadCommand::Instance()->getButton(0)  // A
+                            || GamepadCommand::Instance()->getButton(1)  // B
+                            || GamepadCommand::Instance()->getButton(3)  // X
+                            || GamepadCommand::Instance()->getButton(4); // Y
+            if (!skillActive) {
+                continue;
+            }
+        }
+
         // 获取当前小车任务
         CPlayerTask* pTask = TaskMediator::Instance()->getPlayerTask(vecNum);
         // 没有任务，跳过

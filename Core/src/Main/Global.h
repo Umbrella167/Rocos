@@ -9,6 +9,7 @@
 #include "WorldModel.h"
 #include "skillapi.h"
 #include "BallSpeedModel.h"
+#include "GamepadCommand.h"
 
 extern CVisionModule*  vision;
 extern CKickStatus*    kickStatus;
@@ -17,5 +18,6 @@ extern CGDebugEngine*  debugEngine;
 extern CWorldModel* world;
 extern CSkillAPI* skillapi;
 extern CBallSpeedModel* ballModel;
+extern CGamepadCommand* gamepadCmd;
 void initializeSingleton();
 #endif

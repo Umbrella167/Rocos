@@ -63,6 +63,7 @@ int runLoop()
     vision->startReceiveThread();
     ballModel->registerVision(vision);
     skillapi->registerVision(vision);
+    gamepadCmd->startReceive(option->MyColor() == PARAM::BLUE ? 0 : 1);
     decision = new CDecisionModule(vision);
     action = new CActionModule(vision, decision);
     WORLD_MODEL->registerVision(vision);

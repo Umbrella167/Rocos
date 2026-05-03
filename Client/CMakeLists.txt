@@ -48,6 +48,18 @@ find_package(fmt REQUIRED)
 include_directories(${fmt_INCLUDE_DIRS})
 list(APPEND libs fmt::fmt)
 
+## SDL2
+find_package(SDL2 QUIET)
+if(SDL2_FOUND)
+    list(APPEND libs SDL2::SDL2)
+else()
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(SDL2 REQUIRED sdl2)
+    include_directories(${SDL2_INCLUDE_DIRS})
+    list(APPEND libs ${SDL2_LIBRARIES})
+    link_directories(${SDL2_LIBRARY_DIRS})
+endif()
+
 include_directories(${ZLIB_INCLUDE_DIRS})
 list(APPEND libs ${ZLIB_LIBRARIES})
 ## find Qt

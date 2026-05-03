@@ -22,6 +22,7 @@ gTestPlay = CGetSettings("ZAlert/" .. team .. "_TestScriptName", "String")
 
 
 gRoleFixNum = {
+        ["Leader"]   = { 0 },
         ["Goalie"]   = { param.our_goalie_num },
         ["Defender"] = { param.defend_num1 },
         ["Tier"]     = { param.defend_num2 },
