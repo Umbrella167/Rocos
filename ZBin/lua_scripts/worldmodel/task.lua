@@ -254,50 +254,7 @@ function getballV2(role, playerVel, inter_flag, target_point, permissions)
 		end
 	end
 end
-minDist_Power = 0
-maxDist_Power = 6000
-playerPowerONE = 
-{
-	-- [num] = {minist,maxDist,minPower, maxPower, ShootPower,chipPower} 
-	[0] = {minDist_Power,maxDist_Power,140,330,430,7000},
-	[1] = {minDist_Power,maxDist_Power,140,330,430,7000},
-	[2] = {minDist_Power,maxDist_Power,140,330,430,7000}, -- 吸球弱，可以挑球
-	[3] = {minDist_Power,maxDist_Power,140,330,430,7000},
-	[4] = {minDist_Power,maxDist_Power,140,330,430,7000},
-	[5] = {minDist_Power,maxDist_Power,140,330,430,7000},
-	[6] = {minDist_Power,maxDist_Power,140,330,430,7000},
-	[7] = {minDist_Power,maxDist_Power,140,330,430,7000},
-	[8] = {minDist_Power,maxDist_Power,140,330,430,7000},
-	[9] = {minDist_Power,maxDist_Power,140,330,430,7000},
-	[10] = {minDist_Power,maxDist_Power,140,330,430,7000},
-	[11] = {minDist_Power,maxDist_Power,140,330,430,7000},
-	[12] = {minDist_Power,maxDist_Power,140,330,430,7000},
-	[14] = {minDist_Power,maxDist_Power,140,330,430,7000},
-	[15] = {minDist_Power,maxDist_Power,140,330,430,7000},
-	[16] = {minDist_Power,maxDist_Power,140,330,430,7000},
-
-}
-playerPowerTWO = {
-	-- [num] = {minist,maxDist,minPower, maxPower, ShootPower,chipPower} 
-	[0] = {minDist_Power,maxDist_Power,140,330,430,7000}, 
-	[1] = {minDist_Power,maxDist_Power,140,330,430,7000},-- 可以挑球 ，吸球还行
-	[2] = {minDist_Power,maxDist_Power,140,330,430,7000}, 
-	[3] = {minDist_Power,maxDist_Power,140,330,430,7000},
-	[4] = {minDist_Power,maxDist_Power,140,330,430,7000},
-	[5] = {minDist_Power,maxDist_Power,140,330,430,7000},
-	[6] = {minDist_Power,maxDist_Power,140,330,430,7000}, -- 带球超强 ,挑球一般
-	[7] = {minDist_Power,maxDist_Power,140,330,430,7000}, -- 红外偶尔有问题
-	[8] = {minDist_Power,maxDist_Power,140,330,430,7000},
-	[9] = {minDist_Power,maxDist_Power,140,330,430,7000},
-	[10] = {minDist_Power,maxDist_Power,140,330,430,7000},
-	[11] = {minDist_Power,maxDist_Power,140,330,430,7000},
-	[12] = {minDist_Power,maxDist_Power,140,330,430,7000},
-	[14] = {minDist_Power,maxDist_Power,140,330,430,7000},
-	[15] = {minDist_Power,maxDist_Power,140,330,430,7000},
-	[16] = {minDist_Power,maxDist_Power,140,330,430,7000},
-}
-
-playerPower = (param.Team == "ONE") and playerPowerONE or playerPowerTWO
+-- [num] = {minDist,maxDist,minPower, maxPower, ShootPower,chipPower} 
 function power(p, num,shootFlag)
 	return function()
 		local iflag
@@ -314,32 +271,14 @@ function power(p, num,shootFlag)
 		end
 		local shootPos = function()return param.shootPos end
 		local isShoot = shootPos():x() == param.pitchLength / 2 and true or false
-		local playerNum
-		if type(num) == 'function' then
-			playerNum = num()
-		else
-			playerNum = num
-		end
 		local dist = (p1 - ball.pos()):mod()
-		if playerNum == -1 or playerNum == nil then
-			playerNum = 16
-		end
-		local res = Utils.map(dist,playerPower[playerNum][1],playerPower[playerNum][2],playerPower[playerNum][3],playerPower[playerNum][4])
+		local res = Utils.map(dist,param.powerPowerSim[1],param.powerPowerSim[2],param.powerPowerSim[3],param.powerPowerSim[4])
 
 		if iflag == kick.chip() then
-			res = playerPower[playerNum][6]
+			res = param.powerPowerSim[6]
 		elseif iflag == kick.flat() and isShoot == true then
-			res = playerPower[playerNum][5]
+			res = param.powerPowerSim[5]
 		end
-		---仿真的力度
-		if not param.isReality then
-			local SimulationRate = 15
-			res = res * SimulationRate
-			-- res = 3500
-			if iflag == kick.chip() then
-				res = 3000
-			end
-		end	
 		debugEngine:gui_debug_msg(CGeoPoint(-param.pitchLength / 2,param.pitchWidth / 2), "POWER:"..res .."   TargetPos: " .. p1:x())
 		return res
 	end

@@ -1742,7 +1742,7 @@ namespace Utils
     //  dist : [0,100] - > [230,310]
     double map(double value, double min_in, double max_in, double min_out, double max_out)
     {
-        return min_out + (max_out - min_out) * (value - min_in) / (max_in - min_in);
+        return std::min(max_out, std::max(min_out, min_out + (max_out - min_out) * (value - min_in) / (max_in - min_in)));
     }
 
     /**

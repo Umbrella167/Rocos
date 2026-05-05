@@ -132,19 +132,19 @@ private:
     }
 
     bool m_active = false;
-    int m_robotId = 0;
+    int m_robotId = 1;
     int m_team = 0;
-    qreal m_maxSpeed = 3.0;
+    qreal m_maxSpeed = 1.2;
     qreal m_slowSpeed = 1.0;
     qreal m_maxRotSpeed = 10.0;
     qreal m_kickPower = 5.0;
 
-    qreal m_acceleration = 6.0;
+    qreal m_acceleration = 1.6;
     qreal m_deceleration = 12.0;
-    qreal m_rotKp = 8.0;
-    qreal m_rotKd = 1.5;
+    qreal m_rotKp = 6.5;
+    qreal m_rotKd = 0;
 
-    qreal m_dgRotSpeed = 6.5;
+    qreal m_dgRotSpeed = 4.5;
     qreal m_dgAngleThresh = 20.0;
     qreal m_dgRotCenterX = 120.0;
     qreal m_dgRotCenterY = 0.0;
