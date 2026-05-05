@@ -49,7 +49,7 @@ gRolePos = {
 
 }
 
-gRolePriority = { "Goalie","Tier","Defender"}--
+gRolePriority = { "Goalie","Leader","Assister"}--
 
 gOurExistNum = {} --为了使车号统一从0开始，强行给gOurExistNum[0]赋值，但table自身接口全都无法使用了
 
@@ -57,16 +57,16 @@ gRoleLookUpTable = {
 -- 角色分为两类
 -- 第一类为在gRolePriority和gRoleFixNum中进行真实车号配置的
 ["G"] = "Goalie",
-["K"] = "Kicker",
-["T"] = "Tier",
-["R"] = "Receiver",
+["L"] = "Leader",
+["A"] = "Assister",
 
 -- 第二类为在脚本中可能会发生匹配变化的角色
-["A"] = "Assister",
+["R"] = "Receiver",
+["T"] = "Tier",
+["K"] = "Kicker",
 ["S"] = "Special",
 ["D"] = "Defender",
 ["M"] = "Middle",
-["L"] = "Leader",
 ["B"] = "Breaker",
 ["F"] = "Fronter",
 ["C"] = "Center",

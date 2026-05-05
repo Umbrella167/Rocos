@@ -24,6 +24,10 @@ class ManualController : public QObject {
     Q_PROPERTY(qreal deceleration READ deceleration WRITE setDeceleration NOTIFY decelerationChanged)
     Q_PROPERTY(qreal rotKp READ rotKp WRITE setRotKp NOTIFY rotKpChanged)
     Q_PROPERTY(qreal rotKd READ rotKd WRITE setRotKd NOTIFY rotKdChanged)
+    Q_PROPERTY(qreal dgRotSpeed READ dgRotSpeed WRITE setDgRotSpeed NOTIFY dgRotSpeedChanged)
+    Q_PROPERTY(qreal dgAngleThresh READ dgAngleThresh WRITE setDgAngleThresh NOTIFY dgAngleThreshChanged)
+    Q_PROPERTY(qreal dgRotCenterX READ dgRotCenterX WRITE setDgRotCenterX NOTIFY dgRotCenterXChanged)
+    Q_PROPERTY(qreal dgRotCenterY READ dgRotCenterY WRITE setDgRotCenterY NOTIFY dgRotCenterYChanged)
     Q_PROPERTY(qreal currentVx READ currentVx NOTIFY velocityChanged)
     Q_PROPERTY(qreal currentVy READ currentVy NOTIFY velocityChanged)
     Q_PROPERTY(qreal currentVr READ currentVr NOTIFY velocityChanged)
@@ -47,6 +51,10 @@ public:
     qreal deceleration() const { return m_deceleration; }
     qreal rotKp() const { return m_rotKp; }
     qreal rotKd() const { return m_rotKd; }
+    qreal dgRotSpeed() const { return m_dgRotSpeed; }
+    qreal dgAngleThresh() const { return m_dgAngleThresh; }
+    qreal dgRotCenterX() const { return m_dgRotCenterX; }
+    qreal dgRotCenterY() const { return m_dgRotCenterY; }
     qreal currentVx() const { return m_currentVx; }
     qreal currentVy() const { return m_currentVy; }
     qreal currentVr() const { return m_currentVr; }
@@ -75,6 +83,10 @@ public slots:
     void setDeceleration(qreal v);
     void setRotKp(qreal v);
     void setRotKd(qreal v);
+    void setDgRotSpeed(qreal v);
+    void setDgAngleThresh(qreal v);
+    void setDgRotCenterX(qreal v);
+    void setDgRotCenterY(qreal v);
 
 signals:
     void activeChanged();
@@ -88,6 +100,10 @@ signals:
     void decelerationChanged();
     void rotKpChanged();
     void rotKdChanged();
+    void dgRotSpeedChanged();
+    void dgAngleThreshChanged();
+    void dgRotCenterXChanged();
+    void dgRotCenterYChanged();
     void velocityChanged();
     void dribbleChanged();
     void statusChanged();
@@ -128,6 +144,11 @@ private:
     qreal m_rotKp = 8.0;
     qreal m_rotKd = 1.5;
 
+    qreal m_dgRotSpeed = 6.5;
+    qreal m_dgAngleThresh = 20.0;
+    qreal m_dgRotCenterX = 120.0;
+    qreal m_dgRotCenterY = 0.0;
+
     QMap<int, bool> m_keyState;
     QVector2D m_mouseFieldPos;
     bool m_mouseActive = false;
@@ -161,6 +182,7 @@ private:
     bool m_gpBtnBack = false;
     bool m_gpBtnStart = false;
     bool m_gpBtnLStick = false;
+    double m_gpRightTrigger = 0;
     qreal m_savedMaxSpeed = 3.0;
     qreal m_savedAcceleration = 6.0;
     int m_gamepadCmdFd = -1;

@@ -92,18 +92,18 @@ Page{
         width: parent.width;
         height:parent.height; //fix display bug at low resolution.2019.3.29 wz
         currentIndex: bar.currentIndex;
-        Grid{
-            padding: 5;
-            topPadding: 15;
-            width:controlLayout.width;
-            //height:controlLayout.height;
-            columns: 1;
-            horizontalItemAlignment: Grid.AlignHCenter;
-            verticalItemAlignment: Grid.AlignVCenter;
-            id:vision
-            columnSpacing: 0;
-            rowSpacing: 0;
-            property int itemWidth : width - padding*2;
+        ScrollView{
+            id: vision;
+            width: controlLayout.width;
+            height: controlLayout.height;
+            clip: true;
+            ScrollBar.horizontal.policy: ScrollBar.AlwaysOff;
+            Column{
+                width: vision.availableWidth;
+                padding: 5;
+                topPadding: 15;
+                spacing: 0;
+                property int itemWidth : width - padding*2;
             ZGroupBox{
                 title: qsTr("Vision")
                 Column{
@@ -570,6 +570,7 @@ Page{
                     resetSize(width,height);
                 }
             }
+            }
         }
         RefereeBox{
         }
@@ -577,15 +578,17 @@ Page{
         /*****************************************/
         /*                  UDP                  */
         /*****************************************/
-       Grid {
+       ScrollView {
            id: radio;
-           width: parent.itemWidth;
-           padding:10;
-           verticalItemAlignment: Grid.AlignVCenter;
-           horizontalItemAlignment: Grid.AlignHCenter;
-           spacing: 5;
-           columns:1;
-           property int itemWidth : width - 2*padding;
+           width: controlLayout.width;
+           height: controlLayout.height;
+           clip: true;
+           ScrollBar.horizontal.policy: ScrollBar.AlwaysOff;
+           Column {
+               width: radio.availableWidth;
+               padding: 10;
+               spacing: 5;
+               property int itemWidth : width - 2*padding;
         //    ZGroupBox{
         //        title: qsTr("Crazy")
         //        Grid{
@@ -696,7 +699,7 @@ Page{
                          }
                         Label{ text: "Kick Pwr:"; color: "white" }
                         SpinBox{
-                            editable: true; from: 1; to: 100; stepSize: 1;
+                            editable: true; from: 0; to: 100; stepSize: 1;
                             value: manualController.kickPower * 10;
                             textFromValue: function(v){ return (v/10).toFixed(1) }
                             valueFromText: function(t){ return Math.round(parseFloat(t)*10) }
@@ -717,21 +720,21 @@ Page{
                            valueFromText: function(t){ return Math.round(parseFloat(t)*10) }
                            onValueModified: manualController.slowSpeed = value / 10.0;
                        }
-                       Label{ text: "Accel:"; color: "white" }
-                       SpinBox{
-                           editable: true; from: 1; to: 30; stepSize: 1;
-                           value: manualController.acceleration;
-                           textFromValue: function(v){ return v.toFixed(1) }
-                           valueFromText: function(t){ return Math.round(parseFloat(t)*10)/10 }
-                           onValueModified: manualController.acceleration = value;
-                       }
-                       Label{ text: "Decel:"; color: "white" }
-                       SpinBox{
-                           editable: true; from: 1; to: 30; stepSize: 1;
-                           value: manualController.deceleration;
-                           textFromValue: function(v){ return v.toFixed(1) }
-                           valueFromText: function(t){ return Math.round(parseFloat(t)*10)/10 }
-                            onValueModified: manualController.deceleration = value;
+                        Label{ text: "Accel:"; color: "white" }
+                        SpinBox{
+                            editable: true; from: 1; to: 300; stepSize: 1;
+                            value: manualController.acceleration * 10;
+                            textFromValue: function(v){ return (v/10).toFixed(1) }
+                            valueFromText: function(t){ return Math.round(parseFloat(t)*10) }
+                            onValueModified: manualController.acceleration = value / 10.0;
+                        }
+                        Label{ text: "Decel:"; color: "white" }
+                        SpinBox{
+                            editable: true; from: 1; to: 300; stepSize: 1;
+                            value: manualController.deceleration * 10;
+                            textFromValue: function(v){ return (v/10).toFixed(1) }
+                            valueFromText: function(t){ return Math.round(parseFloat(t)*10) }
+                            onValueModified: manualController.deceleration = value / 10.0;
                         }
                    }
                    Grid{
@@ -754,9 +757,48 @@ Page{
                            value: manualController.rotKd * 10;
                            textFromValue: function(v){ return (v/10).toFixed(1) }
                            valueFromText: function(t){ return Math.round(parseFloat(t)*10) }
-                           onValueModified: manualController.rotKd = value / 10.0;
-                       }
-                   }
+                            onValueModified: manualController.rotKd = value / 10.0;
+                        }
+                    }
+                    Grid{
+                        width: parent.itemWidth;
+                        columns: 2;
+                        columnSpacing: 5;
+                        rowSpacing: 2;
+                        verticalItemAlignment: Grid.AlignVCenter;
+                        Label{ text: "DG CX:"; color: "white" }
+                        SpinBox{
+                            editable: true; from: 0; to: 300; stepSize: 10;
+                            value: manualController.dgRotCenterX;
+                            textFromValue: function(v){ return v }
+                            valueFromText: function(t){ return parseInt(t) }
+                            onValueModified: manualController.dgRotCenterX = value;
+                        }
+                        Label{ text: "DG CY:"; color: "white" }
+                        SpinBox{
+                            editable: true; from: -300; to: 300; stepSize: 10;
+                            value: manualController.dgRotCenterY;
+                            textFromValue: function(v){ return v }
+                            valueFromText: function(t){ return parseInt(t) }
+                            onValueModified: manualController.dgRotCenterY = value;
+                        }
+                        Label{ text: "DG Speed:"; color: "white" }
+                        SpinBox{
+                            editable: true; from: 10; to: 200; stepSize: 1;
+                            value: manualController.dgRotSpeed * 10;
+                            textFromValue: function(v){ return (v/10).toFixed(1) }
+                            valueFromText: function(t){ return Math.round(parseFloat(t)*10) }
+                            onValueModified: manualController.dgRotSpeed = value / 10.0;
+                        }
+                        Label{ text: "DG Angle:"; color: "white" }
+                        SpinBox{
+                            editable: true; from: 5; to: 90; stepSize: 1;
+                            value: manualController.dgAngleThresh;
+                            textFromValue: function(v){ return v + "°" }
+                            valueFromText: function(t){ return parseInt(t) }
+                            onValueModified: manualController.dgAngleThresh = value;
+                        }
+                    }
                     Label{
                        width: parent.itemWidth;
                        text: "Vx:" + manualController.currentVx.toFixed(2)
@@ -1183,6 +1225,7 @@ Page{
 //                    }
 //                }
 //            }
+           }
        }
 
         Settings{

@@ -35,6 +35,10 @@ ManualController::ManualController(QObject *parent)
     zpm->loadParam(m_deceleration, "Manual/deceleration", 12.0);
     zpm->loadParam(m_rotKp, "Manual/rotKp", 8.0);
     zpm->loadParam(m_rotKd, "Manual/rotKd", 1.5);
+    zpm->loadParam(m_dgRotSpeed, "Manual/dgRotSpeed", 6.5);
+    zpm->loadParam(m_dgAngleThresh, "Manual/dgAngleThresh", 20.0);
+    zpm->loadParam(m_dgRotCenterX, "Manual/dgRotCenterX", 120.0);
+    zpm->loadParam(m_dgRotCenterY, "Manual/dgRotCenterY", 0.0);
     updateStatus();
 }
 
@@ -139,6 +143,10 @@ void ManualController::setAcceleration(qreal v) { if (qFuzzyCompare(m_accelerati
 void ManualController::setDeceleration(qreal v) { if (qFuzzyCompare(m_deceleration, v)) return; m_deceleration = v; ZSS::ZParamManager::instance()->changeParam("Manual/deceleration", v); emit decelerationChanged(); }
 void ManualController::setRotKp(qreal v) { if (qFuzzyCompare(m_rotKp, v)) return; m_rotKp = v; ZSS::ZParamManager::instance()->changeParam("Manual/rotKp", v); emit rotKpChanged(); }
 void ManualController::setRotKd(qreal v) { if (qFuzzyCompare(m_rotKd, v)) return; m_rotKd = v; ZSS::ZParamManager::instance()->changeParam("Manual/rotKd", v); emit rotKdChanged(); }
+void ManualController::setDgRotSpeed(qreal v) { if (qFuzzyCompare(m_dgRotSpeed, v)) return; m_dgRotSpeed = v; ZSS::ZParamManager::instance()->changeParam("Manual/dgRotSpeed", v); emit dgRotSpeedChanged(); }
+void ManualController::setDgAngleThresh(qreal v) { if (qFuzzyCompare(m_dgAngleThresh, v)) return; m_dgAngleThresh = v; ZSS::ZParamManager::instance()->changeParam("Manual/dgAngleThresh", v); emit dgAngleThreshChanged(); }
+void ManualController::setDgRotCenterX(qreal v) { if (qFuzzyCompare(m_dgRotCenterX, v)) return; m_dgRotCenterX = v; ZSS::ZParamManager::instance()->changeParam("Manual/dgRotCenterX", v); emit dgRotCenterXChanged(); }
+void ManualController::setDgRotCenterY(qreal v) { if (qFuzzyCompare(m_dgRotCenterY, v)) return; m_dgRotCenterY = v; ZSS::ZParamManager::instance()->changeParam("Manual/dgRotCenterY", v); emit dgRotCenterYChanged(); }
 
 void ManualController::sendGamepadCmd(float vx, float vy, float vr,
                                        bool kick, float kickPower, bool dribble) {
@@ -329,6 +337,31 @@ void ManualController::tick() {
         sendVy = 0;
     }
 
+    // DribbleGo: hold RT + dribbling -> face opposite of movement direction (pull ball)
+    if (doDribble && m_gpRightTrigger > 0.5 && cmdMag > 0.15) {
+        double moveDir = qAtan2(m_cmdGlobalVy, m_cmdGlobalVx);
+        double faceAngle = moveDir + M_PI;
+        double dgAngleDiff = faceAngle - robotAngle;
+        while (dgAngleDiff > M_PI) dgAngleDiff -= 2 * M_PI;
+        while (dgAngleDiff < -M_PI) dgAngleDiff += 2 * M_PI;
+
+        if (qAbs(dgAngleDiff) > qDegreesToRadians(m_dgAngleThresh)) {
+            double omega = (dgAngleDiff > 0 ? 1.0 : -1.0) * m_dgRotSpeed;
+            // CircleRun math: targetVel = Polar2Vector(radius*omega, me2center.rotate(-PI/2).dir())
+            double me2centerX = m_dgRotCenterX;
+            double me2centerY = m_dgRotCenterY;
+            double radius = qSqrt(me2centerX * me2centerX + me2centerY * me2centerY);
+            double tangDir = qAtan2(-me2centerX, me2centerY);
+            double targetVelMod = radius * omega;
+            sendVx = targetVelMod * qCos(tangDir) / 1000.0;
+            sendVy = targetVelMod * qSin(tangDir) / 1000.0;
+            cmdVr = omega;
+        } else {
+            cmdVr = m_rotKp * dgAngleDiff - m_rotKd * actualRotVel;
+            cmdVr = clamp(cmdVr, -m_maxRotSpeed, m_maxRotSpeed);
+        }
+    }
+
     sendGamepadCmd(static_cast<float>(sendVx * 1000.0), static_cast<float>(sendVy * 1000.0),
                    static_cast<float>(cmdVr), doKick, static_cast<float>(kickPwr * 1000.0),
                    doDribble);
@@ -426,6 +459,8 @@ void ManualController::pollGamepad() {
     m_gpLeftY = -leftY;
     m_gpRightX = rightX;
     m_gpRightY = -rightY;
+    short rawRT = joy ? SDL_JoystickGetAxis(joy, 4) : 0;
+    m_gpRightTrigger = qMin(1.0, static_cast<double>(qMax(rawRT, (short)0)) / 32767.0);
 }
 
 void ManualController::updateStatus() {

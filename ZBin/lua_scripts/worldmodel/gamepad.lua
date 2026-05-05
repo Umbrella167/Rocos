@@ -27,6 +27,31 @@ end
 skill_map = { 
     ["X"] = task.getball(ball.pos, param.playerVel, param.getballMode),
     ["Y"] = function()
+        param.shootPos = Utils.GetShootPoint(vision,param.manual_robot_id)
+        local gpRobotId = gamepadCmd:getRobotId()
+        if gpRobotId < 0 then return task.stop() end
+        gRoleNum["Assister"] = gpRobotId
+        local rt = gSubPlay.roleTask("ShootPoint", "Assister")
+        if rt and rt.task then
+            gSubPlay.register("", "Assister", rt.args)
+            return rt.task()
+        end
+        return task.stop()
+    end,
+    ["B"] = function()
+        if param.manual_robot_id == 1 then
+            if player.valid(2) then  
+                param.shootPos = player.pos(2)
+            else
+                param.shootPos = Utils.GetShootPoint(vision,param.manual_robot_id)
+            end
+        elseif param.manual_robot_id == 1 then 
+            if player.valid(1) then
+                param.shootPos = player.pos(1)
+            else
+                param.shootPos = Utils.GetShootPoint(vision,param.manual_robot_id)
+            end
+        end
         local gpRobotId = gamepadCmd:getRobotId()
         if gpRobotId < 0 then return task.stop() end
         gRoleNum["Assister"] = gpRobotId

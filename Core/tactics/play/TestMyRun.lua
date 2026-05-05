@@ -15,11 +15,9 @@ return {
 
     ["skill"] = {
         switch = function()
-            param.shootPos = Utils.GetShootPoint(vision,param.manual_robot_id)
         end,
         Leader = gamepad.skill(),
         Goalie = gSubPlay.roleTask("Goalie", "Goalie"),
-
         -- Leader = task.touch(CGeoPoint:new_local(0,0))
         match = "{LG}"
 

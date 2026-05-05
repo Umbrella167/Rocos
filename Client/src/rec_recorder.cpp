@@ -12,7 +12,7 @@ using namespace ZSS::Protocol;
 namespace  {
 auto GS = GlobalSettings::instance();
 //RecMsg recMsg;
-bool isRun = true;
+bool isRun = false;
 QFile recordFile;
 QIODevice* recIO;
 QString filename;

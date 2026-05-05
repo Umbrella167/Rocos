@@ -22,10 +22,9 @@ gTestPlay = CGetSettings("ZAlert/" .. team .. "_TestScriptName", "String")
 
 
 gRoleFixNum = {
-        ["Leader"]   = { 0 },
+        ["Assister"]   = { 2 },
+        ["Leader"]   = { 1 },
         ["Goalie"]   = { param.our_goalie_num },
-        ["Defender"] = { param.defend_num1 },
-        ["Tier"]     = { param.defend_num2 },
 }
 
 -- 用来进行定位球的保持
