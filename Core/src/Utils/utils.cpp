@@ -1699,6 +1699,11 @@ namespace Utils
     }
 
     // 返回两个dir的差
+    double angDiff(double angle1, double angle2)
+    {
+        return std::atan2(std::sin(angle2 - angle1), std::cos(angle2 - angle1));
+    }
+
     double angleDiff(double angle1, double angle2)
     {
         return std::atan2(std::sin(angle2 - angle1), std::cos(angle2 - angle1));

@@ -36,6 +36,8 @@ struct GlobalTick;
 namespace Utils
 {
 
+    extern double angDiff(double angle1, double angle2);
+
     /* =============== HuRocos 2024 =============== */
 
     extern std::string GlobalComputingPos(const CVisionModule *pVision);                           // 计算所有点位
