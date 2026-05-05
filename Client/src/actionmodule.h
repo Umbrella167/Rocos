@@ -93,7 +93,7 @@ public:
     ~ActionModuleSerialVersion();
     bool init();
     void setMedusaSettings(bool,bool);
-    void sendLegacy(const ZSS::Protocol::Robots_Command&);
+    void sendLegacy(const ZSS::New::Robots_Command&);
     QStringList& updatePortsList();
     int getFrequency(){ return frequency;}
     bool changePorts(int);

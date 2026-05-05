@@ -7,27 +7,29 @@
 #include "zss_cmd.pb.h"
 #include "zsplugin.hpp"
 namespace ZSS{
-class SimModule : public QObject, public ZSPlugin{
+class SimModule : public QObject{
     Q_OBJECT
 public:
     SimModule(QObject *parent = 0);
     ~SimModule();
     bool connectSim(bool);
     bool disconnectSim(bool);
-    void sendSim(int t, ZSS::Protocol::Robots_Command& command);
+    void sendSim(int t, ZSS::New::Robots_Command& command);
     void run(){}
-private slots:
-    void readBlueData();
-    void readYellowData();
+// private slots:
+    // void readBlueData();
+    // void readYellowData();
 private:
+    void readTeamData(int, QUdpSocket&);
     QByteArray tx;
     QByteArray rx;
-    // QUdpSocket sendSocket;
+    QUdpSocket sendSocket;
     QString receiveAddress;
     QUdpSocket blueReceiveSocket;
     QUdpSocket yellowReceiveSocket;
     QMutex robotInfoMutex;
     QUdpSocket command_socket;
+    std::mutex command_mutex_;
 signals:
     void receiveSimInfo(int,int);
 };

@@ -28,7 +28,6 @@ class Interaction : public QObject {
     Q_INVOKABLE int getTestScriptIndex(bool);
     Q_INVOKABLE int getRefConfigIndex(bool);
     Q_INVOKABLE QStringList getInterfaces();
-    Q_INVOKABLE QStringList getGrsimInterfaces();
     Q_INVOKABLE void updateInterfaces();
     Q_INVOKABLE void changeVisionInterface(int);
     Q_INVOKABLE void changeGrsimInterface(int);
@@ -53,6 +52,8 @@ class Interaction : public QObject {
     Q_INVOKABLE bool changeSerialFrequency(int);
     Q_INVOKABLE bool changeSerialPort(int);
     Q_INVOKABLE QStringList getSerialPortsList();
+    Q_INVOKABLE QStringList getAvailableIPs();
+    Q_INVOKABLE void setIPIndex(QString, int);
     Q_INVOKABLE int getFrequency();
     Q_INVOKABLE QStringList getAllAddress();
     Q_INVOKABLE QString getRealAddress(int index);

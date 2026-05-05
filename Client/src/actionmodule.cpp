@@ -418,26 +418,27 @@ bool ActionModuleSerialVersion::changeFrequency(int frequency){
     }
     return false;
 }
-void ActionModuleSerialVersion::sendLegacy(const ZSS::Protocol::Robots_Command& commands){
+void ActionModuleSerialVersion::sendLegacy(const ZSS::New::Robots_Command& commands){
     int size = commands.command_size();
-    for(int i=0;i<size;i++){
-        auto& command = commands.command(i);
-        int id = command.robot_id();
-        if(id >= 0 && id < PARAM::ROBOTMAXID){
-            NJ_CMDS[id].valid = true;
-            NJ_CMDS[id].id = id;
-            NJ_CMDS[id].vx = command.velocity_x()/10.0;
-            NJ_CMDS[id].vy = -command.velocity_y()/10.0;
-            NJ_CMDS[id].vr = -command.velocity_r()*40;
-            NJ_CMDS[id].dribble = command.dribbler_spin();
-            NJ_CMDS[id].power = command.power()/10.0;
-            NJ_CMDS[id].kick_mode = command.kick();
-            if (command.has_direct_kick_no_calibration()){
-                NJ_CMDS[id].direct_kick_no_calibration = command.direct_kick_no_calibration();
-                NJ_CMDS[id].direct_kick_power = command.direct_kick_power();
-            }
-        }
-    }
+    // MARKTODO
+    // for(int i=0;i<size;i++){
+    //     auto& command = commands.command(i);
+    //     int id = command.robot_id();
+    //     if(id >= 0 && id < PARAM::ROBOTMAXID){
+    //         NJ_CMDS[id].valid = true;
+    //         NJ_CMDS[id].id = id;
+    //         NJ_CMDS[id].vx = command.velocity_x()/10.0;
+    //         NJ_CMDS[id].vy = -command.velocity_y()/10.0;
+    //         NJ_CMDS[id].vr = -command.velocity_r()*40;
+    //         NJ_CMDS[id].dribble = command.dribbler_spin();
+    //         NJ_CMDS[id].power = command.power()/10.0;
+    //         NJ_CMDS[id].kick_mode = command.kick();
+    //         if (command.has_direct_kick_no_calibration()){
+    //             NJ_CMDS[id].direct_kick_no_calibration = command.direct_kick_no_calibration();
+    //             NJ_CMDS[id].direct_kick_power = command.direct_kick_power();
+    //         }
+    //     }
+    // }
 
     int count = 0;
     tx.fill(0x00);

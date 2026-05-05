@@ -1,9 +1,8 @@
 #include <QProcess>
 #include "networkinterfaces.h"
-NetworkInterfaces::NetworkInterfaces()
-{
-    this->grsimInterfaces.clear();
-    grsimInterfaces.append(QString("127.0.0.1"));
+NetworkInterfaces::NetworkInterfaces(){
+    this->pingIPs.clear();
+    pingIPs.append(QString("127.0.0.1"));
     QString local = getLocalAddress();
     QStringList ip_list = local.split('.');
     QString ip_head = ip_list[0];
@@ -13,14 +12,10 @@ NetworkInterfaces::NetworkInterfaces()
     }
     for (int i=1; i<=255; i++) {
         QString test_ip = ip_head+QString(".%1").arg(i);
-//        qDebug() << "test: " << test_ip;
         if (Ping(test_ip))
-            grsimInterfaces.append(test_ip);
+            pingIPs.append(test_ip);
     }
-    qDebug() << "go on";
-//    grsimInterfaces.append(QString("192.168.0.12"));
-//    grsimInterfaces.append(QString("192.168.0.15"));
-//    grsimInterfaces.append(QString("10.12.225.233"));
+    pingIPs.append(QString("192.168.31.190"));
 }
 QString NetworkInterfaces::getLocalAddress()
 {
