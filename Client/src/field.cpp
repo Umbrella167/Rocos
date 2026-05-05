@@ -225,7 +225,7 @@ Field::Field(QQuickItem *parent)
                                    { receiveScore(); });
 
     // record
-    ZRecRecorder::instance()->init();
+    // ZRecRecorder::instance()->init();
 }
 
 void Field::paint(QPainter *painter)

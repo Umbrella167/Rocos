@@ -15,6 +15,7 @@ playerInfraredCountBuffer = CGetSettings("ZJHU/playerInfraredCountBuffer", "Int"
 our_goalie_num            = CGetSettings("ZJHU/our_goalie_num", "Int")
 defend_num1               = CGetSettings("ZJHU/defend_num1", "Int")
 defend_num2               = CGetSettings("ZJHU/defend_num2", "Int")
+manual_robot_id           = CGetSettings("Manual/robotId", "Int")
 LeaderNum = 4
 -----------------------------------------------|
 --                feild参数                  --|
@@ -77,7 +78,7 @@ playerRadius = 90 -- 机器人半径
 -----------------------------------------------|
 --                Shoot参数                   --|
 -----------------------------------------------|
-local shootError_Reality = 5 --1.8  -- 射击误差
+local shootError_Reality = 1.8 --1.8  -- 射击误差
 shootKp = 0.1                -- 射击力度比例
 -- shootPos = CGeoPoint(0, 0)
 shootPos = CGeoPoint(pitchLength / 2, 0)
@@ -86,82 +87,20 @@ shootPos = CGeoPoint(pitchLength / 2, 0)
 --               rot参数                      --|
 -----------------------------------------------|
         --CGeoPoint(80,80)      --旋转坐标
-        
-rotTableONE = {
-	-- [num] = {minist,maxDist,minPower, maxPower, ShootPower,chipPower} 
-	[0] =  {CGeoPoint(60, 60),4.5}, 
-	[1] =  {CGeoPoint(60, 60),4.5}, 
-	[2] =  {CGeoPoint(60, 60),4.5}, 
-	[3] =  {CGeoPoint(60, 60),4.5}, 
-	[4] =  {CGeoPoint(120,60),6}, 
-	[5] =  {CGeoPoint(60, 60),4.5}, 
-	[6] =  {CGeoPoint(60, 60),4.5}, 
-	[7] =  {CGeoPoint(60, 60),4.5}, 
-	[8] =  {CGeoPoint(60, 60),4.5}, 
-	[9] =  {CGeoPoint(60, 60),4.5}, 
-	[10] =  {CGeoPoint(60, 60),4.5}, 
-	[11] =  {CGeoPoint(60, 60),4.5}, 
-	[12] =  {CGeoPoint(60, 60),4.5}, 
-	[14] =  {CGeoPoint(60, 60),4.5}, 
-	[15] =  {CGeoPoint(60, 60),4.5}, 
-	[16] =  {CGeoPoint(60, 60),4.5}, 
-}
-rotTableTWO = {
-	-- [num] = {minist,maxDist,minPower, maxPower, ShootPower,chipPower} 
-	[0] =  {CGeoPoint(60, 60),4.5}, 
-	[1] =  {CGeoPoint(60, 60),4.5}, 
-	[2] =  {CGeoPoint(60, 60),4.5}, 
-	[3] =  {CGeoPoint(120, 60),4.5}, 
-	[4] =  {CGeoPoint(120,60),4.5}, 
-	[5] =  {CGeoPoint(60, 60),4.5}, 
-	[6] =  {CGeoPoint(60, 60),4.5}, 
-	[7] =  {CGeoPoint(60, 60),4.5}, 
-	[8] =  {CGeoPoint(60, 60),4.5}, 
-	[9] =  {CGeoPoint(60, 60),4.5}, 
-	[10] =  {CGeoPoint(60, 60),4.5}, 
-	[11] =  {CGeoPoint(60, 60),4.5}, 
-	[12] =  {CGeoPoint(60, 60),4.5}, 
-	[14] =  {CGeoPoint(60, 60),4.5}, 
-	[15] =  {CGeoPoint(60, 60),4.5}, 
-	[16] =  {CGeoPoint(60, 60),4.5}, 
-}
-rotTable = Team == "ONE" and rotTableONE or rotTableTWO
+
+-- 旋转相关参数
+
+--旋转速度
 rotVel = function(num)
-    local turnVel = rotTable[num][2]
-    if shootPos:x() == pitchLength / 2 then
-        return turnVel + 0.2
-    else
-        return turnVel
-    end
+    return 6.5
 end         
-
+-- 旋转参考点
 rotPos = function(num)
-
-    return rotTable[player.num(num)][1]
+    return CGeoPoint(120, 0)
 end   
-
-
-rotCompensateTable = {
-	-- [num] = {minist,maxDist,minPower, maxPower, ShootPower,chipPower} 
-	[0] =  {-0.015}, 
-	[1] =  {-0.015}, 
-	[2] =  {-0.015}, 
-	[3] =  {0}, 
-	[4] =  {0}, 
-	[5] =  {0}, 
-	[6] =  {-0.015}, 
-	[7] =  {-0.015}, 
-	[8] =  {-0.015}, 
-	[9] =  {-0.015}, 
-	[10] =  {-0.015}, 
-	[11] =  {-0.015}, 
-	[12] =  {-0.015}, 
-	[14] =  {-0.015}, 
-	[15] =  {-0.015}, 
-	[16] =  {-0.015}, 
-}
+-- 旋转补偿
 local rotCompensate_Reality = function(num)
-    return rotCompensateTable[player.num(num)][1]
+    return -0.05
 end-- -0.015 --旋转补偿
 -----------------------------------------------|
 --                Tick固定匹配参数             --|

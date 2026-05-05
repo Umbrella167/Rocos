@@ -13,7 +13,7 @@ Page{
     property bool simConnect : false;
     property bool crazyConnect : false;
     property bool ifEdgeTest : false;
-    property bool isRecoring: true;
+    property bool isRecoring: false;
     property bool monitorConnect : false;
     property bool isLogPlay: false;
     property bool isRecFile: false;

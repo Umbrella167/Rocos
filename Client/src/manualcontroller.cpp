@@ -1,6 +1,7 @@
 #include "manualcontroller.h"
 #include "globaldata.h"
 #include "networkinterfaces.h"
+#include "parammanager.h"
 #include <QtMath>
 #include <QCoreApplication>
 #include <QKeyEvent>
@@ -24,6 +25,16 @@ ManualController::ManualController(QObject *parent)
     QCoreApplication::instance()->installEventFilter(this);
     m_gamepadCmdFd = socket(AF_INET, SOCK_DGRAM, 0);
     initSDL();
+    auto* zpm = ZSS::ZParamManager::instance();
+    zpm->loadParam(m_robotId, "Manual/robotId", 0);
+    zpm->loadParam(m_maxSpeed, "Manual/maxSpeed", 3.0);
+    zpm->loadParam(m_slowSpeed, "Manual/slowSpeed", 1.0);
+    zpm->loadParam(m_maxRotSpeed, "Manual/maxRotSpeed", 10.0);
+    zpm->loadParam(m_kickPower, "Manual/kickPower", 5.0);
+    zpm->loadParam(m_acceleration, "Manual/acceleration", 6.0);
+    zpm->loadParam(m_deceleration, "Manual/deceleration", 12.0);
+    zpm->loadParam(m_rotKp, "Manual/rotKp", 8.0);
+    zpm->loadParam(m_rotKd, "Manual/rotKd", 1.5);
     updateStatus();
 }
 
@@ -118,16 +129,16 @@ void ManualController::setActive(bool active) {
     emit activeChanged();
 }
 
-void ManualController::setRobotId(int id) { if (m_robotId != id) { m_robotId = id; emit robotIdChanged(); } }
+void ManualController::setRobotId(int id) { if (m_robotId != id) { m_robotId = id; ZSS::ZParamManager::instance()->changeParam("Manual/robotId", id); emit robotIdChanged(); } }
 void ManualController::setTeam(int team) { if (m_team != team) { m_team = team; emit teamChanged(); } }
-void ManualController::setMaxSpeed(qreal v) { if (qFuzzyCompare(m_maxSpeed, v)) return; m_maxSpeed = v; emit maxSpeedChanged(); }
-void ManualController::setSlowSpeed(qreal v) { if (qFuzzyCompare(m_slowSpeed, v)) return; m_slowSpeed = v; emit slowSpeedChanged(); }
-void ManualController::setMaxRotSpeed(qreal v) { if (qFuzzyCompare(m_maxRotSpeed, v)) return; m_maxRotSpeed = v; emit maxRotSpeedChanged(); }
-void ManualController::setKickPower(qreal v) { if (qFuzzyCompare(m_kickPower, v)) return; m_kickPower = v; emit kickPowerChanged(); }
-void ManualController::setAcceleration(qreal v) { if (qFuzzyCompare(m_acceleration, v)) return; m_acceleration = v; emit accelerationChanged(); }
-void ManualController::setDeceleration(qreal v) { if (qFuzzyCompare(m_deceleration, v)) return; m_deceleration = v; emit decelerationChanged(); }
-void ManualController::setRotKp(qreal v) { if (qFuzzyCompare(m_rotKp, v)) return; m_rotKp = v; emit rotKpChanged(); }
-void ManualController::setRotKd(qreal v) { if (qFuzzyCompare(m_rotKd, v)) return; m_rotKd = v; emit rotKdChanged(); }
+void ManualController::setMaxSpeed(qreal v) { if (qFuzzyCompare(m_maxSpeed, v)) return; m_maxSpeed = v; ZSS::ZParamManager::instance()->changeParam("Manual/maxSpeed", v); emit maxSpeedChanged(); }
+void ManualController::setSlowSpeed(qreal v) { if (qFuzzyCompare(m_slowSpeed, v)) return; m_slowSpeed = v; ZSS::ZParamManager::instance()->changeParam("Manual/slowSpeed", v); emit slowSpeedChanged(); }
+void ManualController::setMaxRotSpeed(qreal v) { if (qFuzzyCompare(m_maxRotSpeed, v)) return; m_maxRotSpeed = v; ZSS::ZParamManager::instance()->changeParam("Manual/maxRotSpeed", v); emit maxRotSpeedChanged(); }
+void ManualController::setKickPower(qreal v) { if (qFuzzyCompare(m_kickPower, v)) return; m_kickPower = v; ZSS::ZParamManager::instance()->changeParam("Manual/kickPower", v); emit kickPowerChanged(); }
+void ManualController::setAcceleration(qreal v) { if (qFuzzyCompare(m_acceleration, v)) return; m_acceleration = v; ZSS::ZParamManager::instance()->changeParam("Manual/acceleration", v); emit accelerationChanged(); }
+void ManualController::setDeceleration(qreal v) { if (qFuzzyCompare(m_deceleration, v)) return; m_deceleration = v; ZSS::ZParamManager::instance()->changeParam("Manual/deceleration", v); emit decelerationChanged(); }
+void ManualController::setRotKp(qreal v) { if (qFuzzyCompare(m_rotKp, v)) return; m_rotKp = v; ZSS::ZParamManager::instance()->changeParam("Manual/rotKp", v); emit rotKpChanged(); }
+void ManualController::setRotKd(qreal v) { if (qFuzzyCompare(m_rotKd, v)) return; m_rotKd = v; ZSS::ZParamManager::instance()->changeParam("Manual/rotKd", v); emit rotKdChanged(); }
 
 void ManualController::sendGamepadCmd(float vx, float vy, float vr,
                                        bool kick, float kickPower, bool dribble) {

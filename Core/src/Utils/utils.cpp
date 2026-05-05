@@ -191,11 +191,15 @@ namespace Utils
         {
             Tick[now].ball.rights = -1;
             Tick[now].their.dribbling_num = Tick[now].their.to_balldist_min_num;
-            //            Tick[now].our.dribbling_num = -1;
+            Tick[now].our.dribbling_num = -1;
         }
         // 传球或射门失误导致的双方都无球权的情况
         else
+        {
             Tick[now].ball.rights = 0;
+            Tick[now].our.dribbling_num = -1;
+            Tick[now].their.dribbling_num = -1;
+        }
         // 顶牛 或 抢球对抗
 //        printf("our minTob%f,their %f", our_min_dist, their_min_dist);
         if((RobotSensor.InfraredOnCount(Tick[now].our.to_balldist_min_num) > 5 || our_min_dist < playerBallRightsBuffer + 5) && their_min_dist < playerBallRightsBuffer +5)
