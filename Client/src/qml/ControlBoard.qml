@@ -663,6 +663,17 @@ Page{
                                 manualController.useGamepad = checked;
                             }
                         }
+                        Label{ text: "Auto Face:"; color: "white" }
+                        ZSwitch{
+                            id: autoFaceSwitch;
+                            width: parent.width / 2;
+                            leftText: "OFF";
+                            rightText: "ON";
+                            checked: manualController.autoFace;
+                            onCheckedChanged: {
+                                manualController.autoFace = checked;
+                            }
+                        }
                         Label{ text: "Gamepad:"; color: "white" }
                         Label{
                             text: manualController.gamepadConnected ? "Connected" : "Not found";
@@ -730,13 +741,21 @@ Page{
                         }
                         Label{ text: "Decel:"; color: "white" }
                         SpinBox{
-                            editable: true; from: 1; to: 300; stepSize: 1;
+                            editable: true; from: 1; to: 3000; stepSize: 10;
                             value: manualController.deceleration * 10;
                             textFromValue: function(v){ return (v/10).toFixed(1) }
                             valueFromText: function(t){ return Math.round(parseFloat(t)*10) }
                             onValueModified: manualController.deceleration = value / 10.0;
                         }
-                   }
+                        Label{ text: "Brake:"; color: "white" }
+                        SpinBox{
+                            editable: true; from: 0; to: 100; stepSize: 1;
+                            value: manualController.brakeRatio * 10;
+                            textFromValue: function(v){ return (v/10).toFixed(1) }
+                            valueFromText: function(t){ return Math.round(parseFloat(t)*10) }
+                            onValueModified: manualController.brakeRatio = value / 10.0;
+                        }
+                    }
                    Grid{
                        width: parent.itemWidth;
                        columns: 2;

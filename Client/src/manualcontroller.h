@@ -28,6 +28,8 @@ class ManualController : public QObject {
     Q_PROPERTY(qreal dgAngleThresh READ dgAngleThresh WRITE setDgAngleThresh NOTIFY dgAngleThreshChanged)
     Q_PROPERTY(qreal dgRotCenterX READ dgRotCenterX WRITE setDgRotCenterX NOTIFY dgRotCenterXChanged)
     Q_PROPERTY(qreal dgRotCenterY READ dgRotCenterY WRITE setDgRotCenterY NOTIFY dgRotCenterYChanged)
+    Q_PROPERTY(bool autoFace READ autoFace WRITE setAutoFace NOTIFY autoFaceChanged)
+    Q_PROPERTY(qreal brakeRatio READ brakeRatio WRITE setBrakeRatio NOTIFY brakeRatioChanged)
     Q_PROPERTY(qreal currentVx READ currentVx NOTIFY velocityChanged)
     Q_PROPERTY(qreal currentVy READ currentVy NOTIFY velocityChanged)
     Q_PROPERTY(qreal currentVr READ currentVr NOTIFY velocityChanged)
@@ -55,6 +57,8 @@ public:
     qreal dgAngleThresh() const { return m_dgAngleThresh; }
     qreal dgRotCenterX() const { return m_dgRotCenterX; }
     qreal dgRotCenterY() const { return m_dgRotCenterY; }
+    bool autoFace() const { return m_autoFace; }
+    qreal brakeRatio() const { return m_brakeRatio; }
     qreal currentVx() const { return m_currentVx; }
     qreal currentVy() const { return m_currentVy; }
     qreal currentVr() const { return m_currentVr; }
@@ -87,6 +91,8 @@ public slots:
     void setDgAngleThresh(qreal v);
     void setDgRotCenterX(qreal v);
     void setDgRotCenterY(qreal v);
+    void setAutoFace(bool v);
+    void setBrakeRatio(qreal v);
 
 signals:
     void activeChanged();
@@ -104,6 +110,8 @@ signals:
     void dgAngleThreshChanged();
     void dgRotCenterXChanged();
     void dgRotCenterYChanged();
+    void autoFaceChanged();
+    void brakeRatioChanged();
     void velocityChanged();
     void dribbleChanged();
     void statusChanged();
@@ -148,6 +156,12 @@ private:
     qreal m_dgAngleThresh = 20.0;
     qreal m_dgRotCenterX = 120.0;
     qreal m_dgRotCenterY = 0.0;
+    bool m_autoFace = false;
+    qreal m_brakeRatio = 0.5;
+    bool m_braking = false;
+    double m_brakeVx = 0;
+    double m_brakeVy = 0;
+    double m_prevTargetMag = 0;
 
     QMap<int, bool> m_keyState;
     QVector2D m_mouseFieldPos;

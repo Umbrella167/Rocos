@@ -39,6 +39,8 @@ ManualController::ManualController(QObject *parent)
     zpm->loadParam(m_dgAngleThresh, "Manual/dgAngleThresh", 20.0);
     zpm->loadParam(m_dgRotCenterX, "Manual/dgRotCenterX", 120.0);
     zpm->loadParam(m_dgRotCenterY, "Manual/dgRotCenterY", 0.0);
+    zpm->loadParam(m_autoFace, "Manual/autoFace", false);
+    zpm->loadParam(m_brakeRatio, "Manual/brakeRatio", 0.5);
     updateStatus();
 }
 
@@ -147,6 +149,8 @@ void ManualController::setDgRotSpeed(qreal v) { if (qFuzzyCompare(m_dgRotSpeed, 
 void ManualController::setDgAngleThresh(qreal v) { if (qFuzzyCompare(m_dgAngleThresh, v)) return; m_dgAngleThresh = v; ZSS::ZParamManager::instance()->changeParam("Manual/dgAngleThresh", v); emit dgAngleThreshChanged(); }
 void ManualController::setDgRotCenterX(qreal v) { if (qFuzzyCompare(m_dgRotCenterX, v)) return; m_dgRotCenterX = v; ZSS::ZParamManager::instance()->changeParam("Manual/dgRotCenterX", v); emit dgRotCenterXChanged(); }
 void ManualController::setDgRotCenterY(qreal v) { if (qFuzzyCompare(m_dgRotCenterY, v)) return; m_dgRotCenterY = v; ZSS::ZParamManager::instance()->changeParam("Manual/dgRotCenterY", v); emit dgRotCenterYChanged(); }
+void ManualController::setAutoFace(bool v) { if (m_autoFace == v) return; m_autoFace = v; ZSS::ZParamManager::instance()->changeParam("Manual/autoFace", v); emit autoFaceChanged(); }
+void ManualController::setBrakeRatio(qreal v) { if (qFuzzyCompare(m_brakeRatio, v)) return; m_brakeRatio = v; ZSS::ZParamManager::instance()->changeParam("Manual/brakeRatio", v); emit brakeRatioChanged(); }
 
 void ManualController::sendGamepadCmd(float vx, float vy, float vr,
                                        bool kick, float kickPower, bool dribble) {
@@ -248,9 +252,11 @@ void ManualController::tick() {
     }
 
     double cmdVr = 0;
+    bool hasRightStick = false;
     if (m_useGamepad) {
         double rightMag = qSqrt(m_gpRightX * m_gpRightX + m_gpRightY * m_gpRightY);
         if (rightMag > 0.15) {
+            hasRightStick = true;
             double targetAngle = qAtan2(m_gpRightY, m_gpRightX);
             double angleDiff = targetAngle - robotAngle;
             while (angleDiff > M_PI) angleDiff -= 2 * M_PI;
@@ -277,9 +283,34 @@ void ManualController::tick() {
         if (qAbs(angleDiff) < qDegreesToRadians(0.5)) cmdVr = 0;
     }
 
-    if (targetMag < 0.01) {
-        m_cmdGlobalVx = moveTowards(m_cmdGlobalVx, 0, m_deceleration * DT);
-        m_cmdGlobalVy = moveTowards(m_cmdGlobalVy, 0, m_deceleration * DT);
+    double cmdMagPrev = qSqrt(m_cmdGlobalVx * m_cmdGlobalVx + m_cmdGlobalVy * m_cmdGlobalVy);
+    bool targetDropping = (m_prevTargetMag > 0.3) && (targetMag < m_prevTargetMag * 0.4);
+    m_prevTargetMag = targetMag;
+
+    if (!targetDropping && targetMag >= 0.01) {
+        m_braking = false;
+    }
+
+    if (targetDropping || targetMag < 0.01) {
+        if (!m_braking && cmdMagPrev > 0.15) {
+            m_braking = true;
+            m_brakeVx = -m_cmdGlobalVx * m_brakeRatio;
+            m_brakeVy = -m_cmdGlobalVy * m_brakeRatio;
+        }
+        if (m_braking) {
+            m_cmdGlobalVx = m_brakeVx;
+            m_cmdGlobalVy = m_brakeVy;
+            m_brakeVx = moveTowards(m_brakeVx, 0, m_deceleration * DT);
+            m_brakeVy = moveTowards(m_brakeVy, 0, m_deceleration * DT);
+            if (qAbs(m_brakeVx) < 0.01 && qAbs(m_brakeVy) < 0.01) {
+                m_braking = false;
+                m_cmdGlobalVx = 0;
+                m_cmdGlobalVy = 0;
+            }
+        } else {
+            m_cmdGlobalVx = moveTowards(m_cmdGlobalVx, 0, m_deceleration * DT);
+            m_cmdGlobalVy = moveTowards(m_cmdGlobalVy, 0, m_deceleration * DT);
+        }
     } else {
         bool sameDirX = (m_cmdGlobalVx == 0) || (m_cmdGlobalVx > 0) == (targetVx > 0);
         bool sameDirY = (m_cmdGlobalVy == 0) || (m_cmdGlobalVy > 0) == (targetVy > 0);
@@ -299,6 +330,17 @@ void ManualController::tick() {
     if (cmdMag > m_maxSpeed * 1.5) {
         m_cmdGlobalVx *= m_maxSpeed * 1.5 / cmdMag;
         m_cmdGlobalVy *= m_maxSpeed * 1.5 / cmdMag;
+        cmdMag = m_maxSpeed * 1.5;
+    }
+
+    if (m_autoFace && !hasRightStick && m_useGamepad && cmdMag > 0.15) {
+        double moveDir = qAtan2(m_cmdGlobalVy, m_cmdGlobalVx);
+        double angleDiff = moveDir - robotAngle;
+        while (angleDiff > M_PI) angleDiff -= 2 * M_PI;
+        while (angleDiff < -M_PI) angleDiff += 2 * M_PI;
+        cmdVr = m_rotKp * angleDiff - m_rotKd * actualRotVel;
+        cmdVr = clamp(cmdVr, -m_maxRotSpeed, m_maxRotSpeed);
+        if (qAbs(angleDiff) < qDegreesToRadians(0.5)) cmdVr = 0;
     }
 
     double cosA = qCos(robotAngle);
@@ -455,10 +497,13 @@ void ManualController::pollGamepad() {
     m_gpBtnRB = btnRB;
     m_gpBtnBack = btnBack;
     m_gpBtnStart = btnStart;
-    m_gpLeftX = leftX;
-    m_gpLeftY = -leftY;
-    m_gpRightX = rightX;
-    m_gpRightY = -rightY;
+    auto applyDeadzone = [](double v, double dz) -> double {
+        return (qAbs(v) < dz) ? 0.0 : v;
+    };
+    m_gpLeftX = applyDeadzone(leftX, 0.15);
+    m_gpLeftY = applyDeadzone(-leftY, 0.15);
+    m_gpRightX = applyDeadzone(rightX, 0.15);
+    m_gpRightY = applyDeadzone(-rightY, 0.15);
     short rawRT = joy ? SDL_JoystickGetAxis(joy, 4) : 0;
     m_gpRightTrigger = qMin(1.0, static_cast<double>(qMax(rawRT, (short)0)) / 32767.0);
 }

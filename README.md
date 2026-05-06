@@ -63,6 +63,8 @@ Manual Control 界面中的可调参数：
 | DG CY | -300-300 mm | 0 | DribbleGo 旋转中心 Y（局部坐标系） |
 | DG Speed | 1.0-20.0 rad/s | 4.5 | DribbleGo 旋转速度 |
 | DG Angle | 5-90° | 20 | DribbleGo 角度阈值（小于此值切换为 PD 控制） |
+| Auto Face | ON/OFF | OFF | 开启后，右摇杆无输入时机器人自动朝向移动方向 |
+| Brake | 0.0-10.0 | 0.5 | 松手时反向制动速度比例（0 = 纯减速，越大刹车越猛） |
 
 > 所有参数会自动保存到 `zss.ini` 的 `[Manual]` 节，重启后保留。
 
