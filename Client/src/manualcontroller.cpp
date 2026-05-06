@@ -41,6 +41,8 @@ ManualController::ManualController(QObject *parent)
     zpm->loadParam(m_dgRotCenterY, "Manual/dgRotCenterY", 0.0);
     zpm->loadParam(m_autoFace, "Manual/autoFace", false);
     zpm->loadParam(m_brakeRatio, "Manual/brakeRatio", 0.5);
+    zpm->loadParam(m_brakeThresh, "Manual/brakeThresh", 0.4);
+    zpm->loadParam(m_dgPullBall, "Manual/dgPullBall", true);
     updateStatus();
 }
 
@@ -151,6 +153,8 @@ void ManualController::setDgRotCenterX(qreal v) { if (qFuzzyCompare(m_dgRotCente
 void ManualController::setDgRotCenterY(qreal v) { if (qFuzzyCompare(m_dgRotCenterY, v)) return; m_dgRotCenterY = v; ZSS::ZParamManager::instance()->changeParam("Manual/dgRotCenterY", v); emit dgRotCenterYChanged(); }
 void ManualController::setAutoFace(bool v) { if (m_autoFace == v) return; m_autoFace = v; ZSS::ZParamManager::instance()->changeParam("Manual/autoFace", v); emit autoFaceChanged(); }
 void ManualController::setBrakeRatio(qreal v) { if (qFuzzyCompare(m_brakeRatio, v)) return; m_brakeRatio = v; ZSS::ZParamManager::instance()->changeParam("Manual/brakeRatio", v); emit brakeRatioChanged(); }
+void ManualController::setBrakeThresh(qreal v) { if (qFuzzyCompare(m_brakeThresh, v)) return; m_brakeThresh = v; ZSS::ZParamManager::instance()->changeParam("Manual/brakeThresh", v); emit brakeThreshChanged(); }
+void ManualController::setDgPullBall(bool v) { if (m_dgPullBall == v) return; m_dgPullBall = v; ZSS::ZParamManager::instance()->changeParam("Manual/dgPullBall", v); emit dgPullBallChanged(); }
 
 void ManualController::sendGamepadCmd(float vx, float vy, float vr,
                                        bool kick, float kickPower, bool dribble) {
@@ -284,7 +288,7 @@ void ManualController::tick() {
     }
 
     double cmdMagPrev = qSqrt(m_cmdGlobalVx * m_cmdGlobalVx + m_cmdGlobalVy * m_cmdGlobalVy);
-    bool targetDropping = (m_prevTargetMag > 0.3) && (targetMag < m_prevTargetMag * 0.4);
+    bool targetDropping = (m_prevTargetMag > 0.3) && (targetMag < m_prevTargetMag * m_brakeThresh);
     m_prevTargetMag = targetMag;
 
     if (!targetDropping && targetMag >= 0.01) {
@@ -382,7 +386,7 @@ void ManualController::tick() {
     // DribbleGo: hold RT + dribbling -> face opposite of movement direction (pull ball)
     if (doDribble && m_gpRightTrigger > 0.5 && cmdMag > 0.15) {
         double moveDir = qAtan2(m_cmdGlobalVy, m_cmdGlobalVx);
-        double faceAngle = moveDir + M_PI;
+        double faceAngle = m_dgPullBall ? (moveDir + M_PI) : moveDir;
         double dgAngleDiff = faceAngle - robotAngle;
         while (dgAngleDiff > M_PI) dgAngleDiff -= 2 * M_PI;
         while (dgAngleDiff < -M_PI) dgAngleDiff += 2 * M_PI;

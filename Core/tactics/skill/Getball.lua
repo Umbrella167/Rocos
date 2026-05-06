@@ -31,49 +31,19 @@ function Getball(task)
 			print("Error runner in getball", runner)
 		end
 
-		local playerEndVelONE = {
-			-- [num] = {endVel, ballVelRate} 
-			[-1] = {50,1}, -- Other
-			[0] = {50,1},
-			[1] = {50,1},
-			[2] = {50,1},
-			[3] = {50,1},
-			[4] = {50,1},	
-			[5] = {50,1},
-			[6] = {50,1},
-			[7] = {50,1},
-			[8] = {50,1},
-			[9] = {50,1},
-			[10] = {50,1},
-			[11] = {50,1},
-			[12] = {50,1},
-			[13] = {50,1},
-			[14] = {50,1},
-			[15] = {50,1},
-			[16] = {50,1}, -- Other
-		}
-		local playerEndVelTWO = {
-			-- [num] = {endVel, ballVelRate} 
-			[-1] = {50,1}, -- Other
-			[0] = {50,1},
-			[1] = {50,1},
-			[2] = {50,1},
-			[3] = {50,1},
-			[4] = {50,1},	
-			[5] = {50,1},
-			[6] = {50,1},
-			[7] = {50,1},
-			[8] = {50,1},
-			[9] = {50,1},
-			[10] = {50,1},
-			[11] = {50,1},
-			[12] = {50,1},
-			[13] = {50,1},
-			[14] = {50,1},
-			[15] = {50,1},
-			[16] = {50,1}, -- Other
-		}
-		local playerEndVel = (param.Team == "ONE") and playerEndVelONE or playerEndVelTWO
+		if player.myinfraredCount(runner) >= 5 then
+			debugError = debugError .. "  BallOwned "
+			local idir = player.toBallDir(runner)
+			local iflag = flag.dribbling
+			task_param = TaskT:new_local()
+			task_param.executor = runner
+			task_param.player.pos = CGeoPoint(player.pos(runner):x(), player.pos(runner):y())
+			task_param.player.angle = idir
+			task_param.player.flag = iflag
+			return skillapi:run("SmartGoto", task_param)
+		end
+
+		local playerEndVel= {50,1}
 		--获取常用数据
 		local endVelMod = 0
 		local playerPos = CGeoPoint:new_local(player.pos(runner):x(),player.pos(runner):y()) 
@@ -127,7 +97,7 @@ function Getball(task)
 				debugError = debugError .. "  DRIBLE_FLAG "
 			end
 			debugError = debugError .."  RushToBall "
-			endVelMod = (ball.velMod() * playerEndVel[runner][2]) + playerEndVel[runner][1]
+			endVelMod = (ball.velMod() * playerEndVel[2]) + playerEndVel[1]
 			endVelMod = endVelMod > 5000 and 5000 or endVelMod
 		end
 

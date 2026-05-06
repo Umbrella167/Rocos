@@ -29,7 +29,9 @@ class ManualController : public QObject {
     Q_PROPERTY(qreal dgRotCenterX READ dgRotCenterX WRITE setDgRotCenterX NOTIFY dgRotCenterXChanged)
     Q_PROPERTY(qreal dgRotCenterY READ dgRotCenterY WRITE setDgRotCenterY NOTIFY dgRotCenterYChanged)
     Q_PROPERTY(bool autoFace READ autoFace WRITE setAutoFace NOTIFY autoFaceChanged)
+    Q_PROPERTY(bool dgPullBall READ dgPullBall WRITE setDgPullBall NOTIFY dgPullBallChanged)
     Q_PROPERTY(qreal brakeRatio READ brakeRatio WRITE setBrakeRatio NOTIFY brakeRatioChanged)
+    Q_PROPERTY(qreal brakeThresh READ brakeThresh WRITE setBrakeThresh NOTIFY brakeThreshChanged)
     Q_PROPERTY(qreal currentVx READ currentVx NOTIFY velocityChanged)
     Q_PROPERTY(qreal currentVy READ currentVy NOTIFY velocityChanged)
     Q_PROPERTY(qreal currentVr READ currentVr NOTIFY velocityChanged)
@@ -59,6 +61,8 @@ public:
     qreal dgRotCenterY() const { return m_dgRotCenterY; }
     bool autoFace() const { return m_autoFace; }
     qreal brakeRatio() const { return m_brakeRatio; }
+    qreal brakeThresh() const { return m_brakeThresh; }
+    bool dgPullBall() const { return m_dgPullBall; }
     qreal currentVx() const { return m_currentVx; }
     qreal currentVy() const { return m_currentVy; }
     qreal currentVr() const { return m_currentVr; }
@@ -93,6 +97,8 @@ public slots:
     void setDgRotCenterY(qreal v);
     void setAutoFace(bool v);
     void setBrakeRatio(qreal v);
+    void setBrakeThresh(qreal v);
+    void setDgPullBall(bool v);
 
 signals:
     void activeChanged();
@@ -112,6 +118,8 @@ signals:
     void dgRotCenterYChanged();
     void autoFaceChanged();
     void brakeRatioChanged();
+    void brakeThreshChanged();
+    void dgPullBallChanged();
     void velocityChanged();
     void dribbleChanged();
     void statusChanged();
@@ -158,6 +166,8 @@ private:
     qreal m_dgRotCenterY = 0.0;
     bool m_autoFace = false;
     qreal m_brakeRatio = 0.5;
+    qreal m_brakeThresh = 0.4;
+    bool m_dgPullBall = true;
     bool m_braking = false;
     double m_brakeVx = 0;
     double m_brakeVy = 0;

@@ -755,6 +755,14 @@ Page{
                             valueFromText: function(t){ return Math.round(parseFloat(t)*10) }
                             onValueModified: manualController.brakeRatio = value / 10.0;
                         }
+                        Label{ text: "Brk Thresh:"; color: "white" }
+                        SpinBox{
+                            editable: true; from: 1; to: 99; stepSize: 1;
+                            value: manualController.brakeThresh * 10;
+                            textFromValue: function(v){ return (v/10).toFixed(1) }
+                            valueFromText: function(t){ return Math.round(parseFloat(t)*10) }
+                            onValueModified: manualController.brakeThresh = value / 10.0;
+                        }
                     }
                    Grid{
                        width: parent.itemWidth;
@@ -816,6 +824,16 @@ Page{
                             textFromValue: function(v){ return v + "°" }
                             valueFromText: function(t){ return parseInt(t) }
                             onValueModified: manualController.dgAngleThresh = value;
+                        }
+                        Label{ text: "DG Mode:"; color: "white" }
+                        ZSwitch{
+                            width: parent.width / 2;
+                            leftText: "Push";
+                            rightText: "Pull";
+                            checked: manualController.dgPullBall;
+                            onCheckedChanged: {
+                                manualController.dgPullBall = checked;
+                            }
                         }
                     }
                     Label{
