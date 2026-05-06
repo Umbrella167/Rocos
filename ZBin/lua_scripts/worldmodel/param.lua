@@ -69,7 +69,7 @@ playerInfraredCountBuffer = 120 -- 红外判断缓冲值
 --                Robot参数                  --|
 -----------------------------------------------|
 enemy_buffer = 120 -- lua 两点间有无敌人阈值
-playerFrontToCenter = 60
+playerFrontToCenter = 80
 lengthRatio = 1.5
 widthRatio = 1.5
 stopRatio = 1.1
@@ -87,7 +87,7 @@ shootPos = CGeoPoint(pitchLength / 2, 0)
 --                Power参数                   --|
 -----------------------------------------------|
 -- [num] = {minDist,maxDist,minPower, maxPower, ShootPower,chipPower} 
-powerPowerSim = {0,6000,1000,5100,5200,4000}
+powerPowerSim = {0,6000,1000,5100,5200,3500}
 -----------------------------------------------|
 --               rot参数                      --|
 -----------------------------------------------|
@@ -153,7 +153,7 @@ goalieMoveX = -pitchLength / 2 + playerRadius*1
 -- goalie 移动的半径（mode-1）
 goalieRadius = goalRadius - goalieBuf
 -- goalie 刚吸到球后准备的时间
-goalieReadyFrame = 20
+goalieReadyFrame = 5
 -- goalie 吸到球后往稳定点缓慢移动一段距离
 goalieStablePoint = CGeoPoint(-pitchLength / 2 + penaltyDepth / 2, 0)
 -- goalie 带球的最大帧数

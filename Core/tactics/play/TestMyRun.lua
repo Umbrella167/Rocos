@@ -8,18 +8,18 @@ return {
                 return "skill"
             end
         end,
-        Leader = task.stop(),
+        Fronter = task.stop(),
         Goalie = gSubPlay.roleTask("Goalie", "Goalie"),
-        match = "{LG}"
+        match = "{FG}"
     },
 
     ["skill"] = {
         switch = function()
         end,
-        Leader = gamepad.skill(),
+        Fronter = gamepad.skill(),
         Goalie = gSubPlay.roleTask("Goalie", "Goalie"),
         -- Leader = task.touch(CGeoPoint:new_local(0,0))
-        match = "{LG}"
+        match = "{FG}"
 
     },
     name = "TestMyRun",

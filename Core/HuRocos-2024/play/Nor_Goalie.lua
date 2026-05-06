@@ -43,16 +43,38 @@ return {
 
             if player.infraredCount("Goalie") > param.goalieDribblingFrame then
             -- if bufcnt(player.infraredCount("Goalie") > param.goalieDribblingFrame or param.goalieStablePoint:dist(rolePos) < param.playerRadius, 60) then
-                return "goalie_kick"
+                return "turnToPoint"
             end
 
             if 10 <= player.infraredCount("Goalie") and bufcnt(param.goalieStablePoint:dist(rolePos) < param.playerRadius, 20) then
-                return "goalie_kick"
+                return "turnToPoint"
             end
 
         end,
         -- Goalie = task.goalie("Goalie"),
         Goalie = function() return task.goalie_getBall("Goalie") end,
+        match = "{G}"
+    },
+    ["turnToPoint"] = {
+        switch = function()
+            --  
+            -- if(not bufcnt(player.infraredOn("Assister"),1)) then
+            -- 	return "ready1"
+            -- end
+            -- debugEngine:gui_debug_msg(CGeoPoint:new_local(0,0),player.rotVel("Assister"))
+            if(bufcnt(player.myinfraredCount("Goalie") < 1,4)) then
+                return "goalie_getBall"
+            end
+            local Vy = player.rotVel("Goalie")
+            local ToTargetDist = player.toPointDist("Goalie",param.goalieTargetPos)
+            resShootPos = task.compensateAngle("Goalie",Vy,param.goalieTargetPos,ToTargetDist * param.rotCompensate(player.num("Goalie")))
+
+            if(task.playerDirToPointDirSub("Goalie",resShootPos) < param.shootError) then 
+                return "goalie_kick"
+            end
+
+        end,
+        Goalie = function() return task.TurnToPointV2("Goalie", function() return param.goalieTargetPos end,param.rotVel(player.num("Goalie"))) end,
         match = "{G}"
     },
     ["goalie_kick"] = {
@@ -67,7 +89,7 @@ return {
                 return "goalie_norm"
             end
         end,
-        Goalie = function() return task.goalie_kick("Goalie") end,
+        Goalie = task.ShootdotV2(function() return param.goalieTargetPos end, param.shootError, kick.chip ),
         match = "{G}"
     },
 

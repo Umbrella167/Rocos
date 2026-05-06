@@ -65,6 +65,8 @@ Manual Control 界面中的可调参数：
 | DG Angle | 5-90° | 20 | DribbleGo 角度阈值（小于此值切换为 PD 控制） |
 | Auto Face | ON/OFF | OFF | 开启后，右摇杆无输入时机器人自动朝向移动方向 |
 | Brake | 0.0-10.0 | 0.5 | 松手时反向制动速度比例（0 = 纯减速，越大刹车越猛） |
+| Brk Thresh | 0.01-0.99 | 0.4 | 刹车触发阈值，目标速度降到上一帧的该比例时触发 |
+| DG Mode | Push/Pull | Pull | DribbleGo 模式：Pull 背对移动方向拉球，Push 面对移动方向推球 |
 
 > 所有参数会自动保存到 `zss.ini` 的 `[Manual]` 节，重启后保留。
 
