@@ -676,8 +676,34 @@ Page{
                         }
                         Label{ text: "Gamepad:"; color: "white" }
                         Label{
-                            text: manualController.gamepadConnected ? "Connected" : "Not found";
+                            text: manualController.gamepadConnected ? (manualController.slotCount() + " connected") : "Not found";
                             color: manualController.gamepadConnected ? "#00ff00" : "#ff4444";
+                        }
+                        Label{ text: "Edit Slot:"; color: "white" }
+                        Row{
+                            spacing: 3;
+                            Repeater{
+                                model: 8;
+                                delegate: Rectangle{
+                                    width: 28; height: 24; radius: 3;
+                                    color: {
+                                        if (manualController.selectedSlot === index) return "#0088ff";
+                                        if (manualController.slotConnected(index)) return "#00aa44";
+                                        return "#444";
+                                    }
+                                    border.color: "#888"; border.width: 1;
+                                    Text{
+                                        anchors.centerIn: parent;
+                                        text: index + 1;
+                                        color: "white";
+                                        font.pixelSize: 11;
+                                    }
+                                    MouseArea{
+                                        anchors.fill: parent;
+                                        onClicked: manualController.selectedSlot = index;
+                                    }
+                                }
+                            }
                         }
                         Label{ text: "Layout:"; color: "white" }
                         ZComboBox{

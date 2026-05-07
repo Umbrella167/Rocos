@@ -10,4 +10,7 @@ class CGamepadCommand {
 	int getRobotId() const;
 	int getFirstPressed() const;
 	void clearAll();
+	bool isSlotActive(int robotId) const;
+	bool getButtonForRobot(int robotId, int idx) const;
+	int getFirstPressedForRobot(int robotId) const;
 };

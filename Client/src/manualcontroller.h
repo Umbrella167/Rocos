@@ -14,11 +14,58 @@ typedef struct _SDL_Joystick SDL_Joystick;
 struct _SDL_GameController;
 typedef struct _SDL_GameController SDL_GameController;
 
+struct GamepadSlot {
+    SDL_GameController* gamepad = nullptr;
+    bool connected = false;
+
+    int robotId = 1;
+    int gamepadLayout = 0;
+
+    qreal maxSpeed = 1.2;
+    qreal slowSpeed = 1.0;
+    qreal maxRotSpeed = 10.0;
+    qreal kickPower = 5.0;
+    qreal acceleration = 1.6;
+    qreal deceleration = 12.0;
+    qreal rotKp = 6.5;
+    qreal rotKd = 0;
+
+    qreal dgRotSpeed = 4.5;
+    qreal dgAngleThresh = 20.0;
+    qreal dgRotCenterX = 120.0;
+    qreal dgRotCenterY = 0.0;
+    bool autoFace = false;
+    qreal brakeRatio = 0.5;
+    qreal brakeThresh = 0.4;
+    bool dgPullBall = true;
+
+    double gpLeftX = 0, gpLeftY = 0;
+    double gpRightX = 0, gpRightY = 0;
+    bool gpBtnA = false, gpBtnB = false, gpBtnX = false, gpBtnY = false;
+    bool gpBtnLB = false, gpBtnRB = false, gpBtnRBPrev = false;
+    bool gpBtnBack = false, gpBtnStart = false, gpBtnLStick = false;
+    double gpRightTrigger = 0;
+
+    bool braking = false;
+    double brakeVx = 0, brakeVy = 0;
+    double prevTargetMag = 0;
+
+    double cmdGlobalVx = 0, cmdGlobalVy = 0;
+    qreal currentVx = 0, currentVy = 0, currentVr = 0;
+    bool dribble = false;
+    qreal savedMaxSpeed = 3.0;
+    qreal savedAcceleration = 6.0;
+};
+
 class ManualController : public QObject {
     Q_OBJECT
     Q_PROPERTY(bool active READ active WRITE setActive NOTIFY activeChanged)
-    Q_PROPERTY(int robotId READ robotId WRITE setRobotId NOTIFY robotIdChanged)
     Q_PROPERTY(int team READ team WRITE setTeam NOTIFY teamChanged)
+    Q_PROPERTY(bool useGamepad READ useGamepad WRITE setUseGamepad NOTIFY useGamepadChanged)
+    Q_PROPERTY(int selectedSlot READ selectedSlot WRITE setSelectedSlot NOTIFY selectedSlotChanged)
+    Q_PROPERTY(bool gamepadConnected READ gamepadConnected NOTIFY gamepadConnectedChanged)
+
+    Q_PROPERTY(int robotId READ robotId WRITE setRobotId NOTIFY robotIdChanged)
     Q_PROPERTY(qreal maxSpeed READ maxSpeed WRITE setMaxSpeed NOTIFY maxSpeedChanged)
     Q_PROPERTY(qreal slowSpeed READ slowSpeed WRITE setSlowSpeed NOTIFY slowSpeedChanged)
     Q_PROPERTY(qreal maxRotSpeed READ maxRotSpeed WRITE setMaxRotSpeed NOTIFY maxRotSpeedChanged)
@@ -41,40 +88,40 @@ class ManualController : public QObject {
     Q_PROPERTY(qreal currentVr READ currentVr NOTIFY velocityChanged)
     Q_PROPERTY(bool dribbleActive READ dribbleActive NOTIFY dribbleChanged)
     Q_PROPERTY(QString statusText READ statusText NOTIFY statusChanged)
-    Q_PROPERTY(bool useGamepad READ useGamepad WRITE setUseGamepad NOTIFY useGamepadChanged)
-    Q_PROPERTY(bool gamepadConnected READ gamepadConnected NOTIFY gamepadConnectedChanged)
 
 public:
     explicit ManualController(QObject *parent = nullptr);
     ~ManualController();
 
     bool active() const { return m_active; }
-    int robotId() const { return m_robotId; }
     int team() const { return m_team; }
-    qreal maxSpeed() const { return m_maxSpeed; }
-    qreal slowSpeed() const { return m_slowSpeed; }
-    qreal maxRotSpeed() const { return m_maxRotSpeed; }
-    qreal kickPower() const { return m_kickPower; }
-    qreal acceleration() const { return m_acceleration; }
-    qreal deceleration() const { return m_deceleration; }
-    qreal rotKp() const { return m_rotKp; }
-    qreal rotKd() const { return m_rotKd; }
-    qreal dgRotSpeed() const { return m_dgRotSpeed; }
-    qreal dgAngleThresh() const { return m_dgAngleThresh; }
-    qreal dgRotCenterX() const { return m_dgRotCenterX; }
-    qreal dgRotCenterY() const { return m_dgRotCenterY; }
-    bool autoFace() const { return m_autoFace; }
-    qreal brakeRatio() const { return m_brakeRatio; }
-    qreal brakeThresh() const { return m_brakeThresh; }
-    bool dgPullBall() const { return m_dgPullBall; }
-    int gamepadLayout() const { return m_gamepadLayout; }
-    qreal currentVx() const { return m_currentVx; }
-    qreal currentVy() const { return m_currentVy; }
-    qreal currentVr() const { return m_currentVr; }
-    bool dribbleActive() const { return m_dribble; }
-    QString statusText() const { return m_statusText; }
     bool useGamepad() const { return m_useGamepad; }
-    bool gamepadConnected() const { return m_gamepad != nullptr; }
+    int selectedSlot() const { return m_selectedSlot; }
+    bool gamepadConnected() const;
+    QString statusText() const { return m_statusText; }
+
+    int robotId() const { return m_slots[m_selectedSlot].robotId; }
+    qreal maxSpeed() const { return m_slots[m_selectedSlot].maxSpeed; }
+    qreal slowSpeed() const { return m_slots[m_selectedSlot].slowSpeed; }
+    qreal maxRotSpeed() const { return m_slots[m_selectedSlot].maxRotSpeed; }
+    qreal kickPower() const { return m_slots[m_selectedSlot].kickPower; }
+    qreal acceleration() const { return m_slots[m_selectedSlot].acceleration; }
+    qreal deceleration() const { return m_slots[m_selectedSlot].deceleration; }
+    qreal rotKp() const { return m_slots[m_selectedSlot].rotKp; }
+    qreal rotKd() const { return m_slots[m_selectedSlot].rotKd; }
+    qreal dgRotSpeed() const { return m_slots[m_selectedSlot].dgRotSpeed; }
+    qreal dgAngleThresh() const { return m_slots[m_selectedSlot].dgAngleThresh; }
+    qreal dgRotCenterX() const { return m_slots[m_selectedSlot].dgRotCenterX; }
+    qreal dgRotCenterY() const { return m_slots[m_selectedSlot].dgRotCenterY; }
+    bool autoFace() const { return m_slots[m_selectedSlot].autoFace; }
+    qreal brakeRatio() const { return m_slots[m_selectedSlot].brakeRatio; }
+    qreal brakeThresh() const { return m_slots[m_selectedSlot].brakeThresh; }
+    bool dgPullBall() const { return m_slots[m_selectedSlot].dgPullBall; }
+    int gamepadLayout() const { return m_slots[m_selectedSlot].gamepadLayout; }
+    qreal currentVx() const { return m_slots[m_selectedSlot].currentVx; }
+    qreal currentVy() const { return m_slots[m_selectedSlot].currentVy; }
+    qreal currentVr() const { return m_slots[m_selectedSlot].currentVr; }
+    bool dribbleActive() const { return m_slots[m_selectedSlot].dribble; }
 
     static bool isManualControlActive() { return s_instance && s_instance->m_active; }
 
@@ -84,10 +131,16 @@ public:
     Q_INVOKABLE void setDribbleActive(bool active);
     Q_INVOKABLE void setUseGamepad(bool use);
 
+    Q_INVOKABLE bool slotConnected(int slot) const;
+    Q_INVOKABLE int slotRobotId(int slot) const;
+    Q_INVOKABLE int slotLayout(int slot) const;
+    Q_INVOKABLE int slotCount() const;
+
 public slots:
     void setActive(bool active);
-    void setRobotId(int id);
     void setTeam(int team);
+    void setSelectedSlot(int slot);
+    void setRobotId(int id);
     void setMaxSpeed(qreal speed);
     void setSlowSpeed(qreal speed);
     void setMaxRotSpeed(qreal speed);
@@ -108,8 +161,9 @@ public slots:
 
 signals:
     void activeChanged();
-    void robotIdChanged();
     void teamChanged();
+    void selectedSlotChanged();
+    void robotIdChanged();
     void maxSpeedChanged();
     void slowSpeedChanged();
     void maxRotSpeedChanged();
@@ -132,6 +186,7 @@ signals:
     void statusChanged();
     void useGamepadChanged();
     void gamepadConnectedChanged();
+    void slotsChanged();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -139,14 +194,16 @@ protected:
 private:
     void processKey(int key, bool pressed);
     void tick();
+    void tickSlot(int si);
     void updateStatus();
-    void sendGamepadCmd(float vx, float vy, float vr, bool kick, float kickPower, bool dribble);
+    void sendSlotCmd(int si, float vx, float vy, float vr, bool kick, float kickPower, bool dribble);
     void initSDL();
-    void pollGamepad();
-    void pollGamepadXpad(SDL_Joystick* joy);
-    void pollGamepadXone(SDL_Joystick* joy);
-    void openGamepad(int deviceIndex);
-    void closeGamepad();
+    void pollAllGamepads();
+    void pollGamepadXpad(int si, SDL_Joystick* joy);
+    void pollGamepadXone(int si, SDL_Joystick* joy);
+    void openGamepad(int deviceIndex, int slotIndex);
+    void closeGamepadSlot(int slotIndex);
+    void loadSlotParams(int si);
     static double applyDeadzone(short raw, short deadzone = 3200);
     static double clamp(double val, double lo, double hi) {
         return val < lo ? lo : (val > hi ? hi : val);
@@ -155,71 +212,23 @@ private:
         if (qAbs(target - current) <= maxDelta) return target;
         return current + (target > current ? maxDelta : -maxDelta);
     }
+    QString slotParamKey(int si, const QString& key) const;
 
     bool m_active = false;
-    int m_robotId = 1;
     int m_team = 0;
-    qreal m_maxSpeed = 1.2;
-    qreal m_slowSpeed = 1.0;
-    qreal m_maxRotSpeed = 10.0;
-    qreal m_kickPower = 5.0;
+    bool m_useGamepad = false;
+    bool m_sdlInitialized = false;
+    int m_selectedSlot = 0;
+    int m_gamepadCmdFd = -1;
 
-    qreal m_acceleration = 1.6;
-    qreal m_deceleration = 12.0;
-    qreal m_rotKp = 6.5;
-    qreal m_rotKd = 0;
-
-    qreal m_dgRotSpeed = 4.5;
-    qreal m_dgAngleThresh = 20.0;
-    qreal m_dgRotCenterX = 120.0;
-    qreal m_dgRotCenterY = 0.0;
-    bool m_autoFace = false;
-    qreal m_brakeRatio = 0.5;
-    qreal m_brakeThresh = 0.4;
-    bool m_dgPullBall = true;
-    int m_gamepadLayout = 0;
-    bool m_braking = false;
-    double m_brakeVx = 0;
-    double m_brakeVy = 0;
-    double m_prevTargetMag = 0;
+    static constexpr int MAX_SLOTS = 8;
+    GamepadSlot m_slots[MAX_SLOTS];
 
     QMap<int, bool> m_keyState;
     QVector2D m_mouseFieldPos;
     bool m_mouseActive = false;
-
-    double m_cmdGlobalVx = 0;
-    double m_cmdGlobalVy = 0;
-
-    qreal m_currentVx = 0;
-    qreal m_currentVy = 0;
-    qreal m_currentVr = 0;
-
-    bool m_dribble = false;
     bool m_kick = false;
     bool m_emergencyStop = false;
-
-    bool m_useGamepad = false;
-    bool m_sdlInitialized = false;
-    SDL_GameController* m_gamepad = nullptr;
-
-    double m_gpLeftX = 0;
-    double m_gpLeftY = 0;
-    double m_gpRightX = 0;
-    double m_gpRightY = 0;
-    bool m_gpBtnA = false;
-    bool m_gpBtnB = false;
-    bool m_gpBtnX = false;
-    bool m_gpBtnY = false;
-    bool m_gpBtnLB = false;
-    bool m_gpBtnRB = false;
-    bool m_gpBtnRBPrev = false;
-    bool m_gpBtnBack = false;
-    bool m_gpBtnStart = false;
-    bool m_gpBtnLStick = false;
-    double m_gpRightTrigger = 0;
-    qreal m_savedMaxSpeed = 3.0;
-    qreal m_savedAcceleration = 6.0;
-    int m_gamepadCmdFd = -1;
 
     QTimer *m_timer;
     QElapsedTimer m_lastMouseTime;

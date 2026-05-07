@@ -39,22 +39,21 @@ bool CActionModule::sendAction() {
     /************************************************************************/
     /* 第一步：遍历小车，执行赋予的任务，生成动作指令                       */
     /************************************************************************/
-    int gpRobotId = GamepadCommand::Instance()->getRobotId();
-    bool gpActive = GamepadCommand::Instance()->isActive();
-    bool gpSkillActive = gpActive && (GamepadCommand::Instance()->getButton(0)
-                                   || GamepadCommand::Instance()->getButton(1)
-                                   || GamepadCommand::Instance()->getButton(3)
-                                   || GamepadCommand::Instance()->getButton(4));
-
     for (int vecNum = 0; vecNum < PARAM::Field::MAX_PLAYER; ++ vecNum) {
-        // 手柄直接控制模式：无技能按钮时，将 ManualController 的速度/带球/踢注入 CommandInterface
-        if (gpActive && vecNum == gpRobotId && !gpSkillActive) {
-            float vx = GamepadCommand::Instance()->getVelX();
-            float vy = GamepadCommand::Instance()->getVelY();
-            float vr = GamepadCommand::Instance()->getVelR();
-            bool dribble = GamepadCommand::Instance()->getDribble();
-            bool kickActive = GamepadCommand::Instance()->getKickActive();
-            float kickPower = GamepadCommand::Instance()->getKickPower();
+        auto* gpCmd = GamepadCommand::Instance();
+        bool slotActive = gpCmd->isSlotActive(vecNum);
+        bool gpSkillActive = slotActive && (gpCmd->getButtonForRobot(vecNum, 0)
+                                         || gpCmd->getButtonForRobot(vecNum, 1)
+                                         || gpCmd->getButtonForRobot(vecNum, 3)
+                                         || gpCmd->getButtonForRobot(vecNum, 4));;
+
+        if (slotActive && !gpSkillActive) {
+            float vx = gpCmd->getVelX(vecNum);
+            float vy = gpCmd->getVelY(vecNum);
+            float vr = gpCmd->getVelR(vecNum);
+            bool dribble = gpCmd->getDribble(vecNum);
+            bool kickActive = gpCmd->getKickActive(vecNum);
+            float kickPower = gpCmd->getKickPower(vecNum);
             double dribbleVal = dribble ? 10.0 : 0.0;
             CCommandInterface::instance()->setSpeed(vecNum, dribbleVal, vx, vy, vr);
             if (kickActive && kickPower > 0) {

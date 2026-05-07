@@ -1,5 +1,5 @@
 module(..., package.seeall)
-pressed_map_xpad = {
+pressed_map = {
     [-1] = "",
     [0] = "A",
     [1] = "B",
@@ -8,23 +8,10 @@ pressed_map_xpad = {
     [6] = "LB",
     [7] = "RB",
 }
-pressed_map_xone = {
-    [-1] = "",
-    [0] = "A",
-    [1] = "B",
-    [3] = "X",
-    [4] = "Y",
-    [6] = "LB",
-    [7] = "RB",
-}
+
 function pressed()
     local pressed_id = gamepadCmd:getFirstPressed()
-    if param.gamepad_layout == 0 then
-        key = pressed_map_xpad[pressed_id]
-    else
-        key = pressed_map_xone[pressed_id]
-    end
-
+    key = pressed_map[pressed_id]
     if key then 
         return key
     else
@@ -32,50 +19,59 @@ function pressed()
     end
 end
 
-skill_map = { 
-    ["X"] = task.getball(ball.pos, param.playerVel, param.getballMode),
-    ["Y"] = function()
-        param.shootPos = Utils.GetShootPoint(vision,param.manual_robot_id)
-        local gpRobotId = gamepadCmd:getRobotId()
-        if gpRobotId < 0 then return task.stop() end
-        gRoleNum["Assister"] = gpRobotId
-        local rt = gSubPlay.roleTask("ShootPoint", "Assister")
-        if rt and rt.task then
-            gSubPlay.register("", "Assister", rt.args)
-            return rt.task()
-        end
-        return task.stop()
-    end,
-    ["B"] = function()
-        if param.manual_robot_id == 1 then
-            if player.valid(2) then  
-                param.shootPos = player.pos(2)
-            else
-                param.shootPos = Utils.GetShootPoint(vision,param.manual_robot_id)
-            end
-        elseif param.manual_robot_id == 1 then 
-            if player.valid(1) then
-                param.shootPos = player.pos(1)
-            else
-                param.shootPos = Utils.GetShootPoint(vision,param.manual_robot_id)
-            end
-        end
-        local gpRobotId = gamepadCmd:getRobotId()
-        if gpRobotId < 0 then return task.stop() end
-        gRoleNum["Assister"] = gpRobotId
-        local rt = gSubPlay.roleTask("ShootPoint", "Assister")
-        if rt and rt.task then
-            gSubPlay.register("", "Assister", rt.args)
-            return rt.task()
-        end
-        return task.stop()
-    end,
-}
+function pressedForRobot(robotId)
+    local pressed_id = gamepadCmd:getFirstPressedForRobot(robotId)
+    key = pressed_map[pressed_id]
+    if key then 
+        return key
+    else
+        return pressed_id
+    end
+end
 
-function skill()
+function makeSkillMap(myId, passTargetId)
+    return { 
+        ["X"] = task.getball(ball.pos, param.playerVel, param.getballMode),
+        ["Y"] = function()
+            param.shootPos = Utils.GetShootPoint(vision, myId)
+            gRoleNum["Assister"] = myId
+            local rt = gSubPlay.roleTask("ShootPoint", "Assister")
+            if rt and rt.task then
+                gSubPlay.register("", "Assister", rt.args)
+                return rt.task()
+            end
+            return task.stop()
+        end,
+        ["B"] = function()
+            if player.valid(passTargetId) then  
+                param.shootPos = player.pos(passTargetId)
+            else
+                param.shootPos = Utils.GetShootPoint(vision, myId)
+            end
+            gRoleNum["Assister"] = myId
+            local rt = gSubPlay.roleTask("ShootPoint", "Assister")
+            if rt and rt.task then
+                gSubPlay.register("", "Assister", rt.args)
+                return rt.task()
+            end
+            return task.stop()
+        end,
+    }
+end
+
+skill_map_1 = makeSkillMap(1, 2)
+skill_map_2 = makeSkillMap(2, 1)
+
+function skill(playerNum)
+    local myMap
+    if playerNum == 1 then
+        myMap = skill_map_1
+    else
+        myMap = skill_map_2
+    end
     return function()
-        local key = pressed()
-        local fn = skill_map[key]
+        local key = pressedForRobot(playerNum)
+        local fn = myMap[key]
         if fn then
             return fn()
         elseif last_skill then

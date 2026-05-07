@@ -5,6 +5,7 @@
 #include <QtMath>
 #include <QCoreApplication>
 #include <QKeyEvent>
+#include <QSet>
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -25,31 +26,17 @@ ManualController::ManualController(QObject *parent)
     QCoreApplication::instance()->installEventFilter(this);
     m_gamepadCmdFd = socket(AF_INET, SOCK_DGRAM, 0);
     initSDL();
-    auto* zpm = ZSS::ZParamManager::instance();
-    zpm->loadParam(m_robotId, "Manual/robotId", 1);
-    zpm->loadParam(m_maxSpeed, "Manual/maxSpeed", 1.2);
-    zpm->loadParam(m_slowSpeed, "Manual/slowSpeed", 1.0);
-    zpm->loadParam(m_maxRotSpeed, "Manual/maxRotSpeed", 10.0);
-    zpm->loadParam(m_kickPower, "Manual/kickPower", 5.0);
-    zpm->loadParam(m_acceleration, "Manual/acceleration", 1.6);
-    zpm->loadParam(m_deceleration, "Manual/deceleration", 12.0);
-    zpm->loadParam(m_rotKp, "Manual/rotKp", 6.5);
-    zpm->loadParam(m_rotKd, "Manual/rotKd", 0);
-    zpm->loadParam(m_dgRotSpeed, "Manual/dgRotSpeed", 4.5);
-    zpm->loadParam(m_dgAngleThresh, "Manual/dgAngleThresh", 20.0);
-    zpm->loadParam(m_dgRotCenterX, "Manual/dgRotCenterX", 120.0);
-    zpm->loadParam(m_dgRotCenterY, "Manual/dgRotCenterY", 0.0);
-    zpm->loadParam(m_autoFace, "Manual/autoFace", false);
-    zpm->loadParam(m_brakeRatio, "Manual/brakeRatio", 0.5);
-    zpm->loadParam(m_brakeThresh, "Manual/brakeThresh", 0.4);
-    zpm->loadParam(m_dgPullBall, "Manual/dgPullBall", true);
-    zpm->loadParam(m_gamepadLayout, "Manual/gamepadLayout", 0);
+    for (int s = 0; s < MAX_SLOTS; ++s) {
+        loadSlotParams(s);
+    }
     updateStatus();
 }
 
 ManualController::~ManualController() {
     QCoreApplication::instance()->removeEventFilter(this);
-    closeGamepad();
+    for (int s = 0; s < MAX_SLOTS; ++s) {
+        closeGamepadSlot(s);
+    }
     if (m_sdlInitialized) {
         SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER);
         m_sdlInitialized = false;
@@ -92,22 +79,19 @@ void ManualController::setMouseFieldPos(qreal x, qreal y) {
 
 void ManualController::setMouseActive(bool active) { m_mouseActive = active; }
 void ManualController::setKickActive(bool active) { m_kick = active; }
-void ManualController::setDribbleActive(bool active) { m_dribble = active; emit dribbleChanged(); }
+void ManualController::setDribbleActive(bool active) { m_slots[m_selectedSlot].dribble = active; emit dribbleChanged(); }
 
 void ManualController::setUseGamepad(bool use) {
     if (m_useGamepad == use) return;
     m_useGamepad = use;
-    if (use && !m_gamepad) {
-        for (int i = 0; i < SDL_NumJoysticks(); ++i) {
-            if (SDL_IsGameController(i)) {
-                openGamepad(i);
-                break;
-            }
-        }
+    if (use) {
+        pollAllGamepads();
     }
     if (!use) {
         m_kick = false;
-        m_dribble = false;
+        for (int s = 0; s < MAX_SLOTS; ++s) {
+            m_slots[s].dribble = false;
+        }
         emit dribbleChanged();
     }
     m_keyState.clear();
@@ -120,63 +104,147 @@ void ManualController::setActive(bool active) {
     if (active) {
         m_timer->start();
         m_keyState.clear();
-        m_dribble = false;
-        m_kick = false;
         m_emergencyStop = false;
-        m_cmdGlobalVx = 0;
-        m_cmdGlobalVy = 0;
+        for (int s = 0; s < MAX_SLOTS; ++s) {
+            m_slots[s].cmdGlobalVx = 0;
+            m_slots[s].cmdGlobalVy = 0;
+            m_slots[s].dribble = false;
+        }
+        m_kick = false;
         emit dribbleChanged();
     } else {
         m_timer->stop();
         m_keyState.clear();
-        m_cmdGlobalVx = 0;
-        m_cmdGlobalVy = 0;
-        m_currentVx = m_currentVy = m_currentVr = 0;
+        for (int s = 0; s < MAX_SLOTS; ++s) {
+            m_slots[s].cmdGlobalVx = 0;
+            m_slots[s].cmdGlobalVy = 0;
+            m_slots[s].currentVx = 0;
+            m_slots[s].currentVy = 0;
+            m_slots[s].currentVr = 0;
+        }
         emit velocityChanged();
     }
     updateStatus();
     emit activeChanged();
 }
 
-void ManualController::setRobotId(int id) { if (m_robotId != id) { m_robotId = id; ZSS::ZParamManager::instance()->changeParam("Manual/robotId", id); emit robotIdChanged(); } }
-void ManualController::setTeam(int team) { if (m_team != team) { m_team = team; emit teamChanged(); } }
-void ManualController::setMaxSpeed(qreal v) { if (qFuzzyCompare(m_maxSpeed, v)) return; m_maxSpeed = v; ZSS::ZParamManager::instance()->changeParam("Manual/maxSpeed", v); emit maxSpeedChanged(); }
-void ManualController::setSlowSpeed(qreal v) { if (qFuzzyCompare(m_slowSpeed, v)) return; m_slowSpeed = v; ZSS::ZParamManager::instance()->changeParam("Manual/slowSpeed", v); emit slowSpeedChanged(); }
-void ManualController::setMaxRotSpeed(qreal v) { if (qFuzzyCompare(m_maxRotSpeed, v)) return; m_maxRotSpeed = v; ZSS::ZParamManager::instance()->changeParam("Manual/maxRotSpeed", v); emit maxRotSpeedChanged(); }
-void ManualController::setKickPower(qreal v) { if (qFuzzyCompare(m_kickPower, v)) return; m_kickPower = v; ZSS::ZParamManager::instance()->changeParam("Manual/kickPower", v); emit kickPowerChanged(); }
-void ManualController::setAcceleration(qreal v) { if (qFuzzyCompare(m_acceleration, v)) return; m_acceleration = v; ZSS::ZParamManager::instance()->changeParam("Manual/acceleration", v); emit accelerationChanged(); }
-void ManualController::setDeceleration(qreal v) { if (qFuzzyCompare(m_deceleration, v)) return; m_deceleration = v; ZSS::ZParamManager::instance()->changeParam("Manual/deceleration", v); emit decelerationChanged(); }
-void ManualController::setRotKp(qreal v) { if (qFuzzyCompare(m_rotKp, v)) return; m_rotKp = v; ZSS::ZParamManager::instance()->changeParam("Manual/rotKp", v); emit rotKpChanged(); }
-void ManualController::setRotKd(qreal v) { if (qFuzzyCompare(m_rotKd, v)) return; m_rotKd = v; ZSS::ZParamManager::instance()->changeParam("Manual/rotKd", v); emit rotKdChanged(); }
-void ManualController::setDgRotSpeed(qreal v) { if (qFuzzyCompare(m_dgRotSpeed, v)) return; m_dgRotSpeed = v; ZSS::ZParamManager::instance()->changeParam("Manual/dgRotSpeed", v); emit dgRotSpeedChanged(); }
-void ManualController::setDgAngleThresh(qreal v) { if (qFuzzyCompare(m_dgAngleThresh, v)) return; m_dgAngleThresh = v; ZSS::ZParamManager::instance()->changeParam("Manual/dgAngleThresh", v); emit dgAngleThreshChanged(); }
-void ManualController::setDgRotCenterX(qreal v) { if (qFuzzyCompare(m_dgRotCenterX, v)) return; m_dgRotCenterX = v; ZSS::ZParamManager::instance()->changeParam("Manual/dgRotCenterX", v); emit dgRotCenterXChanged(); }
-void ManualController::setDgRotCenterY(qreal v) { if (qFuzzyCompare(m_dgRotCenterY, v)) return; m_dgRotCenterY = v; ZSS::ZParamManager::instance()->changeParam("Manual/dgRotCenterY", v); emit dgRotCenterYChanged(); }
-void ManualController::setAutoFace(bool v) { if (m_autoFace == v) return; m_autoFace = v; ZSS::ZParamManager::instance()->changeParam("Manual/autoFace", v); emit autoFaceChanged(); }
-void ManualController::setBrakeRatio(qreal v) { if (qFuzzyCompare(m_brakeRatio, v)) return; m_brakeRatio = v; ZSS::ZParamManager::instance()->changeParam("Manual/brakeRatio", v); emit brakeRatioChanged(); }
-void ManualController::setBrakeThresh(qreal v) { if (qFuzzyCompare(m_brakeThresh, v)) return; m_brakeThresh = v; ZSS::ZParamManager::instance()->changeParam("Manual/brakeThresh", v); emit brakeThreshChanged(); }
-void ManualController::setDgPullBall(bool v) { if (m_dgPullBall == v) return; m_dgPullBall = v; ZSS::ZParamManager::instance()->changeParam("Manual/dgPullBall", v); emit dgPullBallChanged(); }
-void ManualController::setGamepadLayout(int v) { if (m_gamepadLayout == v) return; m_gamepadLayout = v; ZSS::ZParamManager::instance()->changeParam("Manual/gamepadLayout", v); emit gamepadLayoutChanged(); }
+void ManualController::setSelectedSlot(int slot) {
+    if (slot < 0 || slot >= MAX_SLOTS || m_selectedSlot == slot) return;
+    m_selectedSlot = slot;
+    emit selectedSlotChanged();
+    emit robotIdChanged();
+    emit maxSpeedChanged();
+    emit slowSpeedChanged();
+    emit maxRotSpeedChanged();
+    emit kickPowerChanged();
+    emit accelerationChanged();
+    emit decelerationChanged();
+    emit rotKpChanged();
+    emit rotKdChanged();
+    emit dgRotSpeedChanged();
+    emit dgAngleThreshChanged();
+    emit dgRotCenterXChanged();
+    emit dgRotCenterYChanged();
+    emit autoFaceChanged();
+    emit brakeRatioChanged();
+    emit brakeThreshChanged();
+    emit dgPullBallChanged();
+    emit gamepadLayoutChanged();
+    emit velocityChanged();
+    emit dribbleChanged();
+}
 
-void ManualController::sendGamepadCmd(float vx, float vy, float vr,
-                                       bool kick, float kickPower, bool dribble) {
+QString ManualController::slotParamKey(int si, const QString& key) const {
+    if (si == 0) return QString("Manual/%1").arg(key);
+    return QString("Manual/Slot%1/%2").arg(si).arg(key);
+}
+
+void ManualController::loadSlotParams(int si) {
+    auto* zpm = ZSS::ZParamManager::instance();
+    auto& s = m_slots[si];
+    zpm->loadParam(s.robotId, slotParamKey(si, "robotId"), si == 0 ? 1 : si + 1);
+    zpm->loadParam(s.maxSpeed, slotParamKey(si, "maxSpeed"), 1.2);
+    zpm->loadParam(s.slowSpeed, slotParamKey(si, "slowSpeed"), 1.0);
+    zpm->loadParam(s.maxRotSpeed, slotParamKey(si, "maxRotSpeed"), 10.0);
+    zpm->loadParam(s.kickPower, slotParamKey(si, "kickPower"), 5.0);
+    zpm->loadParam(s.acceleration, slotParamKey(si, "acceleration"), 1.6);
+    zpm->loadParam(s.deceleration, slotParamKey(si, "deceleration"), 12.0);
+    zpm->loadParam(s.rotKp, slotParamKey(si, "rotKp"), 6.5);
+    zpm->loadParam(s.rotKd, slotParamKey(si, "rotKd"), 0);
+    zpm->loadParam(s.dgRotSpeed, slotParamKey(si, "dgRotSpeed"), 4.5);
+    zpm->loadParam(s.dgAngleThresh, slotParamKey(si, "dgAngleThresh"), 20.0);
+    zpm->loadParam(s.dgRotCenterX, slotParamKey(si, "dgRotCenterX"), 120.0);
+    zpm->loadParam(s.dgRotCenterY, slotParamKey(si, "dgRotCenterY"), 0.0);
+    zpm->loadParam(s.autoFace, slotParamKey(si, "autoFace"), false);
+    zpm->loadParam(s.brakeRatio, slotParamKey(si, "brakeRatio"), 0.5);
+    zpm->loadParam(s.brakeThresh, slotParamKey(si, "brakeThresh"), 0.4);
+    zpm->loadParam(s.dgPullBall, slotParamKey(si, "dgPullBall"), true);
+    zpm->loadParam(s.gamepadLayout, slotParamKey(si, "gamepadLayout"), 0);
+}
+
+// Per-slot setters
+void ManualController::setRobotId(int id) { auto& s = m_slots[m_selectedSlot]; if (s.robotId != id) { s.robotId = id; ZSS::ZParamManager::instance()->changeParam(slotParamKey(m_selectedSlot, "robotId"), id); emit robotIdChanged(); } }
+void ManualController::setMaxSpeed(qreal v) { auto& s = m_slots[m_selectedSlot]; if (qFuzzyCompare(s.maxSpeed, v)) return; s.maxSpeed = v; ZSS::ZParamManager::instance()->changeParam(slotParamKey(m_selectedSlot, "maxSpeed"), v); emit maxSpeedChanged(); }
+void ManualController::setSlowSpeed(qreal v) { auto& s = m_slots[m_selectedSlot]; if (qFuzzyCompare(s.slowSpeed, v)) return; s.slowSpeed = v; ZSS::ZParamManager::instance()->changeParam(slotParamKey(m_selectedSlot, "slowSpeed"), v); emit slowSpeedChanged(); }
+void ManualController::setMaxRotSpeed(qreal v) { auto& s = m_slots[m_selectedSlot]; if (qFuzzyCompare(s.maxRotSpeed, v)) return; s.maxRotSpeed = v; ZSS::ZParamManager::instance()->changeParam(slotParamKey(m_selectedSlot, "maxRotSpeed"), v); emit maxRotSpeedChanged(); }
+void ManualController::setKickPower(qreal v) { auto& s = m_slots[m_selectedSlot]; if (qFuzzyCompare(s.kickPower, v)) return; s.kickPower = v; ZSS::ZParamManager::instance()->changeParam(slotParamKey(m_selectedSlot, "kickPower"), v); emit kickPowerChanged(); }
+void ManualController::setAcceleration(qreal v) { auto& s = m_slots[m_selectedSlot]; if (qFuzzyCompare(s.acceleration, v)) return; s.acceleration = v; ZSS::ZParamManager::instance()->changeParam(slotParamKey(m_selectedSlot, "acceleration"), v); emit accelerationChanged(); }
+void ManualController::setDeceleration(qreal v) { auto& s = m_slots[m_selectedSlot]; if (qFuzzyCompare(s.deceleration, v)) return; s.deceleration = v; ZSS::ZParamManager::instance()->changeParam(slotParamKey(m_selectedSlot, "deceleration"), v); emit decelerationChanged(); }
+void ManualController::setRotKp(qreal v) { auto& s = m_slots[m_selectedSlot]; if (qFuzzyCompare(s.rotKp, v)) return; s.rotKp = v; ZSS::ZParamManager::instance()->changeParam(slotParamKey(m_selectedSlot, "rotKp"), v); emit rotKpChanged(); }
+void ManualController::setRotKd(qreal v) { auto& s = m_slots[m_selectedSlot]; if (qFuzzyCompare(s.rotKd, v)) return; s.rotKd = v; ZSS::ZParamManager::instance()->changeParam(slotParamKey(m_selectedSlot, "rotKd"), v); emit rotKdChanged(); }
+void ManualController::setDgRotSpeed(qreal v) { auto& s = m_slots[m_selectedSlot]; if (qFuzzyCompare(s.dgRotSpeed, v)) return; s.dgRotSpeed = v; ZSS::ZParamManager::instance()->changeParam(slotParamKey(m_selectedSlot, "dgRotSpeed"), v); emit dgRotSpeedChanged(); }
+void ManualController::setDgAngleThresh(qreal v) { auto& s = m_slots[m_selectedSlot]; if (qFuzzyCompare(s.dgAngleThresh, v)) return; s.dgAngleThresh = v; ZSS::ZParamManager::instance()->changeParam(slotParamKey(m_selectedSlot, "dgAngleThresh"), v); emit dgAngleThreshChanged(); }
+void ManualController::setDgRotCenterX(qreal v) { auto& s = m_slots[m_selectedSlot]; if (qFuzzyCompare(s.dgRotCenterX, v)) return; s.dgRotCenterX = v; ZSS::ZParamManager::instance()->changeParam(slotParamKey(m_selectedSlot, "dgRotCenterX"), v); emit dgRotCenterXChanged(); }
+void ManualController::setDgRotCenterY(qreal v) { auto& s = m_slots[m_selectedSlot]; if (qFuzzyCompare(s.dgRotCenterY, v)) return; s.dgRotCenterY = v; ZSS::ZParamManager::instance()->changeParam(slotParamKey(m_selectedSlot, "dgRotCenterY"), v); emit dgRotCenterYChanged(); }
+void ManualController::setAutoFace(bool v) { auto& s = m_slots[m_selectedSlot]; if (s.autoFace == v) return; s.autoFace = v; ZSS::ZParamManager::instance()->changeParam(slotParamKey(m_selectedSlot, "autoFace"), v); emit autoFaceChanged(); }
+void ManualController::setBrakeRatio(qreal v) { auto& s = m_slots[m_selectedSlot]; if (qFuzzyCompare(s.brakeRatio, v)) return; s.brakeRatio = v; ZSS::ZParamManager::instance()->changeParam(slotParamKey(m_selectedSlot, "brakeRatio"), v); emit brakeRatioChanged(); }
+void ManualController::setBrakeThresh(qreal v) { auto& s = m_slots[m_selectedSlot]; if (qFuzzyCompare(s.brakeThresh, v)) return; s.brakeThresh = v; ZSS::ZParamManager::instance()->changeParam(slotParamKey(m_selectedSlot, "brakeThresh"), v); emit brakeThreshChanged(); }
+void ManualController::setDgPullBall(bool v) { auto& s = m_slots[m_selectedSlot]; if (s.dgPullBall == v) return; s.dgPullBall = v; ZSS::ZParamManager::instance()->changeParam(slotParamKey(m_selectedSlot, "dgPullBall"), v); emit dgPullBallChanged(); }
+void ManualController::setGamepadLayout(int v) { auto& s = m_slots[m_selectedSlot]; if (s.gamepadLayout == v) return; s.gamepadLayout = v; ZSS::ZParamManager::instance()->changeParam(slotParamKey(m_selectedSlot, "gamepadLayout"), v); emit gamepadLayoutChanged(); }
+
+// Multi-slot API for QML
+bool ManualController::slotConnected(int slot) const {
+    if (slot < 0 || slot >= MAX_SLOTS) return false;
+    return m_slots[slot].connected;
+}
+int ManualController::slotRobotId(int slot) const {
+    if (slot < 0 || slot >= MAX_SLOTS) return -1;
+    return m_slots[slot].robotId;
+}
+int ManualController::slotLayout(int slot) const {
+    if (slot < 0 || slot >= MAX_SLOTS) return 0;
+    return m_slots[slot].gamepadLayout;
+}
+int ManualController::slotCount() const {
+    int c = 0;
+    for (int s = 0; s < MAX_SLOTS; ++s) if (m_slots[s].connected) ++c;
+    return c;
+}
+bool ManualController::gamepadConnected() const {
+    for (int s = 0; s < MAX_SLOTS; ++s) if (m_slots[s].connected) return true;
+    return false;
+}
+
+// Team setter
+void ManualController::setTeam(int team) { if (m_team != team) { m_team = team; emit teamChanged(); } }
+
+void ManualController::sendSlotCmd(int si, float vx, float vy, float vr,
+                                    bool kick, float kickPower, bool dribble) {
     if (m_gamepadCmdFd < 0) return;
     const int BTN_COUNT = 16;
     const int PKT_SIZE = 35;
     uint8_t buf[PKT_SIZE];
     std::memset(buf, 0, PKT_SIZE);
 
-    if (m_gamepad) {
-        SDL_Joystick* joy = SDL_GameControllerGetJoystick(m_gamepad);
+    auto& slot = m_slots[si];
+    if (slot.gamepad) {
+        SDL_Joystick* joy = SDL_GameControllerGetJoystick(slot.gamepad);
         if (joy) {
-            if (m_gamepadLayout == 0) {
+            if (slot.gamepadLayout == 0) {
                 for (int i = 0; i < BTN_COUNT; ++i) {
                     buf[i] = SDL_JoystickGetButton(joy, i) ? 1 : 0;
                 }
             } else {
-                // xone: 0=A,1=B,2=X,3=Y,4=LB,5=RB,6=Back,7=Start,9=LStick
-                // logical: A=0,B=1,X=3,Y=4,LB=6,RB=7,Back=?,Start=?,LStick=13
-                // (matching ActionModule.cpp skill check: buttons 0,1,3,4)
                 static const int xoneToLogical[] = {0, 1, 3, 4, 6, 7};
                 for (int raw = 0; raw < 6; ++raw) {
                     buf[xoneToLogical[raw]] = SDL_JoystickGetButton(joy, raw) ? 1 : 0;
@@ -187,7 +255,7 @@ void ManualController::sendGamepadCmd(float vx, float vy, float vr,
     }
 
     buf[BTN_COUNT] = dribble ? 1 : 0;
-    buf[BTN_COUNT + 1] = static_cast<uint8_t>(m_robotId);
+    buf[BTN_COUNT + 1] = static_cast<uint8_t>(slot.robotId);
 
     float fvx = vx, fvy = vy, fvr = vr, fkp = kickPower;
     std::memcpy(&buf[18], &fvx, 4);
@@ -209,52 +277,62 @@ void ManualController::tick() {
     if (!m_active) return;
 
     if (m_useGamepad) {
-        pollGamepad();
+        pollAllGamepads();
+        for (int s = 0; s < MAX_SLOTS; ++s) {
+            if (m_slots[s].connected) {
+                tickSlot(s);
+            }
+        }
+    } else {
+        tickSlot(m_selectedSlot);
     }
+}
+
+void ManualController::tickSlot(int si) {
+    auto& slot = m_slots[si];
+    bool isGp = m_useGamepad && slot.connected;
 
     auto& maintain = GlobalData::instance()->maintain[0];
-
     int robotIdx = -1;
     for (int j = 0; j < maintain.robotSize[m_team]; j++) {
-        if (maintain.robot[m_team][j].id == static_cast<unsigned short>(m_robotId)) {
+        if (maintain.robot[m_team][j].id == static_cast<unsigned short>(slot.robotId)) {
             robotIdx = j;
             break;
         }
     }
-
     if (robotIdx < 0) return;
 
     auto& robot = maintain.robot[m_team][robotIdx];
     double robotAngle = robot.angle;
     double actualRotVel = robot.rotateVel;
 
-    if (m_emergencyStop) {
-        m_cmdGlobalVx = 0;
-        m_cmdGlobalVy = 0;
-        m_currentVx = m_currentVy = m_currentVr = 0;
-        emit velocityChanged();
-        sendGamepadCmd(0, 0, 0, false, 0, false);
+    if (!isGp && m_emergencyStop) {
+        slot.cmdGlobalVx = 0;
+        slot.cmdGlobalVy = 0;
+        slot.currentVx = slot.currentVy = slot.currentVr = 0;
+        if (si == m_selectedSlot) emit velocityChanged();
+        sendSlotCmd(si, 0, 0, 0, false, 0, false);
         return;
     }
 
-    bool skillActive = m_useGamepad && (m_gpBtnA || m_gpBtnB || m_gpBtnX || m_gpBtnY);
+    bool skillActive = isGp && (slot.gpBtnA || slot.gpBtnB || slot.gpBtnX || slot.gpBtnY);
     if (skillActive) {
-        m_cmdGlobalVx = 0;
-        m_cmdGlobalVy = 0;
-        m_currentVx = m_currentVy = m_currentVr = 0;
-        emit velocityChanged();
-        sendGamepadCmd(0, 0, 0, false, 0, false);
+        slot.cmdGlobalVx = 0;
+        slot.cmdGlobalVy = 0;
+        slot.currentVx = slot.currentVy = slot.currentVr = 0;
+        if (si == m_selectedSlot) emit velocityChanged();
+        sendSlotCmd(si, 0, 0, 0, false, 0, false);
         return;
     }
 
     double targetVx = 0, targetVy = 0;
-    double speed = m_maxSpeed;
+    double speed = slot.maxSpeed;
 
-    if (m_useGamepad) {
-        targetVx = m_gpLeftX * speed;
-        targetVy = m_gpLeftY * speed;
+    if (isGp) {
+        targetVx = slot.gpLeftX * speed;
+        targetVy = slot.gpLeftY * speed;
     } else {
-        if (m_keyState.value(Qt::Key_Control, false)) speed = m_slowSpeed;
+        if (m_keyState.value(Qt::Key_Control, false)) speed = slot.slowSpeed;
         if (m_keyState.value(Qt::Key_W, false)) targetVy += speed;
         if (m_keyState.value(Qt::Key_S, false)) targetVy -= speed;
         if (m_keyState.value(Qt::Key_A, false)) targetVx -= speed;
@@ -270,18 +348,16 @@ void ManualController::tick() {
 
     double cmdVr = 0;
     bool hasRightStick = false;
-    if (m_useGamepad) {
-        double rightMag = qSqrt(m_gpRightX * m_gpRightX + m_gpRightY * m_gpRightY);
+    if (isGp) {
+        double rightMag = qSqrt(slot.gpRightX * slot.gpRightX + slot.gpRightY * slot.gpRightY);
         if (rightMag > 0.15) {
             hasRightStick = true;
-            double targetAngle = qAtan2(m_gpRightY, m_gpRightX);
+            double targetAngle = qAtan2(slot.gpRightY, slot.gpRightX);
             double angleDiff = targetAngle - robotAngle;
             while (angleDiff > M_PI) angleDiff -= 2 * M_PI;
             while (angleDiff < -M_PI) angleDiff += 2 * M_PI;
-
-            cmdVr = m_rotKp * angleDiff - m_rotKd * actualRotVel;
-            cmdVr = clamp(cmdVr, -m_maxRotSpeed, m_maxRotSpeed);
-
+            cmdVr = slot.rotKp * angleDiff - slot.rotKd * actualRotVel;
+            cmdVr = clamp(cmdVr, -slot.maxRotSpeed, slot.maxRotSpeed);
             if (qAbs(angleDiff) < qDegreesToRadians(0.5)) cmdVr = 0;
         }
     } else if (m_mouseActive) {
@@ -293,100 +369,97 @@ void ManualController::tick() {
         double angleDiff = targetAngle - robotAngle;
         while (angleDiff > M_PI) angleDiff -= 2 * M_PI;
         while (angleDiff < -M_PI) angleDiff += 2 * M_PI;
-
-        cmdVr = m_rotKp * angleDiff - m_rotKd * actualRotVel;
-        cmdVr = clamp(cmdVr, -m_maxRotSpeed, m_maxRotSpeed);
-
+        cmdVr = slot.rotKp * angleDiff - slot.rotKd * actualRotVel;
+        cmdVr = clamp(cmdVr, -slot.maxRotSpeed, slot.maxRotSpeed);
         if (qAbs(angleDiff) < qDegreesToRadians(0.5)) cmdVr = 0;
     }
 
-    double cmdMagPrev = qSqrt(m_cmdGlobalVx * m_cmdGlobalVx + m_cmdGlobalVy * m_cmdGlobalVy);
-    bool targetDropping = (m_prevTargetMag > 0.3) && (targetMag < m_prevTargetMag * m_brakeThresh);
-    m_prevTargetMag = targetMag;
+    double cmdMagPrev = qSqrt(slot.cmdGlobalVx * slot.cmdGlobalVx + slot.cmdGlobalVy * slot.cmdGlobalVy);
+    bool targetDropping = (slot.prevTargetMag > 0.3) && (targetMag < slot.prevTargetMag * slot.brakeThresh);
+    slot.prevTargetMag = targetMag;
 
     if (!targetDropping && targetMag >= 0.01) {
-        m_braking = false;
+        slot.braking = false;
     }
 
     if (targetDropping || targetMag < 0.01) {
-        if (!m_braking && cmdMagPrev > 0.15) {
-            m_braking = true;
-            m_brakeVx = -m_cmdGlobalVx * m_brakeRatio;
-            m_brakeVy = -m_cmdGlobalVy * m_brakeRatio;
+        if (!slot.braking && cmdMagPrev > 0.15) {
+            slot.braking = true;
+            slot.brakeVx = -slot.cmdGlobalVx * slot.brakeRatio;
+            slot.brakeVy = -slot.cmdGlobalVy * slot.brakeRatio;
         }
-        if (m_braking) {
-            m_cmdGlobalVx = m_brakeVx;
-            m_cmdGlobalVy = m_brakeVy;
-            m_brakeVx = moveTowards(m_brakeVx, 0, m_deceleration * DT);
-            m_brakeVy = moveTowards(m_brakeVy, 0, m_deceleration * DT);
-            if (qAbs(m_brakeVx) < 0.01 && qAbs(m_brakeVy) < 0.01) {
-                m_braking = false;
-                m_cmdGlobalVx = 0;
-                m_cmdGlobalVy = 0;
+        if (slot.braking) {
+            slot.cmdGlobalVx = slot.brakeVx;
+            slot.cmdGlobalVy = slot.brakeVy;
+            slot.brakeVx = moveTowards(slot.brakeVx, 0, slot.deceleration * DT);
+            slot.brakeVy = moveTowards(slot.brakeVy, 0, slot.deceleration * DT);
+            if (qAbs(slot.brakeVx) < 0.01 && qAbs(slot.brakeVy) < 0.01) {
+                slot.braking = false;
+                slot.cmdGlobalVx = 0;
+                slot.cmdGlobalVy = 0;
             }
         } else {
-            m_cmdGlobalVx = moveTowards(m_cmdGlobalVx, 0, m_deceleration * DT);
-            m_cmdGlobalVy = moveTowards(m_cmdGlobalVy, 0, m_deceleration * DT);
+            slot.cmdGlobalVx = moveTowards(slot.cmdGlobalVx, 0, slot.deceleration * DT);
+            slot.cmdGlobalVy = moveTowards(slot.cmdGlobalVy, 0, slot.deceleration * DT);
         }
     } else {
-        bool sameDirX = (m_cmdGlobalVx == 0) || (m_cmdGlobalVx > 0) == (targetVx > 0);
-        bool sameDirY = (m_cmdGlobalVy == 0) || (m_cmdGlobalVy > 0) == (targetVy > 0);
+        bool sameDirX = (slot.cmdGlobalVx == 0) || (slot.cmdGlobalVx > 0) == (targetVx > 0);
+        bool sameDirY = (slot.cmdGlobalVy == 0) || (slot.cmdGlobalVy > 0) == (targetVy > 0);
         if (sameDirX) {
-            m_cmdGlobalVx = moveTowards(m_cmdGlobalVx, targetVx, m_acceleration * DT);
+            slot.cmdGlobalVx = moveTowards(slot.cmdGlobalVx, targetVx, slot.acceleration * DT);
         } else {
-            m_cmdGlobalVx = moveTowards(m_cmdGlobalVx, 0, m_deceleration * 2 * DT);
+            slot.cmdGlobalVx = moveTowards(slot.cmdGlobalVx, 0, slot.deceleration * 2 * DT);
         }
         if (sameDirY) {
-            m_cmdGlobalVy = moveTowards(m_cmdGlobalVy, targetVy, m_acceleration * DT);
+            slot.cmdGlobalVy = moveTowards(slot.cmdGlobalVy, targetVy, slot.acceleration * DT);
         } else {
-            m_cmdGlobalVy = moveTowards(m_cmdGlobalVy, 0, m_deceleration * 2 * DT);
+            slot.cmdGlobalVy = moveTowards(slot.cmdGlobalVy, 0, slot.deceleration * 2 * DT);
         }
     }
 
-    double cmdMag = qSqrt(m_cmdGlobalVx * m_cmdGlobalVx + m_cmdGlobalVy * m_cmdGlobalVy);
-    if (cmdMag > m_maxSpeed * 1.5) {
-        m_cmdGlobalVx *= m_maxSpeed * 1.5 / cmdMag;
-        m_cmdGlobalVy *= m_maxSpeed * 1.5 / cmdMag;
-        cmdMag = m_maxSpeed * 1.5;
+    double cmdMag = qSqrt(slot.cmdGlobalVx * slot.cmdGlobalVx + slot.cmdGlobalVy * slot.cmdGlobalVy);
+    if (cmdMag > slot.maxSpeed * 1.5) {
+        slot.cmdGlobalVx *= slot.maxSpeed * 1.5 / cmdMag;
+        slot.cmdGlobalVy *= slot.maxSpeed * 1.5 / cmdMag;
+        cmdMag = slot.maxSpeed * 1.5;
     }
 
-    if (m_autoFace && !hasRightStick && m_useGamepad && cmdMag > 0.15) {
-        double moveDir = qAtan2(m_cmdGlobalVy, m_cmdGlobalVx);
+    if (slot.autoFace && !hasRightStick && isGp && cmdMag > 0.15) {
+        double moveDir = qAtan2(slot.cmdGlobalVy, slot.cmdGlobalVx);
         double angleDiff = moveDir - robotAngle;
         while (angleDiff > M_PI) angleDiff -= 2 * M_PI;
         while (angleDiff < -M_PI) angleDiff += 2 * M_PI;
-        cmdVr = m_rotKp * angleDiff - m_rotKd * actualRotVel;
-        cmdVr = clamp(cmdVr, -m_maxRotSpeed, m_maxRotSpeed);
+        cmdVr = slot.rotKp * angleDiff - slot.rotKd * actualRotVel;
+        cmdVr = clamp(cmdVr, -slot.maxRotSpeed, slot.maxRotSpeed);
         if (qAbs(angleDiff) < qDegreesToRadians(0.5)) cmdVr = 0;
     }
 
     double cosA = qCos(robotAngle);
     double sinA = qSin(robotAngle);
-    double cmdLocalVx = m_cmdGlobalVx * cosA + m_cmdGlobalVy * sinA;
-    double cmdLocalVy = -m_cmdGlobalVx * sinA + m_cmdGlobalVy * cosA;
+    double cmdLocalVx = slot.cmdGlobalVx * cosA + slot.cmdGlobalVy * sinA;
+    double cmdLocalVy = -slot.cmdGlobalVx * sinA + slot.cmdGlobalVy * cosA;
 
     bool doKick = m_kick;
-    double kickPwr = m_kickPower;
-    bool doDribble = m_dribble;
+    double kickPwr = slot.kickPower;
+    bool doDribble = slot.dribble;
 
-    if (m_useGamepad) {
-        if (m_gpBtnLB) {
+    if (isGp) {
+        if (slot.gpBtnLB) {
             doKick = true;
-            double rightMag = qSqrt(m_gpRightX * m_gpRightX + m_gpRightY * m_gpRightY);
-            kickPwr = qMin(rightMag, 1.0) * m_kickPower;
-            if (kickPwr < 0.1) kickPwr = m_kickPower * 0.3;
+            double rightMag = qSqrt(slot.gpRightX * slot.gpRightX + slot.gpRightY * slot.gpRightY);
+            kickPwr = qMin(rightMag, 1.0) * slot.kickPower;
+            if (kickPwr < 0.1) kickPwr = slot.kickPower * 0.3;
         }
-        if (m_gpBtnRB && !m_gpBtnRBPrev) {
-            m_dribble = !m_dribble;
-            emit dribbleChanged();
+        if (slot.gpBtnRB && !slot.gpBtnRBPrev) {
+            slot.dribble = !slot.dribble;
+            if (si == m_selectedSlot) emit dribbleChanged();
         }
-        doDribble = m_dribble;
+        doDribble = slot.dribble;
     }
 
-    m_currentVx = m_cmdGlobalVx;
-    m_currentVy = m_cmdGlobalVy;
-    m_currentVr = cmdVr;
-    emit velocityChanged();
+    slot.currentVx = slot.cmdGlobalVx;
+    slot.currentVy = slot.cmdGlobalVy;
+    slot.currentVr = cmdVr;
 
     double sendVx = cmdLocalVx;
     double sendVy = cmdLocalVy;
@@ -396,19 +469,17 @@ void ManualController::tick() {
         sendVy = 0;
     }
 
-    // DribbleGo: hold RT + dribbling -> face opposite of movement direction (pull ball)
-    if (doDribble && m_gpRightTrigger > 0.5 && cmdMag > 0.15) {
-        double moveDir = qAtan2(m_cmdGlobalVy, m_cmdGlobalVx);
-        double faceAngle = m_dgPullBall ? (moveDir + M_PI) : moveDir;
+    if (doDribble && slot.gpRightTrigger > 0.5 && cmdMag > 0.15) {
+        double moveDir = qAtan2(slot.cmdGlobalVy, slot.cmdGlobalVx);
+        double faceAngle = slot.dgPullBall ? (moveDir + M_PI) : moveDir;
         double dgAngleDiff = faceAngle - robotAngle;
         while (dgAngleDiff > M_PI) dgAngleDiff -= 2 * M_PI;
         while (dgAngleDiff < -M_PI) dgAngleDiff += 2 * M_PI;
 
-        if (qAbs(dgAngleDiff) > qDegreesToRadians(m_dgAngleThresh)) {
-            double omega = (dgAngleDiff > 0 ? 1.0 : -1.0) * m_dgRotSpeed;
-            // CircleRun math: targetVel = Polar2Vector(radius*omega, me2center.rotate(-PI/2).dir())
-            double me2centerX = m_dgRotCenterX;
-            double me2centerY = m_dgRotCenterY;
+        if (qAbs(dgAngleDiff) > qDegreesToRadians(slot.dgAngleThresh)) {
+            double omega = (dgAngleDiff > 0 ? 1.0 : -1.0) * slot.dgRotSpeed;
+            double me2centerX = slot.dgRotCenterX;
+            double me2centerY = slot.dgRotCenterY;
             double radius = qSqrt(me2centerX * me2centerX + me2centerY * me2centerY);
             double tangDir = qAtan2(-me2centerX, me2centerY);
             double targetVelMod = radius * omega;
@@ -416,14 +487,16 @@ void ManualController::tick() {
             sendVy = targetVelMod * qSin(tangDir) / 1000.0;
             cmdVr = omega;
         } else {
-            cmdVr = m_rotKp * dgAngleDiff - m_rotKd * actualRotVel;
-            cmdVr = clamp(cmdVr, -m_maxRotSpeed, m_maxRotSpeed);
+            cmdVr = slot.rotKp * dgAngleDiff - slot.rotKd * actualRotVel;
+            cmdVr = clamp(cmdVr, -slot.maxRotSpeed, slot.maxRotSpeed);
         }
     }
 
-    sendGamepadCmd(static_cast<float>(sendVx * 1000.0), static_cast<float>(sendVy * 1000.0),
-                   static_cast<float>(cmdVr), doKick, static_cast<float>(kickPwr * 1000.0),
-                   doDribble);
+    sendSlotCmd(si, static_cast<float>(sendVx * 1000.0), static_cast<float>(sendVy * 1000.0),
+                static_cast<float>(cmdVr), doKick, static_cast<float>(kickPwr * 1000.0),
+                doDribble);
+
+    if (si == m_selectedSlot) emit velocityChanged();
 }
 
 void ManualController::initSDL() {
@@ -434,19 +507,26 @@ void ManualController::initSDL() {
     }
 }
 
-void ManualController::openGamepad(int deviceIndex) {
-    closeGamepad();
-    m_gamepad = SDL_GameControllerOpen(deviceIndex);
-    if (m_gamepad) {
+void ManualController::openGamepad(int deviceIndex, int slotIndex) {
+    closeGamepadSlot(slotIndex);
+    m_slots[slotIndex].gamepad = SDL_GameControllerOpen(deviceIndex);
+    if (m_slots[slotIndex].gamepad) {
+        m_slots[slotIndex].connected = true;
         emit gamepadConnectedChanged();
+        emit slotsChanged();
     }
 }
 
-void ManualController::closeGamepad() {
-    if (m_gamepad) {
-        SDL_GameControllerClose(m_gamepad);
-        m_gamepad = nullptr;
+void ManualController::closeGamepadSlot(int slotIndex) {
+    auto& slot = m_slots[slotIndex];
+    if (slot.gamepad) {
+        SDL_GameControllerClose(slot.gamepad);
+        slot.gamepad = nullptr;
+    }
+    if (slot.connected) {
+        slot.connected = false;
         emit gamepadConnectedChanged();
+        emit slotsChanged();
     }
 }
 
@@ -459,135 +539,158 @@ double ManualController::applyDeadzone(short raw, short deadzone) {
     return sign * (qAbs(normalized) - dz) / (1.0 - dz);
 }
 
-void ManualController::pollGamepad() {
+void ManualController::pollAllGamepads() {
     if (!m_sdlInitialized) return;
-
     SDL_GameControllerUpdate();
 
-    if (!m_gamepad && m_useGamepad) {
-        for (int i = 0; i < SDL_NumJoysticks(); ++i) {
-            if (SDL_IsGameController(i)) {
-                openGamepad(i);
-                break;
+    for (int s = 0; s < MAX_SLOTS; ++s) {
+        if (m_slots[s].connected && m_slots[s].gamepad) {
+            if (!SDL_GameControllerGetAttached(m_slots[s].gamepad)) {
+                closeGamepadSlot(s);
             }
         }
     }
-    if (m_gamepad && !SDL_GameControllerGetAttached(m_gamepad)) {
-        closeGamepad();
+
+    QSet<SDL_JoystickID> openIds;
+    for (int s = 0; s < MAX_SLOTS; ++s) {
+        if (m_slots[s].connected && m_slots[s].gamepad) {
+            SDL_Joystick* joy = SDL_GameControllerGetJoystick(m_slots[s].gamepad);
+            if (joy) openIds.insert(SDL_JoystickInstanceID(joy));
+        }
     }
 
-    if (!m_gamepad) return;
+    for (int i = 0; i < SDL_NumJoysticks(); ++i) {
+        if (!SDL_IsGameController(i)) continue;
+        SDL_JoystickID instId = SDL_JoystickGetDeviceInstanceID(i);
+        if (openIds.contains(instId)) continue;
 
-    SDL_Joystick* joy = SDL_GameControllerGetJoystick(m_gamepad);
-    if (!joy) return;
+        int freeSlot = -1;
+        for (int s = 0; s < MAX_SLOTS; ++s) {
+            if (!m_slots[s].connected) { freeSlot = s; break; }
+        }
+        if (freeSlot >= 0) openGamepad(i, freeSlot);
+    }
 
-    if (m_gamepadLayout == 0) {
-        pollGamepadXpad(joy);
-    } else {
-        pollGamepadXone(joy);
+    for (int s = 0; s < MAX_SLOTS; ++s) {
+        if (!m_slots[s].connected || !m_slots[s].gamepad) continue;
+        SDL_Joystick* joy = SDL_GameControllerGetJoystick(m_slots[s].gamepad);
+        if (!joy) continue;
+        if (m_slots[s].gamepadLayout == 0) {
+            pollGamepadXpad(s, joy);
+        } else {
+            pollGamepadXone(s, joy);
+        }
     }
 }
 
-void ManualController::pollGamepadXpad(SDL_Joystick* joy) {
-    double leftX = applyDeadzone(SDL_GameControllerGetAxis(m_gamepad, SDL_CONTROLLER_AXIS_LEFTX));
-    double leftY = applyDeadzone(SDL_GameControllerGetAxis(m_gamepad, SDL_CONTROLLER_AXIS_LEFTY));
+void ManualController::pollGamepadXpad(int si, SDL_Joystick* joy) {
+    auto& slot = m_slots[si];
+    SDL_GameController* gc = slot.gamepad;
+    double leftX = applyDeadzone(SDL_GameControllerGetAxis(gc, SDL_CONTROLLER_AXIS_LEFTX));
+    double leftY = applyDeadzone(SDL_GameControllerGetAxis(gc, SDL_CONTROLLER_AXIS_LEFTY));
 
     short rawRX = SDL_JoystickGetAxis(joy, 2);
     short rawRY = SDL_JoystickGetAxis(joy, 3);
     double rightX = applyDeadzone(rawRX);
     double rightY = applyDeadzone(rawRY);
 
-    m_gpBtnA = SDL_GameControllerGetButton(m_gamepad, SDL_CONTROLLER_BUTTON_A);
-    m_gpBtnB = SDL_GameControllerGetButton(m_gamepad, SDL_CONTROLLER_BUTTON_B);
-    m_gpBtnX = SDL_GameControllerGetButton(m_gamepad, SDL_CONTROLLER_BUTTON_X);
-    m_gpBtnY = SDL_GameControllerGetButton(m_gamepad, SDL_CONTROLLER_BUTTON_Y);
+    slot.gpBtnA = SDL_GameControllerGetButton(gc, SDL_CONTROLLER_BUTTON_A);
+    slot.gpBtnB = SDL_GameControllerGetButton(gc, SDL_CONTROLLER_BUTTON_B);
+    slot.gpBtnX = SDL_GameControllerGetButton(gc, SDL_CONTROLLER_BUTTON_X);
+    slot.gpBtnY = SDL_GameControllerGetButton(gc, SDL_CONTROLLER_BUTTON_Y);
     bool btnLB = SDL_JoystickGetButton(joy, 6);
     bool btnRB = SDL_JoystickGetButton(joy, 7);
     bool btnBack = SDL_JoystickGetButton(joy, 4);
     bool btnStart = SDL_JoystickGetButton(joy, 5);
     bool btnLStick = SDL_JoystickGetButton(joy, 13);
 
-    if (btnLStick && !m_gpBtnLStick) {
-        m_savedMaxSpeed = m_maxSpeed;
-        m_savedAcceleration = m_acceleration;
-        setMaxSpeed(3.0);
-        setAcceleration(6.0);
-    } else if (!btnLStick && m_gpBtnLStick) {
-        setMaxSpeed(m_savedMaxSpeed);
-        setAcceleration(m_savedAcceleration);
+    if (btnLStick && !slot.gpBtnLStick) {
+        slot.savedMaxSpeed = slot.maxSpeed;
+        slot.savedAcceleration = slot.acceleration;
+        slot.maxSpeed = 3.0;
+        slot.acceleration = 6.0;
+    } else if (!btnLStick && slot.gpBtnLStick) {
+        slot.maxSpeed = slot.savedMaxSpeed;
+        slot.acceleration = slot.savedAcceleration;
     }
-    m_gpBtnLStick = btnLStick;
+    slot.gpBtnLStick = btnLStick;
 
-    m_gpBtnLB = btnLB;
-    m_gpBtnRBPrev = m_gpBtnRB;
-    m_gpBtnRB = btnRB;
-    m_gpBtnBack = btnBack;
-    m_gpBtnStart = btnStart;
+    slot.gpBtnLB = btnLB;
+    slot.gpBtnRBPrev = slot.gpBtnRB;
+    slot.gpBtnRB = btnRB;
+    slot.gpBtnBack = btnBack;
+    slot.gpBtnStart = btnStart;
 
     auto dz = [](double v, double d) -> double {
         return (qAbs(v) < d) ? 0.0 : v;
     };
-    m_gpLeftX = dz(leftX, 0.15);
-    m_gpLeftY = dz(-leftY, 0.15);
-    m_gpRightX = dz(rightX, 0.15);
-    m_gpRightY = dz(-rightY, 0.15);
+    slot.gpLeftX = dz(leftX, 0.15);
+    slot.gpLeftY = dz(-leftY, 0.15);
+    slot.gpRightX = dz(rightX, 0.15);
+    slot.gpRightY = dz(-rightY, 0.15);
     short rawRT = SDL_JoystickGetAxis(joy, 4);
-    m_gpRightTrigger = qMin(1.0, static_cast<double>(qMax(rawRT, (short)0)) / 32767.0);
+    slot.gpRightTrigger = qMin(1.0, static_cast<double>(qMax(rawRT, (short)0)) / 32767.0);
 }
 
-void ManualController::pollGamepadXone(SDL_Joystick* joy) {
+void ManualController::pollGamepadXone(int si, SDL_Joystick* joy) {
+    auto& slot = m_slots[si];
     double leftX = applyDeadzone(SDL_JoystickGetAxis(joy, 0));
     double leftY = applyDeadzone(SDL_JoystickGetAxis(joy, 1));
     double rightX = applyDeadzone(SDL_JoystickGetAxis(joy, 3));
     double rightY = applyDeadzone(SDL_JoystickGetAxis(joy, 4));
 
-    m_gpBtnA = SDL_JoystickGetButton(joy, 0);
-    m_gpBtnB = SDL_JoystickGetButton(joy, 1);
-    m_gpBtnX = SDL_JoystickGetButton(joy, 2);
-    m_gpBtnY = SDL_JoystickGetButton(joy, 3);
+    slot.gpBtnA = SDL_JoystickGetButton(joy, 0);
+    slot.gpBtnB = SDL_JoystickGetButton(joy, 1);
+    slot.gpBtnX = SDL_JoystickGetButton(joy, 2);
+    slot.gpBtnY = SDL_JoystickGetButton(joy, 3);
     bool btnLB = SDL_JoystickGetButton(joy, 4);
     bool btnRB = SDL_JoystickGetButton(joy, 5);
     bool btnBack = SDL_JoystickGetButton(joy, 6);
     bool btnStart = SDL_JoystickGetButton(joy, 7);
     bool btnLStick = SDL_JoystickGetButton(joy, 9);
 
-    if (btnLStick && !m_gpBtnLStick) {
-        m_savedMaxSpeed = m_maxSpeed;
-        m_savedAcceleration = m_acceleration;
-        setMaxSpeed(3.0);
-        setAcceleration(6.0);
-    } else if (!btnLStick && m_gpBtnLStick) {
-        setMaxSpeed(m_savedMaxSpeed);
-        setAcceleration(m_savedAcceleration);
+    if (btnLStick && !slot.gpBtnLStick) {
+        slot.savedMaxSpeed = slot.maxSpeed;
+        slot.savedAcceleration = slot.acceleration;
+        slot.maxSpeed = 3.0;
+        slot.acceleration = 6.0;
+    } else if (!btnLStick && slot.gpBtnLStick) {
+        slot.maxSpeed = slot.savedMaxSpeed;
+        slot.acceleration = slot.savedAcceleration;
     }
-    m_gpBtnLStick = btnLStick;
+    slot.gpBtnLStick = btnLStick;
 
-    m_gpBtnLB = btnLB;
-    m_gpBtnRBPrev = m_gpBtnRB;
-    m_gpBtnRB = btnRB;
-    m_gpBtnBack = btnBack;
-    m_gpBtnStart = btnStart;
+    slot.gpBtnLB = btnLB;
+    slot.gpBtnRBPrev = slot.gpBtnRB;
+    slot.gpBtnRB = btnRB;
+    slot.gpBtnBack = btnBack;
+    slot.gpBtnStart = btnStart;
 
     auto dz = [](double v, double d) -> double {
         return (qAbs(v) < d) ? 0.0 : v;
     };
-    m_gpLeftX = dz(leftX, 0.15);
-    m_gpLeftY = dz(-leftY, 0.15);
-    m_gpRightX = dz(rightX, 0.15);
-    m_gpRightY = dz(-rightY, 0.15);
+    slot.gpLeftX = dz(leftX, 0.15);
+    slot.gpLeftY = dz(-leftY, 0.15);
+    slot.gpRightX = dz(rightX, 0.15);
+    slot.gpRightY = dz(-rightY, 0.15);
     short rawRT = SDL_JoystickGetAxis(joy, 5);
-    m_gpRightTrigger = qMin(1.0, static_cast<double>(qMax(rawRT, (short)0)) / 32767.0);
+    slot.gpRightTrigger = qMin(1.0, static_cast<double>(qMax(rawRT, (short)0)) / 32767.0);
 }
 
 void ManualController::updateStatus() {
     if (!m_active) {
         m_statusText = QStringLiteral("Manual: OFF");
     } else {
-        QString mode = m_useGamepad ? "Gamepad" : "Keyboard";
-        m_statusText = QStringLiteral("Manual: %1 #%2 [%3] ACTIVE")
-            .arg(m_team == 0 ? "Blue" : "Yellow")
-            .arg(m_robotId)
-            .arg(mode);
+        int cnt = slotCount();
+        if (m_useGamepad) {
+            m_statusText = QStringLiteral("Manual: %1 %2 gamepad(s) ACTIVE")
+                .arg(m_team == 0 ? "Blue" : "Yellow")
+                .arg(cnt);
+        } else {
+            m_statusText = QStringLiteral("Manual: %1 #%2 [Keyboard] ACTIVE")
+                .arg(m_team == 0 ? "Blue" : "Yellow")
+                .arg(m_slots[m_selectedSlot].robotId);
+        }
     }
     emit statusChanged();
 }

@@ -58,7 +58,7 @@ firstState = "Init",
 
 ["getball"] = {
 	switch = function()
-		debugMesg()
+		-- debugMesg()
 		local toballDir = (param.shootPos - ball.pos()):dir()
 		local playerDir = player.dir("Assister")
 		local subDir = math.abs(Utils.angleDiff(toballDir,playerDir) * 180/math.pi)
@@ -82,7 +82,7 @@ firstState = "Init",
 		-- 	return "ready1"
 		-- end
 		-- debugEngine:gui_debug_msg(CGeoPoint:new_local(0,0),player.rotVel("Assister"))
-		debugMesg()
+		-- debugMesg()
 
 
 		if(bufcnt(player.myinfraredCount("Assister") < 1,4)) then
@@ -104,7 +104,7 @@ firstState = "Init",
 ["shoot"] = {
 	switch = function()
 		--  
-		debugMesg()	
+		-- debugMesg()	
 		if(bufcnt(player.myinfraredCount("Assister") < 1,1)) then
 			return "getball"
 	end

@@ -37,12 +37,19 @@ void CDecisionModule::DoDecision()
 	/************************************************************************/
 	TaskMediator::Instance()->cleanOldTasks();
 
-	int gpRobotId = GamepadCommand::Instance()->getRobotId();
-	if (gpRobotId >= 0 && gpRobotId < PARAM::Field::MAX_PLAYER && GamepadCommand::Instance()->getDribble()) {
-		if (!TaskMediator::Instance()->getPlayerTask(gpRobotId)) {
-			auto& p = _pVision->ourPlayer(gpRobotId);
-			if (p.Valid()) {
-				GDebugEngine::Instance()->gui_debug_arc(p.Pos(), 120, 0, 360, COLOR_GREEN);
+	const int slotColors[8] = {COLOR_GREEN, COLOR_CYAN, COLOR_YELLOW, COLOR_BLUE,
+	                            COLOR_RED, COLOR_ORANGE, COLOR_PURPLE, COLOR_WHITE};
+	for (int r = 0; r < PARAM::Field::MAX_PLAYER; ++r) {
+		if (GamepadCommand::Instance()->isSlotActive(r) && GamepadCommand::Instance()->getDribble(r)) {
+			if (!TaskMediator::Instance()->getPlayerTask(r)) {
+				auto& p = _pVision->ourPlayer(r);
+				if (p.Valid()) {
+					int colorIdx = 0;
+					for (int s = 0; s < 8; ++s) {
+						if (r == s) { colorIdx = s; break; }
+					}
+					GDebugEngine::Instance()->gui_debug_arc(p.Pos(), 120, 0, 360, slotColors[colorIdx]);
+				}
 			}
 		}
 	}

@@ -6,22 +6,38 @@
 #include <QUdpSocket>
 #include <cstring>
 #include <thread>
+#include <chrono>
+
+struct GamepadSlotState {
+    uint8_t buttons[16];
+    bool dribble = false;
+    bool active = false;
+    float velX = 0;
+    float velY = 0;
+    float velR = 0;
+    float kickPower = 0;
+    bool kickActive = false;
+    std::chrono::steady_clock::time_point lastUpdate = std::chrono::steady_clock::now();
+
+    void reset() {
+        std::memset(buttons, 0, sizeof(buttons));
+        dribble = false;
+        active = false;
+        velX = velY = velR = kickPower = 0;
+        kickActive = false;
+    }
+};
 
 class CGamepadCommand {
 public:
     static constexpr int BTN_COUNT = 16;
-    // Packet layout:
-    //   [0..15]  buttons (uint8 each)
-    //   [16]     dribble toggle (uint8)
-    //   [17]     robotId (uint8)
-    //   [18..21] velocity_x (float, 4 bytes)
-    //   [22..25] velocity_y (float, 4 bytes)
-    //   [26..29] velocity_r (float, 4 bytes)
-    //   [30..33] kick_power (float, 4 bytes)
-    //   [34]     kick_active (uint8)
     static constexpr int PKT_SIZE = 35;
 
-    CGamepadCommand() { std::memset(_buttons, 0, sizeof(_buttons)); }
+    CGamepadCommand() {
+        for (int i = 0; i < PARAM::Field::MAX_PLAYER; ++i) {
+            _slots[i].reset();
+        }
+    }
     ~CGamepadCommand() {
         _running = false;
         if (_thread.joinable()) _thread.join();
@@ -36,28 +52,100 @@ public:
         _thread = std::thread(&CGamepadCommand::receiveLoop, this);
     }
 
-    bool getButton(int idx) const {
-        if (idx < 0 || idx >= BTN_COUNT) return false;
-        return _buttons[idx] != 0;
+    // Per-robotId getters
+    bool isSlotActive(int robotId) const {
+        if (robotId < 0 || robotId >= PARAM::Field::MAX_PLAYER) return false;
+        return _slots[robotId].active;
     }
 
-    bool getDribble() const { return _dribble; }
-    int getRobotId() const { return _robotId; }
-    bool isActive() const { return _active; }
-    float getVelX() const { return _velX; }
-    float getVelY() const { return _velY; }
-    float getVelR() const { return _velR; }
-    float getKickPower() const { return _kickPower; }
-    bool getKickActive() const { return _kickActive; }
+    bool getButtonForRobot(int robotId, int idx) const {
+        if (robotId < 0 || robotId >= PARAM::Field::MAX_PLAYER) return false;
+        if (idx < 0 || idx >= BTN_COUNT) return false;
+        return _slots[robotId].buttons[idx] != 0;
+    }
 
-    int getFirstPressed() const {
+    bool getDribble(int robotId) const {
+        if (robotId < 0 || robotId >= PARAM::Field::MAX_PLAYER) return false;
+        return _slots[robotId].dribble;
+    }
+
+    float getVelX(int robotId) const {
+        if (robotId < 0 || robotId >= PARAM::Field::MAX_PLAYER) return 0;
+        return _slots[robotId].velX;
+    }
+
+    float getVelY(int robotId) const {
+        if (robotId < 0 || robotId >= PARAM::Field::MAX_PLAYER) return 0;
+        return _slots[robotId].velY;
+    }
+
+    float getVelR(int robotId) const {
+        if (robotId < 0 || robotId >= PARAM::Field::MAX_PLAYER) return 0;
+        return _slots[robotId].velR;
+    }
+
+    float getKickPower(int robotId) const {
+        if (robotId < 0 || robotId >= PARAM::Field::MAX_PLAYER) return 0;
+        return _slots[robotId].kickPower;
+    }
+
+    bool getKickActive(int robotId) const {
+        if (robotId < 0 || robotId >= PARAM::Field::MAX_PLAYER) return false;
+        return _slots[robotId].kickActive;
+    }
+
+    int getFirstPressedForRobot(int robotId) const {
+        if (robotId < 0 || robotId >= PARAM::Field::MAX_PLAYER || !_slots[robotId].active) return -1;
         for (int i = 0; i < BTN_COUNT; ++i) {
-            if (_buttons[i]) return i;
+            if (_slots[robotId].buttons[i]) return i;
         }
         return -1;
     }
 
-    void clearAll() { std::memset(_buttons, 0, sizeof(_buttons)); }
+    // Legacy single-gamepad API (scans all slots)
+    bool getButton(int idx) const {
+        for (int r = 0; r < PARAM::Field::MAX_PLAYER; ++r) {
+            if (_slots[r].active && _slots[r].buttons[idx]) return true;
+        }
+        return false;
+    }
+
+    bool getDribble() const {
+        for (int r = 0; r < PARAM::Field::MAX_PLAYER; ++r) {
+            if (_slots[r].active && _slots[r].dribble) return true;
+        }
+        return false;
+    }
+
+    int getRobotId() const {
+        for (int r = 0; r < PARAM::Field::MAX_PLAYER; ++r) {
+            if (_slots[r].active) return r;
+        }
+        return -1;
+    }
+
+    bool isActive() const {
+        for (int r = 0; r < PARAM::Field::MAX_PLAYER; ++r) {
+            if (_slots[r].active) return true;
+        }
+        return false;
+    }
+
+    int getFirstPressed() const {
+        for (int r = 0; r < PARAM::Field::MAX_PLAYER; ++r) {
+            if (!_slots[r].active) continue;
+            for (int i = 0; i < BTN_COUNT; ++i) {
+                if (_slots[r].buttons[i]) return i;
+            }
+        }
+        return -1;
+    }
+
+    void clearAll() {
+        for (int r = 0; r < PARAM::Field::MAX_PLAYER; ++r) {
+            std::memset(_slots[r].buttons, 0, sizeof(_slots[r].buttons));
+        }
+    }
 
 private:
     void receiveLoop() {
@@ -68,15 +156,20 @@ private:
                 datagram.resize(_socket.pendingDatagramSize());
                 _socket.readDatagram(datagram.data(), datagram.size());
                 const uint8_t* data = reinterpret_cast<const uint8_t*>(datagram.constData());
+
+                int robotId = -1;
+                if (datagram.size() > BTN_COUNT + 1) {
+                    robotId = data[BTN_COUNT + 1];
+                }
+                if (robotId < 0 || robotId >= PARAM::Field::MAX_PLAYER) continue;
+
+                auto& slot = _slots[robotId];
                 int n = qMin(datagram.size(), BTN_COUNT);
                 for (int i = 0; i < n; ++i) {
-                    _buttons[i] = data[i] ? 1 : 0;
+                    slot.buttons[i] = data[i] ? 1 : 0;
                 }
                 if (datagram.size() > BTN_COUNT) {
-                    _dribble = data[BTN_COUNT] != 0;
-                }
-                if (datagram.size() > BTN_COUNT + 1) {
-                    _robotId = data[BTN_COUNT + 1];
+                    slot.dribble = data[BTN_COUNT] != 0;
                 }
                 if (datagram.size() >= PKT_SIZE) {
                     float vx, vy, vr, kp;
@@ -84,16 +177,24 @@ private:
                     std::memcpy(&vy, &data[22], 4);
                     std::memcpy(&vr, &data[26], 4);
                     std::memcpy(&kp, &data[30], 4);
-                    _velX = vx;
-                    _velY = vy;
-                    _velR = vr;
-                    _kickPower = kp;
-                    _kickActive = data[34] != 0;
-                    _active = (_robotId >= 0 && _robotId < PARAM::Field::MAX_PLAYER);
-                } else {
-                    _velX = _velY = _velR = _kickPower = 0;
-                    _kickActive = false;
-                    _active = (_robotId >= 0 && _robotId < PARAM::Field::MAX_PLAYER);
+                    slot.velX = vx;
+                    slot.velY = vy;
+                    slot.velR = vr;
+                    slot.kickPower = kp;
+                    slot.kickActive = data[34] != 0;
+                }
+                slot.active = true;
+                slot.lastUpdate = std::chrono::steady_clock::now();
+            }
+
+            auto now = std::chrono::steady_clock::now();
+            for (int i = 0; i < PARAM::Field::MAX_PLAYER; ++i) {
+                if (_slots[i].active) {
+                    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+                        now - _slots[i].lastUpdate).count();
+                    if (elapsed > 200) {
+                        _slots[i].active = false;
+                    }
                 }
             }
         }
@@ -103,15 +204,7 @@ private:
     std::thread _thread;
     bool _running = false;
     int _team = 0;
-    uint8_t _buttons[BTN_COUNT];
-    bool _dribble = false;
-    int _robotId = -1;
-    bool _active = false;
-    float _velX = 0;
-    float _velY = 0;
-    float _velR = 0;
-    float _kickPower = 0;
-    bool _kickActive = false;
+    GamepadSlotState _slots[PARAM::Field::MAX_PLAYER];
 };
 
 typedef Singleton<CGamepadCommand> GamepadCommand;
