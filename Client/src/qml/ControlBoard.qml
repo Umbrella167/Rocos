@@ -679,6 +679,13 @@ Page{
                             text: manualController.gamepadConnected ? "Connected" : "Not found";
                             color: manualController.gamepadConnected ? "#00ff00" : "#ff4444";
                         }
+                        Label{ text: "Layout:"; color: "white" }
+                        ZComboBox{
+                            width: 120;
+                            model: ["xpad", "xone"];
+                            currentIndex: manualController.gamepadLayout;
+                            onActivated: manualController.gamepadLayout = currentIndex;
+                        }
                     }
                    Grid{
                        width: parent.itemWidth;
@@ -693,13 +700,14 @@ Page{
                            value: manualController.robotId;
                            onValueModified: manualController.robotId = value;
                        }
-                       Label{ text: "Team:"; color: "white" }
-                       ZComboBox{
-                           id: manualTeamCombo;
-                           model: ["Blue", "Yellow"];
-                           currentIndex: manualController.team;
-                           onActivated: manualController.team = currentIndex;
-                       }
+                        Label{ text: "Team:"; color: "white" }
+                        ZComboBox{
+                            id: manualTeamCombo;
+                            width: 120;
+                            model: ["Blue", "Yellow"];
+                            currentIndex: manualController.team;
+                            onActivated: manualController.team = currentIndex;
+                        }
                          Label{ text: "Max Speed:"; color: "white" }
                          SpinBox{
                              editable: true; from: 5; to: 60; stepSize: 1;

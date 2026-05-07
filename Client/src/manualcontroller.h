@@ -8,6 +8,9 @@
 #include <QElapsedTimer>
 #include "staticparams.h"
 
+struct _SDL_Joystick;
+typedef struct _SDL_Joystick SDL_Joystick;
+
 struct _SDL_GameController;
 typedef struct _SDL_GameController SDL_GameController;
 
@@ -30,6 +33,7 @@ class ManualController : public QObject {
     Q_PROPERTY(qreal dgRotCenterY READ dgRotCenterY WRITE setDgRotCenterY NOTIFY dgRotCenterYChanged)
     Q_PROPERTY(bool autoFace READ autoFace WRITE setAutoFace NOTIFY autoFaceChanged)
     Q_PROPERTY(bool dgPullBall READ dgPullBall WRITE setDgPullBall NOTIFY dgPullBallChanged)
+    Q_PROPERTY(int gamepadLayout READ gamepadLayout WRITE setGamepadLayout NOTIFY gamepadLayoutChanged)
     Q_PROPERTY(qreal brakeRatio READ brakeRatio WRITE setBrakeRatio NOTIFY brakeRatioChanged)
     Q_PROPERTY(qreal brakeThresh READ brakeThresh WRITE setBrakeThresh NOTIFY brakeThreshChanged)
     Q_PROPERTY(qreal currentVx READ currentVx NOTIFY velocityChanged)
@@ -63,6 +67,7 @@ public:
     qreal brakeRatio() const { return m_brakeRatio; }
     qreal brakeThresh() const { return m_brakeThresh; }
     bool dgPullBall() const { return m_dgPullBall; }
+    int gamepadLayout() const { return m_gamepadLayout; }
     qreal currentVx() const { return m_currentVx; }
     qreal currentVy() const { return m_currentVy; }
     qreal currentVr() const { return m_currentVr; }
@@ -99,6 +104,7 @@ public slots:
     void setBrakeRatio(qreal v);
     void setBrakeThresh(qreal v);
     void setDgPullBall(bool v);
+    void setGamepadLayout(int v);
 
 signals:
     void activeChanged();
@@ -120,6 +126,7 @@ signals:
     void brakeRatioChanged();
     void brakeThreshChanged();
     void dgPullBallChanged();
+    void gamepadLayoutChanged();
     void velocityChanged();
     void dribbleChanged();
     void statusChanged();
@@ -136,6 +143,8 @@ private:
     void sendGamepadCmd(float vx, float vy, float vr, bool kick, float kickPower, bool dribble);
     void initSDL();
     void pollGamepad();
+    void pollGamepadXpad(SDL_Joystick* joy);
+    void pollGamepadXone(SDL_Joystick* joy);
     void openGamepad(int deviceIndex);
     void closeGamepad();
     static double applyDeadzone(short raw, short deadzone = 3200);
@@ -168,6 +177,7 @@ private:
     qreal m_brakeRatio = 0.5;
     qreal m_brakeThresh = 0.4;
     bool m_dgPullBall = true;
+    int m_gamepadLayout = 0;
     bool m_braking = false;
     double m_brakeVx = 0;
     double m_brakeVy = 0;

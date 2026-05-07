@@ -43,6 +43,7 @@ ManualController::ManualController(QObject *parent)
     zpm->loadParam(m_brakeRatio, "Manual/brakeRatio", 0.5);
     zpm->loadParam(m_brakeThresh, "Manual/brakeThresh", 0.4);
     zpm->loadParam(m_dgPullBall, "Manual/dgPullBall", true);
+    zpm->loadParam(m_gamepadLayout, "Manual/gamepadLayout", 0);
     updateStatus();
 }
 
@@ -155,6 +156,7 @@ void ManualController::setAutoFace(bool v) { if (m_autoFace == v) return; m_auto
 void ManualController::setBrakeRatio(qreal v) { if (qFuzzyCompare(m_brakeRatio, v)) return; m_brakeRatio = v; ZSS::ZParamManager::instance()->changeParam("Manual/brakeRatio", v); emit brakeRatioChanged(); }
 void ManualController::setBrakeThresh(qreal v) { if (qFuzzyCompare(m_brakeThresh, v)) return; m_brakeThresh = v; ZSS::ZParamManager::instance()->changeParam("Manual/brakeThresh", v); emit brakeThreshChanged(); }
 void ManualController::setDgPullBall(bool v) { if (m_dgPullBall == v) return; m_dgPullBall = v; ZSS::ZParamManager::instance()->changeParam("Manual/dgPullBall", v); emit dgPullBallChanged(); }
+void ManualController::setGamepadLayout(int v) { if (m_gamepadLayout == v) return; m_gamepadLayout = v; ZSS::ZParamManager::instance()->changeParam("Manual/gamepadLayout", v); emit gamepadLayoutChanged(); }
 
 void ManualController::sendGamepadCmd(float vx, float vy, float vr,
                                        bool kick, float kickPower, bool dribble) {
@@ -167,8 +169,19 @@ void ManualController::sendGamepadCmd(float vx, float vy, float vr,
     if (m_gamepad) {
         SDL_Joystick* joy = SDL_GameControllerGetJoystick(m_gamepad);
         if (joy) {
-            for (int i = 0; i < BTN_COUNT; ++i) {
-                buf[i] = SDL_JoystickGetButton(joy, i) ? 1 : 0;
+            if (m_gamepadLayout == 0) {
+                for (int i = 0; i < BTN_COUNT; ++i) {
+                    buf[i] = SDL_JoystickGetButton(joy, i) ? 1 : 0;
+                }
+            } else {
+                // xone: 0=A,1=B,2=X,3=Y,4=LB,5=RB,6=Back,7=Start,9=LStick
+                // logical: A=0,B=1,X=3,Y=4,LB=6,RB=7,Back=?,Start=?,LStick=13
+                // (matching ActionModule.cpp skill check: buttons 0,1,3,4)
+                static const int xoneToLogical[] = {0, 1, 3, 4, 6, 7};
+                for (int raw = 0; raw < 6; ++raw) {
+                    buf[xoneToLogical[raw]] = SDL_JoystickGetButton(joy, raw) ? 1 : 0;
+                }
+                buf[13] = SDL_JoystickGetButton(joy, 9) ? 1 : 0;
             }
         }
     }
@@ -466,12 +479,21 @@ void ManualController::pollGamepad() {
     if (!m_gamepad) return;
 
     SDL_Joystick* joy = SDL_GameControllerGetJoystick(m_gamepad);
+    if (!joy) return;
 
+    if (m_gamepadLayout == 0) {
+        pollGamepadXpad(joy);
+    } else {
+        pollGamepadXone(joy);
+    }
+}
+
+void ManualController::pollGamepadXpad(SDL_Joystick* joy) {
     double leftX = applyDeadzone(SDL_GameControllerGetAxis(m_gamepad, SDL_CONTROLLER_AXIS_LEFTX));
     double leftY = applyDeadzone(SDL_GameControllerGetAxis(m_gamepad, SDL_CONTROLLER_AXIS_LEFTY));
 
-    short rawRX = joy ? SDL_JoystickGetAxis(joy, 2) : 0;
-    short rawRY = joy ? SDL_JoystickGetAxis(joy, 3) : 0;
+    short rawRX = SDL_JoystickGetAxis(joy, 2);
+    short rawRY = SDL_JoystickGetAxis(joy, 3);
     double rightX = applyDeadzone(rawRX);
     double rightY = applyDeadzone(rawRY);
 
@@ -479,12 +501,12 @@ void ManualController::pollGamepad() {
     m_gpBtnB = SDL_GameControllerGetButton(m_gamepad, SDL_CONTROLLER_BUTTON_B);
     m_gpBtnX = SDL_GameControllerGetButton(m_gamepad, SDL_CONTROLLER_BUTTON_X);
     m_gpBtnY = SDL_GameControllerGetButton(m_gamepad, SDL_CONTROLLER_BUTTON_Y);
-    bool btnLB = joy ? SDL_JoystickGetButton(joy, 6) : false;
-    bool btnRB = joy ? SDL_JoystickGetButton(joy, 7) : false;
-    bool btnBack = joy ? SDL_JoystickGetButton(joy, 4) : false;
-    bool btnStart = joy ? SDL_JoystickGetButton(joy, 5) : false;
+    bool btnLB = SDL_JoystickGetButton(joy, 6);
+    bool btnRB = SDL_JoystickGetButton(joy, 7);
+    bool btnBack = SDL_JoystickGetButton(joy, 4);
+    bool btnStart = SDL_JoystickGetButton(joy, 5);
+    bool btnLStick = SDL_JoystickGetButton(joy, 13);
 
-    bool btnLStick = joy ? SDL_JoystickGetButton(joy, 13) : false;
     if (btnLStick && !m_gpBtnLStick) {
         m_savedMaxSpeed = m_maxSpeed;
         m_savedAcceleration = m_acceleration;
@@ -501,14 +523,59 @@ void ManualController::pollGamepad() {
     m_gpBtnRB = btnRB;
     m_gpBtnBack = btnBack;
     m_gpBtnStart = btnStart;
-    auto applyDeadzone = [](double v, double dz) -> double {
-        return (qAbs(v) < dz) ? 0.0 : v;
+
+    auto dz = [](double v, double d) -> double {
+        return (qAbs(v) < d) ? 0.0 : v;
     };
-    m_gpLeftX = applyDeadzone(leftX, 0.15);
-    m_gpLeftY = applyDeadzone(-leftY, 0.15);
-    m_gpRightX = applyDeadzone(rightX, 0.15);
-    m_gpRightY = applyDeadzone(-rightY, 0.15);
-    short rawRT = joy ? SDL_JoystickGetAxis(joy, 4) : 0;
+    m_gpLeftX = dz(leftX, 0.15);
+    m_gpLeftY = dz(-leftY, 0.15);
+    m_gpRightX = dz(rightX, 0.15);
+    m_gpRightY = dz(-rightY, 0.15);
+    short rawRT = SDL_JoystickGetAxis(joy, 4);
+    m_gpRightTrigger = qMin(1.0, static_cast<double>(qMax(rawRT, (short)0)) / 32767.0);
+}
+
+void ManualController::pollGamepadXone(SDL_Joystick* joy) {
+    double leftX = applyDeadzone(SDL_JoystickGetAxis(joy, 0));
+    double leftY = applyDeadzone(SDL_JoystickGetAxis(joy, 1));
+    double rightX = applyDeadzone(SDL_JoystickGetAxis(joy, 3));
+    double rightY = applyDeadzone(SDL_JoystickGetAxis(joy, 4));
+
+    m_gpBtnA = SDL_JoystickGetButton(joy, 0);
+    m_gpBtnB = SDL_JoystickGetButton(joy, 1);
+    m_gpBtnX = SDL_JoystickGetButton(joy, 2);
+    m_gpBtnY = SDL_JoystickGetButton(joy, 3);
+    bool btnLB = SDL_JoystickGetButton(joy, 4);
+    bool btnRB = SDL_JoystickGetButton(joy, 5);
+    bool btnBack = SDL_JoystickGetButton(joy, 6);
+    bool btnStart = SDL_JoystickGetButton(joy, 7);
+    bool btnLStick = SDL_JoystickGetButton(joy, 9);
+
+    if (btnLStick && !m_gpBtnLStick) {
+        m_savedMaxSpeed = m_maxSpeed;
+        m_savedAcceleration = m_acceleration;
+        setMaxSpeed(3.0);
+        setAcceleration(6.0);
+    } else if (!btnLStick && m_gpBtnLStick) {
+        setMaxSpeed(m_savedMaxSpeed);
+        setAcceleration(m_savedAcceleration);
+    }
+    m_gpBtnLStick = btnLStick;
+
+    m_gpBtnLB = btnLB;
+    m_gpBtnRBPrev = m_gpBtnRB;
+    m_gpBtnRB = btnRB;
+    m_gpBtnBack = btnBack;
+    m_gpBtnStart = btnStart;
+
+    auto dz = [](double v, double d) -> double {
+        return (qAbs(v) < d) ? 0.0 : v;
+    };
+    m_gpLeftX = dz(leftX, 0.15);
+    m_gpLeftY = dz(-leftY, 0.15);
+    m_gpRightX = dz(rightX, 0.15);
+    m_gpRightY = dz(-rightY, 0.15);
+    short rawRT = SDL_JoystickGetAxis(joy, 5);
     m_gpRightTrigger = qMin(1.0, static_cast<double>(qMax(rawRT, (short)0)) / 32767.0);
 }
 

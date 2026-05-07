@@ -15,6 +15,8 @@ return {
 
     ["skill"] = {
         switch = function()
+            key = gamepad.pressed()
+            debugEngine:gui_debug_msg(CGeoPoint:new_local(0,0),key)
         end,
         Fronter = gamepad.skill(),
         Goalie = gSubPlay.roleTask("Goalie", "Goalie"),

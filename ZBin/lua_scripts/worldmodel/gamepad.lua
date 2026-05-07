@@ -1,5 +1,5 @@
 module(..., package.seeall)
-pressed_map = {
+pressed_map_xpad = {
     [-1] = "",
     [0] = "A",
     [1] = "B",
@@ -7,16 +7,24 @@ pressed_map = {
     [4] = "Y",
     [6] = "LB",
     [7] = "RB",
-    [10] = "W",
-    [15] = "S",
-    [11] = "M",
-    [13] = "LM",
-    [14] = "RM",
 }
-
+pressed_map_xone = {
+    [-1] = "",
+    [0] = "A",
+    [1] = "B",
+    [3] = "X",
+    [4] = "Y",
+    [6] = "LB",
+    [7] = "RB",
+}
 function pressed()
     local pressed_id = gamepadCmd:getFirstPressed()
-    key = pressed_map[pressed_id]
+    if param.gamepad_layout == 0 then
+        key = pressed_map_xpad[pressed_id]
+    else
+        key = pressed_map_xone[pressed_id]
+    end
+
     if key then 
         return key
     else
