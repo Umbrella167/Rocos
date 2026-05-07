@@ -1105,29 +1105,39 @@ function goalie_getBall(role)
 	local rolePos = CGeoPoint:new_local(player.rawPos(role):x(), player.rawPos(role):y())
 	local getBallPos = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1,param.V_DECAY_RATE)
 	local ballPos = ball.pos()
-	local targetPos = param.goalieTargetPos
-	local toTargetDir = (targetPos - rolePos):dir()
+	local ballToRoleDir = (rolePos - ballPos):dir()
 	local idir = function(runner)
 		return (ballPos - player.pos(runner)):dir()
 	end
+	-- debugEngine:gui_debug_x(param.goalieStablePoint)
 	local goaliePoint = CGeoPoint:new_local(getBallPos:x(), getBallPos:y())
 	local a = 4000
 	if ball.velMod() < 800 and player.myinfraredCount(role) < param.goalieReadyFrame then
-		return getball(ball.pos, param.playerVel, 1, 1)
+		-- goaliePoint = CGeoPoint:new_local(getBallPos:x(), getBallPos:y()) + Utils.Polar2Vector(param.playerRadius-30, ballToRoleDir)
+		goaliePoint = ballPos + Utils.Polar2Vector(param.playerFrontToCenter, ballToRoleDir)
 	elseif param.goalieReadyFrame <= player.myinfraredCount(role) and player.myinfraredCount(role) <= param.goalieDribblingFrame then
+		-- local playerToStablePointDir = (param.goalieStablePoint-rolePos):dir()
+		-- goaliePoint = ballPos + Utils.Polar2Vector(param.playerRadius, ballToRoleDir) + Utils.Polar2Vector(50, playerToStablePointDir)
 		a = param.goalieDribblingA
 		goaliePoint = param.goalieStablePoint
-		local distToStable = rolePos:dist(param.goalieStablePoint)
-		if distToStable > param.playerRadius * 2 then
-			idir = toTargetDir + math.pi
-		else
-			idir = toTargetDir
+		local fungoalieTargetPos = function()
+			return param.goalieTargetPos
 		end
+		-- idir = (fungoalieTargetPos() - rolePos):dir()
+			local idir = function(runner)
+				return (param.goalieStablePoint - ballPos ):dir()
+			end
 	elseif player.myinfraredCount(role) > param.goalieDribblingFrame then
+		-- 一般这个状态就跳到kick去了
+		-- goaliePoint = ballPos + Utils.Polar2Vector(param.playerRadius, ballToRoleDir)
 		goaliePoint = rolePos
-		idir = toTargetDir
 	end
-	local mexe, mpos = GoCmuRush { pos = goaliePoint, dir = idir, acc = a, flag = flag.dribbling, rec = r, vel = endVelController(role, goaliePoint), speed = s, force_manual = force_manual }
+	local mexe, mpos = GoCmuRush { pos = goaliePoint, dir = idir, acc = a, flag = flag.dribbling, rec = 0, vel = v, speed = s, force_manual = force_manual }
+	
+	-- local mexe, mpos = SimpleGoto { pos = goaliePoint, dir = idir, acc = a, flag = flag.dribbling, rec = r, vel = endVelController(role, goaliePoint), speed = s, force_manual = force_manual }
+	if a ~= 4000 then
+		mexe, mpos = GoCmuRush { pos = goaliePoint, dir = idir, acc = a, flag = flag.dribbling, rec = r, vel = endVelController(role, goaliePoint), speed = s, force_manual = force_manual }
+	end
 	return { mexe, mpos }
 end
 
