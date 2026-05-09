@@ -97,7 +97,7 @@ function Getball(task)
 				debugError = debugError .. "  DRIBLE_FLAG "
 			end
 			debugError = debugError .."  RushToBall "
-			endVelMod = (ball.velMod() * playerEndVel[runner][2]) + playerEndVel[runner][1]
+			endVelMod = (ball.velMod() * playerEndVel[2]) + playerEndVel[1]
 			endVelMod = endVelMod > 5000 and 5000 or endVelMod
 		end
 
