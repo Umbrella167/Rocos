@@ -450,7 +450,7 @@ void ManualController::tickSlot(int si) {
             kickPwr = qMin(rightMag, 1.0) * slot.kickPower;
             if (kickPwr < 0.1) kickPwr = slot.kickPower * 0.3;
         }
-        if (slot.gpBtnRB && !slot.gpBtnRBPrev) {
+        if (slot.gpBtnLStick && !slot.gpBtnLStickPrev) {
             slot.dribble = !slot.dribble;
             if (si == m_selectedSlot) emit dribbleChanged();
         }
@@ -604,22 +604,23 @@ void ManualController::pollGamepadXpad(int si, SDL_Joystick* joy) {
     bool btnStart = SDL_JoystickGetButton(joy, 5);
     bool btnLStick = SDL_JoystickGetButton(joy, 13);
 
-    if (btnLStick && !slot.gpBtnLStick) {
+    if (btnRB && !slot.gpBtnRB) {
         slot.savedMaxSpeed = slot.maxSpeed;
         slot.savedAcceleration = slot.acceleration;
         slot.maxSpeed = 3.0;
         slot.acceleration = 6.0;
-    } else if (!btnLStick && slot.gpBtnLStick) {
+    } else if (!btnRB && slot.gpBtnRB) {
         slot.maxSpeed = slot.savedMaxSpeed;
         slot.acceleration = slot.savedAcceleration;
     }
-    slot.gpBtnLStick = btnLStick;
 
     slot.gpBtnLB = btnLB;
     slot.gpBtnRBPrev = slot.gpBtnRB;
     slot.gpBtnRB = btnRB;
     slot.gpBtnBack = btnBack;
     slot.gpBtnStart = btnStart;
+    slot.gpBtnLStickPrev = slot.gpBtnLStick;
+    slot.gpBtnLStick = btnLStick;
 
     auto dz = [](double v, double d) -> double {
         return (qAbs(v) < d) ? 0.0 : v;
@@ -649,22 +650,23 @@ void ManualController::pollGamepadXone(int si, SDL_Joystick* joy) {
     bool btnStart = SDL_JoystickGetButton(joy, 7);
     bool btnLStick = SDL_JoystickGetButton(joy, 9);
 
-    if (btnLStick && !slot.gpBtnLStick) {
+    if (btnRB && !slot.gpBtnRB) {
         slot.savedMaxSpeed = slot.maxSpeed;
         slot.savedAcceleration = slot.acceleration;
         slot.maxSpeed = 3.0;
         slot.acceleration = 6.0;
-    } else if (!btnLStick && slot.gpBtnLStick) {
+    } else if (!btnRB && slot.gpBtnRB) {
         slot.maxSpeed = slot.savedMaxSpeed;
         slot.acceleration = slot.savedAcceleration;
     }
-    slot.gpBtnLStick = btnLStick;
 
     slot.gpBtnLB = btnLB;
     slot.gpBtnRBPrev = slot.gpBtnRB;
     slot.gpBtnRB = btnRB;
     slot.gpBtnBack = btnBack;
     slot.gpBtnStart = btnStart;
+    slot.gpBtnLStickPrev = slot.gpBtnLStick;
+    slot.gpBtnLStick = btnLStick;
 
     auto dz = [](double v, double d) -> double {
         return (qAbs(v) < d) ? 0.0 : v;

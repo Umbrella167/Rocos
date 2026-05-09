@@ -43,7 +43,7 @@ struct GamepadSlot {
     double gpRightX = 0, gpRightY = 0;
     bool gpBtnA = false, gpBtnB = false, gpBtnX = false, gpBtnY = false;
     bool gpBtnLB = false, gpBtnRB = false, gpBtnRBPrev = false;
-    bool gpBtnBack = false, gpBtnStart = false, gpBtnLStick = false;
+    bool gpBtnBack = false, gpBtnStart = false, gpBtnLStick = false, gpBtnLStickPrev = false;
     double gpRightTrigger = 0;
 
     bool braking = false;
