@@ -1,5 +1,7 @@
--- local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
 local DSS_FLAG = flag.allow_dss + flag.dodge_ball
+
+local halfL = param.pitchLength / 2
+local halfW = param.pitchWidth / 2
 
 local playerPos = function(role) 
     return function()
@@ -58,7 +60,7 @@ local dribblingDir = function(role)
 end
 local debugStatus = function()
     for num,i in pairs(GlobalMessage.attackPlayerRunPos) do
-        debugEngine:gui_debug_msg(CGeoPoint:new_local(-5700,num * 200),
+        debugEngine:gui_debug_msg(CGeoPoint:new_local(-halfL - 700,num * 200),
             tostring(GlobalMessage.attackPlayerRunPos[num].num)     ..
             " "                                                     ..
             "("                                                     .. 
@@ -69,7 +71,7 @@ local debugStatus = function()
         ,6)
     end
     for num,i in pairs(GlobalMessage.attackPlayerStatus) do 
-        debugEngine:gui_debug_msg(CGeoPoint:new_local(-5700,num * -200), 
+        debugEngine:gui_debug_msg(CGeoPoint:new_local(-halfL - 700,num * -200), 
         tostring(i.num)         ..
         "  "                    .. 
         tostring(i.status),3)
@@ -94,14 +96,14 @@ local UpdataTickMessage = function (our_goalie_num,defend_num1,defend_num2)
         local CenterShootPos = Utils.PosGetShootPoint(vision,player.posX("Center"),player.posY("Center"))
         -- 9000 * 6000
         -- 分档算点 
-        if ball.posX() > -1000 then
-            KickerRUNPos = Utils.GetAttackPos(vision, player.num("Kicker"),KickerShootPos,CGeoPoint(3345,1185),CGeoPoint(4500,-1200),180);
-            SpecialRUNPos = Utils.GetAttackPos(vision, player.num("Special"),SpecialShootPos,CGeoPoint(1470,1400),CGeoPoint(2790,-1400),200);
+        if ball.posX() > -halfL / 3 then
+            KickerRUNPos = Utils.GetAttackPos(vision, player.num("Kicker"),KickerShootPos,CGeoPoint(halfL * 0.74,halfW * 0.4),CGeoPoint(halfL,-halfW * 0.4),180);
+            SpecialRUNPos = Utils.GetAttackPos(vision, player.num("Special"),SpecialShootPos,CGeoPoint(halfL * 0.33,halfW * 0.47),CGeoPoint(halfL * 0.62,-halfW * 0.47),200);
         else
-            KickerRUNPos = Utils.GetAttackPos(vision, player.num("Kicker"),KickerShootPos,CGeoPoint(-500,2400),CGeoPoint(2200,0),300);
-            SpecialRUNPos = Utils.GetAttackPos(vision, player.num("Special"),SpecialShootPos,CGeoPoint(-1900,0),CGeoPoint(1000,-2800),300);
+            KickerRUNPos = Utils.GetAttackPos(vision, player.num("Kicker"),KickerShootPos,CGeoPoint(-halfL * 0.11,halfW * 0.8),CGeoPoint(halfL * 0.49,0),300);
+            SpecialRUNPos = Utils.GetAttackPos(vision, player.num("Special"),SpecialShootPos,CGeoPoint(-halfL * 0.42,0),CGeoPoint(halfL * 0.22,-halfW * 0.93),300);
         end
-        CenterRUNPos = Utils.GetAttackPos(vision, player.num("Center"),SpecialShootPos,CGeoPoint(400,2050),CGeoPoint(3000,-2300),300);
+        CenterRUNPos = Utils.GetAttackPos(vision, player.num("Center"),SpecialShootPos,CGeoPoint(halfL * 0.09,halfW * 0.68),CGeoPoint(halfL * 0.67,-halfW * 0.77),300);
         runCount = 0
 
     end
@@ -192,7 +194,7 @@ local getState = function ()
                 end
             end
         -- 如果球权是敌方的 [一抢球、二盯防]
-        elseif (ball_rights == -1 and ball.pos():x() < param.markingThreshold) or (ball.pos():x() < param.markingThreshold and ball_rights == -1 and ball_rights == 2) or ball.pos():x() < -500 then
+        elseif (ball_rights == -1 and ball.pos():x() < param.markingThreshold) or (ball.pos():x() < param.markingThreshold and ball_rights == -1 and ball_rights == 2) or ball.pos():x() < -halfL / 3 then
             resultState =  "defendNormalState"
         -- 如果是顶牛状态 [一带球、二跑位]
         elseif ball_rights == 2 then
@@ -223,8 +225,8 @@ firstState = "Init",
 ["Init"] = {
     switch = function()
         if not subScript then
-            gSubPlay.new("ShootPoint", "Nor_Shoot",{pos = function() return shoot_pos end})
-            gSubPlay.new("ShowDribbling", "Nor_Dribbling",{pos = function() return shoot_pos end})
+            gSubPlay.new("ShootPoint", "Nor_Shoot",{})
+            gSubPlay.new("ShowDribbling", "Nor_Dribbling",{})
             gSubPlay.new("Defender", "Nor_DefendV2")
             gSubPlay.new("Goalie", "Nor_Goalie")
         end

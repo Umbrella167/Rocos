@@ -65,7 +65,7 @@ firstState = "Init1",
 ["Init1"] = {
 	switch = function()
 		shoot_flag = shootFlag("Assister")
-		gSubPlay.new("ShootPoint", "Nor_Shoot",{pos = function() return shoot_pos end})
+		gSubPlay.new("ShootPoint", "Nor_Shoot",{})
 		return "Init"
 	end,
 	Assister = task.goCmuRush(function() return player.pos(param.LeaderNum) end, player.toBallDir("Assister"), a, DSS_FLAG),

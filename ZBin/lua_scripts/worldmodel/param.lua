@@ -43,7 +43,6 @@ penaltyMiddleLine         = CGeoSegment(ourGoalPos, ourGoalPos + Utils.Polar2Vec
 
 -- 是否为真实场地
 isReality = false
-Team = "TWO" -- Team = "TWO"
 allowTouch = false              -- 是否开启touch
 canTouchAngle = 45           -- 可以touch的角度f
 dribblingExclusionDist = 130 -- 距离禁区多少距离开启带球
@@ -62,8 +61,8 @@ distRate = 0.2          --
 -----------------------------------------------|
 --                球权和红外参数                --|
 -----------------------------------------------|
-playerBallRightsBuffer = 120    --球权判断缓冲值
-playerInfraredCountBuffer = 120 -- 红外判断缓冲值
+playerBallRightsBuffer = 95    --球权判断缓冲值
+playerInfraredCountBuffer = 95 -- 红外判断缓冲值
 -----------------------------------------------|
 --                Robot参数                  --|
 -----------------------------------------------|
@@ -73,7 +72,7 @@ lengthRatio = 1.5
 widthRatio = 1.5
 stopRatio = 1.1
 frameRate = 73
-playerRadius = 90 -- 机器人半径
+playerRadius = 70 -- 机器人半径
 -----------------------------------------------|
 --                Shoot参数                   --|
 -----------------------------------------------|
@@ -81,87 +80,94 @@ local shootError_Reality = 5 --1.8  -- 射击误差
 shootKp = 0.1                -- 射击力度比例
 -- shootPos = CGeoPoint(0, 0)
 shootPos = CGeoPoint(pitchLength / 2, 0)
+-----------------------------------------------|
+--             机器人参数配置 (playerConfig)       --|
+-- 按 [车号] 索引，每个车号包含以下字段:            --|
+--                                                  --|
+-- power: 踢球力度参数 {数组, 共6项}                --|
+--   [1] minDist   - 最小踢球距离                   --|
+--   [2] maxDist   - 最大踢球距离                   --|
+--   [3] minPower  - 最小踢球力度                   --|
+--   [4] maxPower  - 最大踢球力度                   --|
+--   [5] shootPower- 射门力度 (朝球门flat踢)        --|
+--   [6] chipPower - 挑球力度 (chip踢)              --|
+--   力度 = Utils.map(到球距离, minDist, maxDist, minPower, maxPower) --|
+--                                                  --|
+-- rotPos: CGeoPoint 旋转跑位偏移坐标               --|
+--   用于 TurnToPointV2 时机器人的旋转参考位置      --|
+--                                                  --|
+-- rotVel: 旋转速度 (rad/s)                         --|
+--   机器人转向目标点的角速度上限                    --|
+--   射向球门时会额外 +0.2                          --|
+--                                                  --|
+-- rotCompensate: 旋转补偿系数                      --|
+--   用于 compensateAngle 计算预瞄补偿偏移量        --|
+--   实际补偿距离 = 角速度 × 到目标距离 × 此系数    --|
+--   仿真模式下固定使用 0.05，实物使用此值          --|
+--                                                  --|
+-- endVel: 接球末端基础速度                         --|
+--   机器人冲向球时的到达速度基准值                  --|
+--                                                  --|
+-- ballVelRate: 球速跟随比例                        --|
+--   实际末端速度 = ballVel × ballVelRate + endVel  --|
+--   值越大，接球时机器人速度越接近球速             --|
+--                                                  --|
+-- isNewRobot: 是否为新版机器人                     --|
+--   true  - 抢球时红外检测到球后才开启dribble      --|
+--   false - 抢球时默认开启dribble (旧行为)         --|
+--                                                  --|
+-- 注: 未配置的车号会自动使用 _defaultConfig 兜底   --|
+-----------------------------------------------|
 
------------------------------------------------|
---               rot参数                      --|
------------------------------------------------|
-        --CGeoPoint(80,80)      --旋转坐标
-        
-rotTableONE = {
-	-- [num] = {minist,maxDist,minPower, maxPower, ShootPower,chipPower} 
-	[0] =  {CGeoPoint(60, 60),4.5}, 
-	[1] =  {CGeoPoint(60, 60),4.5}, 
-	[2] =  {CGeoPoint(60, 60),4.5}, 
-	[3] =  {CGeoPoint(60, 60),4.5}, 
-	[4] =  {CGeoPoint(120,60),6}, 
-	[5] =  {CGeoPoint(60, 60),4.5}, 
-	[6] =  {CGeoPoint(60, 60),4.5}, 
-	[7] =  {CGeoPoint(60, 60),4.5}, 
-	[8] =  {CGeoPoint(60, 60),4.5}, 
-	[9] =  {CGeoPoint(60, 60),4.5}, 
-	[10] =  {CGeoPoint(60, 60),4.5}, 
-	[11] =  {CGeoPoint(60, 60),4.5}, 
-	[12] =  {CGeoPoint(60, 60),4.5}, 
-	[14] =  {CGeoPoint(60, 60),4.5}, 
-	[15] =  {CGeoPoint(60, 60),4.5}, 
-	[16] =  {CGeoPoint(60, 60),4.5}, 
+local _defaultConfig = {
+	power = {0, 6000, 135, 330, 500, 7000},
+	rotPos = CGeoPoint(60, 60),
+	rotVel = 4.5,
+	rotCompensate = -0.045,
+	endVel = 500,
+	ballVelRate = 1,
+	isNewRobot = false,
 }
-rotTableTWO = {
-	-- [num] = {minist,maxDist,minPower, maxPower, ShootPower,chipPower} 
-	[0] =  {CGeoPoint(60, 60),4.5}, 
-	[1] =  {CGeoPoint(60, 60),4.5}, 
-	[2] =  {CGeoPoint(60, 60),4.5}, 
-	[3] =  {CGeoPoint(120, 60),4.5}, 
-	[4] =  {CGeoPoint(120,60),4.5}, 
-	[5] =  {CGeoPoint(60, 60),4.5}, 
-	[6] =  {CGeoPoint(60, 60),4.5}, 
-	[7] =  {CGeoPoint(60, 60),4.5}, 
-	[8] =  {CGeoPoint(60, 60),4.5}, 
-	[9] =  {CGeoPoint(60, 60),4.5}, 
-	[10] =  {CGeoPoint(60, 60),4.5}, 
-	[11] =  {CGeoPoint(60, 60),4.5}, 
-	[12] =  {CGeoPoint(60, 60),4.5}, 
-	[14] =  {CGeoPoint(60, 60),4.5}, 
-	[15] =  {CGeoPoint(60, 60),4.5}, 
-	[16] =  {CGeoPoint(60, 60),4.5}, 
-}
-rotTable = Team == "ONE" and rotTableONE or rotTableTWO
+
+playerConfig = setmetatable({
+	[0]  = { power={0,6000,200,330,400,7000}, rotPos=CGeoPoint(60,60),  rotVel=4.5, rotCompensate=-0.045, endVel=500, ballVelRate=1, isNewRobot=false },
+	[1]  = { power={0,6000,120,330,500,7000}, rotPos=CGeoPoint(120,0),  rotVel=4.5, rotCompensate=-0.045, endVel=500, ballVelRate=1, isNewRobot=false },
+	[2]  = { power={0,6000,160,500,500,7000}, rotPos=CGeoPoint(60,60),  rotVel=4.5, rotCompensate=-0.045, endVel=500, ballVelRate=1, isNewRobot=false },
+	[3]  = { power={0,6000,160,500,700,7000}, rotPos=CGeoPoint(120,0),  rotVel=4.5, rotCompensate=-0.045, endVel=500, ballVelRate=1, isNewRobot=false },
+	[4]  = { power={0,6000,135,330,500,7000}, rotPos=CGeoPoint(120,0),  rotVel=4.5, rotCompensate=-0.045, endVel=500, ballVelRate=1, isNewRobot=false },
+	[5]  = { power={0,6000,135,330,500,7000}, rotPos=CGeoPoint(60,60),  rotVel=4.5, rotCompensate=-0.045, endVel=500, ballVelRate=1, isNewRobot=false },
+	[6]  = { power={0,9000,135,330,500,7000}, rotPos=CGeoPoint(60,60),  rotVel=4.5, rotCompensate=-0.045, endVel=500, ballVelRate=1, isNewRobot=false },
+	[7]  = { power={0,6000,135,330,500,7000}, rotPos=CGeoPoint(60,60),  rotVel=4.5, rotCompensate=-0.045, endVel=500, ballVelRate=1, isNewRobot=false },
+	[8]  = { power={0,6000,135,330,500,7000}, rotPos=CGeoPoint(60,60),  rotVel=4.5, rotCompensate=-0.045, endVel=500, ballVelRate=1, isNewRobot=false },
+	[9]  = { power={0,6000,135,330,500,7000}, rotPos=CGeoPoint(60,60),  rotVel=4.5, rotCompensate=-0.045, endVel=500, ballVelRate=1, isNewRobot=false },
+	[10] = { power={0,6000,135,330,500,7000}, rotPos=CGeoPoint(60,60),  rotVel=4.5, rotCompensate=-0.045, endVel=500, ballVelRate=1, isNewRobot=false },
+	[11] = { power={0,6000,135,330,500,7000}, rotPos=CGeoPoint(60,60),  rotVel=4.5, rotCompensate=-0.045, endVel=500, ballVelRate=1, isNewRobot=false },
+	[12] = { power={0,6000,135,330,500,7000}, rotPos=CGeoPoint(60,60),  rotVel=4.5, rotCompensate=-0.045, endVel=500, ballVelRate=1, isNewRobot=false },
+	[13] = { power={0,6000,135,330,500,7000}, rotPos=CGeoPoint(60,60),  rotVel=4.5, rotCompensate=-0.045, endVel=500, ballVelRate=1, isNewRobot=false },
+	[14] = { power={0,6000,135,330,500,7000}, rotPos=CGeoPoint(60,60),  rotVel=4.5, rotCompensate=-0.045, endVel=500, ballVelRate=1, isNewRobot=false },
+	[15] = { power={0,6000,135,330,500,7000}, rotPos=CGeoPoint(60,60),  rotVel=4.5, rotCompensate=-0.045, endVel=500, ballVelRate=1, isNewRobot=false },
+	[16] = { power={0,6000,135,330,500,7000}, rotPos=CGeoPoint(60,60),  rotVel=4.5, rotCompensate=-0.045, endVel=500, ballVelRate=1, isNewRobot=false },
+}, { __index = function(_, num) return _defaultConfig end })
+
 rotVel = function(num)
-    local turnVel = rotTable[num][2]
+    local cfg = playerConfig[num]
+    local turnVel = cfg.rotVel
     if shootPos:x() == pitchLength / 2 then
         return turnVel + 0.2
     else
         return turnVel
     end
-end         
+end
 
 rotPos = function(num)
+    return playerConfig[player.num(num)].rotPos
+end
 
-    return rotTable[player.num(num)][1]
-end   
-
-
-rotCompensateTable = {
-	-- [num] = {minist,maxDist,minPower, maxPower, ShootPower,chipPower} 
-	[0] =  {-0.015}, 
-	[1] =  {-0.015}, 
-	[2] =  {-0.015}, 
-	[3] =  {0}, 
-	[4] =  {0}, 
-	[5] =  {0}, 
-	[6] =  {-0.015}, 
-	[7] =  {-0.015}, 
-	[8] =  {-0.015}, 
-	[9] =  {-0.015}, 
-	[10] =  {-0.015}, 
-	[11] =  {-0.015}, 
-	[12] =  {-0.015}, 
-	[14] =  {-0.015}, 
-	[15] =  {-0.015}, 
-	[16] =  {-0.015}, 
-}
 local rotCompensate_Reality = function(num)
-    return rotCompensateTable[player.num(num)][1]
+    if player.valid(num) then
+        return playerConfig[player.num(num)].rotCompensate
+    end
+    return 0
 end-- -0.015 --旋转补偿
 -----------------------------------------------|
 --                Tick固定匹配参数             --|

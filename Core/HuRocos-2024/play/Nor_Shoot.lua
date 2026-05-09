@@ -39,8 +39,6 @@ firstState = "Init",
 
     __init__ = function(name, args)
         print("in __init__ func : ",name, args)
-        print(args.pos)
-        shoot_pos = args.pos
     end,
 
 
@@ -70,7 +68,7 @@ firstState = "Init",
 		local ToTargetDist = player.toPointDist("Assister",param.shootPos)
 		resShootPos = task.compensateAngle("Assister",Vy,param.shootPos,ToTargetDist * param.rotCompensate(player.num("Assister")))
 	end,
-	Assister = task.getball(function() return shoot_pos end,param.playerVel,param.getballMode),
+	Assister = task.getball(function() return param.shootPos end,param.playerVel,param.getballMode),
 	match = "[A]"
 },
 

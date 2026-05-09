@@ -212,8 +212,8 @@ firstState = "Init",
 ["Init"] = {
     switch = function()
         if not subScript then
-            gSubPlay.new("ShootPoint", "Nor_Shoot",{pos = function() return shoot_pos end})
-            gSubPlay.new("ShowDribbling", "Nor_Dribbling",{pos = function() return shoot_pos end})
+            gSubPlay.new("ShootPoint", "Nor_Shoot",{})
+            gSubPlay.new("ShowDribbling", "Nor_Dribbling",{})
             gSubPlay.new("Defender", "Nor_DefendV2")
             gSubPlay.new("Goalie", "Nor_Goalie")
         end

@@ -31,49 +31,7 @@ function Getball(task)
 			print("Error runner in getball", runner)
 		end
 
-		local playerEndVelONE = {
-			-- [num] = {endVel, ballVelRate} 
-			[-1] = {0,1}, -- Other
-			[0] = {0,1},
-			[1] = {0,1},
-			[2] = {0,1},
-			[3] = {0,1},
-			[4] = {0,1},	
-			[5] = {0,1},
-			[6] = {200,1},
-			[7] = {0,1},
-			[8] = {0,1},
-			[9] = {0,1},
-			[10] = {0,1},
-			[11] = {0,50},
-			[12] = {0,1},
-			[13] = {0,1},
-			[14] = {0,1},
-			[15] = {0,1},
-			[16] = {0,1}, -- Other
-		}
-		local playerEndVelTWO = {
-			-- [num] = {endVel, ballVelRate} 
-			[-1] = {0,1}, -- Other
-			[0] = {0,1},
-			[1] = {100,1},
-			[2] = {0,1},
-			[3] = {0,1},
-			[4] = {500,1},	
-			[5] = {0,1},
-			[6] = {200,1.2},
-			[7] = {0,1},
-			[8] = {0,1},
-			[9] = {0,1},
-			[10] = {0,1},
-			[11] = {0,50},
-			[12] = {0,1},
-			[13] = {0,1},
-			[14] = {0,1},
-			[15] = {0,1},
-			[16] = {0,1}, -- Other
-		}
-		local playerEndVel = (param.Team == "ONE") and playerEndVelONE or playerEndVelTWO
+		local playerCfg = param.playerConfig
 		--获取常用数据
 		local endVelMod = 0
 		local playerPos = CGeoPoint:new_local(player.pos(runner):x(),player.pos(runner):y()) 
@@ -87,7 +45,9 @@ function Getball(task)
 		local toballDir = math.abs((ball.pos() - player.rawPos(runner)):dir())
 		local playerDir = math.abs(player.dir(runner))
 		local Subdir = math.abs(Utils.angleDiff(toballDir,playerDir) * 180/math.pi)
-		local iflag = flag.dribbling + flag.allow_dss
+		local hasBall = player.myinfraredCount(runner) >= 5
+		local canDribble = playerCfg[runner].isNewRobot and hasBall or true
+		local iflag = canDribble and flag.dribbling or flag.allow_dss
 		local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
 		local iacc
 		local endVel = Utils.Polar2Vector(endVelMod,idir)
@@ -96,7 +56,7 @@ function Getball(task)
 			iflag =  DSS_FLAG
 			debugError = debugError .. "  DSS_FLAG "
 		else
-			iflag = flag.dribbling + flag.allow_dss
+			iflag = canDribble and (flag.dribbling + flag.allow_dss) or flag.allow_dss
 			debugError = debugError .. "  DRIBLE_FLAG "
 		end
 
@@ -111,7 +71,7 @@ function Getball(task)
 
 		elseif (ball.velMod() > 200 and not isOnBallLine) then
 			idir = (ball.pos() - inter_pos):dir()
-			iflag = flag.dodge_ball + flag.dribbling
+			iflag = flag.dodge_ball + (canDribble and flag.dribbling or 0)
 			debugError = debugError ..  "  RushToInterceptBall "
 		end
 		
@@ -119,15 +79,15 @@ function Getball(task)
 			idir = player.toBallDir(runner)
 			inter_pos = ball.pos() + Utils.Polar2Vector(-50,idir)
 			if Subdir > 15 and player.toBallDist(runner) < 250 then 
-				iflag =  flag.dodge_ball + flag.dribbling
+				iflag =  flag.dodge_ball + (canDribble and flag.dribbling or 0)
 				debugError = debugError .. "  DSS_FLAG "
 				inter_pos = ball.pos() + Utils.Polar2Vector(-130,idir)
 			else
-				iflag = flag.dribbling + flag.allow_dss
+				iflag = (canDribble and flag.dribbling or 0) + flag.allow_dss
 				debugError = debugError .. "  DRIBLE_FLAG "
 			end
 			debugError = debugError .."  RushToBall "
-			endVelMod = (ball.velMod() * playerEndVel[runner][2]) + playerEndVel[runner][1]
+			endVelMod = (ball.velMod() * playerCfg[runner].ballVelRate) + playerCfg[runner].endVel
 			endVelMod = endVelMod > 5000 and 5000 or endVelMod
 		end
 
@@ -162,7 +122,7 @@ function Getball(task)
 				debugError = debugError ..  Subdir .."Enemy "
 			end
 		-- 		end
-		if player.myinfraredCount(runner) >= 5 then
+		if hasBall then
 			endVelMod = 0
 			inter_pos = player.pos(runner)
 			iflag = flag.dribbling

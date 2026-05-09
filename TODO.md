@@ -4,18 +4,6 @@
 3:Goalie 、Defender 需要写椭圆路线      [defender需要多模式]
 4:截球点计算考虑敌方车辆到截球点时间      [拿不到就去球的位置]	
 
-
-
-
-
-
-
-
-
-
-
-
-
 51
  1. 需要把our_IndirectKick的各种情况完成
  2. 完成 PenaltyKick

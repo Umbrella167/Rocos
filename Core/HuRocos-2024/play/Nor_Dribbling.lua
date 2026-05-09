@@ -39,8 +39,6 @@ firstState = "Init",
 
     __init__ = function(name, args)
         print("in __init__ func : ",name, args)
-        print(args.pos)
-        shoot_pos = args.pos
     end,
 
 ["Init"] = {
@@ -61,7 +59,7 @@ firstState = "Init",
 			return "dribbling"
 		end
 	end,
-	Assister = task.getball(function() return shoot_pos end,playerVel,getballMode),
+	Assister = task.getball(function() return param.shootPos end,playerVel,getballMode),
 	match = "[A]"
 },
 
