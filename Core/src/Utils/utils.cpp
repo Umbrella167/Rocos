@@ -97,9 +97,6 @@ namespace Utils
             {
 
                 Tick[now].task[i].player_num = i;
-                if (Tick[now].task[i].infrared_count == 0 )
-                    Tick[now].task[i].infrared_off_count += 1;
-
 
                 // 如果球的视野消失，但是有红外信息，认为球的位置在触发红外的机器人上
                 if(!pVision ->ball().Valid())
@@ -156,7 +153,7 @@ namespace Utils
             else
             {
                 Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_count = 0;
-
+                Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_off_count += 1;
             }
         }
         else // 如果球不存在
@@ -175,8 +172,22 @@ namespace Utils
                     Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_count += 1;
                     Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_off_count = 0;
                 }
+                else
+                {
+                    Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_count = 0;
+                    Tick[now].task[Tick[now].our.to_balldist_min_num].infrared_off_count += 1;
+                }
             }
 
+        }
+        // 清理非最近球球员的红外残留数据
+        for (int i = 0; i < PARAM::Field::MAX_PLAYER; i++)
+        {
+            if (pVision->ourPlayer(i).Valid() && i != Tick[now].our.to_balldist_min_num)
+            {
+                Tick[now].task[i].infrared_count = 0;
+                Tick[now].task[i].infrared_off_count += 1;
+            }
         }
         /// 球权判断
         // 球权一定是我方的情况
@@ -191,11 +202,15 @@ namespace Utils
         {
             Tick[now].ball.rights = -1;
             Tick[now].their.dribbling_num = Tick[now].their.to_balldist_min_num;
-            //            Tick[now].our.dribbling_num = -1;
+            Tick[now].our.dribbling_num = -1;
         }
         // 传球或射门失误导致的双方都无球权的情况
         else
+        {
             Tick[now].ball.rights = 0;
+            Tick[now].our.dribbling_num = -1;
+            Tick[now].their.dribbling_num = -1;
+        }
         // 顶牛 或 抢球对抗
 //        printf("our minTob%f,their %f", our_min_dist, their_min_dist);
         if((RobotSensor.InfraredOnCount(Tick[now].our.to_balldist_min_num) > 5 || our_min_dist < playerBallRightsBuffer + 5) && their_min_dist < playerBallRightsBuffer +5)

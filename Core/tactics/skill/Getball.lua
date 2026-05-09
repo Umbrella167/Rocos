@@ -161,7 +161,13 @@ function Getball(task)
 				inter_pos = ball.pos() + Utils.Polar2Vector(dist_,(ball.pos() - theirDribblingPlayerPos):dir())
 				debugError = debugError ..  Subdir .."Enemy "
 			end
-		-- end
+		-- 		end
+		if player.myinfraredCount(runner) >= 5 then
+			endVelMod = 0
+			inter_pos = player.pos(runner)
+			iflag = flag.dribbling
+			debugError = debugError .. "  HAS_BALL_STOP "
+		end
 		endVel = Utils.Polar2Vector(endVelMod,idir)
 
 		param.lastInterPos = inter_pos

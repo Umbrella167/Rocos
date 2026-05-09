@@ -160,7 +160,6 @@ function getball(shootPos_,playerVel, inter_flag, permissions)
 					end
 				end
 			end
-			print("minEnemyDistNum1:" .. #minEnemyDistNum1)
 			if (#minEnemyDistNum1 > 0 ) then
 				local toballDir = (ball.pos() - enemy.pos(GlobalMessage.Tick().their.dribbling_num)):dir()
 				local playerDir = (enemy.pos(GlobalMessage.Tick().their.dribbling_num) - player.pos("Assister") ):dir()
@@ -185,6 +184,7 @@ function getball(shootPos_,playerVel, inter_flag, permissions)
 			ishootpos = shootPos_
 		end
 		local ipermissions = permissions or 0
+
 		local mexe, mpos = Getball {shootPos = ishootpos,permissions = ipermissions ,inter_flag = inter_flag, pos = pp, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
 		return { mexe, mpos }
 	end
@@ -332,9 +332,9 @@ function power(p, num,shootFlag)
 		end
 		---仿真的力度
 		if not param.isReality then
-			local SimulationRate = 15
-			-- res = res * SimulationRate
-			res = 3500
+			local SimulationRate = 10
+			res = res * SimulationRate
+			-- res = 3500
 			if iflag == kick.chip() then
 				res = 3000
 			end
