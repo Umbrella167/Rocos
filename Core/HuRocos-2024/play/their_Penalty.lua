@@ -75,11 +75,8 @@ firstState = "Init",
 	end,
     Assister = function() return task.goCmuRush(stopPos("Assister"), 0, a, DSS_FLAG, r, v, s, force_manual) end,
     Kicker = function() return task.goCmuRush(stopPos("Kicker"), 0, a, DSS_FLAG, r, v, s, force_manual) end,
-    Special = function() return task.goCmuRush(stopPos("Special"), 0, a, DSS_FLAG, r, v, s, force_manual) end,
-    Defender = function() return task.goCmuRush(stopPos("Defender"), 0, a, DSS_FLAG, r, v, s, force_manual) end,
-    Tier = function() return task.goCmuRush(stopPos("Tier"), 0, a, DSS_FLAG, r, v, s, force_manual) end,
 	Goalie = function() return task.goCmuRush(param.ourGoalPos, player.toBallDir("Goalie"), a, DSS_FLAG) end,
-    match = "[AKS]{TDG}"
+    match = "[AK]{TDG}"
 },
 
 ["Wait"] = {
@@ -89,8 +86,10 @@ firstState = "Init",
 			return "Getball"
 		end
 	end,
+	Assister = function() return task.goCmuRush(stopPos("Assister"), 0, a, DSS_FLAG, r, v, s, force_manual) end,
+    Kicker = function() return task.goCmuRush(stopPos("Kicker"), 0, a, DSS_FLAG, r, v, s, force_manual) end,
 	Goalie = function() return task.goCmuRush(param.ourGoalPos, player.toBallDir("Goalie"), a, DSS_FLAG) end,
-    match = "{G}"
+    match = "[AK]{G}"
 },
 
 ["Getball"] = {

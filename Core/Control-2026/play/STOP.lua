@@ -35,6 +35,8 @@ firstState = "start",
 ["start"] = {
   switch = function()
     debugEngine:gui_debug_arc(ball.pos(),500,0,360,1)
+	  debugEngine:gui_debug_msg(CGeoPoint(-1200,0),"STOP ",1,0,1000)
+
     if cond.isGameOn() then
       return "exit"
     end

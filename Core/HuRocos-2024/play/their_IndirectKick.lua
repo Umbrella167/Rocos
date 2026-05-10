@@ -119,13 +119,12 @@ firstState = "Init",
 
 	Assister = function () return (task.goCmuRush(player.pos("Assister"),balldir("Assister"),DSS_FLAG)) end,
     Kicker = function () return (task.goCmuRush(player.pos("Kicker"),balldir("Kicker"),DSS_FLAG)) end,
-    Special = function () return (task.goCmuRush(player.pos("Special"),balldir("Special"),DSS_FLAG)) end,
 
     -- Assister = task.stop(),
     -- Kicker = task.stop(),
     -- Special = task.stop(),
 
-    match = "[AKS]"
+    match = "[AK]"
 },
 
 ["Init_marking"] = {
@@ -142,15 +141,15 @@ firstState = "Init",
         end
 	end,
 
-	Assister =task.goCmuRush( function()return DenfendPos end ,0,a,0),
+	Assister = task.goCmuRush( function()return DenfendPos end ,0,a,0),
     Kicker = function() return task.defender_marking("Kicker",CGeoPoint(param.INF,param.INF)) end,
-    Special = function() return task.defender_marking("Special",CGeoPoint(param.INF,param.INF)) end,
+    
 
     -- Assister = task.stop(),
     -- Kicker = task.stop(),
     -- Special = task.stop(),
 
-    match = "[AKS]"
+    match = "[AK]"
 },
 
 
@@ -172,9 +171,9 @@ firstState = "Init",
  	end,
  	Assister = function () return (task.goCmuRush(DenfendPosFront("Assister"),balldir("Assister"),DSS_FLAG)) end,
     Kicker = function () return (task.goCmuRush(DenfendPosFront("Kicker"),balldir("Kicker"),DSS_FLAG)) end,
-    Special = function () return (task.goCmuRush(DenfendPosFront("Special"),balldir("Special"),DSS_FLAG)) end,
+    
 
-	match = "[AKS]"
+	match = "[AK]"
 } ,
 ["center"] = {
  	switch = function()
@@ -190,8 +189,8 @@ firstState = "Init",
  	end,
  	Assister = function () return (task.goCmuRush(DenfendPosCenter("Assister"),balldir("Assister"),DSS_FLAG)) end,
     Kicker = function () return (task.goCmuRush(DenfendPosCenter("Kicker"),balldir("Kicker"),DSS_FLAG)) end,
-    Special = function () return (task.goCmuRush(DenfendPosCenter("Special"),balldir("Special"),DSS_FLAG)) end,
-    match = "[AKS]"
+    -- Special = function () return (task.goCmuRush(DenfendPosCenter("Special"),balldir("Special"),DSS_FLAG)) end,
+    match = "[AK]"
 } ,
 
 

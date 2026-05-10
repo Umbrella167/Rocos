@@ -553,7 +553,7 @@ function Shootdot(role,p, error_, flag_)
 			iflag = flag.dribbling
 		end
 		local mexe, mpos = GoCmuRush { pos = shootpos, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
-		return { mexe, mpos, flagShoot, idir, error__, power(p,player.num(role),flag_), power(p, player.num(role),flag_), 0x00000000 }
+		return { mexe, mpos, flag_, idir, error__, power(p,player.num(role),flag_), power(p, player.num(role),flag_), 0x00000000 }
 	end
 end
 

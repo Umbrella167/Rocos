@@ -3,9 +3,11 @@ firstState = "halt",
 switch = function()
 	-- debugEngine:gui_debug_msg(CGeoPoint(0,0),task.getManMarkEnemy())
 	-- return "halt"
+	debugEngine:gui_debug_msg(CGeoPoint(-2000,0),"暂停-不许动 ",1,0,500)
+
 end,
 ["halt"] = {
-	
+
 	["Kicker"]   = task.stop(),
 	["Special"]  = task.stop(),
 	["Assister"] = task.stop(),

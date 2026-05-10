@@ -17,22 +17,22 @@ gRefConfig = {
     GameHalt = "HALT",
     GameStop = "STOP",
     OurTimeout = "HALT",
-    TheirIndirectKick = "TestMyRun",
+    TheirIndirectKick = "their_IndirectKick",
     OurIndirectKick = function()
         if ball.posX() > 3000 then 
-            return "TestMyRun"
+            return "our_CornerKick"
         elseif ball.posX() > 0 and ball.posX() < 3000 then
-            return "TestMyRun"
+            return "our_CenterKick"
         else
-            return "TestMyRun"
+            return "our_FrontKick"
         end
     end,
-    TheirKickOff = "TestMyRun",
-    OurKickOff = "TestMyRun",
-    TheirBallPlacement = "TestMyRun",
-    OurBallPlacement = "TestMyRun",
-    TheirPenaltyKick = "TestMyRun",
-    OurPenaltyKick = "TestMyRun",
-    NormalPlay = "TestMyRun" -- {"NORMALPLAY", "NORMALPLAYV2"},
+    TheirKickOff = "their_KickOff",
+    OurKickOff = "our_KickOff",
+    TheirBallPlacement = "theirBallPlacement",
+    OurBallPlacement = "our_BallPlacement",
+    TheirPenaltyKick = "their_Penalty",
+    OurPenaltyKick = "our_Penalty",
+    NormalPlay = "NORMALPLAYV2" -- {"NORMALPLAY", "NORMALPLAYV2"},
 }
 --]]

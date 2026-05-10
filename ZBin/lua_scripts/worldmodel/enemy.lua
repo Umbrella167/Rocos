@@ -3,9 +3,14 @@ module(..., package.seeall)
 function instance(role)
 	if type(role) == "number" then
 		return vision:theirPlayer(role)
-	else
-		print("Invalid role in enemy.instance!!!")
+	elseif type(role) == "string" then
+		local num = gRoleNum[role]
+		if num then
+			return vision:theirPlayer(num)
+		end
 	end
+	print("Invalid role in enemy.instance!!!")
+	return nil
 end
 
 function pos(role)
