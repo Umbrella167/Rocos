@@ -522,7 +522,7 @@ function ShootdotDribbling(error_, flag_,power)
 end
 
 
-function Shootdot(role,p, error_, flagShoot) --
+function Shootdot(role,p, error_, flag_) 
 	return function(runner)
 		local p1
 
@@ -557,6 +557,40 @@ function Shootdot(role,p, error_, flagShoot) --
 	end
 end
 
+function Shootdot_gamepad(num,p, error_, flag_,shootpower) 
+	return function(runner)
+		
+		local p1
+		if type(p) == 'function' then
+			p1 = p()
+		else
+			p1 = p
+		end
+		local shootpos = ball.pos() + Utils.Polar2Vector(-50, (p1 - ball.pos()):dir())
+		local idir = function()
+			return (p1 - player.pos(num)):dir()
+		end
+		local error__ = function()
+			return error_ * math.pi / 180.0
+		end
+		local endvel = Utils.Polar2Vector(300,player.toBallDir(num))
+		-- local toballDir = math.abs(player.toBallDir(num))  * 57.3
+		local toballDir = math.abs((ball.pos() - player.rawPos(num)):dir())
+		local playerDir = math.abs(player.dir(num))
+		local Subdir = math.abs(Utils.angleDiff(toballDir,playerDir) * 180/math.pi)
+		local iflag = bit:_or(flag.allow_dss, flag.dodge_ball)
+		if Subdir > error_ then 
+			local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
+			iflag =  DSS_FLAG
+			shootpos = ball.pos() + Utils.Polar2Vector(-300, (p1 - ball.pos()):dir())
+		else
+			iflag = flag.dribbling
+		end
+		local mexe, mpos = GoCmuRush { pos = shootpos, dir = idir, acc = a, flag = iflag, rec = r, vel = v }
+		return { mexe, mpos, function() return flag_ end, idir, error__,function() return shootpower end,function() return shootpower end, 0x00000000 }
+	end
+end
+
 
 function playerDirToPointDirSub(role, p) -- 检测 某座标点  球  playe 是否在一条直线上
 	if type(p) == 'function' then
@@ -564,6 +598,7 @@ function playerDirToPointDirSub(role, p) -- 检测 某座标点  球  playe 是�
 	else
 		p1 = p
 	end
+	
 	local toballDir = (p1 - ball.pos()):dir()
 	local playerDir = player.dir(role)
 	local Subdir = math.abs(Utils.angleDiff(toballDir,playerDir) * 180/math.pi)

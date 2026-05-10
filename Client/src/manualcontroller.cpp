@@ -137,6 +137,7 @@ void ManualController::setSelectedSlot(int slot) {
     emit slowSpeedChanged();
     emit maxRotSpeedChanged();
     emit kickPowerChanged();
+    emit chipPowerChanged();
     emit accelerationChanged();
     emit decelerationChanged();
     emit rotKpChanged();
@@ -167,6 +168,7 @@ void ManualController::loadSlotParams(int si) {
     zpm->loadParam(s.slowSpeed, slotParamKey(si, "slowSpeed"), 1.0);
     zpm->loadParam(s.maxRotSpeed, slotParamKey(si, "maxRotSpeed"), 10.0);
     zpm->loadParam(s.kickPower, slotParamKey(si, "kickPower"), 5.0);
+    zpm->loadParam(s.chipPower, slotParamKey(si, "chipPower"), 5.0);
     zpm->loadParam(s.acceleration, slotParamKey(si, "acceleration"), 1.6);
     zpm->loadParam(s.deceleration, slotParamKey(si, "deceleration"), 12.0);
     zpm->loadParam(s.rotKp, slotParamKey(si, "rotKp"), 6.5);
@@ -188,6 +190,7 @@ void ManualController::setMaxSpeed(qreal v) { auto& s = m_slots[m_selectedSlot];
 void ManualController::setSlowSpeed(qreal v) { auto& s = m_slots[m_selectedSlot]; if (qFuzzyCompare(s.slowSpeed, v)) return; s.slowSpeed = v; ZSS::ZParamManager::instance()->changeParam(slotParamKey(m_selectedSlot, "slowSpeed"), v); emit slowSpeedChanged(); }
 void ManualController::setMaxRotSpeed(qreal v) { auto& s = m_slots[m_selectedSlot]; if (qFuzzyCompare(s.maxRotSpeed, v)) return; s.maxRotSpeed = v; ZSS::ZParamManager::instance()->changeParam(slotParamKey(m_selectedSlot, "maxRotSpeed"), v); emit maxRotSpeedChanged(); }
 void ManualController::setKickPower(qreal v) { auto& s = m_slots[m_selectedSlot]; if (qFuzzyCompare(s.kickPower, v)) return; s.kickPower = v; ZSS::ZParamManager::instance()->changeParam(slotParamKey(m_selectedSlot, "kickPower"), v); emit kickPowerChanged(); }
+void ManualController::setChipPower(qreal v) { auto& s = m_slots[m_selectedSlot]; if (qFuzzyCompare(s.chipPower, v)) return; s.chipPower = v; ZSS::ZParamManager::instance()->changeParam(slotParamKey(m_selectedSlot, "chipPower"), v); emit chipPowerChanged(); }
 void ManualController::setAcceleration(qreal v) { auto& s = m_slots[m_selectedSlot]; if (qFuzzyCompare(s.acceleration, v)) return; s.acceleration = v; ZSS::ZParamManager::instance()->changeParam(slotParamKey(m_selectedSlot, "acceleration"), v); emit accelerationChanged(); }
 void ManualController::setDeceleration(qreal v) { auto& s = m_slots[m_selectedSlot]; if (qFuzzyCompare(s.deceleration, v)) return; s.deceleration = v; ZSS::ZParamManager::instance()->changeParam(slotParamKey(m_selectedSlot, "deceleration"), v); emit decelerationChanged(); }
 void ManualController::setRotKp(qreal v) { auto& s = m_slots[m_selectedSlot]; if (qFuzzyCompare(s.rotKp, v)) return; s.rotKp = v; ZSS::ZParamManager::instance()->changeParam(slotParamKey(m_selectedSlot, "rotKp"), v); emit rotKpChanged(); }
@@ -229,10 +232,10 @@ bool ManualController::gamepadConnected() const {
 void ManualController::setTeam(int team) { if (m_team != team) { m_team = team; emit teamChanged(); } }
 
 void ManualController::sendSlotCmd(int si, float vx, float vy, float vr,
-                                    bool kick, float kickPower, bool dribble) {
+                                    bool kick, float kickPower, bool dribble, bool chip) {
     if (m_gamepadCmdFd < 0) return;
     const int BTN_COUNT = 16;
-    const int PKT_SIZE = 35;
+    const int PKT_SIZE = 36;
     uint8_t buf[PKT_SIZE];
     std::memset(buf, 0, PKT_SIZE);
 
@@ -263,6 +266,7 @@ void ManualController::sendSlotCmd(int si, float vx, float vy, float vr,
     std::memcpy(&buf[26], &fvr, 4);
     std::memcpy(&buf[30], &fkp, 4);
     buf[34] = kick ? 1 : 0;
+    buf[35] = chip ? 1 : 0;
 
     struct sockaddr_in addr;
     std::memset(&addr, 0, sizeof(addr));
@@ -442,6 +446,7 @@ void ManualController::tickSlot(int si) {
     bool doKick = m_kick;
     double kickPwr = slot.kickPower;
     bool doDribble = slot.dribble;
+    bool doChip = false;
 
     if (isGp) {
         if (slot.gpBtnLB) {
@@ -449,6 +454,12 @@ void ManualController::tickSlot(int si) {
             double rightMag = qSqrt(slot.gpRightX * slot.gpRightX + slot.gpRightY * slot.gpRightY);
             kickPwr = qMin(rightMag, 1.0) * slot.kickPower;
             if (kickPwr < 0.1) kickPwr = slot.kickPower * 0.3;
+        }
+        if (slot.gpLeftTrigger > 0.5) {
+            doChip = true;
+            double rightMag = qSqrt(slot.gpRightX * slot.gpRightX + slot.gpRightY * slot.gpRightY);
+            kickPwr = qMin(rightMag, 1.0) * slot.chipPower;
+            if (kickPwr < 0.1) kickPwr = slot.chipPower * 0.3;
         }
         if (slot.gpBtnLStick && !slot.gpBtnLStickPrev) {
             slot.dribble = !slot.dribble;
@@ -493,8 +504,8 @@ void ManualController::tickSlot(int si) {
     }
 
     sendSlotCmd(si, static_cast<float>(sendVx * 1000.0), static_cast<float>(sendVy * 1000.0),
-                static_cast<float>(cmdVr), doKick, static_cast<float>(kickPwr * 1000.0),
-                doDribble);
+                static_cast<float>(cmdVr), doKick || doChip, static_cast<float>(kickPwr * 1000.0),
+                doDribble, doChip);
 
     if (si == m_selectedSlot) emit velocityChanged();
 }
@@ -631,6 +642,8 @@ void ManualController::pollGamepadXpad(int si, SDL_Joystick* joy) {
     slot.gpRightY = dz(-rightY, 0.15);
     short rawRT = SDL_JoystickGetAxis(joy, 4);
     slot.gpRightTrigger = qMin(1.0, static_cast<double>(qMax(rawRT, (short)0)) / 32767.0);
+    short rawLT = SDL_JoystickGetAxis(joy, 5);
+    slot.gpLeftTrigger = qMin(1.0, static_cast<double>(qMax(rawLT, (short)0)) / 32767.0);
 }
 
 void ManualController::pollGamepadXone(int si, SDL_Joystick* joy) {
@@ -677,6 +690,8 @@ void ManualController::pollGamepadXone(int si, SDL_Joystick* joy) {
     slot.gpRightY = dz(-rightY, 0.15);
     short rawRT = SDL_JoystickGetAxis(joy, 5);
     slot.gpRightTrigger = qMin(1.0, static_cast<double>(qMax(rawRT, (short)0)) / 32767.0);
+    short rawLT = SDL_JoystickGetAxis(joy, 2);
+    slot.gpLeftTrigger = qMin(1.0, static_cast<double>(qMax(rawLT, (short)0)) / 32767.0);
 }
 
 void ManualController::updateStatus() {

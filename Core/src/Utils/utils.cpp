@@ -1422,7 +1422,7 @@ namespace Utils
                     flag = 0;
                     continue;
                 }
-                if (!isValidPass(pVision, new_local, shootPos) || !isValidPass(pVision, ball_pos, new_local,50) || new_local.dist(Tick[now].ball.pos) < ballDist || InExclusionZone(new_local,100))
+                if (!isValidPass(pVision, new_local, shootPos) || !isValidPass(pVision, ball_pos, new_local,50) || new_local.dist(Tick[now].ball.pos) < ballDist || InExclusionZone(new_local,180))
                     continue;
                 grade = GetAttackGrade(pVision, new_local.x(), new_local.y(), ball_pos, shootPos);
                 GDebugEngine::Instance()->gui_debug_x(new_local,0,0,40);

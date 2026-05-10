@@ -750,6 +750,14 @@ Page{
                             valueFromText: function(t){ return Math.round(parseFloat(t)*10) }
                             onValueModified: manualController.kickPower = value / 10.0;
                         }
+                        Label{ text: "Chip Pwr:"; color: "white" }
+                        SpinBox{
+                            editable: true; from: 0; to: 100; stepSize: 1;
+                            value: manualController.chipPower * 10;
+                            textFromValue: function(v){ return (v/10).toFixed(1) }
+                            valueFromText: function(t){ return Math.round(parseFloat(t)*10) }
+                            onValueModified: manualController.chipPower = value / 10.0;
+                        }
                    }
                    Grid{
                        width: parent.itemWidth;

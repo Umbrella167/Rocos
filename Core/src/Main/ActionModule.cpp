@@ -53,11 +53,16 @@ bool CActionModule::sendAction() {
             float vr = gpCmd->getVelR(vecNum);
             bool dribble = gpCmd->getDribble(vecNum);
             bool kickActive = gpCmd->getKickActive(vecNum);
+            bool chipActive = gpCmd->getChipActive(vecNum);
             float kickPower = gpCmd->getKickPower(vecNum);
             double dribbleVal = dribble ? 10.0 : 0.0;
             CCommandInterface::instance()->setSpeed(vecNum, dribbleVal, vx, vy, vr);
             if (kickActive && kickPower > 0) {
-                CCommandInterface::instance()->setKick(vecNum, kickPower, 0);
+                if (chipActive) {
+                    CCommandInterface::instance()->setKick(vecNum, 0, kickPower);
+                } else {
+                    CCommandInterface::instance()->setKick(vecNum, kickPower, 0);
+                }
             } else {
                 CCommandInterface::instance()->setKick(vecNum, 0, 0);
             }

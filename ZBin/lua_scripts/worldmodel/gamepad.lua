@@ -56,6 +56,8 @@ function makeSkillMap(myId, passTargetId)
             end
             return task.stop()
         end,
+        
+        ["A"] = task.Shootdot_gamepad(myId, function() return ball.pos() + Utils.Polar2Vector(50, (ball.pos() - player.pos(myId)):dir()) end,param.shootError,flag.chip,2000),
     }
 end
 

@@ -95,7 +95,7 @@ local UpdataTickMessage = function (our_goalie_num,defend_num1,defend_num2)
         -- 9000 * 6000
         -- 分档算点 
         if ball.posX() > -1000 then
-            KickerRUNPos = Utils.GetAttackPos(vision, player.num("Kicker"),KickerShootPos,CGeoPoint(3345,1185),CGeoPoint(4500,-1200),180);
+            KickerRUNPos = Utils.GetAttackPos(vision, player.num("Kicker"),KickerShootPos,CGeoPoint(3150,1245),CGeoPoint(4500,-1245),180);
             SpecialRUNPos = Utils.GetAttackPos(vision, player.num("Special"),SpecialShootPos,CGeoPoint(1470,1400),CGeoPoint(2790,-1400),200);
         else
             KickerRUNPos = Utils.GetAttackPos(vision, player.num("Kicker"),KickerShootPos,CGeoPoint(-500,2400),CGeoPoint(2200,0),300);

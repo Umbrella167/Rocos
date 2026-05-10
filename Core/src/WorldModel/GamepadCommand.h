@@ -17,6 +17,7 @@ struct GamepadSlotState {
     float velR = 0;
     float kickPower = 0;
     bool kickActive = false;
+    bool chipActive = false;
     std::chrono::steady_clock::time_point lastUpdate = std::chrono::steady_clock::now();
 
     void reset() {
@@ -25,13 +26,14 @@ struct GamepadSlotState {
         active = false;
         velX = velY = velR = kickPower = 0;
         kickActive = false;
+        chipActive = false;
     }
 };
 
 class CGamepadCommand {
 public:
     static constexpr int BTN_COUNT = 16;
-    static constexpr int PKT_SIZE = 35;
+    static constexpr int PKT_SIZE = 36;
 
     CGamepadCommand() {
         for (int i = 0; i < PARAM::Field::MAX_PLAYER; ++i) {
@@ -92,6 +94,11 @@ public:
     bool getKickActive(int robotId) const {
         if (robotId < 0 || robotId >= PARAM::Field::MAX_PLAYER) return false;
         return _slots[robotId].kickActive;
+    }
+
+    bool getChipActive(int robotId) const {
+        if (robotId < 0 || robotId >= PARAM::Field::MAX_PLAYER) return false;
+        return _slots[robotId].chipActive;
     }
 
     int getFirstPressedForRobot(int robotId) const {
@@ -182,6 +189,7 @@ private:
                     slot.velR = vr;
                     slot.kickPower = kp;
                     slot.kickActive = data[34] != 0;
+                    slot.chipActive = data[35] != 0;
                 }
                 slot.active = true;
                 slot.lastUpdate = std::chrono::steady_clock::now();

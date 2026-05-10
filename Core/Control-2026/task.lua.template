@@ -1,0 +1,10 @@
+module(..., package.seeall)
+
+
+InterPos = CGeoPoint:new_local(0,0)
+function Inter()
+	InterPos = CGeoPoint:new_local(0,0)
+end
+
+
+-- write your own task functions, and use it with `task.xxx()` in our own play

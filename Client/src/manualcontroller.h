@@ -25,6 +25,7 @@ struct GamepadSlot {
     qreal slowSpeed = 1.0;
     qreal maxRotSpeed = 10.0;
     qreal kickPower = 5.0;
+    qreal chipPower = 5.0;
     qreal acceleration = 1.6;
     qreal deceleration = 12.0;
     qreal rotKp = 6.5;
@@ -45,6 +46,7 @@ struct GamepadSlot {
     bool gpBtnLB = false, gpBtnRB = false, gpBtnRBPrev = false;
     bool gpBtnBack = false, gpBtnStart = false, gpBtnLStick = false, gpBtnLStickPrev = false;
     double gpRightTrigger = 0;
+    double gpLeftTrigger = 0;
 
     bool braking = false;
     double brakeVx = 0, brakeVy = 0;
@@ -70,6 +72,7 @@ class ManualController : public QObject {
     Q_PROPERTY(qreal slowSpeed READ slowSpeed WRITE setSlowSpeed NOTIFY slowSpeedChanged)
     Q_PROPERTY(qreal maxRotSpeed READ maxRotSpeed WRITE setMaxRotSpeed NOTIFY maxRotSpeedChanged)
     Q_PROPERTY(qreal kickPower READ kickPower WRITE setKickPower NOTIFY kickPowerChanged)
+    Q_PROPERTY(qreal chipPower READ chipPower WRITE setChipPower NOTIFY chipPowerChanged)
     Q_PROPERTY(qreal acceleration READ acceleration WRITE setAcceleration NOTIFY accelerationChanged)
     Q_PROPERTY(qreal deceleration READ deceleration WRITE setDeceleration NOTIFY decelerationChanged)
     Q_PROPERTY(qreal rotKp READ rotKp WRITE setRotKp NOTIFY rotKpChanged)
@@ -105,6 +108,7 @@ public:
     qreal slowSpeed() const { return m_slots[m_selectedSlot].slowSpeed; }
     qreal maxRotSpeed() const { return m_slots[m_selectedSlot].maxRotSpeed; }
     qreal kickPower() const { return m_slots[m_selectedSlot].kickPower; }
+    qreal chipPower() const { return m_slots[m_selectedSlot].chipPower; }
     qreal acceleration() const { return m_slots[m_selectedSlot].acceleration; }
     qreal deceleration() const { return m_slots[m_selectedSlot].deceleration; }
     qreal rotKp() const { return m_slots[m_selectedSlot].rotKp; }
@@ -145,6 +149,7 @@ public slots:
     void setSlowSpeed(qreal speed);
     void setMaxRotSpeed(qreal speed);
     void setKickPower(qreal power);
+    void setChipPower(qreal power);
     void setAcceleration(qreal v);
     void setDeceleration(qreal v);
     void setRotKp(qreal v);
@@ -168,6 +173,7 @@ signals:
     void slowSpeedChanged();
     void maxRotSpeedChanged();
     void kickPowerChanged();
+    void chipPowerChanged();
     void accelerationChanged();
     void decelerationChanged();
     void rotKpChanged();
@@ -196,7 +202,7 @@ private:
     void tick();
     void tickSlot(int si);
     void updateStatus();
-    void sendSlotCmd(int si, float vx, float vy, float vr, bool kick, float kickPower, bool dribble);
+    void sendSlotCmd(int si, float vx, float vy, float vr, bool kick, float kickPower, bool dribble, bool chip = false);
     void initSDL();
     void pollAllGamepads();
     void pollGamepadXpad(int si, SDL_Joystick* joy);
