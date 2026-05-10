@@ -46,7 +46,7 @@ function Getball(task)
 		local playerDir = math.abs(player.dir(runner))
 		local Subdir = math.abs(Utils.angleDiff(toballDir,playerDir) * 180/math.pi)
 		local hasBall = player.myinfraredCount(runner) >= 5
-		local canDribble = playerCfg[runner].isNewRobot and hasBall or true
+		local canDribble = (not playerCfg[runner].isNewRobot) or hasBall
 		local iflag = canDribble and flag.dribbling or flag.allow_dss
 		local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
 		local iacc
