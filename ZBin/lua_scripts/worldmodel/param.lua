@@ -176,12 +176,16 @@ end-- -0.015 --旋转补偿
 -- defend_num1 = 1
 -- defend_num2 = 2
 -----------------------------------------------|
---             marking参数             --|
+--             marking参数（v2优化版）      --|
 -----------------------------------------------|
-markingThreshold = 1500 -- 球的X超过 markingThreshold 队友去盯防
-minMarkingDist = playerRadius * 3
-markingPosRate1 = 1 / 6
-markingPosRate2 = 1 / 10
+markingThreshold = 1500    -- 球X坐标低于此值时进入盯防模式(mm)
+minMarkingDist = playerRadius * 3  -- 最小盯防距离(mm)
+maxMarkingDist = 3000      -- 盯防有效最大距离，超出此距离视为远处跑位(mm)
+markingLateralBase = 500   -- 侧向偏移基准值：敌方距球=0时的最大侧向偏移(mm)
+markingLateralMin = 80     -- 最小侧向偏移量：敌方极远时的侧向偏移下限(mm)
+markingBackRate = 1 / 10   -- 后退偏移系数：ballToEnemyDist * 此系数
+markingThreatSpeedWeight = 1.0  -- 威胁评估中敌方速度权重
+markingThreatPosWeight   = 1.0  -- 威胁评估中位置深度（越靠近我方球门威胁越大）权重
 -----------------------------------------------|
 --             defend参数             --|
 -----------------------------------------------|

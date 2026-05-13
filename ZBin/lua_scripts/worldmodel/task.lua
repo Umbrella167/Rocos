@@ -1403,61 +1403,103 @@ end
 
 
 
---[[ 盯防 ]]
-markingTable = {}
-markingTableLen = 0
-
-function defender_marking(role,pos)
+--[[ 盯防（v2优化版）
+     优化点：
+       1. 球门感知侧向选择 — 站在敌方与本方球门连线一侧，阻断射门
+       2. 反向缩放 — 敌近球 => 侧向偏移大(封角度)；敌远球 => 收中路
+       3. 威胁评估排序 — 优先盯防高速前插、靠近球门的威胁
+       4. 动态角色-目标匹配 — 按威胁自动分配，非固定Kicker→[0]
+       5. 越界优雅处理 — 退到球门方向上的场内最近点 ]]
+function defender_marking(role, pos)
 	local enemyDribblingNum = GlobalMessage.Tick().their.dribbling_num
 	local p
-	markingTable = {}
-	markingTableLen = 0
 	if type(pos) == "function" then
 		p = pos()
 	else
-		p = pos 
+		p = pos
 	end
 	local idir = player.toBallDir(role)
-		-- 初始化 获取需要盯防的对象 <= 2
-	-- if markingTableLen == 0 and ball.rawPos():x() > param.markingThreshold then 
-		for i=0,param.maxPlayer-1 do
-			if enemy.valid(i) and i ~= enemyDribblingNum and enemy.posX(i) < param.markingThreshold  then
-				markingTable[markingTableLen] = i
-				markingTableLen = markingTableLen + 1
-				if markingTableLen > 1 then
-					break
-				end
-			end
-		end
-	-- end
-	-- 如果 敌人在前场 ,我方正常跑位
-	if markingTableLen == 0 or (markingTableLen == 1 and role == "Special" ) and p:x() ~= param.INF then 
-		local mexe, mpos = GoCmuRush { pos = p, dir = idir, acc = a, flag = flag.allow_dss + flag.dodge_ball, rec = r, vel = v }
-		return { mexe, mpos }
-	else
+	local ball_pos = ball.rawPos()
 
-		if (role == "Kicker") then
-			minDistEnemyNum = markingTable[0]
-		elseif markingTableLen > 1 then 
-			minDistEnemyNum = markingTable[1]
+	-- 步骤1：收集候选敌方并按威胁排序（1-indexed便于table.sort）
+	local candidates = {}
+	for i = 0, param.maxPlayer - 1 do
+		if enemy.valid(i) and i ~= enemyDribblingNum and enemy.posX(i) < param.markingThreshold then
+			local vel_mod = enemy.velMod(i)
+			local vel_dir = enemy.velDir(i)
+			local enemy_to_goal_dir = (param.ourGoalPos - enemy.pos(i)):dir()
+			local raw_diff = vel_dir - enemy_to_goal_dir
+			local angle_diff = math.abs(math.atan2(math.sin(raw_diff), math.cos(raw_diff)))
+			local moving_toward_goal = angle_diff < math.pi / 2 and 1 or 0
+			local depth = param.markingThreshold - math.max(enemy.posX(i), 0)
+			local threat = vel_mod * param.markingThreatSpeedWeight * moving_toward_goal
+			           + depth * param.markingThreatPosWeight
+			table.insert(candidates, { num = i, threat = threat })
 		end
-		local ballToEnemyDist = (enemy.pos(minDistEnemyNum) - ball.rawPos()):mod()
-		local ballToEnemyDir = (enemy.pos(minDistEnemyNum) - ball.rawPos()):dir()
-		if(markingTableLen ~= 0) then
-			local dirFlag = enemy.pos(minDistEnemyNum):y() < 0 and 1 or -1
-			local markingPos = enemy.pos(minDistEnemyNum) + 
-			Utils.Polar2Vector(ballToEnemyDist*param.markingPosRate1, ballToEnemyDir + dirFlag * math.pi / 2 ) + 
-			Utils.Polar2Vector(-param.minMarkingDist-ballToEnemyDist*param.markingPosRate2, ballToEnemyDir)
-			debugEngine:gui_debug_x(markingPos,4)
-			debugEngine:gui_debug_msg(markingPos,"markingPos",4)
-			if(not Utils.InField(markingPos)) then
-				markingPos = CGeoPoint (player.posX(role),player.posY(role))
-			end
-			local mexe, mpos = GoCmuRush { pos = markingPos, dir = idir, acc = a, flag = flag.allow_dss, rec = r, vel = v }
-			return { mexe, mpos }
-		end
-
 	end
+
+	-- 按威胁从高到低排序
+	table.sort(candidates, function(a, b) return a.threat > b.threat end)
+	local candidate_count = #candidates
+
+	-- 无人可盯 或 Special且仅一人可盯 => 正常跑位
+	if candidate_count == 0
+	or (role == "Special" and candidate_count == 1 and p:x() ~= param.INF) then
+		local mexe, mpos = GoCmuRush { pos = p, dir = idir, acc = a,
+			flag = flag.allow_dss + flag.dodge_ball, rec = r, vel = v }
+		return { mexe, mpos }
+	end
+
+	-- 步骤2：动态分配盯防目标
+	local target_num
+	if role == "Kicker" then
+		target_num = candidates[1].num    -- Kicker 盯最高威胁
+	else
+		target_num = candidate_count >= 2 and candidates[2].num
+		          or candidates[1].num    -- Special 盯第二威胁，若存在
+	end
+
+	-- 步骤3：计算盯防位置
+	local enemy_pos = enemy.pos(target_num)
+	local ballToEnemy = enemy_pos - ball_pos
+	local ballToEnemyDist = ballToEnemy:mod()
+	local ballToEnemyDir = ballToEnemy:dir()
+
+	-- 球门方向（敌方→我方球门），用于侧向选择
+	local goal_dir = (param.ourGoalPos - enemy_pos):dir()
+	local perp_flag = (param.ourGoalPos:y() - enemy_pos:y()) > 0 and 1 or -1
+	local perp_dir = goal_dir + perp_flag * math.pi / 2
+
+	-- 反向缩放：敌近球 => 侧向偏移大(封射门角度)；敌远球 => 偏移小(收中路)
+	local normalized_dist = math.min(ballToEnemyDist / param.maxMarkingDist, 1)
+	local lateral_offset = param.markingLateralBase * (1 - normalized_dist)
+	                     + param.markingLateralMin
+	local back_offset = param.minMarkingDist + ballToEnemyDist * param.markingBackRate
+
+	local markingPos = enemy_pos
+		+ Utils.Polar2Vector(lateral_offset, perp_dir)
+		+ Utils.Polar2Vector(-back_offset, ballToEnemyDir)
+
+	debugEngine:gui_debug_x(markingPos, 4)
+	debugEngine:gui_debug_msg(markingPos, "markingPos", 4)
+
+	-- 步骤4：越界优雅处理
+	if not Utils.InField(markingPos) then
+		local goal_dir = (param.ourGoalPos - enemy_pos):dir()
+		local fallback = enemy_pos + Utils.Polar2Vector(param.minMarkingDist, goal_dir)
+		if Utils.MakeInField ~= nil then
+			markingPos = Utils.MakeInField(fallback, 150)
+		elseif Utils.InField(fallback) then
+			markingPos = fallback
+		else
+			markingPos = enemy_pos + Utils.Polar2Vector(param.minMarkingDist,
+				(enemy_pos - CGeoPoint(0, 0)):dir())
+		end
+	end
+
+	local mexe, mpos = GoCmuRush { pos = markingPos, dir = idir,
+		acc = a, flag = flag.allow_dss, rec = r, vel = v }
+	return { mexe, mpos }
 end
 
 function Dfenending( role )
