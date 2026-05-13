@@ -1,6 +1,7 @@
 #include "utils.h"
 #include "WorldModel.h"
 #include "staticparams.h"
+#include "parammanager.h"
 #include <GDebugEngine.h>
 #include <iostream>
 #include <unistd.h>
@@ -1793,6 +1794,9 @@ namespace Utils
     {
         double x = Point.x();
         double y = Point.y();
+        bool Allow_outside = false;
+        ZSS::ZParamManager::instance()->loadParam(Allow_outside,"ZJHU/Allow_outside", false);
+        if(Allow_outside) return true;
         return ((x > (-1 * PARAM::Field::PITCH_LENGTH / 2) && x < (PARAM::Field::PITCH_LENGTH / 2)) &&
                 (y > -1 * PARAM::Field::PITCH_WIDTH / 2 && y < PARAM::Field::PITCH_WIDTH / 2));
     }
@@ -2136,14 +2140,20 @@ namespace Utils
     CGeoPoint MakeInField(const CGeoPoint &p, const double buffer)
     {
         auto new_p = p;
-        if (new_p.x() < buffer - PARAM::Field::PITCH_LENGTH / 2)
-            new_p.setX(buffer - PARAM::Field::PITCH_LENGTH / 2);
-        if (new_p.x() > PARAM::Field::PITCH_LENGTH / 2 - buffer)
-            new_p.setX(PARAM::Field::PITCH_LENGTH / 2 - buffer);
-        if (new_p.y() < buffer - PARAM::Field::PITCH_WIDTH / 2)
-            new_p.setY(buffer - PARAM::Field::PITCH_WIDTH / 2);
-        if (new_p.y() > PARAM::Field::PITCH_WIDTH / 2 - buffer)
-            new_p.setY(PARAM::Field::PITCH_WIDTH / 2 - buffer);
+
+        bool Allow_outside = false;
+        ZSS::ZParamManager::instance()->loadParam(Allow_outside,"ZJHU/Allow_outside", false);
+        if (!Allow_outside)
+        {
+            if (new_p.x() < buffer - PARAM::Field::PITCH_LENGTH / 2)
+                new_p.setX(buffer - PARAM::Field::PITCH_LENGTH / 2);
+            if (new_p.x() > PARAM::Field::PITCH_LENGTH / 2 - buffer)
+                new_p.setX(PARAM::Field::PITCH_LENGTH / 2 - buffer);
+            if (new_p.y() < buffer - PARAM::Field::PITCH_WIDTH / 2)
+                new_p.setY(buffer - PARAM::Field::PITCH_WIDTH / 2);
+            if (new_p.y() > PARAM::Field::PITCH_WIDTH / 2 - buffer)
+                new_p.setY(PARAM::Field::PITCH_WIDTH / 2 - buffer);
+        }
         return new_p;
     }
 
@@ -2184,8 +2194,14 @@ namespace Utils
 
     bool IsInField(const CGeoPoint p, double buffer)
     {
-        return (p.x() > buffer - PARAM::Field::PITCH_LENGTH / 2 && p.x() < PARAM::Field::PITCH_LENGTH / 2 - buffer &&
+        bool Allow_outside = false;
+        ZSS::ZParamManager::instance()->loadParam(Allow_outside,"ZJHU/Allow_outside", false);
+        if (!Allow_outside)
+        {
+             return (p.x() > buffer - PARAM::Field::PITCH_LENGTH / 2 && p.x() < PARAM::Field::PITCH_LENGTH / 2 - buffer &&
                 p.y() > buffer - PARAM::Field::PITCH_WIDTH / 2 && p.y() < PARAM::Field::PITCH_WIDTH / 2 - buffer);
+        }
+        return true;
     }
 
     bool IsInFieldV2(const CGeoPoint p, double buffer)

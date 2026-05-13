@@ -332,11 +332,14 @@ PlayerCapabilityT CSmartGotoPositionV2::setCapability(const CVisionModule* pVisi
 }
 
 void CSmartGotoPositionV2::validateFinalTarget(CGeoPoint &finalTarget, CGeoPoint myPos, double avoidLength, bool isGoalie, bool avoidBallCircle, obstacles& obs, bool planInCircle, CGeoPoint circleCenter, double circleRadius) {
+    bool Allow_outside = false;
+    ZSS::ZParamManager::instance()->loadParam(Allow_outside,"ZJHU/Allow_outside", false);
     if(!(playerFlag & PlayerStatus::NOT_AVOID_PENALTY)) {
-        finalTarget = Utils::MakeInField(finalTarget, -avoidLength * 2);
+        if(!Allow_outside)
+            finalTarget = Utils::MakeInField(finalTarget, -avoidLength * 2);
         if(!isGoalie && Utils::InOurPenaltyArea(finalTarget, avoidLength))
             finalTarget = Utils::MakeOutOfOurPenaltyArea(finalTarget, avoidLength);
-        if(Utils::InTheirPenaltyArea(finalTarget, avoidLength))
+        if(!Allow_outside && Utils::InTheirPenaltyArea(finalTarget, avoidLength))
             finalTarget = Utils::MakeOutOfTheirPenaltyArea(finalTarget, avoidLength);
     }
     if(planInCircle && circleCenter.dist(finalTarget) > circleRadius) {

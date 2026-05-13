@@ -23,5 +23,6 @@ namespace PARAM
         const double our_goalie_num = zpm->value("ZJHU/our_goalie_num", QVariant(0)).toFloat();
         const double defend_num1 = zpm->value("ZJHU/defend_num1", QVariant(1)).toFloat();
         const double defend_num2 = zpm->value("ZJHU/defend_num2", QVariant(2)).toFloat();
+        const bool Allow_outside = zpm->value("ZJHU/Allow_outside", QVariant(true)).toBool();
     }
 }

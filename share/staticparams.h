@@ -24,6 +24,8 @@ namespace PARAM
         extern const double our_goalie_num;
         extern const double defend_num1;
         extern const double defend_num2;
+        extern const bool Allow_outside;
+
     }
     /* ZJHU */
 
