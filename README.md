@@ -26,6 +26,12 @@ isReality = false   -- 仿真环境
 isReality = true    -- 真实场地
 ```
 
+**Important notice**: 
+revise ZJHU' defend_num2 to a number which is not assigned to any a attacker, for example : 8 
+which should not be assigned to Assiter, kicker, special, or center 
+
+
+
 这个参数控制了大量行为差异，**赛前一定要确认**：
 
 | 参数 | 仿真 (`false`) | 实物 (`true`) |

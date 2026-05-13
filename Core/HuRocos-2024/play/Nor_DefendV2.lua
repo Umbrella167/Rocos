@@ -19,15 +19,15 @@ return {
             if bufcnt(true, 20) then
             end
             if player.toBallDist(player.closestBall()) > param.playerRadius * 6 then
-                for i=0, task.FronterCount-1 do
-                    local rolePos = CGeoPoint:new_local(player.rawPos(task.FronterNums[i]):x(), player.rawPos(task.FronterNums[i]):y())
+                for i=0, task.defenderCount-1 do
+                    local rolePos = CGeoPoint:new_local(player.rawPos(task.defenderNums[i]):x(), player.rawPos(task.defenderNums[i]):y())
                     local getBallPos = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 2,0,param.V_DECAY_RATE)
-                    if player.toPointDist(task.FronterNums[i], getBallPos) < 300 then
+                    if player.toPointDist(task.defenderNums[i], getBallPos) < 300 then
                         return "defend_kick"
                     end
                 end
             end
-            if enemy.toOurGoalDist(enemy.closestGoal()) > param.FronterRadius*5/3 then
+            if enemy.toOurGoalDist(enemy.closestGoal()) > param.defenderRadius*5/3 then
                 return "defend_norm"
             end
         end,

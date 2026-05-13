@@ -78,6 +78,224 @@ local debugStatus = function()
     end
 end
 
+
+local function isLuaCGeoPointValid(p)
+    if p ~= nil and type(p) == "userdata" and type(p.x) == "function" and type(p.y) == "function" then
+        local x_val, y_val
+        local success_x = pcall(function() x_val = p:x() end)
+        local success_y = pcall(function() y_val = p:y() end)
+        if success_x and success_y and type(x_val) == "number" and type(y_val) == "number" and
+           x_val == x_val and y_val == y_val and math.abs(x_val) < math.huge and math.abs(y_val) < math.huge then
+            return true
+        end
+    end
+    return false
+end
+
+local function roleNum(role)
+    if type(role) == "string" then
+        local n = gRoleNum[role]
+        return n ~= nil and n or -1
+    elseif type(role) == "number" then
+        return role
+    end
+    return -1
+end
+
+local function point(x, y)
+    return CGeoPoint:new_local(x, y)
+end
+
+local function clamp(val, min, max)
+    return math.max(min, math.min(max, val))
+end
+
+local nearestEnemyInfo
+
+nearestEnemyInfo = function(pos)
+    local best_dist = 99999
+    local best_pos = nil
+    for i = 0, param.maxPlayer - 1 do
+        if enemy.valid(i) then
+            local enemy_pos = enemy.pos(i)
+            local dist = enemy_pos:dist(pos)
+            if dist < best_dist then
+                best_dist = dist
+                best_pos = enemy_pos
+            end
+        end
+    end
+    return best_pos, best_dist
+end
+
+local function rolePos(role)
+    local n = roleNum(role)
+    if n == -1 then
+        return nil
+    end
+    return player.pos(n)
+end
+
+local function roleHasBallControl(role)
+    if role == nil then
+        return false
+    end
+    local role_num = roleNum(role)
+    if role_num == -1 then
+        return false
+    end
+    if player.myinfraredCount(role) >= 8 then
+        return true
+    end
+    return predicted_ball_rights == 1 and player.toBallDist(role) < 180 and ball.velMod() < 700
+end
+
+local function defenderClearTarget()
+    local ball_pos = ball.pos()
+    local defender_pos = rolePos("Defender")
+    if not isLuaCGeoPointValid(ball_pos) then
+        ball_pos = isLuaCGeoPointValid(defender_pos) and defender_pos or point(0, 0)
+    end
+    local pressure_enemy_pos = nearestEnemyInfo(ball_pos)
+    local side_sign = ball_pos:y() >= 0 and -1 or 1
+    if isLuaCGeoPointValid(pressure_enemy_pos) then
+        side_sign = pressure_enemy_pos:y() >= ball_pos:y() and -1 or 1
+    end
+    local target = point(
+        clamp(math.max(ball_pos:x() + 2600, param.pitchLength / 10), 150, param.pitchLength / 2 - 320),
+        clamp(ball_pos:y() * 0.2 + side_sign * 900, -param.pitchWidth / 2 + 280, param.pitchWidth / 2 - 280)
+    )
+    if Utils.MakeInField ~= nil then
+        target = Utils.MakeInField(target, 150)
+    end
+    if Utils.InOurPenaltyArea ~= nil and Utils.InOurPenaltyArea(target, 180) and Utils.MakeOutOfOurPenaltyArea ~= nil then
+        target = Utils.MakeOutOfOurPenaltyArea(target, 180)
+    end
+    return target
+end
+
+local function defendToBall(role, mode)
+    local ball_pos = ball.pos()
+    local role_pos = player.pos(role)
+    local basePos = param.ourGoalPos
+    if mode == 0 then
+        basePos = param.ourTopGoalPos
+    elseif mode == 1 then
+        basePos = param.ourButtomGoalPos
+    elseif mode == 2 then
+        basePos = param.ourGoalPos
+    end
+    local defendPoint = task.getLineCrossDefenderPos(ball_pos, basePos)
+    if defendPoint == CGeoPoint(9999, 9999) then
+        defendPoint = role_pos
+    end
+    local idir = player.toPointDir(ball_pos, role)
+    local mexe, mpos = GoCmuRush { pos = defendPoint, dir = idir, acc = a, flag = 0x00000000, rec = r, vel = v }
+    return { mexe, mpos }
+end
+
+local function kickBallForward()
+    local clear_target = CGeoPoint:new_local(param.pitchLength / 2, 0)
+    local kick_mode = kick.flat
+    local ball_pos = ball.pos()
+    local bt = clear_target - ball_pos
+    local btLen = bt:mod()
+    if btLen > 100 then
+        for i = 0, 15 do
+            local robotPos = nil
+            if player.valid(i) then
+                robotPos = player.pos(i)
+            elseif enemy.valid(i) then
+                robotPos = enemy.pos(i)
+            end
+            if robotPos ~= nil then
+                local br = robotPos - ball_pos
+                local projection = (br:x() * bt:x() + br:y() * bt:y()) / btLen
+                if projection > 0 and projection < btLen then
+                    local perpDist = math.abs(bt:x() * br:y() - bt:y() * br:x()) / btLen
+                    if perpDist < 500 then
+                        kick_mode = kick.chip
+                        break
+                    end
+                end
+            end
+        end
+    end
+    defender_clear_target = nil
+    return task.pass_2026("Defender", function() return clear_target end, kick_mode, 5.0, 180, 100)()
+end
+
+local function defenderDirectTask()
+    local ball_pos = ball.pos()
+    local defender_pos = rolePos("Defender")
+    if not isLuaCGeoPointValid(ball_pos) then
+        return defendToBall("Defender", 1)
+    end
+
+    if player.toBallDist("Assister") < param.defenderAssisterDist then
+        return defendToBall("Defender", 1)
+    end
+
+    if isLuaCGeoPointValid(defender_pos) then
+        local defend_limit_x = -param.pitchLength / 2 + param.penaltyDepth + param.defenderBuf
+        if defender_pos:x() > defend_limit_x + param.defenderMaxChaseDist then
+            return defendToBall("Defender", 1)
+        end
+    end
+
+    if Utils.InExclusionZone(ball_pos, 120, "our") then
+        defender_clear_target = nil
+        return defendToBall("Defender", 1)
+    end
+
+    local has_ball = roleHasBallControl("Defender") or player.toBallDist("Defender") < (param.playerRadius * 2.6)
+    if has_ball then
+        return kickBallForward()
+    end
+
+    defender_clear_target = nil
+
+    if isLuaCGeoPointValid(defender_pos) and isLuaCGeoPointValid(ball_pos) then
+        local distToBall = defender_pos:dist(ball_pos)
+        local ballVel = ball.velMod()
+        if distToBall < param.defenderActiveDist and ballVel < param.defenderActiveVel then
+            local canActive = true
+            for i = 0, 15 do
+                local robotPos = nil
+                if player.valid(i) and i ~= player.num("Defender") then
+                    robotPos = player.pos(i)
+                elseif enemy.valid(i) then
+                    robotPos = enemy.pos(i)
+                end
+                if robotPos ~= nil and robotPos:dist(ball_pos) < param.defenderActiveDist then
+                    canActive = false
+                    break
+                end
+            end
+            if canActive then
+                return kickBallForward()
+            end
+        end
+    end
+
+    if isLuaCGeoPointValid(defender_pos) then
+        local intercept_pos = Utils.GetBestInterPos(vision, defender_pos, param.playerVel, 2,0,param.V_DECAY_RATE)
+        if isLuaCGeoPointValid(intercept_pos) then
+            local target = intercept_pos
+            if Utils.MakeInField ~= nil then
+                target = Utils.MakeInField(target, 120)
+            end
+            if Utils.InOurPenaltyArea ~= nil and Utils.InOurPenaltyArea(target, 160) and Utils.MakeOutOfOurPenaltyArea ~= nil then
+                target = Utils.MakeOutOfOurPenaltyArea(target, 160)
+            end
+            if defender_pos:dist(target) < 460 then
+                return task.defend_kick("Defender")
+            end
+        end
+    end
+    return defendToBall("Defender", 1)
+end
+
 local runCount = 0
 local lastShootPoint = CGeoPoint(0,0)
 local UpdataTickMessage = function (our_goalie_num,defend_num1,defend_num2)
@@ -253,7 +471,7 @@ firstState = "Init",
     Kicker = task.goCmuRush(function() return KickerRUNPos end,closures_dir_ball("Kicker"),_,DSS_FLAG),
     Special = task.goCmuRush(function() return SpecialRUNPos end ,closures_dir_ball("Special"),_,DSS_FLAG),
     Center = task.goCmuRush(function() return CenterRUNPos end ,closures_dir_ball("Center"),_,DSS_FLAG),
-    Defender = gSubPlay.roleTask("Defender", "Fronter"),
+    Defender = defenderDirectTask,
     Goalie = gSubPlay.roleTask("Goalie", "Goalie"),
     match = "{AKSCDG}"
 },
@@ -274,7 +492,7 @@ firstState = "Init",
     Kicker = task.goCmuRush(function() return KickerRUNPos end,closures_dir_ball("Kicker"),_,DSS_FLAG),
     Special = task.goCmuRush(function() return SpecialRUNPos end,closures_dir_ball("Special"),_,DSS_FLAG),
     Center = task.goCmuRush(function() return CenterRUNPos end ,closures_dir_ball("Center"),_,DSS_FLAG),
-    Defender = gSubPlay.roleTask("Defender", "Fronter"),
+    Defender = defenderDirectTask,
     Goalie = gSubPlay.roleTask("Goalie", "Goalie"),
     match = "{AKSCDG}"
 },
@@ -292,7 +510,7 @@ firstState = "Init",
     Kicker = task.goCmuRush(function() return KickerRUNPos end,closures_dir_ball("Kicker"),_,DSS_FLAG),
     Special = task.goCmuRush(function() return SpecialRUNPos end,closures_dir_ball("Special"),_,DSS_FLAG),
     Center = task.goCmuRush(function() return CenterRUNPos end ,closures_dir_ball("Center"),_,DSS_FLAG),
-    Defender = gSubPlay.roleTask("Defender", "Fronter"),
+    Defender = defenderDirectTask,
     Goalie = gSubPlay.roleTask("Goalie", "Goalie"),
     match = "[A][KSC]{DG}"
 },
@@ -317,7 +535,7 @@ firstState = "Init",
     Kicker = task.goCmuRush(function() return KickerRUNPos end,closures_dir_ball("Kicker"),_,DSS_FLAG),
     Special = task.goCmuRush(function() return SpecialRUNPos end,closures_dir_ball("Special"),_,DSS_FLAG),
     Center = task.goCmuRush(function() return CenterRUNPos end ,closures_dir_ball("Center"),_,DSS_FLAG),
-    Defender = gSubPlay.roleTask("Defender", "Fronter"),
+    Defender = defenderDirectTask,
     Goalie = gSubPlay.roleTask("Goalie", "Goalie"),
     match = "[A][KSC]{DG}"
 
@@ -338,7 +556,7 @@ firstState = "Init",
     Kicker = task.goCmuRush(function() return KickerRUNPos end,closures_dir_ball("Kicker"),_,DSS_FLAG),
     Special = task.goCmuRush(function() return SpecialRUNPos end,closures_dir_ball("Special"),_,DSS_FLAG),
     Center = task.goCmuRush(function() return CenterRUNPos end ,closures_dir_ball("Center"),_,DSS_FLAG),
-    Defender = gSubPlay.roleTask("Defender", "Fronter"),
+    Defender = defenderDirectTask,
     Goalie = gSubPlay.roleTask("Goalie", "Goalie"),
     match = "{AKSCDG}"
 },
@@ -355,7 +573,7 @@ firstState = "Init",
     Kicker = function() return task.defender_marking("Kicker",function() return KickerRUNPos end) end,
     Special = function() return task.defender_marking("Special",function() return SpecialRUNPos end) end ,
     Center = task.goCmuRush(function() return CenterRUNPos end ,closures_dir_ball("Center"),_,DSS_FLAG),
-    Defender = gSubPlay.roleTask("Defender", "Fronter"),
+    Defender = defenderDirectTask,
     Goalie = gSubPlay.roleTask("Goalie", "Goalie"),
     match = "[A][KSC]{DG}"
 },

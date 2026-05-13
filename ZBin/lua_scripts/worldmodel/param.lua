@@ -198,6 +198,12 @@ defenderButtomPos       = CGeoPoint:new_local(-pitchLength / 2, -penaltyRadius -
 defenderRadius = ourGoalPos:dist(ourTopRightPenaltyPos) + defenderBuf
 defenderAimX = -pitchLength / 4
 defenderCatchBuf = param.playerRadius * 6
+defenderFastBallThreshold = 800 -- 快球/慢球速度阈值(mm/s)
+defenderKickDist = 1200 -- Defender主动踢球时，Assister的最小距离(mm)
+defenderMaxChaseDist = 1000 -- Defender最大追击距离(mm)
+defenderAssisterDist = 200 -- Assister在此距离内时Defender回防不干扰(mm)
+defenderActiveDist = 700 -- Defender主动去踢静止球的最大距离(mm)
+defenderActiveVel = 400 -- 球速小于此值时Defender主动去踢(mm/s)
 -----------------------------------------------|
 --             goalie参数             --|
 -----------------------------------------------|

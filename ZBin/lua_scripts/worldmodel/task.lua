@@ -1067,6 +1067,42 @@ function defend_kick(role)
 	end
 end
 
+function defendActive(role)
+	getDefenderCount()
+	local rolePos = CGeoPoint:new_local(player.rawPos(role):x(), player.rawPos(role):y())
+	local ballPos = CGeoPoint:new_local(ball.rawPos():x(), ball.rawPos():y())
+	local ballVelMod = ball.velMod()
+	local distToBall = rolePos:dist(ballPos)
+	local forwardTarget = CGeoPoint:new_local(param.pitchLength / 2, 0)
+	local enemyNum = getManMarkEnemy()
+	local enemyPos = CGeoPoint:new_local(enemy.posX(enemyNum), enemy.posY(enemyNum))
+	local idir = player.toPointDir(enemyPos, nil)
+	local defendPos = getLineCrossDefenderPos(ballPos, param.ourGoalPos)
+	if defendPos == CGeoPoint(9999, 9999) then
+		defendPos = rolePos
+	end
+	local distToDefendPos = rolePos:dist(defendPos)
+	if ballPos:x() > param.defenderAimX or distToDefendPos > param.defenderMaxChaseDist then
+		return defend_normV2(role, 1, param.defenderMode)
+	end
+	if ballVelMod > param.defenderFastBallThreshold then
+		local interPos = Utils.GetBestInterPos(vision, rolePos, param.playerVel, 1, 1, param.V_DECAY_RATE)
+		local mexe, mpos = GoCmuRush { pos = interPos, dir = idir, acc = a, flag = 0x00000000, rec = r, vel = v }
+		if distToBall < param.playerRadius * 4 and player.toBallDist("Assister") > param.defenderKickDist then
+			local shootPower = power(forwardTarget, player.num(role), param.defenderShootMode)
+			return { mexe, mpos, param.defenderShootMode, idir, pre.low, shootPower, shootPower, 0x00000000 }
+		end
+		return { mexe, mpos }
+	else
+		local mexe, mpos = GoCmuRush { pos = ballPos, dir = idir, acc = a, flag = 0x00000000, rec = r, vel = v }
+		if distToBall < param.playerRadius * 3 then
+			local shootPower = power(forwardTarget, player.num(role), param.defenderShootMode)
+			return { mexe, mpos, param.defenderShootMode, idir, pre.low, shootPower, shootPower, 0x00000000 }
+		end
+		return { mexe, mpos }
+	end
+end
+
 -- 守门员skill
 -- 守门员的预备状态
 -- mode 防守模式选择, 0-goalie路线为球门前直线, 1-goalie的路线为球门半径画圆, 默认为1
