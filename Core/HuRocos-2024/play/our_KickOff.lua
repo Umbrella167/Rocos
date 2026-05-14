@@ -1,252 +1,160 @@
-local temp01 = CGeoPoint:new_local(-1000,1000)
-local temp02 = CGeoPoint:new_local(-1000,-1000)
-local temp03 = CGeoPoint:new_local(-1000,0)
-local temp04 = CGeoPoint:new_local(-1500,500)
-local theirgoal = CGeoPoint:new_local(param.pitchLength / 2,0)
-local target = CGeoPoint:new_local(3000,2000)
-local target2 = CGeoPoint:new_local(-2500,1500)
-local target3 = CGeoPoint:new_local(0,0)
-local p1 = CGeoPoint:new_local(-120,-170)
-local p2 = CGeoPoint:new_local(-250,-2000)
-local p3 = CGeoPoint:new_local(-200,1500)
-local p4 = CGeoPoint:new_local(-2200,100)
-local p5 = CGeoPoint:new_local(-2200,-100)
-local p6 = CGeoPoint:new_local(-3000,-800)
-local p7 = CGeoPoint:new_local(-3000,800)
-local Dir_ball = function(role)
-	return function()
-		return (ball.pos() - player.pos(role)):dir()
-	end
+local half = param.pitchLength / 2
+
+local toBallDir = function(role)
+  return function()
+    return player.toBallDir(role)
+  end
 end
 
-local pos_self = function(role)
-	return function()
-		return player.pos(role)
-	end
-end
-local pos_ = function(ppp)
-	return function()
-		return ppp
-	end
+local posClosure = function(p)
+  return function()
+    return CGeoPoint(p:x(), p:y())
+  end
 end
 
+-- Formation (all except Kicker must be in our half, outside center circle r=500mm)
+local kicker_pos = CGeoPoint(-200, 0)           -- Kicker: behind ball in center circle
+local assister_pos = CGeoPoint(-700, 2500)      -- Assister: near center line, left
+local special_pos = CGeoPoint(-700, -2500)      -- Special: near center line, right
+local center_pos = CGeoPoint(-2200, 0)           -- Center: our half center, outside circle
 
-local debugStatus = function()
-	for num,i in pairs(GlobalMessage.attackPlayerRunPos) do
-		debugEngine:gui_debug_msg(CGeoPoint:new_local(-4400,num * 200),
-			tostring(GlobalMessage.attackPlayerRunPos[num].num)     ..
-			" " 											        ..
-			"(" 											        .. 
-			tostring(GlobalMessage.attackPlayerRunPos[num].pos:x()) .. 
-			"," 												    ..
-			tostring(GlobalMessage.attackPlayerRunPos[num].pos:y()) ..
-			")"
-		,6)
-	end
-	for num,i in pairs(GlobalMessage.attackPlayerStatus) do 
-		debugEngine:gui_debug_msg(CGeoPoint:new_local(-4400,num * -200), 
-		tostring(i.num) 		..
-		"  " 					.. 
-		tostring(i.status),3)
-	end
-	debugEngine:gui_debug_msg(CGeoPoint:new_local(-4400,-2000),ball_rights)
-	debugEngine:gui_debug_msg(CGeoPoint:new_local(-4300,-2000),dribbling_player_num,3)
-end
-
-local closures_point = function(point)
-	return function()
-		return CGeoPoint:new_local(point:x(),point:y())
-	end
-end
-local playerPos = function(role) 
-	return function()
-		return CGeoPoint:new_local(player.posX(role),player.posY(role))
-	end
-end
--- dir:pos1  ->  pos2
-local closures_dir = function(pos1,pos2)
-	return function()
-		return (pos2 - pos1):dir()
-	end
+-- Defender same as NORMALPLAYV2.lua — local defenderDirectTask equivalent
+local function defendToBall(role, mode)
+  local ball_pos = ball.pos()
+  local role_pos = player.pos(role)
+  local basePos = param.ourGoalPos
+  if mode == 0 then
+    basePos = param.ourTopGoalPos
+  elseif mode == 1 then
+    basePos = param.ourButtomGoalPos
+  elseif mode == 2 then
+    basePos = param.ourGoalPos
+  end
+  local defendPoint = task.getLineCrossDefenderPos(ball_pos, basePos)
+  if defendPoint == CGeoPoint(9999, 9999) then
+    defendPoint = role_pos
+  end
+  local idir = player.toPointDir(ball_pos, role)
+  local mexe, mpos = GoCmuRush { pos = defendPoint, dir = idir, acc = a, flag = 0x00000000, rec = r, vel = v }
+  return { mexe, mpos }
 end
 
-local closures_dir_ball = function(role)
-    return function()
-        return player.toBallDir(role)
+local function defenderDirectTask()
+  local ball_pos = ball.pos()
+  local defender_pos = player.pos("Defender")
+  if player.toBallDist("Assister") < param.defenderAssisterDist then
+    return defendToBall("Defender", 1)
+  end
+  local defend_limit_x = -half + param.penaltyDepth + param.defenderBuf
+  if defender_pos:x() > defend_limit_x + param.defenderMaxChaseDist then
+    return defendToBall("Defender", 1)
+  end
+  local has_ball = player.myinfraredCount("Defender") >= 8 or
+    (player.toBallDist("Defender") < 180 and ball.velMod() < 700)
+  if has_ball then
+    local clear_target = CGeoPoint(half, 0)
+    return task.pass_2026("Defender", function() return clear_target end, kick.flat, 5.0, 180, 100)()
+  end
+  local intercept_pos = Utils.GetBestInterPos(vision, defender_pos, param.playerVel, 2, 0, param.V_DECAY_RATE)
+  if intercept_pos ~= CGeoPoint(9999, 9999) then
+    if Utils.MakeInField ~= nil then
+      intercept_pos = Utils.MakeInField(intercept_pos, 120)
     end
+    if defender_pos:dist(intercept_pos) < 460 then
+      return task.defend_kick("Defender")
+    end
+  end
+  return defendToBall("Defender", 1)
 end
 
-local ballPos = function()
-	return function()
-		return CGeoPoint:new_local(ball.pos():x(),ball.pos():y())
-	end
-end
+local subScript = false
 
-local shootPos = function()
-	return function()
-		return shoot_pos
-	end
-end
-local passPos = function()
-	return function()
-		return CGeoPoint:new_local(player.posX(pass_player_num),player.posY(pass_player_num))
-	end
-end
-local function correctionPos()
-	return function()
-		return CGeoPoint:new_local(correction_pos:x(),correction_pos:y())
-	end
-end
+gPlayTable.CreatePlay {
+  firstState = "Init1",
 
--- 校正返回的脚本
-correction_state = "Shoot"
--- 角度误差常数
-error_dir = 4
--- 校正坐标初始化
-correction_pos = CGeoPoint:new_local(0,0)
--- 带球车初始化
-dribbling_player_num = 1
--- 球权初始化
-ballRights = -1
--- 射门坐标初始化
-shoot_pos = CGeoPoint:new_local(param.pitchLength / 2,0)
--- 被传球机器人
-pass_player_num = 0
--- touch power
-touchPower = 4000
-
--- 后卫号码
-defend_num1 = 1
-defend_num2 = 2
-
--- 射门Kp
-shootKp = 0.0001
--- Touch pos
-touchPos = CGeoPoint:new_local(0,0)
--- Touch 角度
-canTouchAngle = 30
-
--- 传球角度
-pass_pos = CGeoPoint:new_local(4500,-999)
-
-
-runPosKicker = CGeoPoint(0,0)
-runPosSpecial = CGeoPoint(0,0)
-runPosAssister = CGeoPoint(0,0)
-shootPosKicker = CGeoPoint(0,0)
-shootPosAssister = CGeoPoint(0,0)
-
-local UpdataTickMessage = function()
-	--GetAttackPos(const CVisionModule *pVision,int num ,CGeoPoint shootPos,CGeoPoint startPoint,CGeoPoint endPoint,double step,double ballDist)
-	shootPosKicker = Utils.GetShootPoint(vision,player.num("Kicker"))
-	shootPosAssister = Utils.GetShootPoint(vision,player.num("Assister"))
-	runPosAssister = Utils.GetAttackPos(vision,player.num("Assister"),shootPosAssister,CGeoPoint(3500,1350),CGeoPoint(4000,1000),300)
-	runPosKicker = Utils.GetAttackPos(vision,player.num("Kicker"),shootPosKicker,CGeoPoint(1200,-100),CGeoPoint(1800,-800),300)
-	runPosSpecial = Utils.GetAttackPos(vision,player.num("Special"),runPosKicker,CGeoPoint(500,2500),CGeoPoint(1000,1900),300)
-end
-
-local runPos_Assister = function(dist)
-	return function()
-		local new_pos = runPosAssister + Utils.Polar2Vector(dist,(ball.pos() - runPosAssister):dir())
-		new_pos = CGeoPoint:new_local(new_pos:x(),new_pos:y())
-		return new_pos
-	end
-end
-local runPos_Kicker = function(dist)
-	return function()
-		local new_pos = runPosKicker + Utils.Polar2Vector(dist,(ball.pos() - runPosKicker):dir())
-		new_pos = CGeoPoint:new_local(new_pos:x(),new_pos:y())
-		return new_pos
-	end
-end
-local runPos_Special = function(dist)
-	return function()
-		local new_pos = runPosSpecial + Utils.Polar2Vector(dist,(ball.pos() - runPosSpecial):dir())
-		new_pos = CGeoPoint:new_local(new_pos:x(),new_pos:y())
-		return new_pos
-	end
-end
-
-local KickerShootPos = function()
-	return function()
-		return shootPosKicker
-	end
-end
-local DSS_FLAG = bit:_or(flag.allow_dss, flag.dodge_ball)
-gPlayTable.CreatePlay{
-firstState = "Init1",
-
-["Init1"] = {
-	switch = function()
-		return "ready"
-	end,
-	Assister = task.goCmuRush(function() return player.pos(param.LeaderNum) end, player.toBallDir("Assister"), a, DSS_FLAG),
-    Kicker = task.goCmuRush(function() return player.pos(param.LeaderNum) end, 0, a, DSS_FLAG, r, v, s, force_manual),
-    Special = task.goCmuRush(function() return player.pos(param.LeaderNum) end, 0, a, DSS_FLAG, r, v, s, force_manual),
-    Center = task.goCmuRush(p3, 0, a, DSS_FLAG, r, v, s, force_manual),
-    Defender = task.goCmuRush(p4, 0, a, DSS_FLAG, r, v, s, force_manual),
-    Goalie = task.goCmuRush(p5, 0, a, DSS_FLAG, r, v, s, force_manual),
+  ["Init1"] = {
+    switch = function()
+      if not subScript then
+        gSubPlay.new("Goalie", "Nor_Goalie")
+        subScript = true
+      end
+      return "ready"
+    end,
+    Assister = task.stop(),
+    Kicker = task.stop(),
+    Special = task.stop(),
+    Center = task.stop(),
+    Defender = task.stop(),
+    Goalie = gSubPlay.roleTask("Goalie", "Goalie"),
     match = "[A][KSC]{DG}"
-},
+  },
 
-["ready"] = {
-	switch = function ()
-		UpdataTickMessage()
-		if cond.isNormalStart() then
-			return "wti"
-		elseif cond.isGameOn() then
-		 	return "wti"
-		end
-	end,
-	Assister   = task.goCmuRush(p1, Dir_ball("Assister"),_,DSS_FLAG),
-	Special  = task.goCmuRush(p3, Dir_ball("Special"),_,DSS_FLAG),
-	Kicker = task.goCmuRush(p2, Dir_ball("Kicker"),_,DSS_FLAG),
-	Center = task.goCmuRush(p7, Dir_ball("Center"),_,DSS_FLAG),
-	Defender = task.goCmuRush(p6, Dir_ball("Defender"),_,DSS_FLAG),
-    Goalie = task.goalie("Goalie"),
-    match = "[SKC]{ADG}"
-},
+  ["ready"] = {
+    switch = function()
+      if bufcnt(true, 20) and (cond.isNormalStart() or cond.isGameOn()) then
+        return "pass"
+      end
+    end,
+    Kicker = task.goCmuRush(posClosure(kicker_pos), toBallDir("Kicker")),
+    Assister = task.goCmuRush(posClosure(assister_pos), toBallDir("Assister")),
+    Special = task.goCmuRush(posClosure(special_pos), toBallDir("Special")),
+    Center = task.goCmuRush(posClosure(center_pos), toBallDir("Center")),
+    Defender = defenderDirectTask,
+    Goalie = gSubPlay.roleTask("Goalie", "Goalie"),
+    match = "[AKSC]{DG}"
+  },
 
-["wti"] = {
-	switch = function ()
-		if bufcnt(true,20) then
-			return "OtherRunPos"
-		end
-	end,
-	Assister = task.stop(),
-	Special = task.goCmuRush(runPos_Special(-400), Dir_ball("Special"), a, f, r, v),
-	Kicker = task.goCmuRush(runPos_Kicker(-400), Dir_ball("Kicker"), a, f, r, v),
-    Goalie = task.goalie("Goalie"),
-    match = "[SKC]{ADG}"
+  -- Kicker passes to Assister's current position (dynamic)
+  -- After kick, ball is live; another touch by Assister satisfies kickoff rules
+  ["pass"] = {
+    switch = function()
+      if player.kickBall("Kicker") then
+        return "receive"
+      end
+      if GlobalMessage.Tick().ball.rights == -1 then
+        return "exit"
+      end
+      if bufcnt(true, 200) then
+        return "exit"
+      end
+    end,
+    Kicker = task.Shootdot("Kicker", function() return player.pos("Assister") end, param.shootError, kick.flat),
+    Assister = task.goCmuRush(posClosure(assister_pos), toBallDir("Assister")),
+    Special = task.goCmuRush(posClosure(special_pos), toBallDir("Special")),
+    Center = task.goCmuRush(posClosure(center_pos), toBallDir("Center")),
+    Defender = defenderDirectTask,
+    Goalie = gSubPlay.roleTask("Goalie", "Goalie"),
+    match = "[AKSC]{DG}"
+  },
 
-},
+  -- Assister intercepts the passed ball
+  -- Once Assister touches the ball, kickoff is complete → exit to normal play
+  ["receive"] = {
+    switch = function()
+      if player.kickBall("Assister") or player.toBallDist("Assister") < 200 then
+        return "exit"
+      end
+      if GlobalMessage.Tick().ball.rights == -1 then
+        return "exit"
+      end
+      if bufcnt(true, 200) then
+        return "exit"
+      end
+    end,
+    Assister = task.getball(function() return CGeoPoint(half, 0) end, param.playerVel, param.getballMode),
+    Kicker = task.goCmuRush(posClosure(kicker_pos), toBallDir("Kicker")),
+    Special = task.goCmuRush(posClosure(special_pos), toBallDir("Special")),
+    Center = task.goCmuRush(posClosure(center_pos), toBallDir("Center")),
+    Defender = defenderDirectTask,
+    Goalie = gSubPlay.roleTask("Goalie", "Goalie"),
+    match = "[AKSC]{DG}"
+  },
 
-["OtherRunPos"] = {
-	switch = function ()
-		if GlobalMessage.Tick().ball.rights == -1 then 
-			return "exit"
-		end
-		if(player.kickBall("Assister")) then
-			return "exit"
-		end
-		if(player.kickBall("Assister")) then
-			return "exit"
-		end
-	end,
-	Assister = task.Shootdot("Assister",runPos_Special(-400), param.shootError, kick.flat),
-	Special = task.goCmuRush(runPos_Special(-400), Dir_ball("Special"), a, f, r, v),
-	Kicker = task.goCmuRush(runPos_Kicker(-400), Dir_ball("Kicker"), a, f, r, v),
-    Goalie = task.goalie("Goalie"),
-    match = "[SKC]{ADG}"
-
-},
-
-
-name = "our_KickOff",
-applicable ={
-	exp = "a",
-	a = true
-},
-attribute = "attack",
-timeout = 99999
+  name = "our_KickOff",
+  applicable = {
+    exp = "a",
+    a = true
+  },
+  attribute = "attack",
+  timeout = 99999
 }

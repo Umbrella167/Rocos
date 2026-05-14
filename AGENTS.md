@@ -105,3 +105,6 @@ Rocos/
 ## Critical Runtime Flags
 
 - `isReality` in `ZBin/lua_scripts/worldmodel/param.lua` — Switches between simulation and real field parameters
+
+## offical website
+- https://rocos.readthedocs.io/zh-cn/latest/ 

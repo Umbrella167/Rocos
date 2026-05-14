@@ -291,3 +291,6 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# other files
+rule.pdf

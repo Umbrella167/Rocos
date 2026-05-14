@@ -301,7 +301,7 @@ function power(p, num,shootFlag)
 				res = 3000
 			end
 		end	
-		debugEngine:gui_debug_msg(CGeoPoint(-param.pitchLength / 2,param.pitchWidth / 2), "POWER:"..res .."   TargetPos: " .. p1:x())
+		debugEngine:gui_debug_msg(CGeoPoint(-param.pitchLength / 2,param.pitchWidth / 2-300), "POWER:"..res .."   TargetPos: " .. p1:x())
 		return res
 	end
 end
